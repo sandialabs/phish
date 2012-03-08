@@ -15,8 +15,8 @@ calls to the <A HREF = "Library.html">PHISH library</A>.  Typically they are sma
 programs which perform a single task, e.g. they parse a string into
 keywords and store statistics on those keywords.
 </P>
-<P>Hooked together by connections to other sets, in various communication
-patterns
+<P>Hooked together by connections to other sets of minnows, in various
+communication patterns
 </P>
 <P>Often come in sets as specified by input script.  Parallel if working
 in tandem with other duplicate minnows, each processing a subset of
@@ -29,7 +29,7 @@ datums.
 <LI><A HREF = "#minnow_3">Shutting down a minnow</A>
 <LI><A HREF = "#minnow_4">Building and debugging a minnow</A> 
 </UL>
-<P>This is a list of minnows in the minnow sub-directory of the PHISH
+<P>This is a list of minnows in the minnow directory of the PHISH
 distribution.  Each has its own doc page.  Some are written in C++,
 some in Python, some in both:
 </P>
@@ -46,15 +46,15 @@ some in Python, some in both:
 <LI><A HREF = "sort.html">sort</A> 
 </UL>
 <P>These are special minnows which can wrap stand-alone non-PHISH
-applications which read from stdin and write to stdout, so that they
-can be used in as minnows in a PHISH program:
+programs which read from stdin and write to stdout, so that they can
+be used in as minnows in a PHISH program:
 </P>
 <UL><LI><A HREF = "wrapsink.html">wrapsink</A>
 <LI><A HREF = "wrapsource.html">wrapsource</A>
 <LI><A HREF = "wrapss.html">wrapss</A> 
 </UL>
-<P>These are simple stand-alone applications that are examples of code
-that can be wrapped by the "wrap" minnows:
+<P>These are simple stand-alone programs that are examples of code that
+can be wrapped by the "wrap" minnows:
 </P>
 <UL><LI><A HREF = "echo.html">echo</A>
 <LI><A HREF = "reverse.html">reverse</A> 
@@ -65,6 +65,8 @@ that can be wrapped by the "wrap" minnows:
 
 <A NAME = "minnow_1"></A><H4>Structure of a minnow 
 </H4>
+<P>Use count.py, is same in C
+</P>
 <P>Best way to make sense of what a minnow does is examine a few
 simple ones from the minnow dir.
 </P>
@@ -82,10 +84,44 @@ setting callbacks
 </P>
 <P>packing and sending a datum
 </P>
+<PRE>1   #!/usr/local/bin/python
+2
+3   import sys,os,glob,copy
+4   import phish
+5
+6   def count(nvalues):
+7     if nvalues != 1: phish.error("Count processes one-value datums")
+8     type,str,tmp = phish.unpack()
+9     if type != phish.STRING:
+10      phish.error("File2words processes string values")
+11    if hash.has_key(str): hash<B>str</B> = hash<B>str</B> + 1
+12    else: hash<B>str</B> = 1
+13
+14  def sort():
+15    pairs = hash.items()
+16    for key,value in pairs:
+17      phish.pack_int(value)
+18      phish.pack_string(key)
+19      phish.send(0)
+20
+21  args = phish.init(sys.argv)
+22  phish.input(0,count,sort,1)
+23  phish.output(0)
+24  phish.check()
+25
+26  if len(args) != 0: phish.error("Count syntax: count")
+27
+28  hash = <I></I>
+29  
+30  phish.loop()
+31  phish.exit() 
+</PRE>
 <HR>
 
 <A NAME = "minnow_2"></A><H4>Communication via ports 
 </H4>
+<P>rules about ports
+</P>
 <HR>
 
 <A NAME = "minnow_3"></A><H4>Shutting down a minnow 
@@ -113,4 +149,12 @@ output at end
 
 <A NAME = "minnow_4"></A><H4>Building and debugging a minnow 
 </H4>
+<P>makefile
+</P>
+<P>debug a school in stages, since no connection
+to an output ports is required, or could just hook output to
+a print minnow
+</P>
+<P>use of slowdown minnow to throttle
+</P>
 </HTML>

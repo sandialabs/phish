@@ -74,7 +74,6 @@ corresponding input port.  Each minnow keeps a count of the total # of
 minnows that send to that port, so it will know when the requisite
 number of done messages have been received to close the input port.
 
-
 In the MPI version of the library, the final step is performed by
 invoking MPI_Finalize(), which means no further MPI calls can be made.
 

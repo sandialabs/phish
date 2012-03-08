@@ -40,7 +40,7 @@ Input script commands :l
 
 Running bait.py :link(bait_1),h4
 
-The bait.py Python script is in the bait sub-directory of the PHISH
+The bait.py Python script is in the bait directory of the PHISH
 distribution.
 
 Like any Python script you can run it in one of two ways:
@@ -168,13 +168,13 @@ Simple example :link(bait_4),h4
 
 "This section"_Intro.html#intro_5 of the "Introduction"_Intro.html doc
 page, discussed this diagram of a PHISH calculation for counting the
-appearance of all unique words in a corpus of files, performed
-as a streaming MapReduce operation.
+number of times words appear in a corpus of files, performed as a
+streaming MapReduce operation.
 
-:image(JPG/wordcount.jpg),c
+:c,image(JPG/wordcount.jpg)
 
-This is the PHISH input script example/in.wc that
-represents the diagram:
+This is the PHISH input script example/in.wc that represents the
+diagram:
 
 # word count from files
 # provide list of files or dirs as -v files command-line arg :pre
@@ -196,6 +196,21 @@ layout 3 3
 layout 4 1
 layout 5 1 :pre
 
+The "minnow"_bait_minnow.html commands list the 5 different minnows
+used.  Note the use of the $\{files\} variable to pass a list
+of filenames or directories to the {FileGen} minnow.
+
+The "connect"_bait_connect.html commands specify the communication
+pattern used bewteen different sets of minnows.  The key pattern for
+this example is the {hashed} style, which allows the {File2Words}
+minnow to pass a "key" (a word) to the PHISH library.  The library
+hashes the word to determine which {Count} minnow to send the datum
+to.
+
+The "layout"_bait_layout.html commands specify how many instances of
+each minnow to launch.  Any number of {File2Words} and {Count} minnows
+could be specified.
+
 When this script is run thru bait.py in the example directory, as
 
 ../bait/bait.py -v files in.* -p ../minnow < in.wc :pre
@@ -208,7 +223,7 @@ then bait.py produces the following lines in outfile
 -n 1 ../minnow/sort -minnow sort 4 1 9 -in 3 6 0 single 1 9 0 -out 1 9 0 single 1 10 0 -args 10 :
 -n 1 ../minnow/print -minnow print 5 1 10 -in 1 9 0 single 1 10 0 :pre
 
-which is the format of a "configfile" for the MPICH variant of MPI.
+which is the format of a "configfile" for the MPICH flavor of MPI.
 There is one line per minnow, as defined by the input script.  The "-n
 N" specifies how many copies of the minnow will be invoked.  The next
 argument is the name of the minnow executable.  Several switches like
