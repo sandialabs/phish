@@ -1,22 +1,13 @@
 # All targets
 
-all:	cc count file2fields file2words filegen ping pong print \
+all:	count file2fields file2words filegen ping pong print \
 	readgraph rmat slowdown sort wrapsink wrapsource wrapss \
 	echo reverse
 
 # Phish minnows
 
-cc:     cc.o $(LIB)
-	$(LINK) $(LINKFLAGS) cc.o $(LIB) $(SYSLIB) -o cc
-
-ccdummy:     ccdummy.o $(LIB)
-	$(LINK) $(LINKFLAGS) ccdummy.o $(LIB) $(SYSLIB) -o ccdummy
-
 count:	count.o $(LIB)
 	$(LINK) $(LINKFLAGS) count.o $(LIB) $(SYSLIB) -o count
-
-edgegen:	edgegen.o $(LIB)
-	$(LINK) $(LINKFLAGS) edgegen.o $(LIB) $(SYSLIB) -o edgegen
 
 file2fields:	file2fields.o $(LIB)
 	$(LINK) $(LINKFLAGS) file2fields.o $(LIB) $(SYSLIB) -o file2fields
@@ -36,11 +27,11 @@ pong:	pong.o $(LIB)
 print:	print.o $(LIB)
 	$(LINK) $(LINKFLAGS) print.o $(LIB) $(SYSLIB) -o print
 
-rmat:	rmat.o $(LIB)
-	$(LINK) $(LINKFLAGS) rmat.o $(LIB) $(SYSLIB) -o rmat
-
 readgraph:	readgraph.o $(LIB)
 	$(LINK) $(LINKFLAGS) readgraph.o $(LIB) $(SYSLIB) -o readgraph
+
+rmat:	rmat.o $(LIB)
+	$(LINK) $(LINKFLAGS) rmat.o $(LIB) $(SYSLIB) -o rmat
 
 slowdown:	slowdown.o $(LIB)
 	$(LINK) $(LINKFLAGS) slowdown.o $(LIB) $(SYSLIB) -o slowdown
