@@ -1,3 +1,4 @@
+// MINNOW wrapsink
 // wrap a child process which consumes datums by reading from stdin
 // write datums to child, one by one, via a pipe
 

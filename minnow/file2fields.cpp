@@ -1,3 +1,4 @@
+// MINNOW file2fields
 // read tab-separated file and emit specified fields from each line
 
 #include "mpi.h"

@@ -1,3 +1,4 @@
+// MINNOW count
 // count instances of strings
 
 #include "stdio.h"

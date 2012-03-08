@@ -17,8 +17,10 @@ SYSLIB =	-lmpich -lmpl -lpthread
 # build rules and dependencies
 # no need to edit this section
 
-$(EXE):		$(EXE).o
-	$(LINK) $(LINKFLAGS) $(EXTRA_PATH) $(EXE).o $(LIB) $(SYSLIB) -o $(EXE)
+OBJ = $(EXE).o
+
+$(EXE): $(OBJ)
+	$(LINK) $(LINKFLAGS) $(EXTRA_PATH) $(OBJ) $(LIB) $(SYSLIB) -o $(EXE)
 
 # Rules
 

@@ -1,3 +1,4 @@
+// MINNOW file2words
 // read file and emit words
 
 #include "string.h"

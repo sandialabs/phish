@@ -1,3 +1,4 @@
+// MINNOW rmat
 // emit edges from an RMAT matrix
 
 #include "mpi.h"

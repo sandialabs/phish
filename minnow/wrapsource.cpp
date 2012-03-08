@@ -1,3 +1,4 @@
+// MINNOW wrapsource
 // wrap a child process which creates datums by writing to stdout
 // read datums from child, one by one, via a pipe
 
