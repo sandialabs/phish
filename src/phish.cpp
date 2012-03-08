@@ -641,8 +641,10 @@ void phish_loop()
 	ip->status = CLOSED_PORT;
 	if (ip->donefunc) (*ip->donefunc)();
 	donecount++;
-	if (donecount == ninports && alldonefunc) (*alldonefunc)();
-	return;
+	if (donecount == ninports) {
+	  if (alldonefunc) (*alldonefunc)();
+	  return;
+	}
       }
 
     } else {
@@ -695,8 +697,10 @@ void phish_probe(void (*probefunc)())
 	  ip->status = CLOSED_PORT;
 	  if (ip->donefunc) (*ip->donefunc)();
 	  donecount++;
-	  if (donecount == ninports && alldonefunc) (*alldonefunc)();
-	  return;
+	  if (donecount == ninports) {
+	    if (alldonefunc) (*alldonefunc)();
+	    return;
+	  }
 	}
 
       } else {
@@ -892,6 +896,7 @@ void phish_send_direct(int iport, int receiver)
 	MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+receiver,tag,world);
 #endif
       }
+      break;
       
     default:
       send(oc);

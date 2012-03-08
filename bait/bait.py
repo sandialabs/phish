@@ -1,16 +1,7 @@
 #!/usr/local/bin/python
 
-# Syntax: bait.py -switch arg(s) ... < in.script
-#         -np P = # of procs
-#         -var vname value1 value2 ... = set variable vname to set of strings 
-#         -output filename = launch file to create
-#         -path path1:path2:path3:... = paths to prepend to apps
-#         -mode style = mpich or openmpi or socket
-# allowed abbrevs: -np = -n
-#                  -var = -v
-#                  -output = -o
-#                  -path = -p
-#                  -mode = -m
+# bait.py tool for PHISH
+# converts a PHISH input script to a MPI or socket launch script
 
 import sys,re,os
 
@@ -269,31 +260,26 @@ def output_socket():
 narg = len(sys.argv)
 args = sys.argv
 
-nprocs = 1
 variables = {}
 outfile = "outfile"
-pathlist = ""
+paths = [""]
 mode = "mpich"
 
 iarg = 1
 while iarg < narg:
-  if args[iarg] == "-np" or args[iarg] == "-n":
-    if iarg+2 > narg: error("Invalid command line args")
-    nprocs = int(args[iarg+1])
-    iarg += 2
-  elif args[iarg] == "-var" or args[iarg] == "-v":
+  if args[iarg] == "-var" or args[iarg] == "-v":
     if iarg+3 > narg: error("Invalid command line args")
     start = stop = iarg+2
     while stop < narg and args[stop][0] != '-': stop += 1
     variables[args[iarg+1]] = args[start:stop]
     iarg += 2+stop-start
-  elif args[iarg] == "-output" or args[iarg] == "-o":
+  elif args[iarg] == "-out" or args[iarg] == "-o":
     if iarg+2 > narg: error("Invalid command line args")
     outfile = args[iarg+1]
     iarg += 2
   elif args[iarg] == "-path" or args[iarg] == "-p":
     if iarg+2 > narg: error("Invalid command line args")
-    pathlist = args[iarg+1]
+    paths += args[iarg+1].split(':')
     iarg += 2
   elif args[iarg] == "-mode" or args[iarg] == "-m":
     if iarg+2 > narg: error("Invalid command line args")
@@ -302,8 +288,6 @@ while iarg < narg:
       error("Invalid command line args");
     iarg += 2
   else: error("Invalid command line args")
-
-paths = [""] + pathlist.split(':')
 
 if mode == "socket": error("Socket mode not yet supported")
 
@@ -392,7 +376,7 @@ for iconnect,connect in enumerate(connects):
   else:
     error("Unrecognized connect style %s" % connect.style);
 
-# generate full executable names using pathlist
+# generate full executable names using list of paths
 
 for minnow in minnows:
   flag = 0
