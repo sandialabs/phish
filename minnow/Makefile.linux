@@ -1,4 +1,10 @@
-# Makefile for PHISH apps
+# linux = RedHat Linux box, g++4, MPICH2
+
+SHELL = /bin/sh
+
+# ---------------------------------------------------------------------
+# compiler/linker settings
+# specify flags and libraries needed for your compiler
 
 CC =		g++
 CCFLAGS =	-g -O -DMPICH_IGNORE_CXX_SEEK -I../src
@@ -6,18 +12,13 @@ LINK =		g++
 LINKFLAGS =	-g -O 
 LIB =		../src/libphish.a
 SYSLIB =	-lmpich -lmpl -lpthread
-ARCHIVE =	ar
-ARFLAGS =	-rc
-SIZE =		size
 
-# PHISH SPs and stand-alone programs
+# ---------------------------------------------------------------------
+# build rules and dependencies
+# no need to edit this section
 
-include Makefile.common
-
-# Clean
-
-clean:
-	@rm -f *.o
+$(EXE):		$(EXE).o
+	$(LINK) $(LINKFLAGS) $(EXTRA_PATH) $(EXE).o $(LIB) $(SYSLIB) -o $(EXE)
 
 # Rules
 
