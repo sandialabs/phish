@@ -10,27 +10,16 @@
 
 <H3>1. Introduction 
 </H3>
-<P>NOTE: post citation to MR-MPI paper in PC
-</P>
-<P>NOTE: so long, and thanks for all the phish (with apologies to Douglas Adams)
-</P>
-<P>NOTE: Remember, a dead phish can float downstream, but it takes a live
-one to swim upstream.  W. C. Fields
-</P>
-<P>NOTE: This WWW site is not about Phish the band, or illicit phishing
-for your personal info, but about PHISH, a software package for
-writing parallel programs that process streaming data.
-</P>
 <P>This section explains what the PHISH software package is and why we
-created it.  It describes a simple example of using PHISH to perform a
-parallel calculation and highlights the steps to creating your own
-PHISH program.  These are the topics discussed:
+created it.  It outlines the steps to creating your own PHISH program,
+and gives a simple of using PHISH to perform a parallel calculation.
+These are the topics discussed:
 </P>
 <UL><LI><A HREF = "#intro_1">Motivation</A>
 <LI><A HREF = "#intro_2">PHISH Pheatures</A>
 <LI><A HREF = "#intro_3">PHISH lingo</A>
-<LI><A HREF = "#intro_4">Simple example</A>
-<LI><A HREF = "#intro_5">Steps to creating and running a PHISH program</A>
+<LI><A HREF = "#intro_4">Steps to creating and running a PHISH program</A>
+<LI><A HREF = "#intro_5">Simple example</A>
 <LI><A HREF = "#intro_6">Acknowledgments and citations</A> 
 </UL>
 <HR>
@@ -39,6 +28,9 @@ PHISH program.  These are the topics discussed:
 
 <A NAME = "intro_1"></A><H4>Motivation 
 </H4>
+<P>informatics, data-driven computing becoming more prevalent, 
+even on large-scale parallel machines
+</P>
 <P>what is streaming data
  continuous
  high bandwidth
@@ -77,7 +69,7 @@ tasks can be formulated in this fashion
 </P>
 <HR>
 
-<P>PHISH Pheatures:link(intro_1),h4
+<P>PHISH Pheatures:link(intro_2),h4
 </P>
 <P>lib = simple (1000 lines), C-interface, portable (list langaunges),
 Python (phish) wrapper provided
@@ -119,7 +111,7 @@ MPI message passing.
 </P>
 <HR>
 
-<P>PHISH lingo:link(intro_1),h4
+<P>PHISH lingo:link(intro_3),h4
 </P>
 <P>phish wrapper
 </P>
@@ -181,11 +173,7 @@ socket connections.
 </P>
 <HR>
 
-<P>Simple example:link(intro_1),h4
-</P>
-<HR>
-
-<A NAME = "intro_1"></A><H4>Steps to creating and running a PHISH program 
+<A NAME = "intro_4"></A><H4>Steps to creating and running a PHISH program 
 </H4>
 <P>a) write one or more minnows that call the PHISH library
 b) write a script listing the minnows and the communication patterns between them
@@ -198,9 +186,15 @@ c) run the file (via MPI or a shell script) produced by Bait.py
 </P>
 <P>Break stream up into datums = chunk of bytes.
 </P>
+<P>show commands to run the launch script
+</P>
 <HR>
 
-<A NAME = "intro_1"></A><H4>Acknowledgments and citations 
+<P>Simple example:link(intro_5),h4
+</P>
+<HR>
+
+<A NAME = "intro_6"></A><H4>Acknowledgments and citations 
 </H4>
 <P>PHISH development has been funded by the US Department of Energy (DOE),
 through its LDRD program at Sandia National Laboratories.
@@ -228,13 +222,4 @@ Distribution (BSD) License</A>.  This basically means they can be
 used by anyone for any purpose.  See the LICENSE file provided with
 the distribution for more details.
 </P>
-<P> This is often referred to as open-source distribution - see
-www.gnu.org or www.opensource.org for more details.  The BSD license
-is the most unrestricted form of an open-source license.  It basically
-means that anyone can use the code for any purpose.  The legal text of
-the BSD license is in the LICENSE file that is included in the LAMMPS
-distribution.
-</P>
-<HR>
-
 </HTML>

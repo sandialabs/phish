@@ -8,33 +8,25 @@
 
 1. Introduction :h3
 
-NOTE: post citation to MR-MPI paper in PC
-
-NOTE: so long, and thanks for all the phish (with apologies to Douglas Adams)
-
-NOTE: Remember, a dead phish can float downstream, but it takes a live
-one to swim upstream.  W. C. Fields
-
-NOTE: This WWW site is not about Phish the band, or illicit phishing
-for your personal info, but about PHISH, a software package for
-writing parallel programs that process streaming data.
-
 This section explains what the PHISH software package is and why we
-created it.  It describes a simple example of using PHISH to perform a
-parallel calculation and highlights the steps to creating your own
-PHISH program.  These are the topics discussed:
+created it.  It outlines the steps to creating your own PHISH program,
+and gives a simple of using PHISH to perform a parallel calculation.
+These are the topics discussed:
 
 "Motivation"_#intro_1
 "PHISH Pheatures"_#intro_2
 "PHISH lingo"_#intro_3
-"Simple example"_#intro_4
-"Steps to creating and running a PHISH program"_#intro_5
+"Steps to creating and running a PHISH program"_#intro_4
+"Simple example"_#intro_5
 "Acknowledgments and citations"_#intro_6 :ul
 
 :line
 :line
 
 Motivation :link(intro_1),h4
+
+informatics, data-driven computing becoming more prevalent, 
+even on large-scale parallel machines
 
 what is streaming data
  continuous
@@ -72,10 +64,9 @@ why we wrote PHISH
 
 all of these goals reflected in name PHISH
 
-
 :line
 
-PHISH Pheatures:link(intro_1),h4
+PHISH Pheatures:link(intro_2),h4
 
 lib = simple (1000 lines), C-interface, portable (list langaunges),
 Python (phish) wrapper provided
@@ -100,7 +91,6 @@ benchmarks for running on MPI or sockets
 minnows that let you wrap existing stand-alone programs that
 read from stdin and write to stdout
 
-
 Can wrap existing apps in PHISH (fish-wrapper).
 Minnows are provided
 
@@ -119,7 +109,7 @@ MPI message passing.
 
 :line
 
-PHISH lingo:link(intro_1),h4
+PHISH lingo:link(intro_3),h4
 
 phish wrapper
 
@@ -183,11 +173,7 @@ socket connections.
 
 :line
 
-Simple example:link(intro_1),h4
-
-:line
-
-Steps to creating and running a PHISH program :link(intro_1),h4
+Steps to creating and running a PHISH program :link(intro_4),h4
 
 a) write one or more minnows that call the PHISH library
 b) write a script listing the minnows and the communication patterns between them
@@ -200,11 +186,15 @@ But can also process corpus of files.
 
 Break stream up into datums = chunk of bytes.
 
-
+show commands to run the launch script
 
 :line
 
-Acknowledgments and citations :link(intro_1),h4
+Simple example:link(intro_5),h4
+
+:line
+
+Acknowledgments and citations :link(intro_6),h4
 
 PHISH development has been funded by the US Department of Energy (DOE),
 through its LDRD program at Sandia National Laboratories.
@@ -231,15 +221,5 @@ web site"_phish and is licensed under the modified "Berkeley Software
 Distribution (BSD) License"_bsd.  This basically means they can be
 used by anyone for any purpose.  See the LICENSE file provided with
 the distribution for more details.
-
-
- This is often referred to as open-source distribution - see
-www.gnu.org or www.opensource.org for more details.  The BSD license
-is the most unrestricted form of an open-source license.  It basically
-means that anyone can use the code for any purpose.  The legal text of
-the BSD license is in the LICENSE file that is included in the LAMMPS
-distribution.
-
-:line
 
 

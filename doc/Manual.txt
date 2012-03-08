@@ -39,11 +39,10 @@ PHISH stands for Parallel Harness for Informatic Stream Hashing.
 The PHISH package has two parts.  The first is a simple, portable
 library that user-written programs can call to send and receive datums
 to and from other programs, running on the same or different machines.
-The second is a setup tool that allows specification of an algorithm
-for performing a computation on data as a collection of independent
-programs and communication patterns between them.  Input data to the
-algorithm can be archived or arrive continuously in a streaming
-fashion.
+The second is a setup tool that allows specification of a data-driven
+algorithm as a collection of independent processes with communication
+patterns between them.  Input data to the algorithm can arrive
+continuously in a streaming fashion or be read from files.
 
 PHISH was developed at Sandia National Laboratories, a US Department
 of Energy facility, with funding from the DOE.  It is an open-source
@@ -66,7 +65,7 @@ we can improve the PHISH documentation.
 "htmldoc"_http://www.easysw.com/htmldoc
 
 "Introduction"_Intro.html
-"Bait.py Setup Tool"_Bait.html
+"Bait.py Tool"_Bait.html
 "PHISH Minnows"_Minnows.html
 "PHISH Library"_Library.html
 "Examples"_Examples.html

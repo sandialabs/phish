@@ -6,107 +6,226 @@
 
 :line
 
-2. Bait.py Setup Tool :h3
+2. Bait.py Tool :h3
 
 Bait.py is a Python program which converts a PHISH input script into a
-MPI configuration file or shell script which can be used to launch a
-school of minnows, i.e. to run a PHISH calculation.  You can edit the
-input script or pass it different parameters via bait.py command-line
-arguments to change the calculation, in which case you need to rerun
-bait.py to create a new launch script.
+configuration file that can be launched via MPI or a shell script, so
+as to run a school of minnows in parallel on many processors, i.e. to
+run as a PHISH program and perform a calculation.  A minnow is simply
+PHISH-speak for an independent process, created by running one
+instance of a stand-alone program.
+
+You can edit the input script or pass it different parameters via
+command-line arguments to bait.py to change the calculation.
+Rerunning bait.py will create a new launch script.
 
 The remainder of this page discusses how bait.py is used and how a
-PHISH input script is formatted.  There are separate doc pages for
-each PHISH input script command recognized by bait.py.
+PHISH input script is formatted.  The PHISH input script commands
+recognized by bait.py have their own doc pages.
 
 "Running bait.py"_#bait_1 :ulb,l
 "Command-line arguments"_#bait_2 :l
 "Input script syntax and parsing"_#bait_3 :l
+"Simple example"_#bait_4 :l
 Input script commands :l
- "variable"_bait_variable.html :ulb,l
- "set"_bait_set.html :l
- "minnow"_bait_minnow.html :l
- "connect"_bait_connect.html :l
- "layout"_bait_layout.html :ule,l
+  "variable"_bait_variable.html :ulb,l
+  "set"_bait_set.html :l
+  "minnow"_bait_minnow.html :l
+  "connect"_bait_connect.html :l
+  "layout"_bait_layout.html :ule,l
 :ule
-
-NOTE" include a diagram of a simple algorithm (e.g. MapReduce word
-count), show the corresponding PHISH input script?
 
 :line
 :line
 
 Running bait.py :link(bait_1),h4
 
-The bait.py Python script is in the bait sub-directory of the
+The bait.py Python script is in the bait sub-directory of the PHISH
 distribution.
 
-To run it on an input script in another directory, you
-simply point to it.
+Like any Python script you can run it in one of two ways:
 
-use python
-or edit the first line of bait.py
-make sure it is executable via chmod
+bait.py -switch value(s) ... < in.script
+python bait.py -switch values ... < in.script :pre
 
-bait.py -switch values ... < in.script
+For the first case, you need to insure that the first
+line of bait.py gives the correct path to the Python
+installed on your machine, e.g.
 
-Command-line args for -switch and their values are discussed in
-the next section.
+#!/usr/local/bin/python :pre
 
-:line
+and that the bait.py file is executable, e.g.
 
-Command-line arguments :link(bait_1),h4
+chmod +x bait.py :pre
 
-each has a default
+Normally you will want to invoke bait.py from the directory
+where your PHISH input script is, so you may need to
+prepend bait.py with a path or make an alias for running it.
 
--np Np
- Np = process count
- default = 1
--var ID str1 str2 ...
- assign strings to a variable ID
- default = no variables defined
--output filename
- filename = MPI config file to create
- default = "outfile"
--path path1:path2:path3:...
- colon-seperated paths to prepend to app executable names
- default = "."
--mode style
- manner in launching PHISH job
- style = "mpich" or "openmpi" or "socket"
- default = "mpich"
-
-each switch has an allowed abbreviation
-
--np or -n
--var or -v
--configfile or -c
--path or -p
--mode or -m
-
-NOTE: does np have to match layout sum?
+The switch/value command-line arguments recognized by bait.py are
+discussed in the next section.
 
 :line
 
-Input script syntax and parsing :link(bait_1),h4
+Command-line arguments :link(bait_2),h4
 
-A PHISH input script is a text file that
-contains commands recognized by the bait.py tool.
+These are the command-line arguments recognized by bait.py.  Each is
+specified as "-switch value(s)".  Each switch has an abbreviated form;
+several of them have default settings.
 
-command = name + args, separated by whitespace
+-var or -v | -var name str1 str2 ...
+-out or -o | -out filename
+-path or -p | -path dir1:dir2:dir3:...
+-mode or -m | -mode outstyle :tb(s=|)
 
-continuation char
+The {-var} switch defines a variable that can be used within the
+script.  It can be used multiple times to define different variables.
+A "variable"_bait_variable.html command can also be used in the input
+script itself.  The variable name is any alphanumeric string.  A list
+of strings is assigned to it, e.g. a series of filenames.  For
+example,
 
-parsing rules
+bait.py -v files *.cpp < in.phish :pre
 
-blank lines OK
-comment char = #, delete all trailing
-continuation char = &, with nothing following (including spaces)
+creates the variable named "files" containing a list of all CPP files
+in the current directory.
 
-variables are as follows ...
+The {-out} switch specifies a filename that bait.py will create when
+it writes out the MPI or socket script that can be used to launch the
+PHISH program.  The default value is "outfile".
 
-variable substitution:
+The {-path} switch specifies a colon-separated list of directories,
+which are added to an internal list stored by bait.py.  Initially the
+list contains only the current working directory.  When bait.py
+processes each minnow, as specified by the "minnow"_bait_minnow.html
+command, it looks for the minnow's executable file in the list of
+directories, so that it can write it to the launch script with a full,
+correct path name.  This switch can be used multiple times, adding
+more directories each time.
 
-what are rules for this?
-should probably be $a for single-char variable, ${abc} for multichar
+The {-mode} switch specifies the format of the launch file that
+bait.py writes out.  The valid {outstyle} values are {mpich} or
+{openmpi} or {socket}.  {Mpich} is the default.
 
+:line
+
+Input script syntax and parsing :link(bait_3),h4
+
+A PHISH input script is a text file that contains commands, typically
+one per line.
+
+Blank lines are ignored.  Any text following a "#" character is
+treated as a comment and removed, including the "#" character.  If the
+last printable character in the line is "&", then it is treated as a
+continuation character, the next line is appended, and the same
+procedure for stripping a "#" comment and checking for a trailing "&"
+is repeated.
+
+The resulting command line is then searched for variable references.
+A variable with a single-character name, such as "n", can be
+referenced as $n.  A variable with a multi-character name (or
+single-character name), such as "foo", is referenced as $\{foo\}.
+Each variable found in the command line is replaced with the
+variable's contents, which is a list of strings, separated by
+whitespace.  Thus a variable "files" defined either
+by a bait.py command-line argument or the "variable"_bait_variable.html
+command as
+
+-v files f1.txt f2.txt f3.txt
+variable files f1.txt f2.txt f3.txt :pre
+
+would be substituted for in this command:
+
+minnow 1 filegen $\{files\} :pre
+
+so that the command becomes:
+
+minnow 1 filegen f1.txt f2.txt f3.txt :pre
+
+After variable substitution, a single command is a series of "words"
+separated by whitespace.  The first word is the command name; the
+reamining words are arguments.
+
+These are the command names recognized by bait.py:
+
+"variable"_bait_variable.html :ulb,l
+"set"_bait_set.html :l
+"minnow"_bait_minnow.html :l
+"connect"_bait_connect.html :l
+"layout"_bait_layout.html :ule,l
+
+Each command has its own syntax; see its doc page for details.
+
+With one exception, commands in a PHISH input script can be listed in
+any order.  The script is converted by bait.py into a launch script
+for running a PHISH program, after the entire script is read.  The
+exception is that a variable cannot be substituted for before it is
+defined.
+
+:line
+
+Simple example :link(bait_4),h4
+
+"This section"_Intro.html#intro_5 of the "Introduction"_Intro.html doc
+page, discussed this diagram of a PHISH calculation for counting the
+appearance of all unique words in a corpus of files, performed
+as a streaming MapReduce operation.
+
+:image(JPG/wordcount.jpg),c
+
+This is the PHISH input script example/in.wc that
+represents the diagram:
+
+# word count from files
+# provide list of files or dirs as -v files command-line arg :pre
+
+minnow 1 filegen ${files}
+minnow 2 file2words
+minnow 3 count
+minnow 4 sort 10
+minnow 5 print :pre
+
+connect 1 roundrobin 2
+connect 2 hashed 3
+connect 3 single 4
+connect 4 single 5 :pre
+
+layout 1 1
+layout 2 5
+layout 3 3
+layout 4 1
+layout 5 1 :pre
+
+When this script is run thru bait.py in the example directory, as
+
+../bait/bait.py -v files in.* -p ../minnow < in.wc :pre
+
+then bait.py produces the following lines in outfile
+
+-n 1 ../minnow/filegen -minnow filegen 1 1 0 -out 1 0 0 roundrobin 5 1 0 -args in.bottle in.cc in.cc.jon in.filelist in.pp in.rmat in.slow in.wc in.wrapsink in.wrapsource in.wrapsourcefile in.wrapss :
+-n 5 ../minnow/file2words -minnow file2words 2 5 1 -in 1 0 0 roundrobin 5 1 0 -out 5 1 0 hashed 3 6 0 :
+-n 3 ../minnow/count -minnow count 3 3 6 -in 5 1 0 hashed 3 6 0 -out 3 6 0 single 1 9 0 :
+-n 1 ../minnow/sort -minnow sort 4 1 9 -in 3 6 0 single 1 9 0 -out 1 9 0 single 1 10 0 -args 10 :
+-n 1 ../minnow/print -minnow print 5 1 10 -in 1 9 0 single 1 10 0 :pre
+
+which is the format of a "configfile" for the MPICH variant of MPI.
+There is one line per minnow, as defined by the input script.  The "-n
+N" specifies how many copies of the minnow will be invoked.  The next
+argument is the name of the minnow executable.  Several switches like
+"-minnow", "-in", "-out" follow which are created by bait.py to encode
+the communication patterns between the minnows as represented by the
+diagram above and the "connect"_bait_connect.html commands of the
+input script.  The final "-args" switch is followed by minnow-specfic
+arguments that appeared in the input script.
+
+As discussed in "this section"_Intro.html#intro_5 of the
+"Introduction"_Intro.html doc page, this outfile can be launched via
+the MPICH mpiexec command as:
+
+mpiexec -configfile outfile :pre
+
+This will launch 11 independent processes as an MPI job.  Each process
+will call the PHISH library to exchange datums with other processes in
+the pattern indicated in the diagram.  The datum exchanges will be
+performed via MPI\Send() and MPI\_Recv() calls since the MPI version
+of the PHISH library is being invoked.

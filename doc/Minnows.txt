@@ -25,10 +25,11 @@ This doc page covers these topics:
 "Structure of a minnow"_#minnow_1
 "Communication via ports"_#minnow_2
 "Shutting down a minnow"_#minnow_3
-"Debugging a minnow"_#minnow_4 :ul
+"Building and debugging a minnow"_#minnow_4 :ul
 
 This is a list of minnows in the minnow sub-directory of the PHISH
-distribution.  Some are written in C++, some in Python, some in both:
+distribution.  Each has its own doc page.  Some are written in C++,
+some in Python, some in both:
 
 "count"_count.html
 "file2fields"_file2fields.html
@@ -107,4 +108,4 @@ shutdown in ZMQ is buggy
 
 :line
 
-Debuggind a minnow :link(minnow_4),h4
+Building and debugging a minnow :link(minnow_4),h4
