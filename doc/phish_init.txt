@@ -45,6 +45,9 @@ running the MPI version of the PHISH library, the global-ID
 corresponsds to the rank ID of an MPI process, used in MPI_Send() and
 MPI_Recv() function calls.
 
+See the "phish_query"_phish_query.html function for how a minnow can
+find out these values from the PHISH library.
+
 :line
 
 The phish_init() function must be the first call to the PHISH library

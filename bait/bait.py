@@ -54,14 +54,24 @@ def next_command(lines):
   
 # set a global setting via command in input script
 
-#def set(args):
-#  global verbosity,makefile
-#  if len(args) != 2: error("Illegal set command");
-#  if args[0] == "verbosity":
-#    verbosity = int(args[1])
-#  elif args[0] == "makefile":
-#    makefile = args[1]
-#  else: error("Unrecognized set parameter %s" % arg[0])
+def set(args):
+  global memchunk,safe
+  if args[0] == "memory":
+    if len(args) != 2: error("Illegal set command");
+    memchunk = int(args[1])
+    if memchunk < 1: error("Illegal set command");
+  elif args[0] == "safe":
+    if len(args) != 1: error("Illegal set command");
+    safe = 1
+  else: error("Unrecognized set parameter %s" % arg[0])
+
+# convert non-default global settings to a minnow param string
+
+def set2param():
+  str = ""
+  if memchunk > 1: str += " -memory %d" % memchunk
+  if safe: str += " -safe"
+  return str
 
 # create a variable via variable command in input script
 
@@ -151,11 +161,15 @@ def output_mpich():
   
   for iminnow,minnow in enumerate(minnows):
     procstr = "-n %d" % (minnow.nprocs)
+    
     if minnow.invoke: exestr = " %s %s" % (minnow.invoke,minnow.pathexe)
     else: exestr = " %s" % minnow.pathexe
+    
     minnowstr = " -minnow %s %s %d %d" % \
         (minnow.exe,minnow.id,minnow.nprocs,minnow.procstart)
 
+    paramstr = set2param()
+    
     instr = ""
     for recv in minnow.recv:
       if recv[0] >= 0:
@@ -190,7 +204,7 @@ def output_mpich():
            style,
            nprocs_recv,procstart_recv,connects[send[1]].recvport)
 
-    launchstr = procstr + exestr + minnowstr + instr + outstr
+    launchstr = procstr + exestr + minnowstr + paramstr + instr + outstr
     if minnow.args: launchstr += " -args " + " ".join(minnow.args)
     # should just need following line, but MPICH has a configfile bug
     # print >>fp,launchstr
@@ -205,9 +219,12 @@ def output_openmpi():
 
   for iminnow,minnow in enumerate(minnows):
     procstr = "-n %d %s" % (minnow.nprocs,minnow.pathexe)
+    
     minnowstr = " -minnow %s %s %d %d" % \
         (minnow.exe,minnow.id,minnow.nprocs,minnow.procstart)
-    
+
+    paramstr = set2param()
+
     instr = ""
     for recv in minnow.recv:
       if recv[0] >= 0:
@@ -242,7 +259,7 @@ def output_openmpi():
            style,
            nprocs_recv,procstart_recv,connects[send[1]].recvport)
           
-    launchstr = procstr + minnowstr + instr + outstr
+    launchstr = procstr + minnowstr + paramstr + instr + outstr
     if minnow.args: launchstr += " -args " + " ".join(minnow.args)
     print >>fp,launchstr,
     if iminnow < len(minnows)-1: print >>fp,":",
@@ -293,8 +310,8 @@ if mode == "socket": error("Socket mode not yet supported")
 
 # defaults for variables specfied by set command
 
-#verbosity = 0
-#makefile = "Makefile"
+memchunk = 1
+safe = 0
 
 # initialize data structures for minnows, connects, layouts
 
@@ -308,7 +325,7 @@ lines = sys.stdin.readlines()
 while lines:
   command,args = next_command(lines)
   if not command: break
-  #elif command == "set": set(args)
+  elif command == "set": set(args)
   elif command == "variable": variable(args)
   elif command == "minnow": minnows.append(minnow(args))
   elif command == "connect": connects.append(connect(args))

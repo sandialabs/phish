@@ -97,8 +97,12 @@ output port and allows a specific receiving minnow to be selected via
 the {receiver} argument.  The {receiver} is an integer offset into the
 set of receiving minnows connected to this output port.  If there are
 {M} minnows in the receiving set, then 0 <= {receiver} < M is
-required.  The "phish_school"_phish_init.html function can be used to
-query information about the receiving set of minnows.
+required.  The "phish_query"_phish_query.html function can be used to
+query information about the receiving set of minnows.  For example
+this phish_query() call would return M, assuming the receiving
+processors are connected to output port 0.
+
+int m = phish_query("outport/direct",0,0); :pre
 
 This form of sending must be used for a DIRECT connection style.  See
 the PHISH input script "connect"_bait_connect.html command for

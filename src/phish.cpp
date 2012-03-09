@@ -1261,7 +1261,9 @@ int phish_query(char *keyword, int flag1, int flag2)
       if (outports[iport].connects[iconnect].style == DIRECT) 
 	return outports[iport].connects[iconnect].nrecv;
     return -1;
-  }
+  } else phish_error("Invalid phish_query");
+
+  return 0;
 }
 
 /* ---------------------------------------------------------------------- */

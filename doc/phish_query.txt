@@ -10,25 +10,38 @@ phish_query() function :h3
 
 [C syntax:]
 
-int phish_query(int *idlocal, int *nlocal, int *idglobal, int *nglobal) :pre
+int phish_query(char *keyword, int flag1, int flag2) :pre
+
+keyword = "idlocal" or "nlocal" or "idglobal" or "nglobal" or "inport/status" or "inport/nconnect" or "inport/nminnows" or "outport/status" or "outport/nconnect" or "output/nminnows" or "outport/direct" :ulb,l
+  idlocal ignores flag1,flag2
+  nlocal ignores flag1,flag2
+  idglobal ignores flag1,flag2
+  nglobal ignores flag1,flag2
+  inport/status uses flag1 = input port # (0 to Maxport-1), ignores flag2
+  inport/nconnect uses flag1 = input port # (0 to Maxport-1), ignores flag2
+  inport/nminnow uses flag1 = input port # (0 to Maxport-1),
+                      flag2 = connection # on that port (0 to Nconnect-1) 
+  outport/status uses flag1 = output port # (0 to Maxport-1), ignores flag2
+  outport/nconnect uses flag1 = output port # (0 to Maxport-1), ignores flag2
+  outport/nminnow uses flag1 = output port # (0 to Maxport-1),
+                       flag2 = connection # on that port (0 to Nconnect-1) 
+  outport/direct uses flag1 = output port # (0 to Maxport-1), ignores flag2 :pre
+:ule
 
 [C examples:]
 
-
-phish_init(&argc,&argv);
-int idlocal,nlocal,idglobal,nglobal;
-MPI_Comm comm = phish_school(&idlocal,&nlocal,&idglobal,&nglobal);
-
-printf("Local minnow info: %d %d\n",idlocal,nlocal);
-printf("Global minnow info: %d %d\n",idglobal,nglobal); :pre
+int nlocal = phish_query("nlocal",0,0);
+int nrecv = phish_query("outport/direct",2,0); :pre
 
 [Python syntax:]
 
-def school() :pre
+def query(str,flag1,flag2) :pre
 
 [Python examples:]
 
-idlocal,nlocal,idglobal,nglobal = phish.query() :pre
+import phish
+nlocal = phish.query("nlocal",0,0)
+nrecv = phish.query("outport/direct",2,0)
 
 [Description:]
 
