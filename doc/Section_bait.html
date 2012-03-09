@@ -1,0 +1,257 @@
+<HTML>
+<CENTER><A HREF = "Intro.html">Previous Section</A> - <A HREF = "http://phish.sandia.gov">PHISH WWW Site</A> -
+<A HREF = "Manual.html">PHISH Documentation</A> - <A HREF = "Minnows.html">Next Section</A> 
+</CENTER>
+
+
+
+
+<HR>
+
+<H3>2. Bait.py Tool 
+</H3>
+<P>Bait.py is a Python program which converts a PHISH input script into a
+configuration file that can be launched via MPI or a shell script, so
+as to run a school of minnows in parallel on many processors, i.e. to
+run as a PHISH program and perform a calculation.  A minnow is simply
+PHISH-speak for an independent process, created by running one
+instance of a stand-alone program.
+</P>
+<P>You can edit the input script or pass it different parameters via
+command-line arguments to bait.py to change the calculation.
+Rerunning bait.py will create a new launch script.
+</P>
+<P>The remainder of this page discusses how bait.py is used and how a
+PHISH input script is formatted.  The PHISH input script commands
+recognized by bait.py have their own doc pages.
+</P>
+<UL><LI>2.1 <A HREF = "#bait_1">Input script commands</A>
+<LI>2.2 <A HREF = "#bait_2">Running bait.py</A>
+<LI>2.3 <A HREF = "#bait_3">Command-line arguments</A>
+<LI>2.4 <A HREF = "#bait_4">Input script syntax and parsing</A>
+<LI>2.5 <A HREF = "#bait_5">Simple example</A> 
+</UL>
+<HR>
+
+<HR>
+
+<A NAME = "bait_1"></A><H4>2.1 Input script commands 
+</H4>
+<UL><LI><A HREF = "bait_variable.html">variable</A> 
+
+<LI><A HREF = "bait_set.html">set</A> 
+
+<LI><A HREF = "bait_minnow.html">minnow</A> 
+
+<LI><A HREF = "bait_connect.html">connect</A> 
+
+<LI><A HREF = "bait_layout.html">layout</A> 
+</UL>
+<HR>
+
+<A NAME = "bait_2"></A><H4>2.2 Running bait.py 
+</H4>
+<P>The bait.py Python script is in the bait directory of the PHISH
+distribution.
+</P>
+<P>Like any Python script you can run it in one of two ways:
+</P>
+<PRE>bait.py -switch value(s) ... < in.script
+python bait.py -switch values ... < in.script 
+</PRE>
+<P>For the first case, you need to insure that the first
+line of bait.py gives the correct path to the Python
+installed on your machine, e.g.
+</P>
+<PRE>#!/usr/local/bin/python 
+</PRE>
+<P>and that the bait.py file is executable, e.g.
+</P>
+<PRE>chmod +x bait.py 
+</PRE>
+<P>Normally you will want to invoke bait.py from the directory
+where your PHISH input script is, so you may need to
+prepend bait.py with a path or make an alias for running it.
+</P>
+<P>The switch/value command-line arguments recognized by bait.py are
+discussed in the next section.
+</P>
+<HR>
+
+<A NAME = "bait_3"></A><H4>2.3 Command-line arguments 
+</H4>
+<P>These are the command-line arguments recognized by bait.py.  Each is
+specified as "-switch value(s)".  Each switch has an abbreviated form;
+several of them have default settings.
+</P>
+<DIV ALIGN=center><TABLE  BORDER=1 >
+<TR><TD >-var or -v </TD><TD > -var name str1 str2 ...</TD></TR>
+<TR><TD >-out or -o </TD><TD > -out filename</TD></TR>
+<TR><TD >-path or -p </TD><TD > -path dir1:dir2:dir3:...</TD></TR>
+<TR><TD >-mode or -m </TD><TD > -mode outstyle 
+</TD></TR></TABLE></DIV>
+
+<P>The <I>-var</I> switch defines a variable that can be used within the
+script.  It can be used multiple times to define different variables.
+A <A HREF = "bait_variable.html">variable</A> command can also be used in the input
+script itself.  The variable name is any alphanumeric string.  A list
+of strings is assigned to it, e.g. a series of filenames.  For
+example,
+</P>
+<PRE>bait.py -v files *.cpp < in.phish 
+</PRE>
+<P>creates the variable named "files" containing a list of all CPP files
+in the current directory.
+</P>
+<P>The <I>-out</I> switch specifies a filename that bait.py will create when
+it writes out the MPI or socket script that can be used to launch the
+PHISH program.  The default value is "outfile".
+</P>
+<P>The <I>-path</I> switch specifies a colon-separated list of directories,
+which are added to an internal list stored by bait.py.  Initially the
+list contains only the current working directory.  When bait.py
+processes each minnow, as specified by the <A HREF = "bait_minnow.html">minnow</A>
+command, it looks for the minnow's executable file in the list of
+directories, so that it can write it to the launch script with a full,
+correct path name.  This switch can be used multiple times, adding
+more directories each time.
+</P>
+<P>The <I>-mode</I> switch specifies the format of the launch file that
+bait.py writes out.  The valid <I>outstyle</I> values are <I>mpich</I> or
+<I>openmpi</I> or <I>socket</I>.  <I>Mpich</I> is the default.
+</P>
+<HR>
+
+<A NAME = "bait_4"></A><H4>2.4 Input script syntax and parsing 
+</H4>
+<P>A PHISH input script is a text file that contains commands, typically
+one per line.
+</P>
+<P>Blank lines are ignored.  Any text following a "#" character is
+treated as a comment and removed, including the "#" character.  If the
+last printable character in the line is "&", then it is treated as a
+continuation character, the next line is appended, and the same
+procedure for stripping a "#" comment and checking for a trailing "&"
+is repeated.
+</P>
+<P>The resulting command line is then searched for variable references.
+A variable with a single-character name, such as "n", can be
+referenced as $n.  A variable with a multi-character name (or
+single-character name), such as "foo", is referenced as ${foo}.
+Each variable found in the command line is replaced with the
+variable's contents, which is a list of strings, separated by
+whitespace.  Thus a variable "files" defined either
+by a bait.py command-line argument or the <A HREF = "bait_variable.html">variable</A>
+command as
+</P>
+<PRE>-v files f1.txt f2.txt f3.txt
+variable files f1.txt f2.txt f3.txt 
+</PRE>
+<P>would be substituted for in this command:
+</P>
+<PRE>minnow 1 filegen ${files} 
+</PRE>
+<P>so that the command becomes:
+</P>
+<PRE>minnow 1 filegen f1.txt f2.txt f3.txt 
+</PRE>
+<P>After variable substitution, a single command is a series of "words"
+separated by whitespace.  The first word is the command name; the
+reamining words are arguments.  The command names recognized by
+bait.py are <A HREF = "#bait_1">listed above</A>.  Each command has its own syntax;
+see its doc page for details.
+</P>
+<P>With one exception, commands in a PHISH input script can be listed in
+any order.  The script is converted by bait.py into a launch script
+for running a PHISH program, after the entire script is read.  The
+exception is that a variable cannot be substituted for before it is
+defined.
+</P>
+<HR>
+
+<A NAME = "bait_5"></A><H4>2.5 Simple example 
+</H4>
+<P><A HREF = "Intro.html#intro_5">This section</A> of the <A HREF = "Intro.html">Introduction</A> doc
+page, discussed this diagram of a PHISH calculation for counting the
+number of times words appear in a corpus of files, performed as a
+streaming MapReduce operation.
+</P>
+<CENTER><IMG SRC = "JPG/wordcount.jpg">
+</CENTER>
+<P>This is the PHISH input script example/in.wc that represents the
+diagram:
+</P>
+<PRE># word count from files
+# provide list of files or dirs as -v files command-line arg 
+</PRE>
+<PRE>minnow 1 filegen $<I>files</I>
+minnow 2 file2words
+minnow 3 count
+minnow 4 sort 10
+minnow 5 print 
+</PRE>
+<PRE>connect 1 roundrobin 2
+connect 2 hashed 3
+connect 3 single 4
+connect 4 single 5 
+</PRE>
+<PRE>layout 1 1
+layout 2 5
+layout 3 3
+layout 4 1
+layout 5 1 
+</PRE>
+<P>The <A HREF = "bait_minnow.html">minnow</A> commands list the 5 different minnows
+used.  Note the use of the ${files} variable to pass a list
+of filenames or directories to the <I>FileGen</I> minnow.
+</P>
+<P>The <A HREF = "bait_connect.html">connect</A> commands specify the communication
+pattern used bewteen different sets of minnows.  The key pattern for
+this example is the <I>hashed</I> style, which allows the <I>File2Words</I>
+minnow to pass a "key" (a word) to the PHISH library.  The library
+hashes the word to determine which <I>Count</I> minnow to send the datum
+to.
+</P>
+<P>The <A HREF = "bait_layout.html">layout</A> commands specify how many instances of
+each minnow to launch.  Any number of <I>File2Words</I> and <I>Count</I> minnows
+could be specified.
+</P>
+<P>When this script is run thru bait.py in the example directory, as
+</P>
+<PRE>../bait/bait.py -v files in.* -p ../minnow < in.wc 
+</PRE>
+<P>then bait.py produces the following lines in outfile
+</P>
+-n 1 ../minnow/filegen -minnow filegen 1 1 0 -out 1 0 0 roundrobin 5 1 0 -args in.bottle in.cc in.cc.jon in.filelist in.pp in.rmat in.slow in.wc in.wrapsink in.wrapsource in.wrapsourcefile in.wrapss 
+
+-n 5 ../minnow/file2words -minnow file2words 2 5 1 -in 1 0 0 roundrobin 5 1 0 -out 5 1 0 hashed 3 6 0 
+
+-n 3 ../minnow/count -minnow count 3 3 6 -in 5 1 0 hashed 3 6 0 -out 3 6 0 single 1 9 0 
+
+-n 1 ../minnow/sort -minnow sort 4 1 9 -in 3 6 0 single 1 9 0 -out 1 9 0 single 1 10 0 -args 10 
+
+<PRE>-n 1 ../minnow/print -minnow print 5 1 10 -in 1 9 0 single 1 10 0 
+</PRE>
+<P>which is the format of a "configfile" for the MPICH flavor of MPI.
+There is one line per minnow, as defined by the input script.  The "-n
+N" specifies how many copies of the minnow will be invoked.  The next
+argument is the name of the minnow executable.  Several switches like
+"-minnow", "-in", "-out" follow which are created by bait.py to encode
+the communication patterns between the minnows as represented by the
+diagram above and the <A HREF = "bait_connect.html">connect</A> commands of the
+input script.  The final "-args" switch is followed by minnow-specfic
+arguments that appeared in the input script.
+</P>
+<P>As discussed in <A HREF = "Intro.html#intro_5">this section</A> of the
+<A HREF = "Intro.html">Introduction</A> doc page, this outfile can be launched via
+the MPICH mpiexec command as:
+</P>
+<PRE>mpiexec -configfile outfile 
+</PRE>
+<P>This will launch 11 independent processes as an MPI job.  Each process
+will call the PHISH library to exchange datums with other processes in
+the pattern indicated in the diagram.  The datum exchanges will be
+performed via MPI\Send() and MPI\_Recv() calls since the MPI version
+of the PHISH library is being invoked.
+</P>
+</HTML>
