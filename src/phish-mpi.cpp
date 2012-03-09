@@ -1002,52 +1002,67 @@ void phish_pack_raw(char *buf, int len)
   npack++;
 }
 
-void phish_pack_byte(char value)
+template<typename T>
+inline void phish_pack_helper(const T& value, int data_type)
 {
-  if (sptr + sizeof(int) + sizeof(char) - sbuf > maxbuf)
+  if (sptr + sizeof(int) + sizeof(T) - sbuf > maxbuf)
     phish_error("Send buffer overflow");
 
-  *(int *) sptr = PHISH_BYTE;
+  *(int *) sptr = data_type;
   sptr += sizeof(int);
-  *sptr = value;
-  sptr += sizeof(char);
+  *(T *) sptr = value;
+  sptr += sizeof(T);
   npack++;
 }
 
-void phish_pack_int(int value)
+void phish_pack_int8(int8_t value)
 {
-  if (sptr + 2*sizeof(int) - sbuf > maxbuf)
-    phish_error("Send buffer overflow");
+  phish_pack_helper(value, PHISH_INT8);
+}
 
-  *(int *) sptr = PHISH_INT;
-  sptr += sizeof(int);
-  *(int *) sptr = value;
-  sptr += sizeof(int);
-  npack++;
+void phish_pack_int16(int16_t value)
+{
+  phish_pack_helper(value, PHISH_INT16);
+}
+
+void phish_pack_int32(int32_t value)
+{
+  phish_pack_helper(value, PHISH_INT32);
+}
+
+void phish_pack_int64(int64_t value)
+{
+  phish_pack_helper(value, PHISH_INT64);
+}
+
+void phish_pack_uint8(uint8_t value)
+{
+  phish_pack_helper(value, PHISH_UINT8);
+}
+
+void phish_pack_uint16(uint16_t value)
+{
+  phish_pack_helper(value, PHISH_UINT16);
+}
+
+void phish_pack_uint32(uint32_t value)
+{
+  phish_pack_helper(value, PHISH_UINT32);
 }
 
 void phish_pack_uint64(uint64_t value)
 {
-  if (sptr + sizeof(int) + sizeof(uint64_t) - sbuf > maxbuf)
-    phish_error("Send buffer overflow");
+  phish_pack_helper(value, PHISH_UINT64);
+}
 
-  *(int *) sptr = PHISH_UINT64;
-  sptr += sizeof(int);
-  *(uint64_t *) sptr = value;
-  sptr += sizeof(uint64_t);
-  npack++;
+void phish_pack_float(float value)
+{
+  phish_pack_helper(value, PHISH_FLOAT);
 }
 
 void phish_pack_double(double value)
 {
-  if (sptr + sizeof(int) + sizeof(double) - sbuf > maxbuf)
-    phish_error("Send buffer overflow");
-
-  *(int *) sptr = PHISH_DOUBLE;
-  sptr += sizeof(int);
-  *(double *) sptr = value;
-  sptr += sizeof(double);
-  npack++;
+  phish_pack_helper(value, PHISH_DOUBLE);
 }
 
 void phish_pack_string(char *str)
@@ -1065,49 +1080,70 @@ void phish_pack_string(char *str)
   npack++;
 }
 
-void phish_pack_int_array(int *vec, int n)
+template<typename T>
+inline void phish_pack_array_helper(T *vec, int n, int data_type)
 {
-  int nbytes = n*sizeof(int);
+  int nbytes = n*sizeof(T);
   if (sptr + 2*sizeof(int) + nbytes - sbuf > maxbuf)
     phish_error("Send buffer overflow");
 
-  *(int *) sptr = PHISH_INT_ARRAY;
+  *(int *) sptr = data_type;
   sptr += sizeof(int);
   *(int *) sptr = n;
   sptr += sizeof(int);
   memcpy(sptr,vec,nbytes);
   sptr += nbytes;
   npack++;
+}
+
+void phish_pack_int8_array(int8_t *vec, int n)
+{
+  phish_pack_array_helper(vec, n, PHISH_INT8_ARRAY);
+}
+
+void phish_pack_int16_array(int16_t *vec, int n)
+{
+  phish_pack_array_helper(vec, n, PHISH_INT16_ARRAY);
+}
+
+void phish_pack_int32_array(int32_t *vec, int n)
+{
+  phish_pack_array_helper(vec, n, PHISH_INT32_ARRAY);
+}
+
+void phish_pack_int64_array(int64_t *vec, int n)
+{
+  phish_pack_array_helper(vec, n, PHISH_INT64_ARRAY);
+}
+
+void phish_pack_uint8_array(uint8_t *vec, int n)
+{
+  phish_pack_array_helper(vec, n, PHISH_UINT8_ARRAY);
+}
+
+void phish_pack_uint16_array(uint16_t *vec, int n)
+{
+  phish_pack_array_helper(vec, n, PHISH_UINT16_ARRAY);
+}
+
+void phish_pack_uint32_array(uint32_t *vec, int n)
+{
+  phish_pack_array_helper(vec, n, PHISH_UINT32_ARRAY);
 }
 
 void phish_pack_uint64_array(uint64_t *vec, int n)
 {
-  int nbytes = n*sizeof(uint64_t);
-  if (sptr + 2*sizeof(int) + nbytes - sbuf > maxbuf)
-    phish_error("Send buffer overflow");
+  phish_pack_array_helper(vec, n, PHISH_UINT64_ARRAY);
+}
 
-  *(int *) sptr = PHISH_UINT64_ARRAY;
-  sptr += sizeof(int);
-  *(int *) sptr = n;
-  sptr += sizeof(int);
-  memcpy(sptr,vec,nbytes);
-  sptr += nbytes;
-  npack++;
+void phish_pack_double_array(float *vec, int n)
+{
+  phish_pack_array_helper(vec, n, PHISH_FLOAT_ARRAY);
 }
 
 void phish_pack_double_array(double *vec, int n)
 {
-  int nbytes = n*sizeof(uint64_t);
-  if (sptr + 2*sizeof(int) + nbytes - sbuf > maxbuf)
-    phish_error("Send buffer overflow");
-
-  *(int *) sptr = PHISH_DOUBLE_ARRAY;
-  sptr += sizeof(int);
-  *(int *) sptr = n;
-  sptr += sizeof(int);
-  memcpy(sptr,vec,nbytes);
-  sptr += nbytes;
-  npack++;
+  phish_pack_array_helper(vec, n, PHISH_DOUBLE_ARRAY);
 }
 
 /* ----------------------------------------------------------------------
@@ -1151,17 +1187,41 @@ int phish_unpack(char **buf, int *len)
     *len = nbytes = *(int *) rptr;
     rptr += sizeof(int);
     break;
-  case PHISH_BYTE:
+  case PHISH_INT8:
     *len = 1;
-    nbytes = sizeof(char);
+    nbytes = sizeof(int8_t);
     break;
-  case PHISH_INT:
+  case PHISH_INT16:
     *len = 1;
-    nbytes = sizeof(int);
+    nbytes = sizeof(int16_t);
+    break;
+  case PHISH_INT32:
+    *len = 1;
+    nbytes = sizeof(int32_t);
+    break;
+  case PHISH_INT64:
+    *len = 1;
+    nbytes = sizeof(int64_t);
+    break;
+  case PHISH_UINT8:
+    *len = 1;
+    nbytes = sizeof(uint8_t);
+    break;
+  case PHISH_UINT16:
+    *len = 1;
+    nbytes = sizeof(uint16_t);
+    break;
+  case PHISH_UINT32:
+    *len = 1;
+    nbytes = sizeof(uint32_t);
     break;
   case PHISH_UINT64:
     *len = 1;
     nbytes = sizeof(uint64_t);
+    break;
+  case PHISH_FLOAT:
+    *len = 1;
+    nbytes = sizeof(float);
     break;
   case PHISH_DOUBLE:
     *len = 1;
@@ -1171,10 +1231,10 @@ int phish_unpack(char **buf, int *len)
     *len = nbytes = *(int *) rptr;
     rptr += sizeof(int);
     break;
-  case PHISH_INT_ARRAY:
+  case PHISH_INT32_ARRAY:
     *len = *(int *) rptr;
     rptr += sizeof(int);
-    nbytes = *len * sizeof(int);
+    nbytes = *len * sizeof(int32_t);
     break;
   case PHISH_UINT64_ARRAY:
     *len = *(int *) rptr;

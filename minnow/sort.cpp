@@ -48,10 +48,10 @@ void store(int nvalues)
   if (nvalues != 2) phish_error("Sort processes two-value datums");
   int type1 = phish_unpack(&count,&len);
   int type2 = phish_unpack(&word,&len);
-  if (type1 != PHISH_INT) phish_error("Sort processes int/string datums");
+  if (type1 != PHISH_INT32) phish_error("Sort processes int/string datums");
   if (type2 != PHISH_STRING) phish_error("Sort processes int/string datums");
 
-  int icount = *(int *) count;
+  int icount = *(int32_t *) count;
   string str(word,strlen(word));
   list.push_back(make_pair(icount,str));
 }
@@ -63,7 +63,7 @@ void sort()
   sort(list.begin(),list.end(),greater< pair<int,string> >());
 
   for (int i = 0; i < ntop; i++) {
-    phish_pack_int(list[i].first);
+    phish_pack_int32(list[i].first);
     phish_pack_string((char *) list[i].second.c_str());
     phish_send(0);
   }

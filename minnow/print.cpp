@@ -48,14 +48,17 @@ void print(int nvalues)
     switch (type) {
     case PHISH_RAW:
       break;
-    case PHISH_BYTE:
+    case PHISH_INT8:
       fprintf(fp,"%c ",*value);
       break;
-    case PHISH_INT:
-      fprintf(fp,"%d ",*(int *) value);
+    case PHISH_INT32:
+      fprintf(fp,"%d ",*(int32_t *) value);
       break;
     case PHISH_UINT64:
       fprintf(fp,"%lu ",*(uint64_t *) value);
+      break;
+    case PHISH_FLOAT:
+      fprintf(fp,"%g ",*(float *) value);
       break;
     case PHISH_DOUBLE:
       fprintf(fp,"%g ",*(double *) value);
@@ -63,8 +66,8 @@ void print(int nvalues)
     case PHISH_STRING:
       fprintf(fp,"%s ",value);
       break;
-    case PHISH_INT_ARRAY: {
-      int *ivec = (int *) value;
+    case PHISH_INT32_ARRAY: {
+      int *ivec = (int32_t *) value;
       for (int j = 0; j < len; j++) fprintf(fp,"%d ",ivec[j]);
     } break;
     case PHISH_UINT64_ARRAY: {

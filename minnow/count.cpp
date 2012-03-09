@@ -54,7 +54,7 @@ void sort()
 {
   Hash::const_iterator end = hash.end(); 
   for (Hash::const_iterator i = hash.begin(); i != end; i++) {
-    phish_pack_int(i->second);
+    phish_pack_int32(i->second);
     phish_pack_string((char *) i->first.c_str());
     phish_send(0);
   }
