@@ -14,6 +14,7 @@
 #define PHISH_INT_ARRAY 6
 #define PHISH_UINT64_ARRAY 7
 #define PHISH_DOUBLE_ARRAY 8
+#define PHISH_PICKLE 9
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,6 +50,7 @@ void phish_pack_string(char *);
 void phish_pack_int_array(int *, int);
 void phish_pack_uint64_array(uint64_t *, int);
 void phish_pack_double_array(double *, int);
+void phish_pack_pickle(char *, int);
 
 int phish_unpack(char **, int *);
 int phish_datum(char **, int *);

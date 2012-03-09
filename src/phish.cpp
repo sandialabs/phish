@@ -1133,6 +1133,20 @@ void phish_pack_double_array(double *vec, int n)
   npack++;
 }
 
+void phish_pack_pickle(char *buf, int len)
+{
+  if (sptr + 2*sizeof(int) + len - sbuf > MAXBUF)
+    phish_error("Send buffer overflow");
+
+  *(int *) sptr = PHISH_PICKLE;
+  sptr += sizeof(int);
+  *(int *) sptr = len;
+  sptr += sizeof(int);
+  memcpy(sptr,buf,len);
+  sptr += len;
+  npack++;
+}
+
 /* ----------------------------------------------------------------------
    process field rbuf, one field at a time
    return field type
@@ -1189,6 +1203,10 @@ int phish_unpack(char **buf, int *len)
     *len = *(int *) rptr;
     rptr += sizeof(int);
     nbytes = *len * sizeof(double);
+    break;
+  case PHISH_PICKLE:
+    *len = nbytes = *(int *) rptr;
+    rptr += sizeof(int);
     break;
   }
 
