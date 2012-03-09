@@ -11,7 +11,7 @@ path = os.path.dirname(os.getcwd())
 
 # list of src files for PHISH
 
-libfiles = ["%s/src/phish.cpp" % path, "%s/src/hash.cpp" % path]
+libfiles = ["%s/src/phish-mpi.cpp" % path, "%s/src/hash.cpp" % path]
 
 phish_library = Extension("_phish",
                           sources = libfiles,
