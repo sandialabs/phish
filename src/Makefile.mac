@@ -1,28 +1,51 @@
-# Makefile for PHISH library
+# Makefile for PHISH library: Mac with mpic++, mpich
+
+SHELL = /bin/sh
+
+# ---------------------------------------------------------------------
+# compiler/linker settings
+# specify your compiler and MPI,ZMQ dependencies
 
 CC =		mpic++
-CCFLAGS =	-g -O -DMPICH_IGNORE_CXX_SEEK
-LINK =		mpic++
-LINKFLAGS =	-g -O 
-LIB =		libphish.a
-SYSLIB =
+CCFLAGS =	-g -O
 ARCHIVE =	ar
 ARFLAGS =	-rc
-SIZE =		size
 
-# PHISH library
+# MPI compiler settings
+# only needed to build MPI version of PHISH library
+# INC = path for mpi.h, other compiler settings
 
-phish:	phish-mpi.o hash.o
-	$(ARCHIVE) $(ARFLAGS) libphish.a phish-mpi.o hash.o
+MPI_INC =	-DMPICH_IGNORE_CXX_SEEK
+
+# ZMQ compile settings
+# only needed to build ZMQ or MPI+ZMQ version of PHISH library
+# INC = path for zmq.h, other compiler settings
+
+ZMQ_INC =	-I~/zmq
+
+# ---------------------------------------------------------------------
+# targets = 3 versions of PHISH library: MPI, MPI+ZMQ, ZMQ
+# no need to edit this section
+
+LIB =	libphish.a
+
+mpi:	
+	$(CC) $(CCFLAGS) $(MPI_INC) -c phish-mpi.cpp
+	$(CC) $(CCFLAGS) -c hash.cpp
+	$(ARCHIVE) $(ARFLAGS) $(LIB) phish-mpi.o hash.o
+
+mpizmq:	
+	$(CC) $(CCFLAGS) $(MPI_INC) $(ZMQ_INC) -DPHISH_MPI_ZMQ -c phish-mpi.cpp
+	$(CC) $(CCFLAGS) -c hash.cpp
+	$(ARCHIVE) $(ARFLAGS) $(LIB) phish-mpi.o hash.o
+
+zmq:
+	$(CC) $(CCFLAGS) $(ZMQ_INC) -c phish-zmq.cpp
+	$(CC) $(CCFLAGS) -c hash.cpp
+	$(ARCHIVE) $(ARFLAGS) $(LIB) phish-zmq.o hash.o
+
+# Clean up
 
 clean:
 	@rm -f *.o
 	@rm -f libphish.a
-
-# Rules
-
-%.o:%.cpp
-	$(CC) $(CCFLAGS) -c $<
-
-%.o:%.c
-	$(CC) $(CCFLAGS) -c $<
