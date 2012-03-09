@@ -1,3 +1,33 @@
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
+
+:link(pws,http://phish.sandia.gov)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+slowdown minnow :h3
+
+[Syntax:]
+
+ping N M :pre
+
+N = # of datums to ping/pong with partner minnow
+M = # of bytes in each datum :ul
+
+[Examples:]
+
+ping 1000 0
+ping 100 100000 :pre
+
+[Description:]
+
+Ping is a PHISH minnow that can be used as one of a school of minnows
+in a PHISH program.  In PHISH lingo, a "minnow" is a stand-alone
+application which makes calls to the "PHISH library"_Library.html to
+exchange data with other PHISH minnows.
+
+
 read datum and emit it with slowdown delay
 
 syntax: slowdown delta
@@ -9,3 +39,14 @@ before writing it downstream
 for each datum:
   query time since last datum was processed and invoke usleep() if needed
   send entire datum downstream
+
+
+
+
+[Restrictions:]
+
+Note: set command may be required to boost buffer size
+
+[Related commands:]
+
+"pong"_pong.html

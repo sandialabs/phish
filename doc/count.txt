@@ -1,3 +1,32 @@
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
+
+:link(pws,http://phish.sandia.gov)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+count minnow :h3
+
+[Syntax:]
+
+ping N M :pre
+
+N = # of datums to ping/pong with partner minnow
+M = # of bytes in each datum :ul
+
+[Examples:]
+
+ping 1000 0
+ping 100 100000 :pre
+
+[Description:]
+
+Ping is a PHISH minnow that can be used as one of a school of minnows
+in a PHISH program.  In PHISH lingo, a "minnow" is a stand-alone
+application which makes calls to the "PHISH library"_Library.html to
+exchange data with other PHISH minnows.
+
 count instances of keyed datums
 
 syntax: no args
@@ -13,3 +42,12 @@ for each datum:
 when done:
   iterate over hash table
   send all hash entries downstream as count/string
+
+
+[Restrictions:]
+
+Note: set command may be required to boost buffer size
+
+[Related commands:]
+
+"pong"_pong.html

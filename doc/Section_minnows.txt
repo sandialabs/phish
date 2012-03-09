@@ -22,6 +22,9 @@ datums.
 
 minnow vs shark vs whale
 
+how general vs specific to write minnow when processing datums
+  note that PHISH input script can send unexpected data to minnow
+
 This doc page covers these topics:
 
 3.1 "List of minnows"_#minnow_1

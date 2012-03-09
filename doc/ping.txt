@@ -1,8 +1,34 @@
-reflect messages to a receiver
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
 
-syntax: ping N M
-N = # of times to ping/pong with partner proc
-M = # of bytes in a message
+:link(pws,http://phish.sandia.gov)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+ping minnow :h3
+
+[Syntax:]
+
+ping N M :pre
+
+N = # of datums to ping/pong with partner minnow
+M = # of bytes in each datum :ul
+
+[Examples:]
+
+ping 1000 0
+ping 100 100000 :pre
+
+[Description:]
+
+Ping is a PHISH minnow that can be used as one of a school of minnows
+in a PHISH program.  In PHISH lingo, a "minnow" is a stand-alone
+application which makes calls to the "PHISH library"_Library.html to
+exchange data with other PHISH minnows.
+
+
+reflect messages to a receiver
 
 fill M-byte buffer with NULLs
 send it and go into loop
@@ -11,3 +37,12 @@ for each datum:
   when recv from partner
   increment count and send back to partner
   when count hits M, send done message
+
+
+[Restrictions:]
+
+Note: set command may be required to boost buffer size
+
+[Related commands:]
+
+"pong"_pong.html

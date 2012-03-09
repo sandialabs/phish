@@ -1,3 +1,33 @@
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
+
+:link(pws,http://phish.sandia.gov)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+wrapss minnow :h3
+
+[Syntax:]
+
+ping N M :pre
+
+N = # of datums to ping/pong with partner minnow
+M = # of bytes in each datum :ul
+
+[Examples:]
+
+ping 1000 0
+ping 100 100000 :pre
+
+[Description:]
+
+Ping is a PHISH minnow that can be used as one of a school of minnows
+in a PHISH program.  In PHISH lingo, a "minnow" is a stand-alone
+application which makes calls to the "PHISH library"_Library.html to
+exchange data with other PHISH minnows.
+
+
 wrap a child process which both consumes and creates datums via stdin/stdout
 so child is a sink and a source
 
@@ -23,3 +53,12 @@ close method:
   close write pipe to child so it will know parent is done
   wait for all output from child read pipe
   send DONE message to notify receivers
+
+
+[Restrictions:]
+
+Note: set command may be required to boost buffer size
+
+[Related commands:]
+
+"wrapsink"_wrapsink.html, "wrapsource"_wrapsource.html

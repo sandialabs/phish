@@ -1,4 +1,35 @@
 <HTML>
+<CENTER><A HREF = "http://phish.sandia.gov">PHISH WWW Site</A> - <A HREF = "Manual.html">PHISH Documentation</A> - <A HREF = "Bait.html">Bait.py Commands</A> 
+</CENTER>
+
+
+
+
+
+
+<HR>
+
+<H3>wrapss minnow 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>ping N M 
+</PRE>
+<UL><LI>N = # of datums to ping/pong with partner minnow
+<LI>M = # of bytes in each datum 
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>ping 1000 0
+ping 100 100000 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>Ping is a PHISH minnow that can be used as one of a school of minnows
+in a PHISH program.  In PHISH lingo, a "minnow" is a stand-alone
+application which makes calls to the <A HREF = "Library.html">PHISH library</A> to
+exchange data with other PHISH minnows.
+</P>
 <P>wrap a child process which both consumes and creates datums via stdin/stdout
 so child is a sink and a source
 </P>
@@ -24,5 +55,13 @@ child invokes the "program" via execv()
   close write pipe to child so it will know parent is done
   wait for all output from child read pipe
   send DONE message to notify receivers
+</P>
+<P><B>Restrictions:</B>
+</P>
+<P>Note: set command may be required to boost buffer size
+</P>
+<P><B>Related commands:</B>
+</P>
+<P><A HREF = "wrapsink.html">wrapsink</A>, <A HREF = "wrapsource.html">wrapsource</A>
 </P>
 </HTML>

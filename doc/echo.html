@@ -1,4 +1,45 @@
 <HTML>
+<CENTER><A HREF = "http://phish.sandia.gov">PHISH WWW Site</A> - <A HREF = "Manual.html">PHISH Documentation</A> - <A HREF = "Bait.html">Bait.py Commands</A> 
+</CENTER>
+
+
+
+
+
+
+<HR>
+
+<H3>echo application 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>ping N M 
+</PRE>
+<UL><LI>N = # of datums to ping/pong with partner minnow
+<LI>M = # of bytes in each datum 
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>ping 1000 0
+ping 100 100000 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>Echo is a stand-alone program.  Unlike other PHISH minnows in the
+minnows directory of the PHISH distribution, it is not a program that
+needs to be linked with the PHISH library.  It is provided for
+illustration purposed, because it can be wrapped with the
+<A HREF = "wrapss.html">wrapss</A> minnow so that can it be used as one of a school
+of minnows in a PHISH program.  In PHISH lingo, a "minnow" is a
+stand-alone application which makes calls to the <A HREF = "Library.html">PHISH
+library</A> to exchange data with other PHISH minnows.
+</P>
 <P>echo lines from stdin to stdout
+</P>
+<P><B>Restrictions:</B> none
+</P>
+<P><B>Related commands:</B>
+</P>
+<P><A HREF = "reverse.html">reverse</A>
 </P>
 </HTML>

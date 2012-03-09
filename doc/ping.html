@@ -1,9 +1,36 @@
 <HTML>
-<P>reflect messages to a receiver
+<CENTER><A HREF = "http://phish.sandia.gov">PHISH WWW Site</A> - <A HREF = "Manual.html">PHISH Documentation</A> - <A HREF = "Bait.html">Bait.py Commands</A> 
+</CENTER>
+
+
+
+
+
+
+<HR>
+
+<H3>ping minnow 
+</H3>
+<P><B>Syntax:</B>
 </P>
-<P>syntax: ping N M
-N = # of times to ping/pong with partner proc
-M = # of bytes in a message
+<PRE>ping N M 
+</PRE>
+<UL><LI>N = # of datums to ping/pong with partner minnow
+<LI>M = # of bytes in each datum 
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>ping 1000 0
+ping 100 100000 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>Ping is a PHISH minnow that can be used as one of a school of minnows
+in a PHISH program.  In PHISH lingo, a "minnow" is a stand-alone
+application which makes calls to the <A HREF = "Library.html">PHISH library</A> to
+exchange data with other PHISH minnows.
+</P>
+<P>reflect messages to a receiver
 </P>
 <P>fill M-byte buffer with NULLs
 send it and go into loop
@@ -12,5 +39,13 @@ send it and go into loop
   when recv from partner
   increment count and send back to partner
   when count hits M, send done message
+</P>
+<P><B>Restrictions:</B>
+</P>
+<P>Note: set command may be required to boost buffer size
+</P>
+<P><B>Related commands:</B>
+</P>
+<P><A HREF = "pong.html">pong</A>
 </P>
 </HTML>
