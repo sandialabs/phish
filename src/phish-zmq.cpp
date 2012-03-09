@@ -722,3 +722,163 @@ void wallclock::reset()
 
 } // namespace phish
 
+
+// Compatibility API for minnows written in C ...
+extern "C"
+{
+  void phish_init(int* argc, char*** argv)
+  {
+    phish::init(*argc, *argv);
+  }
+
+  void phish_exit()
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  void phish_input(int, void(*)(int), void(*)(), int)
+  {
+  }
+
+  void phish_output(int port)
+  {
+    phish::output(port);
+  }
+
+  void phish_check()
+  {
+    phish::check();
+  }
+
+  void phish_done(void (*)())
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  void phish_close(int port)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  void phish_loop()
+  {
+    phish::loop();
+  }
+
+  void phish_probe(void (*)())
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  int phish_recv()
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  void phish_send(int port)
+  {
+    phish::send(port);
+  }
+
+  void phish_send_key(int, char *, int)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  void phish_send_direct(int, int)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  void phish_reset_receiver(int, int)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  void phish_pack_datum(char *, int)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  void phish_pack_raw(char *, int)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  void phish_pack_byte(char)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  void phish_pack_int(int)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  void phish_pack_uint64(uint64_t)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  void phish_pack_double(double)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  void phish_pack_string(char *)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  void phish_pack_int_array(int *, int)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  void phish_pack_uint64_array(uint64_t *, int)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  void phish_pack_double_array(double *, int)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  void phish_pack_pickle(char *, int)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  int phish_unpack(char **, int *)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  int phish_datum(char **, int *)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  int phish_query(char *, int, int)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  void phish_error(const char *)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  void phish_warn(const char *)
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+  double phish_timer()
+  {
+    throw std::runtime_error("Not implemented.");
+  }
+
+}
+
