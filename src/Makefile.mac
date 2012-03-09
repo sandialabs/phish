@@ -3,8 +3,8 @@
 SHELL = /bin/sh
 
 # ---------------------------------------------------------------------
-# compiler/linker settings
-# specify your compiler and MPI,ZMQ dependencies
+# compiler settings
+# specify your compiler, its flags, and MPI,ZMQ dependencies
 
 CC =		mpic++
 CCFLAGS =	-g -O
