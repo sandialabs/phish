@@ -40,14 +40,6 @@ def init(args):
   n = lib.phish_init_python(narg,cargs)
   return args[n:]
 
-def school():
-  idlocal = c_int()
-  nlocal = c_int()
-  idglobal = c_int()
-  nglobal = c_int()
-  lib.phish_school(byref(idlocal),byref(nlocal),byref(idglobal),byref(nglobal))
-  return idlocal.value,nlocal.value,idglobal.value,nglobal.value
-
 def exit():
   lib.phish_exit()
 
@@ -243,7 +235,11 @@ def datum():
   len = c_int()
   iport = lib.phish_datum(byref(buf),byref(len))
   return iport,buf,len.value
-  
+
+def query(str,flag1,flag2):
+  cstr = c_char_p(str)
+  return lib.phish_query(cstr,flag1,flag2)
+
 def error(str):
   lib.phish_error(str)
 
