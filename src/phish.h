@@ -22,7 +22,6 @@ extern "C" {
 
 void phish_init(int *, char ***);
 int phish_init_python(int, char **);
-int phish_query(char *, int, int);
 void phish_exit();
 
 void phish_input(int, void(*)(int), void(*)(), int);
@@ -55,6 +54,7 @@ void phish_pack_pickle(char *, int);
 int phish_unpack(char **, int *);
 int phish_datum(char **, int *);
 
+int phish_query(char *, int, int);
 void phish_error(const char *);
 void phish_warn(const char *);
 double phish_timer();

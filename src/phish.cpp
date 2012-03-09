@@ -409,59 +409,6 @@ int phish_init_python(int narg, char **args)
 
 /* ---------------------------------------------------------------------- */
 
-int phish_query(char *keyword, int flag1, int flag2)
-{
-  if (!initflag) phish_error("Phish_init has not been called");
-
-  if (strcmp(keyword,"idlocal") == 0) return idlocal;
-  else if (strcmp(keyword,"nlocal") == 0) return nlocal;
-  else if (strcmp(keyword,"idglobal") == 0) return idglobal;
-  else if (strcmp(keyword,"nglobal") == 0) return nglobal;
-  else if (strcmp(keyword,"inport/status") == 0) {
-    int iport = flag1;
-    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
-    return inports[iport].status;
-  } else if (strcmp(keyword,"inport/connections") == 0) {
-    int iport = flag1;
-    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
-    if (inports[iport].status == UNUSED_PORT) return -1;
-    return inports[iport].nconnect;
-  } else if (strcmp(keyword,"inport/nminnows") == 0) {
-    int iport = flag1;
-    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
-    if (inports[iport].status == UNUSED_PORT) return -1;
-    int iconnect = flag2;
-    if (iconnect < 0 || iconnect >= inports[iport].nconnect) return -1;
-    return inports[iport].connects[iconnect].nsend;
-  } else if (strcmp(keyword,"outport/status") == 0) {
-    int iport = flag1;
-    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
-    return outports[iport].status;
-  } else if (strcmp(keyword,"outport/connections") == 0) {
-    int iport = flag1;
-    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
-    if (outports[iport].status == UNUSED_PORT) return -1;
-    return outports[iport].nconnect;
-  } else if (strcmp(keyword,"outport/nminnows") == 0) {
-    int iport = flag1;
-    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
-    if (outports[iport].status == UNUSED_PORT) return -1;
-    int iconnect = flag2;
-    if (iconnect < 0 || iconnect >= outports[iport].nconnect) return -1;
-    return outports[iport].connects[iconnect].nrecv;
-  } else if (strcmp(keyword,"outport/direct") == 0) {
-    int iport = flag1;
-    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
-    if (outports[iport].status == UNUSED_PORT) return -1;
-    for (int iconnect = 0; iconnect < outports[iport].nconnect; iconnect++)
-      if (outports[iport].connects[iconnect].style == DIRECT) 
-	return outports[iport].connects[iconnect].nrecv;
-    return -1;
-  }
-}
-
-/* ---------------------------------------------------------------------- */
-
 void phish_exit()
 {
   if (!initflag) phish_error("Phish_init has not been called");
@@ -1260,6 +1207,61 @@ int phish_datum(char **buf, int *len)
   *buf = rbuf;
   *len = nrbytes;
   return lastport;
+}
+
+/* ----------------------------------------------------------------------
+   return info about minnow counts and input/output ports
+------------------------------------------------------------------------- */
+
+int phish_query(char *keyword, int flag1, int flag2)
+{
+  if (!initflag) phish_error("Phish_init has not been called");
+
+  if (strcmp(keyword,"idlocal") == 0) return idlocal;
+  else if (strcmp(keyword,"nlocal") == 0) return nlocal;
+  else if (strcmp(keyword,"idglobal") == 0) return idglobal;
+  else if (strcmp(keyword,"nglobal") == 0) return nglobal;
+  else if (strcmp(keyword,"inport/status") == 0) {
+    int iport = flag1;
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    return inports[iport].status;
+  } else if (strcmp(keyword,"inport/connections") == 0) {
+    int iport = flag1;
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    if (inports[iport].status == UNUSED_PORT) return -1;
+    return inports[iport].nconnect;
+  } else if (strcmp(keyword,"inport/nminnows") == 0) {
+    int iport = flag1;
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    if (inports[iport].status == UNUSED_PORT) return -1;
+    int iconnect = flag2;
+    if (iconnect < 0 || iconnect >= inports[iport].nconnect) return -1;
+    return inports[iport].connects[iconnect].nsend;
+  } else if (strcmp(keyword,"outport/status") == 0) {
+    int iport = flag1;
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    return outports[iport].status;
+  } else if (strcmp(keyword,"outport/connections") == 0) {
+    int iport = flag1;
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    if (outports[iport].status == UNUSED_PORT) return -1;
+    return outports[iport].nconnect;
+  } else if (strcmp(keyword,"outport/nminnows") == 0) {
+    int iport = flag1;
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    if (outports[iport].status == UNUSED_PORT) return -1;
+    int iconnect = flag2;
+    if (iconnect < 0 || iconnect >= outports[iport].nconnect) return -1;
+    return outports[iport].connects[iconnect].nrecv;
+  } else if (strcmp(keyword,"outport/direct") == 0) {
+    int iport = flag1;
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    if (outports[iport].status == UNUSED_PORT) return -1;
+    for (int iconnect = 0; iconnect < outports[iport].nconnect; iconnect++)
+      if (outports[iport].connects[iconnect].style == DIRECT) 
+	return outports[iport].connects[iconnect].nrecv;
+    return -1;
+  }
 }
 
 /* ---------------------------------------------------------------------- */
