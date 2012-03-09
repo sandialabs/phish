@@ -2,6 +2,7 @@
 
 import types
 from ctypes import *
+from cPickle import dumps,loads
 
 # same data type defs as in src/phish.h
 
@@ -14,6 +15,10 @@ STRING = 5
 INT_ARRAY = 6
 UINT64_ARRAY = 7
 DOUBLE_ARRAY = 8
+
+# extra pickled data type unique to Python
+
+PICKLE = 9
 
 # max port setting from src/phish.cpp
 
@@ -135,9 +140,12 @@ def reset_receiver(iport,receiver):
 def pack_datum(ptr,len):
   lib.phish_pack_datum(ptr,len)
 
-def pack_raw(str):
-  # need non-NULL-terminated byte string
-  lib.phish_error("Python wrapper cannot yet pack RAW datum field")
+# convert arbitrary Python object as string
+# but pass user-specified len to pack_raw(), not string length
+  
+def pack_raw(obj,len):
+  cstr = c_char_p(obj)
+  lib.phish_pack_raw(cstr,len)
   
 def pack_byte(value):
   cchar = c_char(value)
@@ -159,29 +167,39 @@ def pack_string(str):
 
 def pack_int_array(vec):
   n = len(vec)
-  ptr = (c_int * n)()    # don't understand this syntax
+  ptr = (c_int*n)()
   for i in xrange(n): ptr[i] = vec[i]
   lib.phish_pack_int_array(ptr,n)
 
 def pack_uint64_array(vec):
   n = len(vec)
-  ptr = (c_ulonglong * n)()    # don't understand this syntax
+  ptr = (c_ulonglong*n)()
   for i in xrange(n): ptr[i] = vec[i]
   lib.phish_pack_uint64_array(ptr,n)
 
 def pack_double_array(vec):
   n = len(vec)
-  ptr = (c_double * n)()    # don't understand this syntax
+  ptr = (c_double*n)()
   for i in xrange(n): ptr[i] = vec[i]
   lib.phish_pack_double_array(ptr,n)
+
+# pickle the arbitrary Python object which converts it to a string of bytes
+  
+def pack_pickle(obj):
+  cobj = dumps(obj,1)
+  lib.phish_pack_pickle(cobj,len(cobj))
 
 def unpack():
   buf = c_char_p()
   len = c_int()
   type = lib.phish_unpack(byref(buf),byref(len))
+  
+  # return raw buf ptr and user-specified len
+  # caller can do a ctypes cast to any POINTER
+  
   if type == RAW:
-    # need non-NULL-terminated byte string
-    lib.phish_error("Python wrapper cannot yet unpack RAW datum field")
+    return type,buf,len.value
+  
   if type == BYTE:
     ptr = cast(buf,POINTER(c_char))
     return type,ptr[0],len.value
@@ -212,6 +230,14 @@ def unpack():
     for i in xrange(len.value): vec[i] = ptr[i]
     return type,vec,len.value
 
+  # unpickle the string of bytes back into a Python object
+  # return object and length of byte string
+  
+  if type == PICKLE:
+    ptr = cast(buf,POINTER(c_char))
+    obj = loads(ptr[:len.value])
+    return type,obj,len.value
+  
 def datum():
   buf = c_char_p()
   len = c_int()
