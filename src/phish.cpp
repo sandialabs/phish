@@ -24,8 +24,6 @@
 /* ---------------------------------------------------------------------- */
 // definitions
 
-//#define PHISH_SAFE_SEND 1      // uncomment for safer/slower MPI_Ssend()
-
 // connection styles
 
 enum{SINGLE,PAIRED,HASHED,ROUNDROBIN,DIRECT,BCAST,CHAIN,RING,PUBLISH,SUBSCRIBE};
@@ -34,7 +32,7 @@ enum{SINGLE,PAIRED,HASHED,ROUNDROBIN,DIRECT,BCAST,CHAIN,RING,PUBLISH,SUBSCRIBE};
 
 enum{UNUSED_PORT,OPEN_PORT,CLOSED_PORT};
 
-#define MAXBUF 1024*1024               // max datum length
+#define KBYTE 1024                     // 1 Kbyte
 #define MAXPORT 16                     // max # of input or output ports
 
 typedef void (DatumFunc)(int);         // callback prototypes
@@ -55,6 +53,10 @@ int idlocal;              // index of minnow within its set
 int nlocal;               // # of duplicate minnows via layout command
 int idglobal;             // index of minnow within global school
 int nglobal;              // # of total minnows in global school
+
+int maxbuf;               // max allowed datum size in bytes
+int memchunk;             // max allowed datum size in Kbytes
+int safe;                 // 1 for safe MPI send, 0 for normal
 
 // input ports
 // each can have multiple connections from output ports of other minnows
@@ -133,6 +135,8 @@ void phish_init(int *pnarg, char ***pargs)
   initflag = 1;
   checkflag = 0;
   lastport = -1;
+  memchunk = 1;
+  safe = 0;
 
   MPI_Init(pnarg,pargs);
 
@@ -140,7 +144,7 @@ void phish_init(int *pnarg, char ***pargs)
   MPI_Comm_rank(world,&me);
   MPI_Comm_size(world,&nprocs);
 
-  // memory allocation/initialization for ports and datum buffers
+  // memory allocation/initialization for ports
 
   inports = new InputPort[MAXPORT];
   for (int i = 0; i < MAXPORT; i++) {
@@ -158,11 +162,6 @@ void phish_init(int *pnarg, char ***pargs)
     outports[i].nconnect = 0;
     outports[i].connects = NULL;
   }
-
-  sbuf = (char *) malloc(MAXBUF*sizeof(char));
-  rbuf = (char *) malloc(MAXBUF*sizeof(char));
-
-  if (!sbuf || !rbuf) phish_error("Malloc of datum buffers failed");
 
   // parse input args and setup communication port data structs
 
@@ -188,6 +187,14 @@ void phish_init(int *pnarg, char ***pargs)
       idglobal = me;
       nglobal = nprocs;
       iarg += 5;
+
+    } else if (strcmp(args[iarg],"-memory") == 0) {
+      if (iarg+2 > narg)
+	phish_error("Invalid command-line args in phish_init");
+      memchunk = atoi(args[iarg+1]);
+
+    } else if (strcmp(args[iarg],"-safe") == 0) {
+      safe = 1;
 
     } else if (strcmp(args[iarg],"-in") == 0) {
       if (iarg+8 > narg)
@@ -371,13 +378,21 @@ void phish_init(int *pnarg, char ***pargs)
     } else phish_error("Invalid command-line args in phish_init");
   }
 
+  // memory allocation/initialization for datum buffers
+
+  maxbuf = memchunk * KBYTE;
+  sbuf = (char *) malloc(maxbuf*sizeof(char));
+  rbuf = (char *) malloc(maxbuf*sizeof(char));
+
+  if (!sbuf || !rbuf) phish_error("Malloc of datum buffers failed");
+
   // strip off PHISH args, leaving app args for app to use
 
   *pnarg = narg-argstart;
   if (*pnarg > 0) *pargs = &args[argstart];
   else *pargs = NULL;
 
-  // setup send buffer for initial datum
+  // set send buffer ptr for initial datum
 
   sptr = sbuf + sizeof(int);
   npack = 0;
@@ -394,14 +409,55 @@ int phish_init_python(int narg, char **args)
 
 /* ---------------------------------------------------------------------- */
 
-void phish_school(int *pidlocal, int *pnlocal, int *pidglobal, int *pnglobal)
+int phish_query(char *keyword, int flag1, int flag2)
 {
   if (!initflag) phish_error("Phish_init has not been called");
 
-  *pidlocal = idlocal;
-  *pnlocal = nlocal;
-  *pidglobal = idglobal;
-  *pnglobal = nglobal;
+  if (strcmp(keyword,"idlocal") == 0) return idlocal;
+  else if (strcmp(keyword,"nlocal") == 0) return nlocal;
+  else if (strcmp(keyword,"idglobal") == 0) return idglobal;
+  else if (strcmp(keyword,"nglobal") == 0) return nglobal;
+  else if (strcmp(keyword,"inport/status") == 0) {
+    int iport = flag1;
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    return inports[iport].status;
+  } else if (strcmp(keyword,"inport/connections") == 0) {
+    int iport = flag1;
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    if (inports[iport].status == UNUSED_PORT) return -1;
+    return inports[iport].nconnect;
+  } else if (strcmp(keyword,"inport/nminnows") == 0) {
+    int iport = flag1;
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    if (inports[iport].status == UNUSED_PORT) return -1;
+    int iconnect = flag2;
+    if (iconnect < 0 || iconnect >= inports[iport].nconnect) return -1;
+    return inports[iport].connects[iconnect].nsend;
+  } else if (strcmp(keyword,"outport/status") == 0) {
+    int iport = flag1;
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    return outports[iport].status;
+  } else if (strcmp(keyword,"outport/connections") == 0) {
+    int iport = flag1;
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    if (outports[iport].status == UNUSED_PORT) return -1;
+    return outports[iport].nconnect;
+  } else if (strcmp(keyword,"outport/nminnows") == 0) {
+    int iport = flag1;
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    if (outports[iport].status == UNUSED_PORT) return -1;
+    int iconnect = flag2;
+    if (iconnect < 0 || iconnect >= outports[iport].nconnect) return -1;
+    return outports[iport].connects[iconnect].nrecv;
+  } else if (strcmp(keyword,"outport/direct") == 0) {
+    int iport = flag1;
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    if (outports[iport].status == UNUSED_PORT) return -1;
+    for (int iconnect = 0; iconnect < outports[iport].nconnect; iconnect++)
+      if (outports[iport].connects[iconnect].style == DIRECT) 
+	return outports[iport].connects[iconnect].nrecv;
+    return -1;
+  }
 }
 
 /* ---------------------------------------------------------------------- */
@@ -574,11 +630,8 @@ void phish_close(int iport)
     case SINGLE:
     case PAIRED:
     case RING:
-#ifdef PHISH_SAFE_SEND
-      MPI_Ssend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
-#else
-      MPI_Send(NULL,0,MPI_BYTE,oc->recvone,tag,world);
-#endif
+      if (safe) MPI_Ssend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
+      else MPI_Send(NULL,0,MPI_BYTE,oc->recvone,tag,world);
       break;
 
     case HASHED:
@@ -586,20 +639,14 @@ void phish_close(int iport)
     case DIRECT:
     case BCAST:
       for (int i = 0; i < oc->nrecv; i++)
-#ifdef PHISH_SAFE_SEND
-        MPI_Ssend(NULL,0,MPI_BYTE,oc->recvfirst+i,tag,world);
-#else
-        MPI_Send(NULL,0,MPI_BYTE,oc->recvfirst+i,tag,world);
-#endif
+        if (safe) MPI_Ssend(NULL,0,MPI_BYTE,oc->recvfirst+i,tag,world);
+        else MPI_Send(NULL,0,MPI_BYTE,oc->recvfirst+i,tag,world);
       break;
 
     case CHAIN:
       if (oc->nrecv) {
-#ifdef PHISH_SAFE_SEND
-	MPI_Ssend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
-#else
-	MPI_Send(NULL,0,MPI_BYTE,oc->recvone,tag,world);
-#endif
+	if (safe) MPI_Ssend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
+	else MPI_Send(NULL,0,MPI_BYTE,oc->recvone,tag,world);
       }
       break;
     }
@@ -622,7 +669,7 @@ void phish_loop()
   if (!checkflag) phish_error("Phish_check has not been called");
 
   while (1) {
-    MPI_Recv(rbuf,MAXBUF,MPI_BYTE,MPI_ANY_SOURCE,MPI_ANY_TAG,world,&status);
+    MPI_Recv(rbuf,maxbuf,MPI_BYTE,MPI_ANY_SOURCE,MPI_ANY_TAG,world,&status);
 
     iport = status.MPI_TAG;
     if (iport >= MAXPORT) {
@@ -678,7 +725,7 @@ void phish_probe(void (*probefunc)())
   while (1) {
     MPI_Iprobe(MPI_ANY_SOURCE,MPI_ANY_TAG,world,&flag,&status);
     if (flag) {
-      MPI_Recv(rbuf,MAXBUF,MPI_BYTE,MPI_ANY_SOURCE,MPI_ANY_TAG,world,&status);
+      MPI_Recv(rbuf,maxbuf,MPI_BYTE,MPI_ANY_SOURCE,MPI_ANY_TAG,world,&status);
 
       iport = status.MPI_TAG;
       if (iport >= MAXPORT) {
@@ -737,7 +784,7 @@ int phish_recv()
   MPI_Iprobe(MPI_ANY_SOURCE,MPI_ANY_TAG,world,&flag,&status);
   if (!flag) return 0;
 
-  MPI_Recv(rbuf,MAXBUF,MPI_BYTE,MPI_ANY_SOURCE,MPI_ANY_TAG,world,&status);
+  MPI_Recv(rbuf,maxbuf,MPI_BYTE,MPI_ANY_SOURCE,MPI_ANY_TAG,world,&status);
 
   int doneflag;
   int iport = status.MPI_TAG;
@@ -836,11 +883,9 @@ void phish_send_key(int iport, char *key, int keybytes)
       {
 	int tag = oc->recvport;
 	int offset = hashlittle(key,keybytes,oc->nrecv) % oc->nrecv;
-#ifdef PHISH_SAFE_SEND
-	MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+offset,tag,world);
-#else
-	MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+offset,tag,world);
-#endif
+	if (safe) 
+	  MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+offset,tag,world);
+	else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+offset,tag,world);
       }
       break;
       
@@ -890,11 +935,9 @@ void phish_send_direct(int iport, int receiver)
 	int tag = oc->recvport;
 	if (receiver < 0 || receiver >= oc->nrecv)
 	  phish_error("Invalid receiver for phish_send_direct");
-#ifdef PHISH_SAFE_SEND
-	MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+receiver,tag,world);
-#else
-	MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+receiver,tag,world);
-#endif
+	if (safe)
+	  MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+receiver,tag,world);
+	else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+receiver,tag,world);
       }
       break;
       
@@ -924,40 +967,29 @@ void send(OutConnect *oc)
   case SINGLE:
   case PAIRED:
   case RING:
-#ifdef PHISH_SAFE_SEND
-    MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
-#else
-    MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
-#endif
+    if (safe) MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
+    else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
     break;
 
   case ROUNDROBIN:
-#ifdef PHISH_SAFE_SEND
-    MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+oc->offset,tag,world);
-#else
-    MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+oc->offset,tag,world);
-#endif
+    if (safe) 
+      MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+oc->offset,tag,world);
+    else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+oc->offset,tag,world);
     oc->offset++;
     if (oc->offset == oc->nrecv) oc->offset = 0;
     break;
 
   case CHAIN:
     if (oc->nrecv) {
-#ifdef PHISH_SAFE_SEND
-      MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
-#else
-      MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
-#endif
+      if (safe) MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
+      else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
     }
     break;
 
   case BCAST:
     for (int i = 0; i < oc->nrecv; i++)
-#ifdef PHISH_SAFE_SEND
-      MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+i,tag,world);
-#else
-      MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+i,tag,world);
-#endif
+      if (safe) MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+i,tag,world);
+      else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+i,tag,world);
     break;
 
   // error if called for HASHED or DIRECT
@@ -1004,7 +1036,7 @@ void phish_reset_receiver(int iport, int receiver)
 
 void phish_pack_datum(char *buf, int len)
 {
-  if (len > MAXBUF) phish_error("Send buffer overflow");
+  if (len > maxbuf) phish_error("Send buffer overflow");
 
   memcpy(sbuf,buf,len);
   sptr = sbuf + len;
@@ -1013,7 +1045,7 @@ void phish_pack_datum(char *buf, int len)
 
 void phish_pack_raw(char *buf, int len)
 {
-  if (sptr + 2*sizeof(int) + len - sbuf > MAXBUF)
+  if (sptr + 2*sizeof(int) + len - sbuf > maxbuf)
     phish_error("Send buffer overflow");
 
   *(int *) sptr = PHISH_RAW;
@@ -1027,7 +1059,7 @@ void phish_pack_raw(char *buf, int len)
 
 void phish_pack_byte(char value)
 {
-  if (sptr + sizeof(int) + sizeof(char) - sbuf > MAXBUF)
+  if (sptr + sizeof(int) + sizeof(char) - sbuf > maxbuf)
     phish_error("Send buffer overflow");
 
   *(int *) sptr = PHISH_BYTE;
@@ -1039,7 +1071,7 @@ void phish_pack_byte(char value)
 
 void phish_pack_int(int value)
 {
-  if (sptr + 2*sizeof(int) - sbuf > MAXBUF)
+  if (sptr + 2*sizeof(int) - sbuf > maxbuf)
     phish_error("Send buffer overflow");
 
   *(int *) sptr = PHISH_INT;
@@ -1051,7 +1083,7 @@ void phish_pack_int(int value)
 
 void phish_pack_uint64(uint64_t value)
 {
-  if (sptr + sizeof(int) + sizeof(uint64_t) - sbuf > MAXBUF)
+  if (sptr + sizeof(int) + sizeof(uint64_t) - sbuf > maxbuf)
     phish_error("Send buffer overflow");
 
   *(int *) sptr = PHISH_UINT64;
@@ -1063,7 +1095,7 @@ void phish_pack_uint64(uint64_t value)
 
 void phish_pack_double(double value)
 {
-  if (sptr + sizeof(int) + sizeof(double) - sbuf > MAXBUF)
+  if (sptr + sizeof(int) + sizeof(double) - sbuf > maxbuf)
     phish_error("Send buffer overflow");
 
   *(int *) sptr = PHISH_DOUBLE;
@@ -1076,7 +1108,7 @@ void phish_pack_double(double value)
 void phish_pack_string(char *str)
 {
   int nbytes = strlen(str) + 1;
-  if (sptr + 2*sizeof(int) + nbytes - sbuf > MAXBUF)
+  if (sptr + 2*sizeof(int) + nbytes - sbuf > maxbuf)
     phish_error("Send buffer overflow");
 
   *(int *) sptr = PHISH_STRING;
@@ -1091,7 +1123,7 @@ void phish_pack_string(char *str)
 void phish_pack_int_array(int *vec, int n)
 {
   int nbytes = n*sizeof(int);
-  if (sptr + 2*sizeof(int) + nbytes - sbuf > MAXBUF)
+  if (sptr + 2*sizeof(int) + nbytes - sbuf > maxbuf)
     phish_error("Send buffer overflow");
 
   *(int *) sptr = PHISH_INT_ARRAY;
@@ -1106,7 +1138,7 @@ void phish_pack_int_array(int *vec, int n)
 void phish_pack_uint64_array(uint64_t *vec, int n)
 {
   int nbytes = n*sizeof(uint64_t);
-  if (sptr + 2*sizeof(int) + nbytes - sbuf > MAXBUF)
+  if (sptr + 2*sizeof(int) + nbytes - sbuf > maxbuf)
     phish_error("Send buffer overflow");
 
   *(int *) sptr = PHISH_UINT64_ARRAY;
@@ -1121,7 +1153,7 @@ void phish_pack_uint64_array(uint64_t *vec, int n)
 void phish_pack_double_array(double *vec, int n)
 {
   int nbytes = n*sizeof(uint64_t);
-  if (sptr + 2*sizeof(int) + nbytes - sbuf > MAXBUF)
+  if (sptr + 2*sizeof(int) + nbytes - sbuf > maxbuf)
     phish_error("Send buffer overflow");
 
   *(int *) sptr = PHISH_DOUBLE_ARRAY;
@@ -1135,7 +1167,7 @@ void phish_pack_double_array(double *vec, int n)
 
 void phish_pack_pickle(char *buf, int len)
 {
-  if (sptr + 2*sizeof(int) + len - sbuf > MAXBUF)
+  if (sptr + 2*sizeof(int) + len - sbuf > maxbuf)
     phish_error("Send buffer overflow");
 
   *(int *) sptr = PHISH_PICKLE;
@@ -1234,7 +1266,8 @@ int phish_datum(char **buf, int *len)
 
 void phish_error(const char *str)
 {
-  printf("ERROR: Minnow %s ID %s # %d: %s\n",exename,idminnow,idglobal,str);
+  printf("PHISH MPI ERROR: Minnow %s ID %s # %d: %s\n",
+	 exename,idminnow,idglobal,str);
   MPI_Abort(world,1);
 }
 
@@ -1242,7 +1275,8 @@ void phish_error(const char *str)
 
 void phish_warn(const char *str)
 {
-  printf("WARNING: Minnow %s ID %s # %d: %s\n",exename,idminnow,idglobal,str);
+  printf("PHISH MPI WARNING: Minnow %s ID %s # %d: %s\n",
+	 exename,idminnow,idglobal,str);
 }
 
 /* ---------------------------------------------------------------------- */
