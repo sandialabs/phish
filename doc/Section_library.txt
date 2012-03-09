@@ -1,5 +1,5 @@
 "Previous Section"_Minnows.html - "PHISH WWW Site"_pws -
-"PHISH Documentation"_pd - "Next Section"_Examples.html :c
+"PHISH, Documentation"_pd - "Next Section"_Examples.html :c
 
 :link(pws,http://phish.sandia.gov)
 :link(pd,Manual.html)
@@ -71,7 +71,7 @@ Library calls for sending datums :l
   "phish_pack_double_array()"_phish_pack.html :ule,b
 
 Miscellaneous library calls :l
-  "phish_school()"_phish_init.html :ulb,b
+  "phish_query()"_phish_query.html :ulb,b
   "phish_reset_receiver()"_phish_misc.html :b
   "phish_error()"_phish_error.html :b
   "phish_warn()"_phish_error.html :b

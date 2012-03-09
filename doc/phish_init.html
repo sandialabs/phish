@@ -11,38 +11,27 @@
 
 <H3>phish_init() function 
 </H3>
-<H3>phish_school() function 
-</H3>
 <P><B>C syntax:</B>
 </P>
 <PRE>void phish_init(int *narg, char ***args) 
 </PRE>
-<PRE>void phish_school(int *idlocal, int *nlocal, int *idglobal, int *nglobal) 
-</PRE>
 <P><B>C examples:</B>
 </P>
-<PRE>phish_init(&argc,&argv);
-int idlocal,nlocal,idglobal,nglobal;
-MPI_Comm comm = phish_school(&idlocal,&nlocal,&idglobal,&nglobal);
-printf("Local minnow info: %d %d\n",idlocal,nlocal);
-printf("Global minnow info: %d %d\n",idglobal,nglobal); 
-</PRE>
+<P>phish_init(&argc,&argv);
+</P>
 <P><B>Python syntax:</B>
 </P>
 <PRE>def init(args) 
 </PRE>
-<PRE>def school() 
-</PRE>
 <P><B>Python examples:</B>
 </P>
-<PRE>import phish
+<P>import phish
 args = phish.init(sys.argv)
 first_minnow_arg = args<B>0</B>
-idlocal,nlocal,idglobal,nglobal = phish.school() 
-</PRE>
+</P>
 <P><B>Description:</B>
 </P>
-<P>These are PHISH library functions which can be called from a minnow
+<P>This is a PHISH library functions which can be called from a minnow
 application.  In PHISH lingo, a "minnow" is a stand-alone application
 which makes calls to the <A HREF = "Library.html">PHISH library</A>.
 </P>
@@ -83,9 +72,14 @@ list is passed as an argument, and the truncated argument list is
 returned.
 </P>
 <P>There are the switches and arguments the PHISH library looks for and
-processes:
+processes.  These are generated automatically by the
+<A HREF = "Section_bait.html">bait.py</A> tool when it processes a PHISH input
+script, so normally you don't need to think about this level of
+detail, but it may be helpful for understanding how PHISH works.
 </P>
 <UL><LI>-minnow exefile ID Nlocal Nprev
+<LI>-memory N
+<LI>-safe
 <LI>-in sprocs sfirst sport style rprocs rfirst rport
 <LI>-out sprocs sfirst sport style rprocs rfirst rport
 <LI>-args arg1 arg2 ... = args for the minnoq itself 
@@ -96,6 +90,16 @@ count.py.  The ID is the minnow ID in the PHISH input script.  The
 <I>Nlocal</I> argument was explained above.  <I>Nprev</I> is the total number of
 minnows in sets of minnows previous to this one.  It is used to infer
 the <I>local-ID</I> value discussed above.
+</P>
+<P>The <I>-memory</I> and <I>-safe</I> switches change default settings within the
+PHISH library.  The <I>-memory</I> value <I>N</I> sets the maximum size of the
+buffers used to send and receive datums.  The <I>-safe</I> switch forces
+the MPI version of the PHISH library to use MPI_SSend() calls instead
+of the standard MPI_Send().  These are "safer" in the sense they
+insure messages are not dropped due to a minnow not keeping up with
+its incoming messages.  See the <A HREF = "bait_set.html">set</A> command of the
+<A HREF = "Section_bait.html">bait.py</A> tool for more information on the settings
+of these switches.
 </P>
 <P>The <I>-in</I> switch appears once for every connection the minnow has with
 other minnows, where it is a receiver of datums.  See the
@@ -148,20 +152,10 @@ functions for more info about port status.
 </P>
 <HR>
 
-<P>The phish_school() function can be used to query the local and global
-information about the minnow, both within its local set of duplicate
-minnows, and within the global school of minnows.
-</P>
-<P>The meaning of the 4 returned values <I>idlocal</I>, <I>nlocal</I>, <I>idglobal</I>,
-and <I>nglobal</I> are as described above for the <I>-minnow</I> command-line
-switch.
-</P>
-<P>NOTE: also need phish_school or a variatnt to tell something
-      about other sets connected to?
-      for phish_send_direct() function
-</P>
 <P><B>Restrictions:</B> none
 </P>
-<P><B>Related commands:</B> none
+<P><B>Related commands:</B>
+</P>
+<P><A HREF = "phish_query.html">phish_query</A>
 </P>
 </HTML>
