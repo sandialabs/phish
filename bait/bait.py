@@ -129,13 +129,13 @@ class layout:
     ids = [layout.id for layout in layouts]
     if self.id in ids: error("Layout ID %s already defined" % self.id)
     
-    self.prepend = None
+    self.invoke = None
     self.host = None
     iarg = 2
     while iarg < narg:
-      if args[iarg] == "prepend":
+      if args[iarg] == "invoke":
         if iarg+2 > narg: error("Invalid layout command")
-        self.prepend = args[iarg+1]
+        self.invoke = args[iarg+1]
         iarg += 2
       elif args[iarg] == "host":
         if iarg+2 > narg: error("Invalid layout command")
@@ -151,7 +151,7 @@ def output_mpich():
   
   for iminnow,minnow in enumerate(minnows):
     procstr = "-n %d" % (minnow.nprocs)
-    if minnow.prepend: exestr = " %s %s" % (minnow.prepend,minnow.pathexe)
+    if minnow.invoke: exestr = " %s %s" % (minnow.invoke,minnow.pathexe)
     else: exestr = " %s" % minnow.pathexe
     minnowstr = " -minnow %s %s %d %d" % \
         (minnow.exe,minnow.id,minnow.nprocs,minnow.procstart)
@@ -327,7 +327,7 @@ for minnow in minnows:
   else:
     index = layoutids.index(minnow.id)
     minnow.nprocs = layouts[index].nprocs
-    minnow.prepend = layouts[index].prepend
+    minnow.invoke = layouts[index].invoke
   minnow.procstart = nprocs
   nprocs += minnow.nprocs
   
