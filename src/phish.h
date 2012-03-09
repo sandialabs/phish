@@ -1,4 +1,4 @@
-/* PHISH library */
+/* PHISH library API */
 
 #ifndef PHISH_H
 #define PHISH_H

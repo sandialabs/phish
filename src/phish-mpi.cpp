@@ -21,6 +21,12 @@
 #include "phish.h"
 #include "hash.h"
 
+// ZMQ support for publish/subscribe connections
+
+#ifdef PHISH_MPI_ZMQ
+#include "zmq.h"
+#endif
+
 /* ---------------------------------------------------------------------- */
 // definitions
 
@@ -216,12 +222,15 @@ void phish_init(int *pnarg, char ***pargs)
       else if (strcmp(args[iarg+4],"bcast") == 0) style = BCAST;
       else if (strcmp(args[iarg+4],"chain") == 0) style = CHAIN;
       else if (strcmp(args[iarg+4],"ring") == 0) style = RING;
+#ifdef PHISH_MPI_ZMQ
       else if (strstr(args[iarg+4],"subscribe") == args[iarg+4]) {
 	style = SUBSCRIBE;
 	int n = strlen(args[iarg+4]) - strlen("subscribe/") + 1;
 	host = new char[n];
 	strcpy(host,&args[iarg+4][strlen("subscribe/")]);
-      } else phish_error("Unrecognized in style in phish_init");
+      }
+#endif
+      else phish_error("Unrecognized in style in phish_init");
 
       rprocs = atoi(args[iarg+5]);
       rfirst = atoi(args[iarg+6]);
@@ -254,8 +263,6 @@ void phish_init(int *pnarg, char ***pargs)
 	ip->donemax++;
 	break;
       case SUBSCRIBE:
-	// remove this error if support socket subscribing from MPI
-	phish_error("No support for subscribe input from MPI in phish_init");
 	break;
       }
 
@@ -281,10 +288,13 @@ void phish_init(int *pnarg, char ***pargs)
       else if (strcmp(args[iarg+4],"bcast") == 0) style = BCAST;
       else if (strcmp(args[iarg+4],"chain") == 0) style = CHAIN;
       else if (strcmp(args[iarg+4],"ring") == 0) style = RING;
+#ifdef PHISH_MPI_ZMQ
       else if (strstr(args[iarg+4],"publish") == args[iarg+4]) {
 	style = PUBLISH;
 	tcpport = atoi(&args[iarg+4][strlen("publish/")]);
-      } else phish_error("Unrecognized out style in phish_init");
+      }
+#endif
+      else phish_error("Unrecognized out style in phish_init");
 
       rprocs = atoi(args[iarg+5]);
       rfirst = atoi(args[iarg+6]);
@@ -360,8 +370,6 @@ void phish_init(int *pnarg, char ***pargs)
 	oc->offset = -1;
 	break;
       case PUBLISH:
-	// remove this error if support socket publishing from MPI
-	phish_error("No support for publish output from MPI in phish_init");
 	oc->nrecv = -1;
 	oc->recvone = -1;
 	oc->recvfirst = -1;
