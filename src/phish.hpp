@@ -7,6 +7,8 @@
 #include <tr1/functional>
 #include <vector>
 
+#include <phish.h>
+
 namespace phish
 {
 
@@ -135,23 +137,23 @@ void close();
 namespace timer
 {
 
-class cpu
-{
-public:
-  cpu();
-  double elapsed() const;
-  void reset();
-
-private:
-  double start;
-};
-
 class wallclock
 {
 public:
-  wallclock();
-  double elapsed() const;
-  void reset();
+  wallclock()
+  {
+    reset();
+  }
+
+  double elapsed() const
+  {
+    return ::phish_timer() - start;
+  }
+
+  void reset()
+  {
+    start = ::phish_timer();
+  }
 
 private:
   double start;
