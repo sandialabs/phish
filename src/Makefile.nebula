@@ -12,8 +12,8 @@ SIZE =		size
 
 # PHISH library
 
-phish:	phish.o hash.o
-	$(ARCHIVE) $(ARFLAGS) libphish.a phish.o hash.o
+phish:	phish-mpi.o hash.o
+	$(ARCHIVE) $(ARFLAGS) libphish.a phish-mpi.o hash.o
 
 clean:
 	@rm -f *.o
