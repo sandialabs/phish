@@ -573,7 +573,6 @@ void phish_close(int iport)
     OutConnect *oc = &op->connects[iconnect];
     int tag = MAXPORT + oc->recvport;
     switch (oc->style) {
-
     case SINGLE:
     case PAIRED:
     case RING:
@@ -910,7 +909,6 @@ void send(OutConnect *oc)
   // send datum to appropriate receiving proc depending on connection style
 
   switch (oc->style) {
-
   case SINGLE:
   case PAIRED:
   case RING:
@@ -1112,6 +1110,10 @@ void phish_pack_double_array(double *vec, int n)
   npack++;
 }
 
+/* ----------------------------------------------------------------------
+   same as phish_pack_raw(), execpt for PHISH_PICKLE flag
+------------------------------------------------------------------------- */
+
 void phish_pack_pickle(char *buf, int len)
 {
   if (sptr + 2*sizeof(int) + len - sbuf > maxbuf)
@@ -1133,6 +1135,7 @@ void phish_pack_pickle(char *buf, int len)
    len = byte count for RAW and STRING (including NULL)
    len = 1 for BYTE, INT, UINT64, DOUBLE
    len = # of array values for ARRAY types
+   PHISH_PICKLE is same as PHISH_RAW
 ------------------------------------------------------------------------- */
 
 int phish_unpack(char **buf, int *len)
