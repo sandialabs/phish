@@ -8,6 +8,7 @@ find_library(ZMQ_LIBRARY zmq)
 find_package(MPI)
 
 add_subdirectory(src)
+add_subdirectory(minnow)
 add_subdirectory(minnow2)
 add_subdirectory(perf)
 
