@@ -17,8 +17,7 @@ outport = output port datums are written to by sending minnows (default = 0)
 style = kind of connection between sending minnows and receiving
 minnows = {single} or {paired} or {hashed} or {roundrobin} or {direct} or {bcast} or {chain} or {ring} or {publish} or {subscribe}
 recvID = ID of minnows which will receive datums
-inport = input port datums are read from by receiving minnows (default
-= 0) :ul
+inport = input port datums are read from by receiving minnows (default = 0) :ul
 
 [Examples:]
 

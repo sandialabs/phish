@@ -13,49 +13,65 @@
 </H3>
 <P><B>Syntax:</B>
 </P>
-<P>set keyword value ...
+<P>set keyword value
 </P>
-<UL><LI>one or more keyword/value pairs can be appended 
+<UL><LI>keyword = <I>memory</I> or <I>safe</I> 
 
-<PRE>possible keywords = none are yet defined 
+<PRE>  <I>memory</I> value = N
+    N = max size of datum in Kbytes
+  <I>safe</I> value = none 
 </PRE>
 
 </UL>
 <P><B>Examples:</B>
 </P>
-<P>No set keywords are yet defined.
+<P>set memory 1024
+set safe
 </P>
 <P><B>Description:</B>
 </P>
 <P>Set is a command that can be used in a PHISH input script which is
-recognized by the <A HREF = "Bait.html">bait.py</A> setup program.  It (re)sets
-values that are used by the bait.py program as it reads and processes
-commands from the PHISH input script.
+recognized by the <A HREF = "Bait.html">bait.py</A> setup program.  It resets
+default values that are used by the bait.py program as it reads and
+processes commands from the PHISH input script.
 </P>
-<P>No keywords are defined yet.
+<P>The <I>memory</I> keyword sets the maximum length of datums that are
+exchanged by minnows when a PHISH program runs.  Send and receive
+buffers for datums are allocated by the <A HREF = "Section_library.html">PHISH
+library</A>.  Only 2 such buffers are allocated, so
+this setting essentially determines the memory footprint of the PHISH
+library.
 </P>
-<P>could allow max buf size for a datum to be set
- then append it as arg to all launched minnows
+<P>The <I>N</I> setting is in Kbytes, so that <I>N</I> = 1024 is 1 Mbyte, and <I>N</I> =
+1048576 is 1 Gbyte.  The default is <I>N</I> = 1, since typical PHISH
+minnows send and receive small datums.
 </P>
-<P>could duplicate command-line switches to allow them
-to be set in input script
+<P>The <I>safe</I> keyword is only relevant the MPI version of the PHISH
+library.  It forces the library to use MPI_Ssend() calls which are a
+safer version than the normal MPI_Send() function.  Safe in this
+context refers to messages being dropped if the receiving process is
+backed up.  This can happen if a minnow in a PHISH school of minnows
+is significantly slower to process datums than all the others, and a
+large number of datums are being continually sent to it.  With the
+safe mode of MPI calls, the slow minnow should effectively throttle
+the incoming messages so an overflow does not occur.  This requires
+extra handshaking between the MPI processes and slows down the rate at
+which small messages are exchanged, so this safe mode is "off" by
+default.  Many PHISH programs do not seem to need it, as MPI is
+robust enough to insure no messages are dropped.
 </P>
-<P>could also allow verbosity or makefile
-</P>
-<P>verbosity = 0 or 1 (default = 0) = currently not used
-</P>
-<P>makefile = filename (default = Makefile) = currently not used
-  coult be used to auto-build EXE files
-</P>
-<P>could have setting for warn vs error when a minnow EXE does not
-  yet exist
+<P>Note that the <I>safe</I> keyword takes no value.  If it is not specified,
+the default is for the PHISH library to use normal MPI_Send() calls.
 </P>
 <P><B>Restrictions:</B> none
 </P>
 <P><B>Related commands:</B>
 </P>
-<P>See the discussion of command-line arguments for <A HREF = "Bait.html">bait.py</A>.
+<P>See the discussion of command-line arguments for the
+<A HREF = "Secttion_bait.html">bait.py</A> tool.
 </P>
-<P><B>Default:</B> none
+<P><B>Default:</B>
+</P>
+<P>The default settings are memory = 1 (1 Kbyte) and safe is not set.
 </P>
 </HTML>
