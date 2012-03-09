@@ -65,49 +65,50 @@ The phish_send() function sends a datum to the specified {iport}
 output port.
 
 This generic form of a send can be used for all connection styles
-except the HASHED and DIRECT styles.  See the PHISH input script
+except the {hashed} and {direct} styles.  See the PHISH input script
 "connect"_bait_connect.html command for details.  Note that multiple
 sets of receiving minnows, each with their own connection style, can
 be connected to the same output port.
 
-If phish_send() is used with a HASHED or DIRECT connection style,
+If phish_send() is used with a {hashed} or {direct} connection style,
 an error will result.
 
 :line
 
 The phish_send_key() function sends a datum to the specified {iport}
 output port and allows specification of a byte string or {key} of
-length {nbytes}, which will be hashed by the PHISH library and
+length {nbytes}, which will be {hashed} by the PHISH library and
 converted into an index for choosing a specific receiving processor to
 send the datum to.
 
-This form of sending must be used for a HASHED connection style.  See
+This form of sending must be used for a {hashed} connection style.  See
 the PHISH input script "connect"_bait_connect.html command for
 details.  If one or more of the connection styles connected to the
-output port is not a HASHED style, then the {key} and {nbytes}
+output port is not a {hashed} style, then the {key} and {nbytes}
 arguments are ignored, and the generic phish_send() form is used to
 send the datum.
 
-NOTE: does Python syntax not include len?
+NOTE: does Python syntax not include len?  or can other non-string
+keys be {hashed}?
 
 :line
 
-The phish_direct() function sends a datum to the specified {iport}
-output port and allows a specific receiving minnow to be selected via
-the {receiver} argument.  The {receiver} is an integer offset into the
-set of receiving minnows connected to this output port.  If there are
-{M} minnows in the receiving set, then 0 <= {receiver} < M is
-required.  The "phish_query"_phish_query.html function can be used to
-query information about the receiving set of minnows.  For example
-this phish_query() call would return M, assuming the receiving
-processors are connected to output port 0.
+The phish_send_direct() function sends a datum to the specified
+{iport} output port and allows a specific receiving minnow to be
+selected via the {receiver} argument.  The {receiver} is an integer
+offset into the set of receiving minnows connected to this output
+port.  If there are {M} minnows in the receiving set, then 0 <=
+{receiver} < M is required.  The "phish_query"_phish_query.html
+function can be used to query information about the receiving set of
+minnows.  For example this phish_query() call would return M, assuming
+the receiving processors are connected to output port 0.
 
 int m = phish_query("outport/direct",0,0); :pre
 
-This form of sending must be used for a DIRECT connection style.  See
-the PHISH input script "connect"_bait_connect.html command for
+This form of sending must be used for a {direct} connection style.
+See the PHISH input script "connect"_bait_connect.html command for
 details.  If one or more of the connection styles connected to the
-output port is not a DIRECT style, then the {reciever} argument is
+output port is not a {direct} style, then the {reciever} argument is
 ignored, and the generic phish_send() form is used to send the datum.
 
 :line

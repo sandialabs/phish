@@ -13,30 +13,60 @@
 </H3>
 <P><B>C syntax:</B>
 </P>
-<PRE>int phish_query(int *idlocal, int *nlocal, int *idglobal, int *nglobal) 
+<PRE>int phish_query(char *keyword, int flag1, int flag2) 
 </PRE>
+<UL><LI>keyword = "idlocal" or "nlocal" or "idglobal" or "nglobal" or "inport/status" or "inport/nconnect" or "inport/nminnows" or "outport/status" or "outport/nconnect" or "output/nminnows" or "outport/direct" 
+
+<PRE>  idlocal ignores flag1,flag2
+  nlocal ignores flag1,flag2
+  idglobal ignores flag1,flag2
+  nglobal ignores flag1,flag2
+  inport/status uses flag1 = input port # (0 to Maxport-1), ignores flag2
+  inport/nconnect uses flag1 = input port # (0 to Maxport-1), ignores flag2
+  inport/nminnow uses flag1 = input port # (0 to Maxport-1),
+                      flag2 = connection # on that port (0 to Nconnect-1) 
+  outport/status uses flag1 = output port # (0 to Maxport-1), ignores flag2
+  outport/nconnect uses flag1 = output port # (0 to Maxport-1), ignores flag2
+  outport/nminnow uses flag1 = output port # (0 to Maxport-1),
+                       flag2 = connection # on that port (0 to Nconnect-1) 
+  outport/direct uses flag1 = output port # (0 to Maxport-1), ignores flag2 
+</PRE>
+
+</UL>
 <P><B>C examples:</B>
 </P>
-<P>phish_init(&argc,&argv);
-int idlocal,nlocal,idglobal,nglobal;
-MPI_Comm comm = phish_school(&idlocal,&nlocal,&idglobal,&nglobal);
-</P>
-<PRE>printf("Local minnow info: %d %d\n",idlocal,nlocal);
-printf("Global minnow info: %d %d\n",idglobal,nglobal); 
+<PRE>int nlocal = phish_query("nlocal",0,0);
+int nrecv = phish_query("outport/direct",2,0); 
 </PRE>
 <P><B>Python syntax:</B>
 </P>
-<PRE>def school() 
+<PRE>def query(str,flag1,flag2) 
 </PRE>
 <P><B>Python examples:</B>
 </P>
-<PRE>idlocal,nlocal,idglobal,nglobal = phish.query() 
-</PRE>
+<P>import phish
+nlocal = phish.query("nlocal",0,0)
+nrecv = phish.query("outport/direct",2,0)
+</P>
 <P><B>Description:</B>
 </P>
 <P>This is a PHISH library functions which can be called from a minnow
 application.  In PHISH lingo, a "minnow" is a stand-alone application
 which makes calls to the <A HREF = "Library.html">PHISH library</A>.
+</P>
+<P>This function is used by a minnow to query information about the set
+of minnows it belongs to and the global school of minnows running the
+PHISH program.  It can also query information about the input and
+output ports the minnow is connected to for communicating with other
+minnows, and the number of minnows it sends datums to or receives
+datums from.
+</P>
+<HR>
+
+<P>The "idlocal", "nlocal", "idglobal", and "nglobal" keywords return
+info about the minnow and its relation to other minnows running the
+PHISH program.  These keywords ignore the flag1 and flag2 values; they
+can simply be set to 0.
 </P>
 <P>A PHISH program typically includes one or more sets of minnows, as
 specified in a PHISH input script.  Each minnow in each set is an
@@ -53,22 +83,55 @@ MPI_Recv() function calls.
 </P>
 <HR>
 
-<P>The phish_school() function can be used to query the local and global
-information about the minnow, both within its local set of duplicate
-minnows, and within the global school of minnows.
+<P>The "inport/status", "inport/nconnect", and "inport/nminnows" keywords
+return info about the input ports that connect to the minnow by which
+it receives datums from other minnows.  Likewise, the
+"outport/status", "outport/nconnect", "output/nminnows", and
+"output/direct" keywords return info about the output ports the minnow
+connects to by which it sends datums to other minnows.
 </P>
-<P>The meaning of the 4 returned values <I>idlocal</I>, <I>nlocal</I>, <I>idglobal</I>,
-and <I>nglobal</I> are as described above for the <I>-minnow</I> command-line
-switch.
+<P>All of these keywords require the use of <I>flag1</I> to specify the input
+or output port, which is a number from 0 to Maxport-1.  Some of them,
+as noted below, require the use of <I>flag2</I> to specify the connection
+#, which is a number from 0 to Nconnect-1.
 </P>
-<P>NOTE: also need phish_school or a variatnt to tell something
-      about other sets connected to?
-      for phish_send_direct() function
+<P>See <A HREF = "Section_minnows.html_#minnow_3">this section</A> of the <A HREF = "Section_minnows.html">PHISH
+Minnows</A> doc page for more information about
+input and output ports.
 </P>
+<P>See the <A HREF = "bait_connect.html">connect</A> command which is processed by the
+<A HREF = "Section_bait.html">bait.py</A> tool in a PHISH input script, to
+establish connections between sets of minnows.
+</P>
+<P>The "status" keyword returns the status of the port, which
+is one of the following values:
+</P>
+<UL><LI>unused = 0
+<LI>open = 1
+<LI>closed = 2 
+</UL>
+<P>The "nconnect" keyword returns the number of sets of minnows that are
+connected to a port.
+</P>
+<P>The "nminnows" keyword returns the number of minnows connected
+to a port thru a specific connection, as specified by flag2.
+</P>
+<P>The "outport/direct" keyword returns the number of minnows connected
+to an output port thru a connection of style <I>direct</I>.  The first
+such connection found is used to return this value, so if another
+<I>direct</I> connection is desired, the "outport/nminnows" keyword
+should be used.
+</P>
+<P>See the <A HREF = "phish_send.html">phish_send_direct</A> function for a discussion
+of how datums are sent via <I>direct</I> style connections, and why this
+particular phish_query() keyword can be useful.
+</P>
+<HR>
+
 <P><B>Restrictions:</B> none
 </P>
 <P><B>Related commands:</B>
 </P>
-<P><A HREF = "phish_init.html">phish_init</A>
+<P><A HREF = "phish_init.html">phish_init</A>, <A HREF = "phish_send.html">phish_send_direct</A>
 </P>
 </HTML>

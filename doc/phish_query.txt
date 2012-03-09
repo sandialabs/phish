@@ -49,10 +49,19 @@ This is a PHISH library functions which can be called from a minnow
 application.  In PHISH lingo, a "minnow" is a stand-alone application
 which makes calls to the "PHISH library"_Library.html.
 
+This function is used by a minnow to query information about the set
+of minnows it belongs to and the global school of minnows running the
+PHISH program.  It can also query information about the input and
+output ports the minnow is connected to for communicating with other
+minnows, and the number of minnows it sends datums to or receives
+datums from.
 
+:line
 
-
-
+The "idlocal", "nlocal", "idglobal", and "nglobal" keywords return
+info about the minnow and its relation to other minnows running the
+PHISH program.  These keywords ignore the flag1 and flag2 values; they
+can simply be set to 0.
 
 A PHISH program typically includes one or more sets of minnows, as
 specified in a PHISH input script.  Each minnow in each set is an
@@ -69,20 +78,53 @@ MPI_Recv() function calls.
 
 :line
 
-The phish_school() function can be used to query the local and global
-information about the minnow, both within its local set of duplicate
-minnows, and within the global school of minnows.
+The "inport/status", "inport/nconnect", and "inport/nminnows" keywords
+return info about the input ports that connect to the minnow by which
+it receives datums from other minnows.  Likewise, the
+"outport/status", "outport/nconnect", "output/nminnows", and
+"output/direct" keywords return info about the output ports the minnow
+connects to by which it sends datums to other minnows.
 
-The meaning of the 4 returned values {idlocal}, {nlocal}, {idglobal},
-and {nglobal} are as described above for the {-minnow} command-line
-switch.
+All of these keywords require the use of {flag1} to specify the input
+or output port, which is a number from 0 to Maxport-1.  Some of them,
+as noted below, require the use of {flag2} to specify the connection
+#, which is a number from 0 to Nconnect-1.
 
-NOTE: also need phish_school or a variatnt to tell something
-      about other sets connected to?
-      for phish_send_direct() function
+See "this section"_Section_minnows.html_#minnow_3 of the "PHISH
+Minnows"_Section_minnows.html doc page for more information about
+input and output ports.
+
+See the "connect"_bait_connect.html command which is processed by the
+"bait.py"_Section_bait.html tool in a PHISH input script, to
+establish connections between sets of minnows.
+
+The "status" keyword returns the status of the port, which
+is one of the following values:
+
+unused = 0
+open = 1
+closed = 2 :ul
+
+The "nconnect" keyword returns the number of sets of minnows that are
+connected to a port.
+
+The "nminnows" keyword returns the number of minnows connected
+to a port thru a specific connection, as specified by flag2.
+
+The "outport/direct" keyword returns the number of minnows connected
+to an output port thru a connection of style {direct}.  The first
+such connection found is used to return this value, so if another
+{direct} connection is desired, the "outport/nminnows" keyword
+should be used.
+
+See the "phish_send_direct"_phish_send.html function for a discussion
+of how datums are sent via {direct} style connections, and why this
+particular phish_query() keyword can be useful.
+
+:line
 
 [Restrictions:] none
 
 [Related commands:]
 
-"phish_init"_phish_init.html
+"phish_init"_phish_init.html, "phish_send_direct"_phish_send.html
