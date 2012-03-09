@@ -119,9 +119,11 @@ def recv():
 def send(iport):
   lib.phish_send(iport)
 
+# pickle the key so can hash any Python object
+  
 def send_key(iport,key):
-  ckey = c_char_p(key)
-  lib.phish_send_key(iport,ckey,len(key))
+  cobj = dumps(key,1)
+  lib.phish_send_key(iport,cobj,len(cobj))
 
 def send_direct(iport,receiver):
   lib.phish_send_direct(iport,receiver)
@@ -132,7 +134,7 @@ def reset_receiver(iport,receiver):
 def pack_datum(ptr,len):
   lib.phish_pack_datum(ptr,len)
 
-# convert arbitrary Python object as string
+# cstr will be a char ptr to Python object as it were string
 # but pass user-specified len to pack_raw(), not string length
   
 def pack_raw(obj,len):
@@ -175,7 +177,7 @@ def pack_double_array(vec):
   for i in xrange(n): ptr[i] = vec[i]
   lib.phish_pack_double_array(ptr,n)
 
-# pickle the arbitrary Python object which converts it to a string of bytes
+# pickle the Python object which converts it to a string of bytes
   
 def pack_pickle(obj):
   cobj = dumps(obj,1)
