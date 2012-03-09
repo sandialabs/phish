@@ -1,7 +1,6 @@
 // MINNOW filegen
 // emit filenames from list of files & dirs, scanned recursively
 
-#include "mpi.h"
 #include "string.h"
 #include "stdio.h"
 #include "stdlib.h"

@@ -1213,7 +1213,7 @@ int phish_datum(char **buf, int *len)
    return info about minnow counts and input/output ports
 ------------------------------------------------------------------------- */
 
-int phish_query(char *keyword, int flag1, int flag2)
+int phish_query(const char *keyword, int flag1, int flag2)
 {
   if (!initflag) phish_error("Phish_init has not been called");
 

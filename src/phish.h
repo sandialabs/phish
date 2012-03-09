@@ -54,7 +54,7 @@ void phish_pack_pickle(char *, int);
 int phish_unpack(char **, int *);
 int phish_datum(char **, int *);
 
-int phish_query(char *, int, int);
+int phish_query(const char *, int, int);
 void phish_error(const char *);
 void phish_warn(const char *);
 double phish_timer();

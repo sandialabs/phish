@@ -1,7 +1,6 @@
 // MINNOW rmat
 // emit edges from an RMAT matrix
 
-#include "mpi.h"
 #include "stdint.h"
 #include "stdlib.h"
 #include "string.h"
@@ -31,11 +30,10 @@ int main(int narg, char **args)
   if (fraction >= 1.0) phish_error("Rmat fraction must be < 1");
   if (seed <= 0) phish_error("Rmat seed must be positive integer");
 
-  // perturb seed for each proc in case running multiple SPs
+  // perturb seed for each minnow in case running multiple minnows
 
-  int me;
-  MPI_Comm_rank(MPI_COMM_WORLD,&me);
-  srand48(seed+me);
+  int idglobal = phish_query("idglobal",0,0);
+  srand48(seed+idglobal);
   uint64_t order = 1L << nlevels;
 
   uint64_t i,j,delta;
