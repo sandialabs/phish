@@ -1,5 +1,5 @@
 "Previous Section"_Library.html - "PHISH WWW Site"_pws -
-"LAMMPS Documentation"_pd - "Next Section"_Python.html :c
+"PHISH Documentation"_pd - "Next Section"_Python.html :c
 
 :link(pws,http://phish.sandia.gov)
 :link(pd,Manual.html)
