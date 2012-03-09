@@ -12,26 +12,33 @@
 </H3>
 <P>This is the API to the PHISH library that minnows (stand-alone
 applications) call.  It is a C-style API, so it is easy to write
-minnows in any language (e.g. C, C++, Fortran, Python) that call the
-PHISH library.  The doc pages below for individual library functions
-also document the <A HREF = "Python.html">Python interface</A> to the library.
+minnows in any language, e.g. C, C++, Fortran, Python.  The doc pages
+below for individual library functions also document the <A HREF = "Python.html">Python
+interface</A> to the library.
 </P>
-<P>NOTE: Is the Sockets interface identical?
-NOTE: Discuss limits and options affecting library:
-      e.g. MAXBUF and PHISH_SAFE_SEND
-      make these user-settable options?
+<P>MPI and socket API are identical.
 </P>
 <P>PHISH minnows communicate with other minnows by sending and receiving
-datums.  Before looking individual library calls, its helpful to
+datums.  A general discussion of how minnows call these functions is
+given in the <A HREF = "Minnows.html">Minnows</A> section of the manual.
+</P>
+<P>Before looking at individual library calls, it may be helpful to
 understand how the data in a datum is structured by the PHISH library.
-This topic is discussed below, in the section entitled <A HREF = "#datum">Format of a
+This topic is discussed below, in the section entitled <A HREF = "#library_2">Format of a
 datum</A>.
 </P>
+<UL><LI>4.1 <A HREF = "#library_1">List of library functions</A>
+<LI>4.2 <A HREF = "#library_2">Format of a datum</A> 
+</UL>
+<HR>
+
+<HR>
+
+<A NAME = "library_1"></A><H4>4.1 List of library functions 
+</H4>
 <P>The PHISH library is not large; there are only a handful of calls.
 They can be grouped into the following 5 categories.  Follow the links
-to see a doc page for each library call.  A general discussion of how
-minnows call these functions is given in the <A HREF = "Minnows.html">Minnows</A>
-section of the manual.
+to see a doc page for each library call.  
 </P>
 <OL><LI>Library calls for initialization 
 
@@ -107,9 +114,7 @@ section of the manual.
 </OL>
 <HR>
 
-<HR>
-
-<A NAME = "datum"></A><H4>Format of a datum 
+<A NAME = "library_2"></A><H4>4.2 Format of a datum 
 </H4>
 <P>A datum is a chunk of bytes sent from one PHISH minnow to another.
 This section describes the format of the chunk, which is the same whether

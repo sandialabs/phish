@@ -8,7 +8,8 @@
 
 5. Examples :h3
 
-This is the list of example PHISH input scripts provided:
+This is the list of PHISH input scripts provided in
+the examples directory of the distribution.
 
 ** in.pp = ping-pong test between 2 processes
 

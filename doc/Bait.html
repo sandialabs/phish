@@ -1,6 +1,6 @@
 <HTML>
 <CENTER><A HREF = "Intro.html">Previous Section</A> - <A HREF = "http://phish.sandia.gov">PHISH WWW Site</A> -
-<A HREF = "Manual.html">LAMMPS Documentation</A> - <A HREF = "Minnows.html">Next Section</A> 
+<A HREF = "Manual.html">PHISH Documentation</A> - <A HREF = "Minnows.html">Next Section</A> 
 </CENTER>
 
 
@@ -25,33 +25,31 @@ Rerunning bait.py will create a new launch script.
 PHISH input script is formatted.  The PHISH input script commands
 recognized by bait.py have their own doc pages.
 </P>
-<UL><LI><A HREF = "#bait_1">Running bait.py</A> 
-
-<LI><A HREF = "#bait_2">Command-line arguments</A> 
-
-<LI><A HREF = "#bait_3">Input script syntax and parsing</A> 
-
-<LI><A HREF = "#bait_4">Simple example</A> 
-
-<LI>Input script commands 
-
-<UL><LI>  <A HREF = "bait_variable.html">variable</A> 
-
-<LI>  <A HREF = "bait_set.html">set</A> 
-
-<LI>  <A HREF = "bait_minnow.html">minnow</A> 
-
-<LI>  <A HREF = "bait_connect.html">connect</A> 
-
-<LI>  <A HREF = "bait_layout.html">layout</A> 
-</UL>
-
+<UL><LI>2.1 <A HREF = "#bait_1">Input script commands</A>
+<LI>2.2 <A HREF = "#bait_2">Running bait.py</A>
+<LI>2.3 <A HREF = "#bait_3">Command-line arguments</A>
+<LI>2.4 <A HREF = "#bait_4">Input script syntax and parsing</A>
+<LI>2.5 <A HREF = "#bait_5">Simple example</A> 
 </UL>
 <HR>
 
 <HR>
 
-<A NAME = "bait_1"></A><H4>Running bait.py 
+<A NAME = "bait_1"></A><H4>2.1 Input script commands 
+</H4>
+<UL><LI><A HREF = "bait_variable.html">variable</A> 
+
+<LI><A HREF = "bait_set.html">set</A> 
+
+<LI><A HREF = "bait_minnow.html">minnow</A> 
+
+<LI><A HREF = "bait_connect.html">connect</A> 
+
+<LI><A HREF = "bait_layout.html">layout</A> 
+</UL>
+<HR>
+
+<A NAME = "bait_2"></A><H4>2.2 Running bait.py 
 </H4>
 <P>The bait.py Python script is in the bait directory of the PHISH
 distribution.
@@ -80,7 +78,7 @@ discussed in the next section.
 </P>
 <HR>
 
-<A NAME = "bait_2"></A><H4>Command-line arguments 
+<A NAME = "bait_3"></A><H4>2.3 Command-line arguments 
 </H4>
 <P>These are the command-line arguments recognized by bait.py.  Each is
 specified as "-switch value(s)".  Each switch has an abbreviated form;
@@ -124,7 +122,7 @@ bait.py writes out.  The valid <I>outstyle</I> values are <I>mpich</I> or
 </P>
 <HR>
 
-<A NAME = "bait_3"></A><H4>Input script syntax and parsing 
+<A NAME = "bait_4"></A><H4>2.4 Input script syntax and parsing 
 </H4>
 <P>A PHISH input script is a text file that contains commands, typically
 one per line.
@@ -159,21 +157,9 @@ variable files f1.txt f2.txt f3.txt
 </PRE>
 <P>After variable substitution, a single command is a series of "words"
 separated by whitespace.  The first word is the command name; the
-reamining words are arguments.
-</P>
-<P>These are the command names recognized by bait.py:
-</P>
-<UL><LI><A HREF = "bait_variable.html">variable</A> 
-
-<LI><A HREF = "bait_set.html">set</A> 
-
-<LI><A HREF = "bait_minnow.html">minnow</A> 
-
-<LI><A HREF = "bait_connect.html">connect</A> 
-
-<LI><A HREF = "bait_layout.html">layout</A> 
-</UL>
-<P>Each command has its own syntax; see its doc page for details.
+reamining words are arguments.  The command names recognized by
+bait.py are <A HREF = "#bait_1">listed above</A>.  Each command has its own syntax;
+see its doc page for details.
 </P>
 <P>With one exception, commands in a PHISH input script can be listed in
 any order.  The script is converted by bait.py into a launch script
@@ -183,7 +169,7 @@ defined.
 </P>
 <HR>
 
-<A NAME = "bait_4"></A><H4>Simple example 
+<A NAME = "bait_5"></A><H4>2.5 Simple example 
 </H4>
 <P><A HREF = "Intro.html#intro_5">This section</A> of the <A HREF = "Intro.html">Introduction</A> doc
 page, discussed this diagram of a PHISH calculation for counting the

@@ -13,17 +13,17 @@ created it.  It outlines the steps to creating your own PHISH program,
 and gives a simple of using PHISH to perform a parallel calculation.
 These are the topics discussed:
 
-"Motivation"_#intro_1
-"PHISH Pheatures"_#intro_2
-"PHISH lingo"_#intro_3
-"Steps to creating and running a PHISH program"_#intro_4
-"Simple example"_#intro_5
-"Acknowledgments and citations"_#intro_6 :ul
+1.1 "Motivation"_#intro_1
+1.2 "PHISH Pheatures"_#intro_2
+1.3 "PHISH lingo"_#intro_3
+1.4 "Steps to creating and running a PHISH program"_#intro_4
+1.5 "Simple example"_#intro_5
+1.6 "Acknowledgments and citations"_#intro_6 :ul
 
 :line
 :line
 
-Motivation :link(intro_1),h4
+1.1 Motivation :link(intro_1),h4
 
 informatics, data-driven computing becoming more prevalent, 
 even on large-scale parallel machines
@@ -66,7 +66,7 @@ all of these goals reflected in name PHISH
 
 :line
 
-PHISH Pheatures:link(intro_2),h4
+1.2 PHISH Pheatures:link(intro_2),h4
 
 lib = simple (1000 lines), C-interface, portable (list langaunges),
 Python (phish) wrapper provided
@@ -109,7 +109,7 @@ MPI message passing.
 
 :line
 
-PHISH lingo:link(intro_3),h4
+1.3 PHISH lingo:link(intro_3),h4
 
 phish wrapper
 
@@ -173,7 +173,7 @@ socket connections.
 
 :line
 
-Steps to creating and running a PHISH program :link(intro_4),h4
+1.4 Steps to creating and running a PHISH program :link(intro_4),h4
 
 a) write one or more minnows that call the PHISH library
 b) write a script listing the minnows and the communication patterns between them
@@ -190,7 +190,7 @@ show commands to run the launch script
 
 :line
 
-Simple example :link(intro_5),h4
+1.5 Simple example :link(intro_5),h4
 
 Here is an example of using a PHISH program to count the number of
 times different words appear in a corpus of text files.  This is
@@ -319,7 +319,7 @@ time-windowed fashion.
 
 :line
 
-Acknowledgments and citations :link(intro_6),h4
+1.6 Acknowledgments and citations :link(intro_6),h4
 
 PHISH development has been funded by the US Department of Energy (DOE),
 through its LDRD program at Sandia National Laboratories.

@@ -22,13 +22,22 @@ communication patterns
 in tandem with other duplicate minnows, each processing a subset of
 datums.
 </P>
+<P>minnow vs shark vs whale
+</P>
 <P>This doc page covers these topics:
 </P>
-<UL><LI><A HREF = "#minnow_1">Structure of a minnow</A>
-<LI><A HREF = "#minnow_2">Communication via ports</A>
-<LI><A HREF = "#minnow_3">Shutting down a minnow</A>
-<LI><A HREF = "#minnow_4">Building and debugging a minnow</A> 
+<UL><LI>3.1 <A HREF = "#minnow_1">List of minnows</A>
+<LI>3.2 <A HREF = "#minnow_2">Code structure of a minnow</A>
+<LI>3.3 <A HREF = "#minnow_3">Communication via ports</A>
+<LI>3.4 <A HREF = "#minnow_4">Shutting down a minnow</A>
+<LI>3.5 <A HREF = "#minnow_5">Building a minnow</A> 
 </UL>
+<HR>
+
+<HR>
+
+<A NAME = "minnow_1"></A><H4>3.1 List of minnows 
+</H4>
 <P>This is a list of minnows in the minnow directory of the PHISH
 distribution.  Each has its own doc page.  Some are written in C++,
 some in Python, some in both:
@@ -61,9 +70,7 @@ can be wrapped by the "wrap" minnows:
 </UL>
 <HR>
 
-<HR>
-
-<A NAME = "minnow_1"></A><H4>Structure of a minnow 
+<A NAME = "minnow_2"></A><H4>3.2 Code structure of a minnow 
 </H4>
 <P>Use count.py, is same in C
 </P>
@@ -118,13 +125,13 @@ setting callbacks
 </PRE>
 <HR>
 
-<A NAME = "minnow_2"></A><H4>Communication via ports 
+<A NAME = "minnow_3"></A><H4>3.3 Communication via ports 
 </H4>
 <P>rules about ports
 </P>
 <HR>
 
-<A NAME = "minnow_3"></A><H4>Shutting down a minnow 
+<A NAME = "minnow_4"></A><H4>3.4 Shutting down a minnow 
 </H4>
 <P>regular datum vs done message
 </P>
@@ -147,7 +154,7 @@ output at end
 </P>
 <HR>
 
-<A NAME = "minnow_4"></A><H4>Building and debugging a minnow 
+<A NAME = "minnow_5"></A><H4>3.5 Building a minnow 
 </H4>
 <P>makefile
 </P>

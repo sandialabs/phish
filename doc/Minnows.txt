@@ -20,12 +20,20 @@ Often come in sets as specified by input script.  Parallel if working
 in tandem with other duplicate minnows, each processing a subset of
 datums.
 
+minnow vs shark vs whale
+
 This doc page covers these topics:
 
-"Structure of a minnow"_#minnow_1
-"Communication via ports"_#minnow_2
-"Shutting down a minnow"_#minnow_3
-"Building and debugging a minnow"_#minnow_4 :ul
+3.1 "List of minnows"_#minnow_1
+3.2 "Code structure of a minnow"_#minnow_2
+3.3 "Communication via ports"_#minnow_3
+3.4 "Shutting down a minnow"_#minnow_4
+3.5 "Building a minnow"_#minnow_5 :ul
+
+:line
+:line
+
+3.1 List of minnows :link(minnow_1),h4
 
 This is a list of minnows in the minnow directory of the PHISH
 distribution.  Each has its own doc page.  Some are written in C++,
@@ -58,13 +66,10 @@ can be wrapped by the "wrap" minnows:
 "reverse"_reverse.html :ul
 
 :line
-:line
 
-Structure of a minnow :link(minnow_1),h4
+3.2 Code structure of a minnow :link(minnow_2),h4
 
 Use count.py, is same in C
-
-
 
 Best way to make sense of what a minnow does is examine a few
 simple ones from the minnow dir.
@@ -82,7 +87,6 @@ loop vs probe vs recv
 receving and unpacking a datum
 
 packing and sending a datum
-
 
 
 1   #!/usr/local/bin/python
@@ -119,24 +123,15 @@ packing and sending a datum
 
 
 
-
-
-
-
-
-
-
-
-
 :line
 
-Communication via ports :link(minnow_2),h4
+3.3 Communication via ports :link(minnow_3),h4
 
 rules about ports
 
 :line
 
-Shutting down a minnow :link(minnow_3),h4
+3.4 Shutting down a minnow :link(minnow_4),h4
 
 regular datum vs done message
 
@@ -159,7 +154,7 @@ shutdown in ZMQ is buggy
 
 :line
 
-Building and debugging a minnow :link(minnow_4),h4
+3.5 Building a minnow :link(minnow_5),h4
 
 makefile
 

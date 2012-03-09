@@ -1,5 +1,5 @@
 "Previous Section"_Intro.html - "PHISH WWW Site"_pws -
-"LAMMPS Documentation"_pd - "Next Section"_Minnows.html :c
+"PHISH Documentation"_pd - "Next Section"_Minnows.html :c
 
 :link(pws,http://phish.sandia.gov)
 :link(pd,Manual.html)
@@ -23,22 +23,26 @@ The remainder of this page discusses how bait.py is used and how a
 PHISH input script is formatted.  The PHISH input script commands
 recognized by bait.py have their own doc pages.
 
-"Running bait.py"_#bait_1 :ulb,l
-"Command-line arguments"_#bait_2 :l
-"Input script syntax and parsing"_#bait_3 :l
-"Simple example"_#bait_4 :l
-Input script commands :l
-  "variable"_bait_variable.html :ulb,l
-  "set"_bait_set.html :l
-  "minnow"_bait_minnow.html :l
-  "connect"_bait_connect.html :l
-  "layout"_bait_layout.html :ule,l
-:ule
+2.1 "Input script commands"_#bait_1
+2.2 "Running bait.py"_#bait_2
+2.3 "Command-line arguments"_#bait_3
+2.4 "Input script syntax and parsing"_#bait_4
+2.5 "Simple example"_#bait_5 :ul
 
 :line
 :line
 
-Running bait.py :link(bait_1),h4
+2.1 Input script commands :link(bait_1),h4
+
+"variable"_bait_variable.html :ulb,l
+"set"_bait_set.html :l
+"minnow"_bait_minnow.html :l
+"connect"_bait_connect.html :l
+"layout"_bait_layout.html :ule,l
+
+:line
+
+2.2 Running bait.py :link(bait_2),h4
 
 The bait.py Python script is in the bait directory of the PHISH
 distribution.
@@ -67,7 +71,7 @@ discussed in the next section.
 
 :line
 
-Command-line arguments :link(bait_2),h4
+2.3 Command-line arguments :link(bait_3),h4
 
 These are the command-line arguments recognized by bait.py.  Each is
 specified as "-switch value(s)".  Each switch has an abbreviated form;
@@ -109,7 +113,7 @@ bait.py writes out.  The valid {outstyle} values are {mpich} or
 
 :line
 
-Input script syntax and parsing :link(bait_3),h4
+2.4 Input script syntax and parsing :link(bait_4),h4
 
 A PHISH input script is a text file that contains commands, typically
 one per line.
@@ -144,17 +148,9 @@ minnow 1 filegen f1.txt f2.txt f3.txt :pre
 
 After variable substitution, a single command is a series of "words"
 separated by whitespace.  The first word is the command name; the
-reamining words are arguments.
-
-These are the command names recognized by bait.py:
-
-"variable"_bait_variable.html :ulb,l
-"set"_bait_set.html :l
-"minnow"_bait_minnow.html :l
-"connect"_bait_connect.html :l
-"layout"_bait_layout.html :ule,l
-
-Each command has its own syntax; see its doc page for details.
+reamining words are arguments.  The command names recognized by
+bait.py are "listed above"_#bait_1.  Each command has its own syntax;
+see its doc page for details.
 
 With one exception, commands in a PHISH input script can be listed in
 any order.  The script is converted by bait.py into a launch script
@@ -164,7 +160,7 @@ defined.
 
 :line
 
-Simple example :link(bait_4),h4
+2.5 Simple example :link(bait_5),h4
 
 "This section"_Intro.html#intro_5 of the "Introduction"_Intro.html doc
 page, discussed this diagram of a PHISH calculation for counting the
