@@ -1,25 +1,6 @@
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${ZMQ_INCLUDE_DIR})
 
-# Setup tests using C++ / ZMQ ...
-
-add_executable(zmq-latency-a zmq-latency-a.cpp)
-target_link_libraries(zmq-latency-a ${ZMQ_LIBRARY})
-
-add_executable(zmq-latency-b zmq-latency-b.cpp)
-target_link_libraries(zmq-latency-b ${ZMQ_LIBRARY})
-
-configure_file(run-cpp-zmq-latency.py run-cpp-zmq-latency.py)
-
-
-add_executable(zmq-throughput-a zmq-throughput-a.cpp)
-target_link_libraries(zmq-throughput-a ${ZMQ_LIBRARY})
-
-add_executable(zmq-throughput-b zmq-throughput-b.cpp)
-target_link_libraries(zmq-throughput-b ${ZMQ_LIBRARY})
-
-configure_file(run-cpp-zmq-throughput.py run-cpp-zmq-throughput.py)
-
 # Setup tests using Python / ZMQ ...
 
 configure_file(run-py-zmq-latency.py run-py-zmq-latency.py)
@@ -42,6 +23,22 @@ endif(BUILD_MPI_BACKEND)
 # Setup tests using Phish / ZMQ ...
 if(BUILD_ZMQ_BACKEND)
 
+  add_executable(zmq-latency-a zmq-latency-a.cpp)
+  target_link_libraries(zmq-latency-a ${ZMQ_LIBRARY} phish-zmq)
+
+  add_executable(zmq-latency-b zmq-latency-b.cpp)
+  target_link_libraries(zmq-latency-b ${ZMQ_LIBRARY})
+
+  configure_file(run-cpp-zmq-latency.py run-cpp-zmq-latency.py)
+
+  add_executable(zmq-throughput-a zmq-throughput-a.cpp)
+  target_link_libraries(zmq-throughput-a ${ZMQ_LIBRARY} phish-zmq)
+
+  add_executable(zmq-throughput-b zmq-throughput-b.cpp)
+  target_link_libraries(zmq-throughput-b ${ZMQ_LIBRARY})
+
+  configure_file(run-cpp-zmq-throughput.py run-cpp-zmq-throughput.py)
+
   add_executable(phish-zmq-latency-a phish-zmq-latency-a.cpp)
   target_link_libraries(phish-zmq-latency-a phish-zmq)
 
@@ -49,7 +46,6 @@ if(BUILD_ZMQ_BACKEND)
   target_link_libraries(phish-zmq-latency-b phish-zmq)
 
   configure_file(run-cpp-phish-zmq-latency.py run-cpp-phish-zmq-latency.py)
-
 
   add_executable(phish-zmq-throughput-a phish-zmq-throughput-a.cpp)
   target_link_libraries(phish-zmq-throughput-a phish-zmq)

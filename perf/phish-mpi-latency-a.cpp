@@ -1,5 +1,3 @@
-#include "wallclock.h"
-
 #include <phish.h>
 
 #include <iomanip>
@@ -46,13 +44,13 @@ int main(int argc, char* argv[])
   phish_output(0);
   phish_check();
 
-  const double start = wallclock();
+  const double start = phish_timer();
 
   phish_pack_string(const_cast<char*>(std::string(size, '*').c_str()));
   phish_send(0);
   phish_loop();
 
-  const double elapsed = wallclock() - start;
+  const double elapsed = phish_timer() - start;
   const double latency = elapsed / (count * 2.0);
 
   std::cout << elapsed << "," << size << "," << count << "," << (latency * 1000000.0) << "\n" << std::flush;

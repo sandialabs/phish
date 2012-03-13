@@ -1,9 +1,9 @@
-#include "wallclock.h"
-
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
 #include <zmq.hpp>
+
+#include <phish.h>
 
 int main(int argc, char* argv[])
 {
@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
   if(message.size() != size)
     throw std::runtime_error("message size mismatch");
 
-  const double start = wallclock();
+  const double start = phish_timer();
 
   for(int i = 0; i != count - 1; ++i)
   {
@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
       throw std::runtime_error("message size mismatch");
   }
 
-  const double elapsed = wallclock() - start;
+  const double elapsed = phish_timer() - start;
   const double throughput = count / elapsed;
   const double megabits = (throughput * size * 8.0) / 1000000.0;
   std::cout << elapsed << "," << size << "," << count << "," << throughput << "," << megabits << "\n";
