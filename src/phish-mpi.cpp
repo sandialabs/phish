@@ -638,6 +638,8 @@ void phish_loop()
 
     if (doneflag) {
       ip->donecount++;
+      printf("DONE MESSAGE %d: %d %d %d\n",
+	     idglobal,iport,ip->donecount,ip->donemax);
       if (ip->donecount == ip->donemax) {
 	ip->status = CLOSED_PORT;
 	if (ip->donefunc) (*ip->donefunc)();
@@ -1023,54 +1025,59 @@ inline void phish_pack_helper(const T& value, int data_type)
   npack++;
 }
 
+void phish_pack_char(char value)
+{
+  phish_pack_helper(value,PHISH_CHAR);
+}
+
 void phish_pack_int8(int8_t value)
 {
-  phish_pack_helper(value, PHISH_INT8);
+  phish_pack_helper(value,PHISH_INT8);
 }
 
 void phish_pack_int16(int16_t value)
 {
-  phish_pack_helper(value, PHISH_INT16);
+  phish_pack_helper(value,PHISH_INT16);
 }
 
 void phish_pack_int32(int32_t value)
 {
-  phish_pack_helper(value, PHISH_INT32);
+  phish_pack_helper(value,PHISH_INT32);
 }
 
 void phish_pack_int64(int64_t value)
 {
-  phish_pack_helper(value, PHISH_INT64);
+  phish_pack_helper(value,PHISH_INT64);
 }
 
 void phish_pack_uint8(uint8_t value)
 {
-  phish_pack_helper(value, PHISH_UINT8);
+  phish_pack_helper(value,PHISH_UINT8);
 }
 
 void phish_pack_uint16(uint16_t value)
 {
-  phish_pack_helper(value, PHISH_UINT16);
+  phish_pack_helper(value,PHISH_UINT16);
 }
 
 void phish_pack_uint32(uint32_t value)
 {
-  phish_pack_helper(value, PHISH_UINT32);
+  phish_pack_helper(value,PHISH_UINT32);
 }
 
 void phish_pack_uint64(uint64_t value)
 {
-  phish_pack_helper(value, PHISH_UINT64);
+  phish_pack_helper(value,PHISH_UINT64);
 }
 
 void phish_pack_float(float value)
 {
-  phish_pack_helper(value, PHISH_FLOAT);
+  phish_pack_helper(value,PHISH_FLOAT);
 }
 
 void phish_pack_double(double value)
 {
-  phish_pack_helper(value, PHISH_DOUBLE);
+  phish_pack_helper(value,PHISH_DOUBLE);
 }
 
 void phish_pack_string(char *str)
@@ -1106,52 +1113,52 @@ inline void phish_pack_array_helper(T *vec, int n, int data_type)
 
 void phish_pack_int8_array(int8_t *vec, int n)
 {
-  phish_pack_array_helper(vec, n, PHISH_INT8_ARRAY);
+  phish_pack_array_helper(vec,n,PHISH_INT8_ARRAY);
 }
 
 void phish_pack_int16_array(int16_t *vec, int n)
 {
-  phish_pack_array_helper(vec, n, PHISH_INT16_ARRAY);
+  phish_pack_array_helper(vec,n,PHISH_INT16_ARRAY);
 }
 
 void phish_pack_int32_array(int32_t *vec, int n)
 {
-  phish_pack_array_helper(vec, n, PHISH_INT32_ARRAY);
+  phish_pack_array_helper(vec,n,PHISH_INT32_ARRAY);
 }
 
 void phish_pack_int64_array(int64_t *vec, int n)
 {
-  phish_pack_array_helper(vec, n, PHISH_INT64_ARRAY);
+  phish_pack_array_helper(vec,n,PHISH_INT64_ARRAY);
 }
 
 void phish_pack_uint8_array(uint8_t *vec, int n)
 {
-  phish_pack_array_helper(vec, n, PHISH_UINT8_ARRAY);
+  phish_pack_array_helper(vec,n,PHISH_UINT8_ARRAY);
 }
 
 void phish_pack_uint16_array(uint16_t *vec, int n)
 {
-  phish_pack_array_helper(vec, n, PHISH_UINT16_ARRAY);
+  phish_pack_array_helper(vec,n,PHISH_UINT16_ARRAY);
 }
 
 void phish_pack_uint32_array(uint32_t *vec, int n)
 {
-  phish_pack_array_helper(vec, n, PHISH_UINT32_ARRAY);
+  phish_pack_array_helper(vec,n,PHISH_UINT32_ARRAY);
 }
 
 void phish_pack_uint64_array(uint64_t *vec, int n)
 {
-  phish_pack_array_helper(vec, n, PHISH_UINT64_ARRAY);
+  phish_pack_array_helper(vec,n,PHISH_UINT64_ARRAY);
 }
 
-void phish_pack_double_array(float *vec, int n)
+void phish_pack_float_array(float *vec, int n)
 {
-  phish_pack_array_helper(vec, n, PHISH_FLOAT_ARRAY);
+  phish_pack_array_helper(vec,n,PHISH_FLOAT_ARRAY);
 }
 
 void phish_pack_double_array(double *vec, int n)
 {
-  phish_pack_array_helper(vec, n, PHISH_DOUBLE_ARRAY);
+  phish_pack_array_helper(vec,n,PHISH_DOUBLE_ARRAY);
 }
 
 /* ----------------------------------------------------------------------
@@ -1194,6 +1201,10 @@ int phish_unpack(char **buf, int *len)
   case PHISH_RAW:
     *len = nbytes = *(int *) rptr;
     rptr += sizeof(int);
+    break;
+  case PHISH_CHAR:
+    *len = 1;
+    nbytes = sizeof(char);
     break;
   case PHISH_INT8:
     *len = 1;
@@ -1239,15 +1250,50 @@ int phish_unpack(char **buf, int *len)
     *len = nbytes = *(int *) rptr;
     rptr += sizeof(int);
     break;
+  case PHISH_INT8_ARRAY:
+    *len = *(int *) rptr;
+    rptr += sizeof(int);
+    nbytes = *len * sizeof(int8_t);
+    break;
+  case PHISH_INT16_ARRAY:
+    *len = *(int *) rptr;
+    rptr += sizeof(int);
+    nbytes = *len * sizeof(int16_t);
+    break;
   case PHISH_INT32_ARRAY:
     *len = *(int *) rptr;
     rptr += sizeof(int);
     nbytes = *len * sizeof(int32_t);
     break;
+  case PHISH_INT64_ARRAY:
+    *len = *(int *) rptr;
+    rptr += sizeof(int);
+    nbytes = *len * sizeof(int64_t);
+    break;
+  case PHISH_UINT8_ARRAY:
+    *len = *(int *) rptr;
+    rptr += sizeof(int);
+    nbytes = *len * sizeof(uint8_t);
+    break;
+  case PHISH_UINT16_ARRAY:
+    *len = *(int *) rptr;
+    rptr += sizeof(int);
+    nbytes = *len * sizeof(uint16_t);
+    break;
+  case PHISH_UINT32_ARRAY:
+    *len = *(int *) rptr;
+    rptr += sizeof(int);
+    nbytes = *len * sizeof(uint32_t);
+    break;
   case PHISH_UINT64_ARRAY:
     *len = *(int *) rptr;
     rptr += sizeof(int);
     nbytes = *len * sizeof(uint64_t);
+    break;
+  case PHISH_FLOAT_ARRAY:
+    *len = *(int *) rptr;
+    rptr += sizeof(int);
+    nbytes = *len * sizeof(float);
     break;
   case PHISH_DOUBLE_ARRAY:
     *len = *(int *) rptr;
