@@ -11,9 +11,6 @@
 
 #include <sys/time.h>
 
-namespace phish
-{
-
 ///////////////////////////////////////////////////////////////////////////////////
 // Internal implementation details
 
@@ -21,6 +18,8 @@ static uint64_t g_received_count = 0;
 static uint64_t g_sent_count = 0;
 static uint64_t g_sent_close_count = 0;
 
+/// Defines a container for a collection of ports.
+typedef std::vector<int> port_collection;
 /// Defines a collection of message recipients (zmq sockets).
 typedef std::vector<zmq::socket_t*> recipients_t;
 
@@ -45,7 +44,7 @@ void zmq_assert(int rc)
 class output_connection
 {
 protected:
-  const port_index m_input_port;
+  const int m_input_port;
   const recipients_t m_recipients;
 
   void raw_send(zmq::socket_t& recipient)
@@ -70,7 +69,7 @@ protected:
   }
 
 public:
-  output_connection(port_index input_port, const recipients_t& recipients) :
+  output_connection(int input_port, const recipients_t& recipients) :
     m_input_port(input_port),
     m_recipients(recipients)
   {
@@ -100,21 +99,21 @@ public:
 
 static zmq::context_t* g_context = 0;
 static std::string g_name = std::string();
-static rank_id g_rank = 0;
+static int g_rank = 0;
 static zmq::socket_t* g_control_port = 0;
 static zmq::socket_t* g_input_port = 0;
 
-static std::map<port_index, int> g_input_connection_counts;
+static std::map<int, int> g_input_connection_counts;
 
-static std::map<port_index, std::vector<output_connection*> > g_output_connections;
+static std::map<int, std::vector<output_connection*> > g_output_connections;
 
-static std::map<port_index, message_callback> g_message_callbacks;
-static std::map<port_index, port_closed_callback> g_closed_callbacks;
-static std::map<port_index, bool> g_optional;
+static std::map<int, phish::message_callback> g_message_callbacks;
+static std::map<int, phish::port_closed_callback> g_closed_callbacks;
+static std::map<int, bool> g_optional;
 
-static std::set<port_index> g_defined_output_ports;
+static std::set<int> g_defined_output_ports;
 
-static last_port_closed_callback g_last_port_closed;
+static phish::last_port_closed_callback g_last_port_closed;
 static bool g_running = false;
 
 // Provides temporary storage for unpacking messages ...
@@ -127,7 +126,7 @@ class broadcast_connection :
   public output_connection
 {
 public:
-  broadcast_connection(port_index input_port, const recipients_t& recipients) :
+  broadcast_connection(int input_port, const recipients_t& recipients) :
     output_connection(input_port, recipients)
   {
   }
@@ -148,7 +147,7 @@ class round_robin_connection :
   int m_index;
 
 public:
-  round_robin_connection(port_index input_port, const recipients_t& recipients) :
+  round_robin_connection(int input_port, const recipients_t& recipients) :
     output_connection(input_port, recipients),
     m_index(0)
   {
@@ -167,7 +166,7 @@ class hashed_connection :
   public output_connection
 {
 public:
-  hashed_connection(port_index input_port, const recipients_t& recipients) :
+  hashed_connection(int input_port, const recipients_t& recipients) :
     output_connection(input_port, recipients)
   {
   }
@@ -180,19 +179,242 @@ public:
   }
 };
 
-///////////////////////////////////////////////////////////////////////////////////
-// Public API
-
-const std::string pop_argument(std::vector<std::string>& arguments)
+static const std::string pop_argument(std::vector<std::string>& arguments)
 {
   const std::string argument = arguments.front();
   arguments.erase(arguments.begin());
   return argument;
 }
 
-void init(int& argc, char**& argv)
+///////////////////////////////////////////////////////////////////////////////////
+// Public API
+
+namespace phish
 {
-  std::vector<std::string> arguments(argv, argv + argc);
+
+const port_collection output_ports()
+{
+  port_collection ports;
+  for(std::map<int, std::vector<output_connection*> >::iterator i = g_output_connections.begin(); i != g_output_connections.end(); ++i)
+    ports.push_back(i->first);
+  return ports;
+}
+
+void input(int port, message_callback message, port_closed_callback port_closed, bool optional)
+{
+  g_message_callbacks[port] = message;
+  g_closed_callbacks[port] = port_closed;
+  g_optional[port] = optional;
+}
+
+void set_last_port_closed_callback(last_port_closed_callback last_port_closed)
+{
+  g_last_port_closed = last_port_closed;
+}
+
+void loop()
+{
+  if(g_running)
+    return;
+
+  g_running = true;
+  while(g_running)
+  {
+    try
+    {
+      zmq::message_t frame_message;
+      zmq_assert(g_input_port->recv(&frame_message, 0));
+      const uint8_t frame = reinterpret_cast<uint8_t*>(frame_message.data())[0];
+      const int port = (frame & PORT_MASK);
+
+      if((frame & TYPE_MASK) == CLOSE_MESSAGE)
+      {
+        phish_warn("Received close message.");
+        g_input_connection_counts[port] -= 1;
+        if(g_input_connection_counts[port] == 0)
+        {
+          g_input_connection_counts.erase(port);
+          if(g_closed_callbacks.count(port))
+          {
+            g_closed_callbacks[port]();
+          }
+          if(g_input_connection_counts.size() == 0 && g_last_port_closed)
+          {
+            g_last_port_closed();
+          }
+        }
+      }
+      else
+      {
+        g_received_count += 1;
+
+        g_unpack_index = 0;
+        g_unpack_count = 0;
+        int64_t more_parts = 0;
+        size_t more_parts_size = sizeof(more_parts);
+        for(g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size); more_parts; g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size))
+        {
+          while(g_unpack_messages.size() <= g_unpack_count)
+            g_unpack_messages.push_back(new zmq::message_t());
+          zmq_assert(g_input_port->recv(g_unpack_messages[g_unpack_count], 0));
+          ++g_unpack_count;
+        }
+        g_message_callbacks[port](g_unpack_count);
+      }
+    }
+    catch(std::exception& e)
+    {
+      std::cerr << g_name << " (" << g_rank << ") " << e.what() << std::endl;
+      //phish_warn(e.what());
+    }
+  }
+}
+
+void loop_complete()
+{
+  if(!g_running)
+    return;
+  g_running = false;
+}
+
+void send(int port)
+{
+  if(!g_output_connections.count(port))
+  {
+    std::ostringstream message;
+    message << "Cannot send message to closed port: " << port;
+    throw std::runtime_error(message.str());
+  }
+
+  const int end = g_output_connections[port].size();
+  for(int i = 0; i != end; ++i)
+    g_output_connections[port][i]->send();
+
+  g_sent_count += 1;
+
+  for(int i = 0; i != g_pack_messages.size(); ++i)
+    delete g_pack_messages[i];
+  g_pack_messages.resize(0);
+}
+
+data_type unpack_type()
+{
+  if(g_unpack_index >= g_unpack_count)
+    throw std::runtime_error("No datum to type.");
+  return static_cast<data_type>(reinterpret_cast<uint8_t*>(g_unpack_messages[g_unpack_index]->data())[0]);
+}
+
+uint32_t unpack_length()
+{
+  if(g_unpack_index >= g_unpack_count)
+    throw std::runtime_error("No datum to size.");
+  return g_unpack_messages[g_unpack_index]->size();
+}
+
+void skip_part()
+{
+  if(g_unpack_index >= g_unpack_count)
+    throw std::runtime_error("No datum to skip.");
+  g_unpack_index += 1;
+}
+
+template<typename T>
+void unpack_helper(T& data, data_type type)
+{
+  if(g_unpack_index >= g_unpack_count)
+    throw std::runtime_error("No datum to unpack.");
+  if(reinterpret_cast<uint8_t*>(g_unpack_messages[g_unpack_index]->data())[0] != type)
+    throw std::runtime_error("Data type mismatch.");
+  if(g_unpack_messages[g_unpack_index]->size() != sizeof(T) + 1)
+    throw std::runtime_error("Data size mismatch.");
+  T temp; // This is a workaround for problems trying to take the address of data
+  ::memcpy(&temp, reinterpret_cast<uint8_t*>(g_unpack_messages[g_unpack_index]->data()) + 1, sizeof(T));
+  data = temp;
+  g_unpack_index += 1;
+}
+
+void unpack(int8_t& data)
+{
+  unpack_helper(data, INT8);
+}
+
+void unpack(int16_t& data)
+{
+  unpack_helper(data, INT8);
+}
+
+void unpack(int32_t& data)
+{
+  unpack_helper(data, INT32);
+}
+
+void unpack(int64_t& data)
+{
+  unpack_helper(data, INT64);
+}
+
+void unpack(uint8_t& data)
+{
+  unpack_helper(data, UINT8);
+}
+
+void unpack(uint16_t& data)
+{
+  unpack_helper(data, UINT8);
+}
+
+void unpack(uint32_t& data)
+{
+  unpack_helper(data, UINT32);
+}
+
+void unpack(uint64_t& data)
+{
+  unpack_helper(data, UINT64);
+}
+
+void unpack(float& data)
+{
+  unpack_helper(data, FLOAT);
+}
+
+void unpack(double& data)
+{
+  unpack_helper(data, FLOAT);
+}
+
+void unpack(std::string& data)
+{
+  if(g_unpack_index >= g_unpack_count)
+    throw std::runtime_error("No datum to unpack.");
+  if(reinterpret_cast<uint8_t*>(g_unpack_messages[g_unpack_index]->data())[0] != STRING)
+    throw std::runtime_error("Data type mismatch.");
+  data.assign(reinterpret_cast<const char*>(g_unpack_messages[g_unpack_index]->data()) + 1, g_unpack_messages[g_unpack_index]->size() - 1);
+  g_unpack_index += 1;
+}
+
+inline void pack_helper(const void* data, uint32_t length, int type)
+{
+  g_pack_messages.push_back(new zmq::message_t(1 + length));
+  reinterpret_cast<uint8_t*>(g_pack_messages.back()->data())[0] = type;
+  ::memcpy(reinterpret_cast<uint8_t*>(g_pack_messages.back()->data()) + 1, data, length);
+}
+
+template<typename T>
+inline void pack_helper(const T& data, int type)
+{
+  pack_helper(&data, sizeof(T), type);
+}
+
+} // namespace phish
+
+// Compatibility API for minnows written in C ...
+extern "C"
+{
+
+void phish_init(int* argc, char*** argv)
+{
+  std::vector<std::string> arguments(*argv, *argv + *argc);
   std::vector<std::string> kept_arguments;
 
   g_context = new zmq::context_t(2);
@@ -327,287 +549,28 @@ void init(int& argc, char**& argv)
   }
 
   // Remove phish-specific arguments from argc & argv ...
-  argc = kept_arguments.size();
-  argv = new char*[kept_arguments.size()];
+  *argc = kept_arguments.size();
+  *argv = new char*[kept_arguments.size()];
   for(int i = 0; i != kept_arguments.size(); ++i)
   {
-    argv[i] = new char[kept_arguments[i].size() + 1];
-    strcpy(argv[i], kept_arguments[i].c_str());
+    *argv[i] = new char[kept_arguments[i].size() + 1];
+    strcpy(*argv[i], kept_arguments[i].c_str());
   }
 }
 
-const std::string name()
+int phish_init_python(int, char **)
 {
-  return g_name;
+  throw std::runtime_error("Not implemented.");
 }
 
-const rank_id rank()
-{
-  return g_rank;
-}
-
-const port_collection input_ports()
-{
-  port_collection ports;
-  for(std::map<port_index, int>::iterator i = g_input_connection_counts.begin(); i != g_input_connection_counts.end(); ++i)
-    ports.push_back(i->first);
-  return ports;
-}
-
-const port_collection output_ports()
-{
-  port_collection ports;
-  for(std::map<port_index, std::vector<output_connection*> >::iterator i = g_output_connections.begin(); i != g_output_connections.end(); ++i)
-    ports.push_back(i->first);
-  return ports;
-}
-
-void input(port_index port, message_callback message, port_closed_callback port_closed, bool optional)
-{
-  g_message_callbacks[port] = message;
-  g_closed_callbacks[port] = port_closed;
-  g_optional[port] = optional;
-}
-
-void output(port_index port)
-{
-  g_defined_output_ports.insert(port);
-}
-
-void check()
-{
-  for(std::map<port_index, int>::iterator port = g_input_connection_counts.begin(); port != g_input_connection_counts.end(); ++port)
-  {
-    if(!g_message_callbacks.count(port->first))
-    {
-      std::ostringstream message;
-      message << g_name << ": unexpected connection to undefined input port " << port->first;
-      throw std::runtime_error(message.str());
-    }
-  }
-  for(std::map<port_index, message_callback>::iterator port = g_message_callbacks.begin(); port != g_message_callbacks.end(); ++port)
-  {
-    if(!g_input_connection_counts.count(port->first) && !g_optional[port->first])
-    {
-      std::ostringstream message;
-      message << g_name << ": required input port " << port->first << " does not have a connection.";
-      throw std::runtime_error(message.str());
-    }
-  }
-  for(std::map<port_index, std::vector<output_connection*> >::iterator port = g_output_connections.begin(); port != g_output_connections.end(); ++port)
-  {
-    if(!g_defined_output_ports.count(port->first))
-    {
-      std::ostringstream message;
-      message << g_name << ": unexpected connection from undefined output port " << port->first;
-      throw std::runtime_error(message.str());
-    }
-  }
-}
-
-void set_last_port_closed_callback(last_port_closed_callback last_port_closed)
-{
-  g_last_port_closed = last_port_closed;
-}
-
-void loop()
-{
-  if(g_running)
-    return;
-
-  g_running = true;
-  while(g_running)
-  {
-    try
-    {
-      zmq::message_t frame_message;
-      zmq_assert(g_input_port->recv(&frame_message, 0));
-      const uint8_t frame = reinterpret_cast<uint8_t*>(frame_message.data())[0];
-      const port_index port = (frame & PORT_MASK);
-
-      if((frame & TYPE_MASK) == CLOSE_MESSAGE)
-      {
-        phish_warn("Received close message.");
-        g_input_connection_counts[port] -= 1;
-        if(g_input_connection_counts[port] == 0)
-        {
-          g_input_connection_counts.erase(port);
-          if(g_closed_callbacks.count(port))
-          {
-            g_closed_callbacks[port]();
-          }
-          if(g_input_connection_counts.size() == 0 && g_last_port_closed)
-          {
-            g_last_port_closed();
-          }
-        }
-      }
-      else
-      {
-        g_received_count += 1;
-
-        g_unpack_index = 0;
-        g_unpack_count = 0;
-        int64_t more_parts = 0;
-        size_t more_parts_size = sizeof(more_parts);
-        for(g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size); more_parts; g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size))
-        {
-          while(g_unpack_messages.size() <= g_unpack_count)
-            g_unpack_messages.push_back(new zmq::message_t());
-          zmq_assert(g_input_port->recv(g_unpack_messages[g_unpack_count], 0));
-          ++g_unpack_count;
-        }
-        g_message_callbacks[port](g_unpack_count);
-      }
-    }
-    catch(std::exception& e)
-    {
-      std::cerr << g_name << " (" << g_rank << ") " << e.what() << std::endl;
-      //phish_warn(e.what());
-    }
-  }
-}
-
-void loop_complete()
-{
-  if(!g_running)
-    return;
-  g_running = false;
-}
-
-void send(port_index port)
-{
-  if(!g_output_connections.count(port))
-  {
-    std::ostringstream message;
-    message << "Cannot send message to closed port: " << port;
-    throw std::runtime_error(message.str());
-  }
-
-  const int end = g_output_connections[port].size();
-  for(int i = 0; i != end; ++i)
-    g_output_connections[port][i]->send();
-
-  g_sent_count += 1;
-
-  for(int i = 0; i != g_pack_messages.size(); ++i)
-    delete g_pack_messages[i];
-  g_pack_messages.resize(0);
-}
-
-data_type unpack_type()
-{
-  if(g_unpack_index >= g_unpack_count)
-    throw std::runtime_error("No datum to type.");
-  return static_cast<data_type>(reinterpret_cast<uint8_t*>(g_unpack_messages[g_unpack_index]->data())[0]);
-}
-
-uint32_t unpack_length()
-{
-  if(g_unpack_index >= g_unpack_count)
-    throw std::runtime_error("No datum to size.");
-  return g_unpack_messages[g_unpack_index]->size();
-}
-
-void skip_part()
-{
-  if(g_unpack_index >= g_unpack_count)
-    throw std::runtime_error("No datum to skip.");
-  g_unpack_index += 1;
-}
-
-template<typename T>
-void unpack_helper(T& data, data_type type)
-{
-  if(g_unpack_index >= g_unpack_count)
-    throw std::runtime_error("No datum to unpack.");
-  if(reinterpret_cast<uint8_t*>(g_unpack_messages[g_unpack_index]->data())[0] != type)
-    throw std::runtime_error("Data type mismatch.");
-  if(g_unpack_messages[g_unpack_index]->size() != sizeof(T) + 1)
-    throw std::runtime_error("Data size mismatch.");
-  T temp; // This is a workaround for problems trying to take the address of data
-  ::memcpy(&temp, reinterpret_cast<uint8_t*>(g_unpack_messages[g_unpack_index]->data()) + 1, sizeof(T));
-  data = temp;
-  g_unpack_index += 1;
-}
-
-void unpack(int8_t& data)
-{
-  unpack_helper(data, INT8);
-}
-
-void unpack(int16_t& data)
-{
-  unpack_helper(data, INT8);
-}
-
-void unpack(int32_t& data)
-{
-  unpack_helper(data, INT32);
-}
-
-void unpack(int64_t& data)
-{
-  unpack_helper(data, INT64);
-}
-
-void unpack(uint8_t& data)
-{
-  unpack_helper(data, UINT8);
-}
-
-void unpack(uint16_t& data)
-{
-  unpack_helper(data, UINT8);
-}
-
-void unpack(uint32_t& data)
-{
-  unpack_helper(data, UINT32);
-}
-
-void unpack(uint64_t& data)
-{
-  unpack_helper(data, UINT64);
-}
-
-void unpack(float& data)
-{
-  unpack_helper(data, FLOAT);
-}
-
-void unpack(double& data)
-{
-  unpack_helper(data, FLOAT);
-}
-
-void unpack(std::string& data)
-{
-  if(g_unpack_index >= g_unpack_count)
-    throw std::runtime_error("No datum to unpack.");
-  if(reinterpret_cast<uint8_t*>(g_unpack_messages[g_unpack_index]->data())[0] != STRING)
-    throw std::runtime_error("Data type mismatch.");
-  data.assign(reinterpret_cast<const char*>(g_unpack_messages[g_unpack_index]->data()) + 1, g_unpack_messages[g_unpack_index]->size() - 1);
-  g_unpack_index += 1;
-}
-
-void close_port(port_index port)
-{
-  if(!g_output_connections.count(port))
-    return;
-  for(int i = 0; i != g_output_connections[port].size(); ++i)
-    delete g_output_connections[port][i];
-  g_output_connections.erase(port);
-}
-
-void close()
+void phish_exit()
 {
   // Close output ports ...
-  const port_collection ports = output_ports();
+  const port_collection ports = phish::output_ports();
   for(port_collection::const_iterator port = ports.begin(); port != ports.end(); ++port)
-    close_port(*port);
+    phish_close(*port);
 
-  loop_complete();
+  phish::loop_complete();
 
   // Delete input port ...
   delete g_input_port;
@@ -626,53 +589,45 @@ void close()
   g_context = 0;
 }
 
-inline void pack_helper(const void* data, uint32_t length, int type)
-{
-  g_pack_messages.push_back(new zmq::message_t(1 + length));
-  reinterpret_cast<uint8_t*>(g_pack_messages.back()->data())[0] = type;
-  ::memcpy(reinterpret_cast<uint8_t*>(g_pack_messages.back()->data()) + 1, data, length);
-}
-
-template<typename T>
-inline void pack_helper(const T& data, int type)
-{
-  pack_helper(&data, sizeof(T), type);
-}
-
-} // namespace phish
-
-// Compatibility API for minnows written in C ...
-extern "C"
-{
-
-void phish_init(int *, char ***)
-{
-  throw std::runtime_error("Not implemented.");
-}
-
-int phish_init_python(int, char **)
-{
-  throw std::runtime_error("Not implemented.");
-}
-
-void phish_exit()
-{
-  throw std::runtime_error("Not implemented.");
-}
-
 void phish_input(int, void(*)(int), void(*)(), int)
 {
   throw std::runtime_error("Not implemented.");
 }
 
-void phish_output(int)
+void phish_output(int port)
 {
-  throw std::runtime_error("Not implemented.");
+  g_defined_output_ports.insert(port);
 }
 
 void phish_check()
 {
-  throw std::runtime_error("Not implemented.");
+  for(std::map<int, int>::iterator port = g_input_connection_counts.begin(); port != g_input_connection_counts.end(); ++port)
+  {
+    if(!g_message_callbacks.count(port->first))
+    {
+      std::ostringstream message;
+      message << g_name << ": unexpected connection to undefined input port " << port->first;
+      throw std::runtime_error(message.str());
+    }
+  }
+  for(std::map<int, phish::message_callback>::iterator port = g_message_callbacks.begin(); port != g_message_callbacks.end(); ++port)
+  {
+    if(!g_input_connection_counts.count(port->first) && !g_optional[port->first])
+    {
+      std::ostringstream message;
+      message << g_name << ": required input port " << port->first << " does not have a connection.";
+      throw std::runtime_error(message.str());
+    }
+  }
+  for(std::map<int, std::vector<output_connection*> >::iterator port = g_output_connections.begin(); port != g_output_connections.end(); ++port)
+  {
+    if(!g_defined_output_ports.count(port->first))
+    {
+      std::ostringstream message;
+      message << g_name << ": unexpected connection from undefined output port " << port->first;
+      throw std::runtime_error(message.str());
+    }
+  }
 }
 
 void phish_done(void (*)())
@@ -680,9 +635,13 @@ void phish_done(void (*)())
   throw std::runtime_error("Not implemented.");
 }
 
-void phish_close(int)
+void phish_close(int port)
 {
-  throw std::runtime_error("Not implemented.");
+  if(!g_output_connections.count(port))
+    return;
+  for(int i = 0; i != g_output_connections[port].size(); ++i)
+    delete g_output_connections[port][i];
+  g_output_connections.erase(port);
 }
 
 void phish_loop()
@@ -857,13 +816,13 @@ int phish_query(const char *, int, int)
 
 void phish_error(const char* message)
 {
-  std::cerr << phish::g_name << " (" << phish::g_rank << ") - " << message << std::endl;
+  std::cerr << g_name << " (" << g_rank << ") - " << message << std::endl;
   throw std::runtime_error("Not implemented.");
 }
 
 void phish_warn(const char* message)
 {
-  std::cerr << phish::g_name << " (" << phish::g_rank << ") - " << message << std::endl;
+  std::cerr << g_name << " (" << g_rank << ") - " << message << std::endl;
 }
 
 double phish_timer()

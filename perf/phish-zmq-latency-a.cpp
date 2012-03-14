@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
   size = ::atoi(argv[1]);
   count = ::atoi(argv[2]);
 
-  phish::input(0, message_callback, phish::close);
+  phish::input(0, message_callback, phish::exit);
   phish::output(0);
   phish::check();
 
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
 
   std::cout << elapsed << "," << size << "," << count << "," << (latency * 1000000.0) << "\n" << std::flush;
 
-  phish::close();
+  phish::exit();
 
   return 0;
 }

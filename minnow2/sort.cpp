@@ -24,7 +24,7 @@ void closed_callback()
     phish::pack(item->second);
     phish::send();
   }
-  phish::close();
+  phish::exit();
 }
 
 int main(int argc, char* argv[])

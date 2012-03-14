@@ -12,12 +12,6 @@
 namespace phish
 {
 
-/// Defines a zero-based unique identifier for minnows within a school.
-typedef uint32_t rank_id;
-/// Defines a zero-based unique identifier for minnow input and output ports.
-typedef uint8_t port_index;
-/// Defines a container for a collection of ports.
-typedef std::vector<port_index> port_collection;
 /// Defines a callback to receive incoming messages.
 typedef std::tr1::function<void(int32_t)> message_callback;
 /// Defines a callback to be called when an input port is closed.
@@ -56,8 +50,9 @@ enum data_type
 /// school.  This should be called as soon as possible after minnow startup, and
 /// may modify the supplied argv.  Throws std::runtime_error if there are any problems
 /// initializing the minnow or establishing communication with the rest of the school.
-void init(int& argc, char**& argv);
+void init(int& argc, char**& argv) { phish_init(&argc, &argv); }
 
+/*
 /// Returns the human-readable name for this minnow.
 const std::string name();
 
@@ -73,23 +68,24 @@ const port_collection input_ports();
 /// to configure varying numbers of outputs at runtime.  Note that this function
 /// will return different results as ports are closed over the lifetime of the minnow.
 const port_collection output_ports();
+*/
 
 /// Specifies an input port to be enabled, along with an optional callback to
 /// be called when a message is received on the port, an optional callback to be
 /// called when the port is closed (i.e. all connections to the port are closed),
 /// and a flag specifying whether the port is optional (i.e. whether it is an
 /// error condition if there are no connections to this port).
-void input(port_index port, message_callback message, port_closed_callback port_closed, bool optional=false);
+void input(int port, message_callback message, port_closed_callback port_closed, bool optional=false);
 
 /// Specifies an output port to be enabled.  It is an error to attempt
 /// sending a message on a port that hasn't been enabled, or to make a
 /// connection to such a port.
-void output(port_index port);
+void output(int port) { phish_output(port); }
 
 /// Compares the set of connections to-and-from this minnow to its configured
 /// input and output ports to detect setup errors.  Throws std::runtime_error
 /// if there are any problems.
-void check();
+void check() { phish_check(); }
 
 /// Specifies a callback to be called exactly once when every input port has
 /// been closed.  Note: this callback will never be called for minnows that
@@ -147,15 +143,15 @@ const T unpack()
 /// depend on the type(s) of connections to the port (round-robin, broadcast,
 /// hashed, etc.).  Note that sending a message to a nonexistent / closed port
 /// will throw std::runtime_error.
-void send(port_index output_port=0);
+void send(int output_port=0);
 
 /// Notifies downstream minnows that the given output port has been closed.
-void close_port(port_index output_port);
+void close(int port) { phish_close(port); }
 
 /// Shuts-down phish and releases any resources allocated by the library.
 /// Note that this also implicitly closes any open output ports and completes
 /// any running loop.
-void close();
+void exit() { phish_exit(); }
 
 void error(const std::string& message) { phish_error(message.c_str()); }
 void warn(const std::string& message) { phish_warn(message.c_str()); }

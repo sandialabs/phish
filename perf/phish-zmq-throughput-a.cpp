@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 
   std::cout << elapsed << "," << size << "," << count << "," << throughput << "," << megabits << "\n";
 
-  phish::close();
+  phish::exit();
 
   return 0;
 }

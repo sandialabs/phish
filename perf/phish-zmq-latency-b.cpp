@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
   size = ::atoi(argv[1]);
   const int count = ::atoi(argv[2]);
 
-  phish::input(0, message_callback, phish::close);
+  phish::input(0, message_callback, phish::exit);
   phish::output(0);
   phish::check();
   phish::loop();

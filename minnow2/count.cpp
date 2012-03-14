@@ -22,7 +22,7 @@ void closed_callback()
     phish::pack(count->first);
     phish::send();
   }
-  phish::close();
+  phish::exit();
 }
 
 int main(int argc, char* argv[])

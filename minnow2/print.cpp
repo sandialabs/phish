@@ -57,7 +57,7 @@ void message_callback(uint32_t part_count)
 int main(int argc, char* argv[])
 {
   phish::init(argc, argv);
-  phish::input(0, message_callback, phish::close);
+  phish::input(0, message_callback, phish::exit);
   phish::check();
 
 /*

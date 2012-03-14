@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
     phish::send();
   }
 
-  phish::close();
+  phish::exit();
 
   return 0;
 }
