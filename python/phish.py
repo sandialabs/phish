@@ -40,7 +40,10 @@ MAXPORT = 16
 try:
   lib = CDLL("_phish.so")
 except:
-  raise StandardError,"Could not load PHISH dynamic library"
+  try:
+    lib = CDLL("libphish-zmq.dylib")
+  except:
+    raise StandardError,"Could not load PHISH dynamic library"
 
 # function defs
 # one-to-one match to functions in src/phish.h
@@ -147,46 +150,56 @@ def pack_datum(ptr,len):
 
 # cstr will be a char ptr to Python object as it were string
 # but pass user-specified len to pack_raw(), not string length
-  
+
 def pack_raw(obj,len):
   cstr = c_char_p(obj)
   lib.phish_pack_raw(cstr,len)
-  
-def pack_byte(value):
-  cchar = c_char(value)
-  lib.phish_pack_byte(cchar)
+
+def check_range(begin, value, end):
+  if value < begin or value >= end:
+    raise Exception("Value must be in range [%s, %s)" % (begin, end))
+
+def pack_char(value):
+  check_range(0, value, 256)
+  lib.phish_pack_char(c_char(value))
 
 def pack_int8(value):
-  lib.phish_pack_int8(value)
+  check_range(-128, value, 128)
+  lib.phish_pack_int8(c_int8(value))
 
 def pack_int16(value):
-  lib.phish_pack_int16(value)
+  check_range(-32768, value, 32768)
+  lib.phish_pack_int16(c_int16(value))
 
 def pack_int32(value):
-  lib.phish_pack_int32(value)
+  check_range(-2147483648, value, 2147483648)
+  lib.phish_pack_int32(c_int32(value))
 
 def pack_int64(value):
-  lib.phish_pack_int64(value)
+  check_range(-9223372036854775808, value, 9223372036854775808)
+  lib.phish_pack_int64(c_int64(value))
 
 def pack_uint8(value):
-  lib.phish_pack_uint8(value)
+  check_range(0, value, 256)
+  lib.phish_pack_uint8(c_uint8(value))
 
 def pack_uint16(value):
-  lib.phish_pack_uint16(value)
+  check_range(0, value, 65536)
+  lib.phish_pack_uint16(c_uint16(value))
 
 def pack_uint32(value):
-  lib.phish_pack_uint32(value)
+  check_range(0, value, 4294967296)
+  lib.phish_pack_uint32(c_uint32(value))
 
 def pack_uint64(value):
-  lib.phish_pack_uint64(value)
+  check_range(0, value, 18446744073709551616)
+  lib.phish_pack_uint64(c_uint64(value))
 
 def pack_float(value):
-  cfloat = c_float(value)
-  lib.phish_pack_float(cfloat)
+  lib.phish_pack_float(c_float(value))
 
 def pack_double(value):
-  cdouble = c_double(value)
-  lib.phish_pack_double(cdouble)
+  lib.phish_pack_double(c_double(value))
 
 def pack_string(str):
   cstr = c_char_p(str)
@@ -271,34 +284,34 @@ def unpack():
   
   if type == CHAR:
     ptr = cast(buf,POINTER(c_char))
-    return type,ptr[0],1
+    return type,ptr[0],len.value
   if type == INT8:
     ptr = cast(buf,POINTER(c_int8))
-    return type,ptr[0],1
+    return type,ptr[0],len.value
   if type == INT16:
     ptr = cast(buf,POINTER(c_int16))
-    return type,ptr[0],1
+    return type,ptr[0],len.value
   if type == INT32:
     ptr = cast(buf,POINTER(c_int32))
-    return type,ptr[0],1
+    return type,ptr[0],len.value
   if type == INT64:
     ptr = cast(buf,POINTER(c_int64))
-    return type,ptr[0],1
+    return type,ptr[0],len.value
   if type == UINT8:
     ptr = cast(buf,POINTER(c_uint8))
-    return type,ptr[0],1
+    return type,ptr[0],len.value
   if type == UINT16:
     ptr = cast(buf,POINTER(c_uint16))
-    return type,ptr[0],1
+    return type,ptr[0],len.value
   if type == UINT32:
     ptr = cast(buf,POINTER(c_uint32))
-    return type,ptr[0],1
+    return type,ptr[0],len.value
   if type == UINT64:
     ptr = cast(buf,POINTER(c_uint64))
-    return type,ptr[0],1
+    return type,ptr[0],len.value
   if type == FLOAT:
     ptr = cast(buf,POINTER(c_float))
-    return type,ptr[0],1
+    return type,ptr[0],len.value
   if type == DOUBLE:
     ptr = cast(buf,POINTER(c_double))
     return type,ptr[0],1
