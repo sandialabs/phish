@@ -499,53 +499,6 @@ void loop_complete()
   g_running = false;
 }
 
-void pack_helper(const void* data, uint32_t length, data_type type)
-{
-  g_pack_messages.push_back(new zmq::message_t(1 + length));
-  reinterpret_cast<uint8_t*>(g_pack_messages.back()->data())[0] = type;
-  ::memcpy(reinterpret_cast<uint8_t*>(g_pack_messages.back()->data()) + 1, data, length);
-}
-
-template<typename T>
-void pack_helper(const T& data, data_type type)
-{
-  pack_helper(&data, sizeof(T), type);
-}
-
-void pack(uint8_t data)
-{
-  pack_helper(data, UINT8);
-}
-
-void pack(uint32_t data)
-{
-  pack_helper(data, UINT32);
-}
-void pack(uint64_t data)
-{
-  pack_helper(data, UINT64);
-}
-
-void pack(float data)
-{
-  pack_helper(data, FLOAT32);
-}
-
-void pack(double data)
-{
-  pack_helper(data, FLOAT64);
-}
-
-void pack(const char* data)
-{
-  pack_helper(data, strlen(data), STRING);
-}
-
-void pack(const std::string& data)
-{
-  pack_helper(data.data(), data.size(), STRING);
-}
-
 void send(port_index port)
 {
   if(!g_output_connections.count(port))
@@ -602,7 +555,32 @@ void unpack_helper(T& data, data_type type)
   g_unpack_index += 1;
 }
 
+void unpack(int8_t& data)
+{
+  unpack_helper(data, INT8);
+}
+
+void unpack(int16_t& data)
+{
+  unpack_helper(data, INT8);
+}
+
+void unpack(int32_t& data)
+{
+  unpack_helper(data, INT32);
+}
+
+void unpack(int64_t& data)
+{
+  unpack_helper(data, INT64);
+}
+
 void unpack(uint8_t& data)
+{
+  unpack_helper(data, UINT8);
+}
+
+void unpack(uint16_t& data)
 {
   unpack_helper(data, UINT8);
 }
@@ -619,12 +597,12 @@ void unpack(uint64_t& data)
 
 void unpack(float& data)
 {
-  unpack_helper(data, FLOAT32);
+  unpack_helper(data, FLOAT);
 }
 
 void unpack(double& data)
 {
-  unpack_helper(data, FLOAT64);
+  unpack_helper(data, FLOAT);
 }
 
 void unpack(std::string& data)
@@ -670,6 +648,19 @@ void close()
   // Shut-down zmq ...
   delete g_context;
   g_context = 0;
+}
+
+inline void pack_helper(const void* data, uint32_t length, int type)
+{
+  g_pack_messages.push_back(new zmq::message_t(1 + length));
+  reinterpret_cast<uint8_t*>(g_pack_messages.back()->data())[0] = type;
+  ::memcpy(reinterpret_cast<uint8_t*>(g_pack_messages.back()->data()) + 1, data, length);
+}
+
+template<typename T>
+inline void pack_helper(const T& data, int type)
+{
+  pack_helper(&data, sizeof(T), type);
 }
 
 } // namespace phish
@@ -763,59 +754,59 @@ void phish_pack_raw(char *, int)
   throw std::runtime_error("Not implemented.");
 }
 
-void phish_pack_int8(int8_t)
+void phish_pack_int8(int8_t data)
 {
-  throw std::runtime_error("Not implemented.");
+  phish::pack_helper(data, PHISH_INT8);
 }
 
-void phish_pack_int16(int16_t)
+void phish_pack_int16(int16_t data)
 {
-  throw std::runtime_error("Not implemented.");
+  phish::pack_helper(data, PHISH_INT16);
 }
 
-void phish_pack_int32(int32_t)
+void phish_pack_int32(int32_t data)
 {
-  throw std::runtime_error("Not implemented.");
+  phish::pack_helper(data, PHISH_INT32);
 }
 
-void phish_pack_int64(int64_t)
+void phish_pack_int64(int64_t data)
 {
-  throw std::runtime_error("Not implemented.");
+  phish::pack_helper(data, PHISH_INT64);
 }
 
-void phish_pack_uint8(uint8_t)
+void phish_pack_uint8(uint8_t data)
 {
-  throw std::runtime_error("Not implemented.");
+  phish::pack_helper(data, PHISH_UINT8);
 }
 
-void phish_pack_uint16(uint16_t)
+void phish_pack_uint16(uint16_t data)
 {
-  throw std::runtime_error("Not implemented.");
+  phish::pack_helper(data, PHISH_UINT16);
 }
 
-void phish_pack_uint32(uint32_t)
+void phish_pack_uint32(uint32_t data)
 {
-  throw std::runtime_error("Not implemented.");
+  phish::pack_helper(data, PHISH_UINT32);
 }
 
-void phish_pack_uint64(uint64_t)
+void phish_pack_uint64(uint64_t data)
 {
-  throw std::runtime_error("Not implemented.");
+  phish::pack_helper(data, PHISH_UINT64);
 }
 
-void phish_pack_float(float)
+void phish_pack_float(float data)
 {
-  throw std::runtime_error("Not implemented.");
+  phish::pack_helper(data, PHISH_FLOAT);
 }
 
-void phish_pack_double(double)
+void phish_pack_double(double data)
 {
-  throw std::runtime_error("Not implemented.");
+  phish::pack_helper(data, PHISH_DOUBLE);
 }
 
-void phish_pack_string(char *)
+void phish_pack_string(char* data)
 {
-  throw std::runtime_error("Not implemented.");
+  phish::pack_helper(data, strlen(data) + 1, PHISH_STRING);
 }
 
 void phish_pack_int8_array(int8_t *, int)
@@ -906,4 +897,4 @@ double phish_timer()
 }
 
 }
-
+// extern "C"

@@ -28,12 +28,28 @@ typedef std::tr1::function<void()> last_port_closed_callback;
 enum data_type
 {
   RAW = 0,
-  UINT8 = 1,
-  UINT32 = 2,
-  UINT64 = 3,
-  FLOAT32 = 4,
-  FLOAT64 = 5,
-  STRING = 6
+  INT8 = 1,
+  INT16 = 2,
+  INT32 = 3,
+  INT64 = 4,
+  UINT8 = 5,
+  UINT16 = 6,
+  UINT32 = 7,
+  UINT64 = 8,
+  FLOAT = 9,
+  DOUBLE = 10,
+  STRING = 11,
+  INT8_ARRAY = 12,
+  INT16_ARRAY = 13,
+  INT32_ARRAY = 14,
+  INT64_ARRAY = 15,
+  UINT8_ARRAY = 16,
+  UINT16_ARRAY = 17,
+  UINT32_ARRAY = 18,
+  UINT64_ARRAY = 19,
+  FLOAT_ARRAY = 20,
+  DOUBLE_ARRAY = 21,
+  PICKLE = 22,
 };
 
 /// Initializes a minnow and prepares for communication with the rest of the
@@ -93,19 +109,29 @@ void loop();
 /// will be ignored.
 void loop_complete();
 
-void pack(uint8_t data);
-void pack(uint32_t data);
-void pack(uint64_t data);
-void pack(float data);
-void pack(double data);
-void pack(const char* data);
-void pack(const std::string& data);
+void pack(int8_t data) { phish_pack_int8(data); }
+void pack(int16_t data) { phish_pack_int16(data); }
+void pack(int32_t data) { phish_pack_int32(data); }
+void pack(int64_t data) { phish_pack_int64(data); }
+void pack(uint8_t data) { phish_pack_uint8(data); }
+void pack(uint16_t data) { phish_pack_uint16(data); }
+void pack(uint32_t data) { phish_pack_uint32(data); }
+void pack(uint64_t data) { phish_pack_uint64(data); }
+void pack(float data) { phish_pack_float(data); }
+void pack(double data) { phish_pack_double(data); }
+void pack(const char* data) { phish_pack_string(const_cast<char*>(data)); }
+void pack(const std::string& data) { phish_pack_string(const_cast<char*>(data.c_str())); }
 
 data_type unpack_type();
 uint32_t unpack_length();
 void skip_part();
 
+void unpack(int8_t& data);
+void unpack(int16_t& data);
+void unpack(int32_t& data);
+void unpack(int64_t& data);
 void unpack(uint8_t& data);
+void unpack(uint16_t& data);
 void unpack(uint32_t& data);
 void unpack(uint64_t& data);
 void unpack(float& data);

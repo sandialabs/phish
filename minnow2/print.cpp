@@ -12,8 +12,23 @@ void message_callback(uint32_t part_count)
       *stream << ", ";
     switch(phish::unpack_type())
     {
+      case phish::INT8:
+        *stream << phish::unpack<int8_t>();
+        break;
+      case phish::INT16:
+        *stream << phish::unpack<int16_t>();
+        break;
+      case phish::INT32:
+        *stream << phish::unpack<int32_t>();
+        break;
+      case phish::INT64:
+        *stream << phish::unpack<int64_t>();
+        break;
       case phish::UINT8:
         *stream << phish::unpack<uint8_t>();
+        break;
+      case phish::UINT16:
+        *stream << phish::unpack<uint16_t>();
         break;
       case phish::UINT32:
         *stream << phish::unpack<uint32_t>();
@@ -21,10 +36,10 @@ void message_callback(uint32_t part_count)
       case phish::UINT64:
         *stream << phish::unpack<uint64_t>();
         break;
-      case phish::FLOAT32:
+      case phish::FLOAT:
         *stream << phish::unpack<float>();
         break;
-      case phish::FLOAT64:
+      case phish::DOUBLE:
         *stream << phish::unpack<double>();
         break;
       case phish::STRING:
