@@ -200,26 +200,6 @@ void loop_complete()
   g_running = false;
 }
 
-void send(int port)
-{
-  if(!g_output_connections.count(port))
-  {
-    std::ostringstream message;
-    message << "Cannot send message to closed port: " << port;
-    throw std::runtime_error(message.str());
-  }
-
-  const int end = g_output_connections[port].size();
-  for(int i = 0; i != end; ++i)
-    g_output_connections[port][i]->send();
-
-  g_sent_count += 1;
-
-  for(int i = 0; i != g_pack_messages.size(); ++i)
-    delete g_pack_messages[i];
-  g_pack_messages.resize(0);
-}
-
 data_type unpack_type()
 {
   if(g_unpack_index >= g_unpack_count)
@@ -628,9 +608,24 @@ int phish_recv()
   throw std::runtime_error("Not implemented.");
 }
 
-void phish_send(int)
+void phish_send(int port)
 {
-  throw std::runtime_error("Not implemented.");
+  if(!g_output_connections.count(port))
+  {
+    std::ostringstream message;
+    message << "Cannot send message to closed port: " << port;
+    throw std::runtime_error(message.str());
+  }
+
+  const int end = g_output_connections[port].size();
+  for(int i = 0; i != end; ++i)
+    g_output_connections[port][i]->send();
+
+  g_sent_count += 1;
+
+  for(int i = 0; i != g_pack_messages.size(); ++i)
+    delete g_pack_messages[i];
+  g_pack_messages.resize(0);
 }
 
 void phish_send_key(int, char *, int)

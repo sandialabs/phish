@@ -46,7 +46,7 @@ void message_callback(int parts)
         *stream << phish::unpack<std::string>();
         break;
       default:
-        *stream << "<unknown>";
+        *stream << phish::unpack_type() << " <unknown>";
         phish::skip_part();
         break;
     }

@@ -14,29 +14,30 @@ namespace phish
 
 enum data_type
 {
-  RAW = 0,
-  INT8 = 1,
-  INT16 = 2,
-  INT32 = 3,
-  INT64 = 4,
-  UINT8 = 5,
-  UINT16 = 6,
-  UINT32 = 7,
-  UINT64 = 8,
-  FLOAT = 9,
-  DOUBLE = 10,
-  STRING = 11,
-  INT8_ARRAY = 12,
-  INT16_ARRAY = 13,
-  INT32_ARRAY = 14,
-  INT64_ARRAY = 15,
-  UINT8_ARRAY = 16,
-  UINT16_ARRAY = 17,
-  UINT32_ARRAY = 18,
-  UINT64_ARRAY = 19,
-  FLOAT_ARRAY = 20,
-  DOUBLE_ARRAY = 21,
-  PICKLE = 22,
+  RAW = PHISH_RAW,
+  CHAR = PHISH_CHAR,
+  INT8 = PHISH_INT8,
+  INT16 = PHISH_INT16,
+  INT32 = PHISH_INT32,
+  INT64 = PHISH_INT64,
+  UINT8 = PHISH_UINT8,
+  UINT16 = PHISH_UINT16,
+  UINT32 = PHISH_UINT32,
+  UINT64 = PHISH_UINT64,
+  FLOAT = PHISH_FLOAT,
+  DOUBLE = PHISH_DOUBLE,
+  STRING = PHISH_STRING,
+  INT8_ARRAY = PHISH_INT8_ARRAY,
+  INT16_ARRAY = PHISH_INT16_ARRAY,
+  INT32_ARRAY = PHISH_INT32_ARRAY,
+  INT64_ARRAY = PHISH_INT64_ARRAY,
+  UINT8_ARRAY = PHISH_UINT8_ARRAY,
+  UINT16_ARRAY = PHISH_UINT16_ARRAY,
+  UINT32_ARRAY = PHISH_UINT32_ARRAY,
+  UINT64_ARRAY = PHISH_UINT64_ARRAY,
+  FLOAT_ARRAY = PHISH_FLOAT_ARRAY,
+  DOUBLE_ARRAY = PHISH_DOUBLE_ARRAY,
+  PICKLE = PHISH_PICKLE,
 };
 
 #define LOG_CALL() phish_warn(__PRETTY_FUNCTION__);
@@ -120,7 +121,7 @@ const T unpack()
 /// depend on the type(s) of connections to the port (round-robin, broadcast,
 /// hashed, etc.).  Note that sending a message to a nonexistent / closed port
 /// will throw std::runtime_error.
-void send(int output_port=0);
+void send(int port = 0) { LOG_CALL(); phish_send(port); }
 
 /// Notifies downstream minnows that the given output port has been closed.
 void close(int port) { LOG_CALL(); phish_close(port); }
