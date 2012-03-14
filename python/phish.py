@@ -7,18 +7,29 @@ from cPickle import dumps,loads
 # same data type defs as in src/phish.h
 
 RAW = 0
-BYTE = 1
-INT = 2
-UINT64 = 3
-DOUBLE = 4
-STRING = 5
-INT_ARRAY = 6
-UINT64_ARRAY = 7
-DOUBLE_ARRAY = 8
-
-# extra pickled data type unique to Python
-
-PICKLE = 9
+CHAR = 1
+INT8 = 2
+INT16 = 3
+INT32 = 4
+INT64 = 5
+UINT8 = 6
+UINT16 = 7
+UINT32 = 8
+UINT64 = 9
+FLOAT = 10
+DOUBLE = 11
+STRING = 12
+INT8_ARRAY = 13
+INT16_ARRAY = 14
+INT32_ARRAY = 15
+INT64_ARRAY = 16
+UINT8_ARRAY = 17
+UINT16_ARRAY = 18
+UINT32_ARRAY = 19
+UINT64_ARRAY = 20
+FLOAT_ARRAY = 21
+DOUBLE_ARRAY = 22
+PICKLE = 23
 
 # max port setting from src/phish.cpp
 
@@ -145,11 +156,33 @@ def pack_byte(value):
   cchar = c_char(value)
   lib.phish_pack_byte(cchar)
 
-def pack_int(value):
-  lib.phish_pack_int(value)
+def pack_int8(value):
+  lib.phish_pack_int8(value)
+
+def pack_int16(value):
+  lib.phish_pack_int16(value)
+
+def pack_int32(value):
+  lib.phish_pack_int32(value)
+
+def pack_int64(value):
+  lib.phish_pack_int64(value)
+
+def pack_uint8(value):
+  lib.phish_pack_uint8(value)
+
+def pack_uint16(value):
+  lib.phish_pack_uint16(value)
+
+def pack_uint32(value):
+  lib.phish_pack_uint32(value)
 
 def pack_uint64(value):
   lib.phish_pack_uint64(value)
+
+def pack_float(value):
+  cfloat = c_float(value)
+  lib.phish_pack_float(cfloat)
 
 def pack_double(value):
   cdouble = c_double(value)
@@ -159,17 +192,59 @@ def pack_string(str):
   cstr = c_char_p(str)
   lib.phish_pack_string(cstr)
 
-def pack_int_array(vec):
+def pack_int8_array(vec):
   n = len(vec)
-  ptr = (c_int*n)()
+  ptr = (c_int8*n)()
   for i in xrange(n): ptr[i] = vec[i]
-  lib.phish_pack_int_array(ptr,n)
+  lib.phish_pack_int8_array(ptr,n)
+
+def pack_int16_array(vec):
+  n = len(vec)
+  ptr = (c_int16*n)()
+  for i in xrange(n): ptr[i] = vec[i]
+  lib.phish_pack_int16_array(ptr,n)
+
+def pack_int32_array(vec):
+  n = len(vec)
+  ptr = (c_int32*n)()
+  for i in xrange(n): ptr[i] = vec[i]
+  lib.phish_pack_int32_array(ptr,n)
+
+def pack_int64_array(vec):
+  n = len(vec)
+  ptr = (c_int64*n)()
+  for i in xrange(n): ptr[i] = vec[i]
+  lib.phish_pack_int64_array(ptr,n)
+
+def pack_uint8_array(vec):
+  n = len(vec)
+  ptr = (c_uint8*n)()
+  for i in xrange(n): ptr[i] = vec[i]
+  lib.phish_pack_uint8_array(ptr,n)
+
+def pack_uint16_array(vec):
+  n = len(vec)
+  ptr = (c_uint16*n)()
+  for i in xrange(n): ptr[i] = vec[i]
+  lib.phish_pack_uint16_array(ptr,n)
+
+def pack_uint32_array(vec):
+  n = len(vec)
+  ptr = (c_uint32*n)()
+  for i in xrange(n): ptr[i] = vec[i]
+  lib.phish_pack_uint32_array(ptr,n)
 
 def pack_uint64_array(vec):
   n = len(vec)
-  ptr = (c_ulonglong*n)()
+  ptr = (c_uint64*n)()
   for i in xrange(n): ptr[i] = vec[i]
   lib.phish_pack_uint64_array(ptr,n)
+
+def pack_float_array(vec):
+  n = len(vec)
+  ptr = (c_float*n)()
+  for i in xrange(n): ptr[i] = vec[i]
+  lib.phish_pack_float_array(ptr,n)
 
 def pack_double_array(vec):
   n = len(vec)
@@ -194,28 +269,84 @@ def unpack():
   if type == RAW:
     return type,buf,len.value
   
-  if type == BYTE:
+  if type == CHAR:
     ptr = cast(buf,POINTER(c_char))
-    return type,ptr[0],len.value
-  if type == INT:
-    ptr = cast(buf,POINTER(c_int))
-    return type,ptr[0],len.value
+    return type,ptr[0],1
+  if type == INT8:
+    ptr = cast(buf,POINTER(c_int8))
+    return type,ptr[0],1
+  if type == INT16:
+    ptr = cast(buf,POINTER(c_int16))
+    return type,ptr[0],1
+  if type == INT32:
+    ptr = cast(buf,POINTER(c_int32))
+    return type,ptr[0],1
+  if type == INT64:
+    ptr = cast(buf,POINTER(c_int64))
+    return type,ptr[0],1
+  if type == UINT8:
+    ptr = cast(buf,POINTER(c_uint8))
+    return type,ptr[0],1
+  if type == UINT16:
+    ptr = cast(buf,POINTER(c_uint16))
+    return type,ptr[0],1
+  if type == UINT32:
+    ptr = cast(buf,POINTER(c_uint32))
+    return type,ptr[0],1
   if type == UINT64:
-    ptr = cast(buf,POINTER(c_ulonglong))
-    return type,ptr[0],len.value
+    ptr = cast(buf,POINTER(c_uint64))
+    return type,ptr[0],1
+  if type == FLOAT:
+    ptr = cast(buf,POINTER(c_float))
+    return type,ptr[0],1
   if type == DOUBLE:
     ptr = cast(buf,POINTER(c_double))
-    return type,ptr[0],len.value
+    return type,ptr[0],1
   if type == STRING:
     return type,buf.value,len.value
-  if type == INT_ARRAY:
-    ptr = cast(buf,POINTER(c_int))
+  if type == INT8_ARRAY:
+    ptr = cast(buf,POINTER(c_int8))
+    vec = len.value * [0]
+    for i in xrange(len.value): vec[i] = ptr[i]
+    return type,vec,len.value
+  if type == INT16_ARRAY:
+    ptr = cast(buf,POINTER(c_int16))
+    vec = len.value * [0]
+    for i in xrange(len.value): vec[i] = ptr[i]
+    return type,vec,len.value
+  if type == INT32_ARRAY:
+    ptr = cast(buf,POINTER(c_int32))
+    vec = len.value * [0]
+    for i in xrange(len.value): vec[i] = ptr[i]
+    return type,vec,len.value
+  if type == INT64_ARRAY:
+    ptr = cast(buf,POINTER(c_int64))
+    vec = len.value * [0]
+    for i in xrange(len.value): vec[i] = ptr[i]
+    return type,vec,len.value
+  if type == UINT8_ARRAY:
+    ptr = cast(buf,POINTER(c_uint8))
+    vec = len.value * [0]
+    for i in xrange(len.value): vec[i] = ptr[i]
+    return type,vec,len.value
+  if type == UINT16_ARRAY:
+    ptr = cast(buf,POINTER(c_uint16))
+    vec = len.value * [0]
+    for i in xrange(len.value): vec[i] = ptr[i]
+    return type,vec,len.value
+  if type == UINT32_ARRAY:
+    ptr = cast(buf,POINTER(c_uint32))
     vec = len.value * [0]
     for i in xrange(len.value): vec[i] = ptr[i]
     return type,vec,len.value
   if type == UINT64_ARRAY:
-    ptr = cast(buf,POINTER(c_ulongulong))
+    ptr = cast(buf,POINTER(c_uint64))
     vec = len.value * [0]
+    for i in xrange(len.value): vec[i] = ptr[i]
+    return type,vec,len.value
+  if type == FLOAT_ARRAY:
+    ptr = cast(buf,POINTER(c_float))
+    vec = len.value * [0.0]
     for i in xrange(len.value): vec[i] = ptr[i]
     return type,vec,len.value
   if type == DOUBLE_ARRAY:
