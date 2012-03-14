@@ -57,13 +57,6 @@ protected:
     {
       zmq::message_t message;
       message.copy(g_pack_messages[i]);
-
-/*
-      std::cerr << "sending: ";
-      std::copy(reinterpret_cast<uint8_t*>(message.data()), reinterpret_cast<uint8_t*>(message.data()) + message.size(), std::ostream_iterator<int>(std::cerr, " "));
-      std::cerr << std::endl;
-*/
-
       zmq_assert(recipient.send(message, (i+1) != g_pack_messages.size() ? ZMQ_SNDMORE : 0));
     }
   }
@@ -107,13 +100,13 @@ static std::map<int, int> g_input_connection_counts;
 
 static std::map<int, std::vector<output_connection*> > g_output_connections;
 
-static std::map<int, phish::message_callback> g_message_callbacks;
-static std::map<int, phish::port_closed_callback> g_closed_callbacks;
+static std::map<int, void(*)(int)> g_message_callbacks;
+static std::map<int, void(*)()> g_closed_callbacks;
 static std::map<int, bool> g_optional;
 
 static std::set<int> g_defined_output_ports;
 
-static phish::last_port_closed_callback g_last_port_closed;
+static void(*g_last_port_closed)();
 static bool g_running = false;
 
 // Provides temporary storage for unpacking messages ...
@@ -198,76 +191,6 @@ const port_collection output_ports()
   for(std::map<int, std::vector<output_connection*> >::iterator i = g_output_connections.begin(); i != g_output_connections.end(); ++i)
     ports.push_back(i->first);
   return ports;
-}
-
-void input(int port, message_callback message, port_closed_callback port_closed, bool optional)
-{
-  g_message_callbacks[port] = message;
-  g_closed_callbacks[port] = port_closed;
-  g_optional[port] = optional;
-}
-
-void set_last_port_closed_callback(last_port_closed_callback last_port_closed)
-{
-  g_last_port_closed = last_port_closed;
-}
-
-void loop()
-{
-  if(g_running)
-    return;
-
-  g_running = true;
-  while(g_running)
-  {
-    try
-    {
-      zmq::message_t frame_message;
-      zmq_assert(g_input_port->recv(&frame_message, 0));
-      const uint8_t frame = reinterpret_cast<uint8_t*>(frame_message.data())[0];
-      const int port = (frame & PORT_MASK);
-
-      if((frame & TYPE_MASK) == CLOSE_MESSAGE)
-      {
-        phish_warn("Received close message.");
-        g_input_connection_counts[port] -= 1;
-        if(g_input_connection_counts[port] == 0)
-        {
-          g_input_connection_counts.erase(port);
-          if(g_closed_callbacks.count(port))
-          {
-            g_closed_callbacks[port]();
-          }
-          if(g_input_connection_counts.size() == 0 && g_last_port_closed)
-          {
-            g_last_port_closed();
-          }
-        }
-      }
-      else
-      {
-        g_received_count += 1;
-
-        g_unpack_index = 0;
-        g_unpack_count = 0;
-        int64_t more_parts = 0;
-        size_t more_parts_size = sizeof(more_parts);
-        for(g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size); more_parts; g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size))
-        {
-          while(g_unpack_messages.size() <= g_unpack_count)
-            g_unpack_messages.push_back(new zmq::message_t());
-          zmq_assert(g_input_port->recv(g_unpack_messages[g_unpack_count], 0));
-          ++g_unpack_count;
-        }
-        g_message_callbacks[port](g_unpack_count);
-      }
-    }
-    catch(std::exception& e)
-    {
-      std::cerr << g_name << " (" << g_rank << ") " << e.what() << std::endl;
-      //phish_warn(e.what());
-    }
-  }
 }
 
 void loop_complete()
@@ -421,49 +344,35 @@ void phish_init(int* argc, char*** argv)
   while(arguments.size())
   {
     const std::string argument = pop_argument(arguments);
-    if(argument == "--phish-debug")
-    {
-    }
-    else if(argument == "--phish-backend")
-    {
-      const std::string backend = pop_argument(arguments);
-      //std::cerr << argument << " " << backend << std::endl;
-      if(backend != "zmq")
-      {
-        std::ostringstream message;
-        message << "Internal Phish library error: backend mismatch (got " << backend << ", expected zmq)";
-        throw std::runtime_error(message.str());
-      }
-    }
-    else if(argument == "--phish-name")
+    if(argument == "--phish-name")
     {
       g_name = pop_argument(arguments);
-      //std::cerr << argument << " " << g_name << std::endl;
+      phish::debug(g_name);
     }
     else if(argument == "--phish-rank")
     {
       std::istringstream stream(pop_argument(arguments));
       stream >> g_rank;
-      //std::cerr << argument << " " << g_rank << std::endl;
+      phish::debug(stream.str());
     }
     else if(argument == "--phish-control-port")
     {
       const std::string address = pop_argument(arguments);
-      //std::cerr << argument << " " << address << std::endl;
+      phish::debug(address);
       g_control_port = new zmq::socket_t(*g_context, ZMQ_REP);
       g_control_port->bind(address.c_str());
     }
     else if(argument == "--phish-input-port")
     {
       const std::string address = pop_argument(arguments);
-      //std::cerr << argument << " " << address << std::endl;
+      phish::debug(address);
       g_input_port = new zmq::socket_t(*g_context, ZMQ_PULL);
       g_input_port->bind(address.c_str());
     }
     else if(argument == "--phish-input-connections")
     {
       std::string spec = pop_argument(arguments);
-      //std::cerr << argument << " " << spec << std::endl;
+      phish::debug(spec);
       std::replace(spec.begin(), spec.end(), '+', ' ');
       int port = 0;
       int connection_count = 0;
@@ -476,7 +385,7 @@ void phish_init(int* argc, char*** argv)
     else if(argument == "--phish-output-connection")
     {
       std::string spec = pop_argument(arguments);
-      //std::cerr << argument << " " << spec << std::endl;
+      phish::debug(spec);
       std::replace(spec.begin(), spec.end(), '+', ' ');
       int output_port = 0;
       std::string pattern;
@@ -533,6 +442,7 @@ void phish_init(int* argc, char*** argv)
   }
 
   // Wait to hear from the school ...
+  phish::debug("Waiting for startup");
   zmq::message_t message;
   g_control_port->recv(&message, 0);
   const std::string request(reinterpret_cast<char*>(message.data()), message.size());
@@ -549,13 +459,17 @@ void phish_init(int* argc, char*** argv)
   }
 
   // Remove phish-specific arguments from argc & argv ...
-  *argc = kept_arguments.size();
-  *argv = new char*[kept_arguments.size()];
+  phish::debug("Updating argc and argv");
+  int new_argc = kept_arguments.size();
+  char** new_argv = new char*[kept_arguments.size()];
   for(int i = 0; i != kept_arguments.size(); ++i)
   {
-    *argv[i] = new char[kept_arguments[i].size() + 1];
-    strcpy(*argv[i], kept_arguments[i].c_str());
+    new_argv[i] = new char[kept_arguments[i].size() + 1];
+    strcpy(new_argv[i], kept_arguments[i].c_str());
   }
+
+  *argc = new_argc;
+  *argv = new_argv;
 }
 
 int phish_init_python(int, char **)
@@ -589,9 +503,11 @@ void phish_exit()
   g_context = 0;
 }
 
-void phish_input(int, void(*)(int), void(*)(), int)
+void phish_input(int port, void(*message)(int), void(*port_closed)(), int optional)
 {
-  throw std::runtime_error("Not implemented.");
+  g_message_callbacks[port] = message;
+  g_closed_callbacks[port] = port_closed;
+  g_optional[port] = optional;
 }
 
 void phish_output(int port)
@@ -610,7 +526,7 @@ void phish_check()
       throw std::runtime_error(message.str());
     }
   }
-  for(std::map<int, phish::message_callback>::iterator port = g_message_callbacks.begin(); port != g_message_callbacks.end(); ++port)
+  for(std::map<int, void(*)(int)>::iterator port = g_message_callbacks.begin(); port != g_message_callbacks.end(); ++port)
   {
     if(!g_input_connection_counts.count(port->first) && !g_optional[port->first])
     {
@@ -630,9 +546,9 @@ void phish_check()
   }
 }
 
-void phish_done(void (*)())
+void phish_done(void (*callback)())
 {
-  throw std::runtime_error("Not implemented.");
+  g_last_port_closed = callback;
 }
 
 void phish_close(int port)
@@ -646,7 +562,60 @@ void phish_close(int port)
 
 void phish_loop()
 {
-  throw std::runtime_error("Not implemented.");
+  if(g_running)
+    return;
+
+  g_running = true;
+  while(g_running)
+  {
+    try
+    {
+      zmq::message_t frame_message;
+      zmq_assert(g_input_port->recv(&frame_message, 0));
+      const uint8_t frame = reinterpret_cast<uint8_t*>(frame_message.data())[0];
+      const int port = (frame & PORT_MASK);
+
+      if((frame & TYPE_MASK) == CLOSE_MESSAGE)
+      {
+        phish_warn("Received close message.");
+        g_input_connection_counts[port] -= 1;
+        if(g_input_connection_counts[port] == 0)
+        {
+          g_input_connection_counts.erase(port);
+          if(g_closed_callbacks.count(port))
+          {
+            g_closed_callbacks[port]();
+          }
+          if(g_input_connection_counts.size() == 0 && g_last_port_closed)
+          {
+            g_last_port_closed();
+          }
+        }
+      }
+      else
+      {
+        g_received_count += 1;
+
+        g_unpack_index = 0;
+        g_unpack_count = 0;
+        int64_t more_parts = 0;
+        size_t more_parts_size = sizeof(more_parts);
+        for(g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size); more_parts; g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size))
+        {
+          while(g_unpack_messages.size() <= g_unpack_count)
+            g_unpack_messages.push_back(new zmq::message_t());
+          zmq_assert(g_input_port->recv(g_unpack_messages[g_unpack_count], 0));
+          ++g_unpack_count;
+        }
+        g_message_callbacks[port](g_unpack_count);
+      }
+    }
+    catch(std::exception& e)
+    {
+      std::cerr << g_name << " (" << g_rank << ") " << e.what() << std::endl;
+      //phish_warn(e.what());
+    }
+  }
 }
 
 void phish_probe(void (*)())

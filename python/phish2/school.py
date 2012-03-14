@@ -170,9 +170,9 @@ def start():
       # Create a specification for setting-up the minnow ...
       arguments = []
       arguments += _arguments[i]
-      if _debug:
-        arguments += ["--phish-debug"]
-      arguments += ["--phish-backend", "zmq"]
+#      if _debug:
+#        arguments += ["--phish-debug"]
+#      arguments += ["--phish-backend", "zmq"]
       arguments += ["--phish-name", name]
       arguments += ["--phish-rank", str(rank)]
       arguments += ["--phish-control-port", control_ports_internal[i]]

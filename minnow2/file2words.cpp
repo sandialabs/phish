@@ -2,7 +2,7 @@
 #include <iostream>
 #include <phish.hpp>
 
-void message_callback(uint32_t parts)
+void message_callback(int parts)
 {
   const std::string filename = phish::unpack<std::string>();
   std::ifstream stream(filename.c_str());

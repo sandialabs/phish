@@ -3,10 +3,10 @@
 
 static std::ostream* stream = &std::cerr;
 
-void message_callback(uint32_t part_count)
+void message_callback(int parts)
 {
   *stream << "(";
-  for(uint32_t i = 0; i != part_count; ++i)
+  for(uint32_t i = 0; i != parts; ++i)
   {
     if(i)
       *stream << ", ";

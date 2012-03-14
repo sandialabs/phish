@@ -5,7 +5,7 @@
 
 std::map<std::string, uint32_t> counts;
 
-void message_callback(uint32_t parts)
+void message_callback(int parts)
 {
   std::string key = phish::unpack<std::string>();
   uint32_t count = phish::unpack<uint32_t>();

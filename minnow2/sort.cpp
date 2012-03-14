@@ -8,7 +8,7 @@ typedef std::multimap<uint32_t, std::string, std::greater<uint32_t> > items_t;
 items_t items;
 int count = 0;
 
-void message_callback(uint32_t parts)
+void message_callback(int parts)
 {
   uint32_t count = phish::unpack<uint32_t>();
   std::string key = phish::unpack<std::string>();
