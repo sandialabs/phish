@@ -638,8 +638,6 @@ void phish_loop()
 
     if (doneflag) {
       ip->donecount++;
-      printf("DONE MESSAGE %d: %d %d %d\n",
-	     idglobal,iport,ip->donecount,ip->donemax);
       if (ip->donecount == ip->donemax) {
 	ip->status = CLOSED_PORT;
 	if (ip->donefunc) (*ip->donefunc)();
