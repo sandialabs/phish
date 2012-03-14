@@ -99,7 +99,6 @@ public:
 };
 
 static zmq::context_t* g_context = 0;
-static bool g_debug = false;
 static std::string g_name = std::string();
 static rank_id g_rank = 0;
 static zmq::socket_t* g_control_port = 0;
@@ -202,7 +201,6 @@ void init(int& argc, char**& argv)
     const std::string argument = pop_argument(arguments);
     if(argument == "--phish-debug")
     {
-      g_debug = true;
     }
     else if(argument == "--phish-backend")
     {
@@ -252,9 +250,6 @@ void init(int& argc, char**& argv)
 
       g_input_connection_counts[port] = connection_count;
 
-      //std::ostringstream message;
-      //message << "input port " << port << " listening to " << address;
-      //log_debug(message.str());
     }
     else if(argument == "--phish-output-connection")
     {
@@ -288,9 +283,6 @@ void init(int& argc, char**& argv)
         socket->connect(recipient->c_str());
         recipient_sockets.push_back(socket);
 
-        //std::ostringstream message;
-        //message << "output port " << port << " connected to " << *recipient;
-        //log_debug(message.str());
       }
 
       if(pattern == "broadcast")
@@ -342,22 +334,6 @@ void init(int& argc, char**& argv)
     argv[i] = new char[kept_arguments[i].size() + 1];
     strcpy(argv[i], kept_arguments[i].c_str());
   }
-}
-
-bool debug()
-{
-  return g_debug;
-}
-
-void debug(bool enable)
-{
-  g_debug = enable;
-}
-
-void log_debug(const std::string& message)
-{
-//  if(g_debug)
-    std::cerr << g_name << " (" << g_rank << ") - " << message << std::endl;
 }
 
 const std::string name()
@@ -451,7 +427,7 @@ void loop()
 
       if((frame & TYPE_MASK) == CLOSE_MESSAGE)
       {
-        log_debug("Received close message.");
+        phish_warn("Received close message.");
         g_input_connection_counts[port] -= 1;
         if(g_input_connection_counts[port] == 0)
         {
@@ -487,7 +463,7 @@ void loop()
     catch(std::exception& e)
     {
       std::cerr << g_name << " (" << g_rank << ") " << e.what() << std::endl;
-      //log_debug(e.what());
+      //phish_warn(e.what());
     }
   }
 }
@@ -643,7 +619,7 @@ void close()
 
   std::ostringstream message;
   message << "Received " << g_received_count << " messages, sent " << g_sent_count << " messages, sent " << g_sent_close_count << " close messages.";
-  log_debug(message.str());
+  phish_warn(message.str().c_str());
 
   // Shut-down zmq ...
   delete g_context;
@@ -879,14 +855,15 @@ int phish_query(const char *, int, int)
   throw std::runtime_error("Not implemented.");
 }
 
-void phish_error(const char *)
+void phish_error(const char* message)
 {
+  std::cerr << phish::g_name << " (" << phish::g_rank << ") - " << message << std::endl;
   throw std::runtime_error("Not implemented.");
 }
 
-void phish_warn(const char *)
+void phish_warn(const char* message)
 {
-  throw std::runtime_error("Not implemented.");
+  std::cerr << phish::g_name << " (" << phish::g_rank << ") - " << message << std::endl;
 }
 
 double phish_timer()

@@ -58,9 +58,6 @@ enum data_type
 /// initializing the minnow or establishing communication with the rest of the school.
 void init(int& argc, char**& argv);
 
-bool debug();
-void log_debug(const std::string& message);
-
 /// Returns the human-readable name for this minnow.
 const std::string name();
 
@@ -159,6 +156,9 @@ void close_port(port_index output_port);
 /// Note that this also implicitly closes any open output ports and completes
 /// any running loop.
 void close();
+
+void error(const std::string& message) { phish_error(message.c_str()); }
+void warn(const std::string& message) { phish_warn(message.c_str()); }
 
 namespace timer
 {
