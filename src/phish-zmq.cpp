@@ -92,7 +92,10 @@ public:
 
 static zmq::context_t* g_context = 0;
 static std::string g_name = std::string();
-static int g_rank = 0;
+static int g_local_id = 0;
+static int g_local_count = 0;
+static int g_global_id = 0;
+static int g_global_count = 0;
 static zmq::socket_t* g_control_port = 0;
 static zmq::socket_t* g_input_port = 0;
 
@@ -227,10 +230,28 @@ void phish_init(int* argc, char*** argv)
       g_name = pop_argument(arguments);
       //phish::debug(g_name);
     }
-    else if(argument == "--phish-rank")
+    else if(argument == "--phish-local-id")
     {
       std::istringstream stream(pop_argument(arguments));
-      stream >> g_rank;
+      stream >> g_local_id;
+      //phish::debug(stream.str());
+    }
+    else if(argument == "--phish-local-count")
+    {
+      std::istringstream stream(pop_argument(arguments));
+      stream >> g_local_count;
+      //phish::debug(stream.str());
+    }
+    else if(argument == "--phish-global-id")
+    {
+      std::istringstream stream(pop_argument(arguments));
+      stream >> g_global_id;
+      //phish::debug(stream.str());
+    }
+    else if(argument == "--phish-global-count")
+    {
+      std::istringstream stream(pop_argument(arguments));
+      stream >> g_global_count;
       //phish::debug(stream.str());
     }
     else if(argument == "--phish-control-port")
@@ -678,20 +699,31 @@ int phish_datum(char **, int *)
   throw std::runtime_error("Not implemented.");
 }
 
-int phish_query(const char *, int, int)
+int phish_query(const char* kw, int flag1, int flag2)
 {
-  throw std::runtime_error("Not implemented.");
+  const std::string keyword(kw);
+
+  if(keyword == "idlocal")
+    return g_local_id;
+  else if(keyword == "nlocal")
+    return g_local_count;
+  else if(keyword == "idglobal")
+    return g_global_id;
+  else if(keyword == "nglobal")
+    return g_global_count;
+  else
+    throw std::runtime_error("Not implemented.");
 }
 
 void phish_error(const char* message)
 {
-  std::cerr << g_name << " (" << g_rank << ") - " << message << std::endl;
+  std::cerr << "ERROR: " << g_name << " " << g_local_id << " # " << g_global_id << ": " << message << std::endl;
   throw std::runtime_error("Not implemented.");
 }
 
 void phish_warn(const char* message)
 {
-  std::cerr << g_name << " (" << g_rank << ") - " << message << std::endl;
+  std::cerr << g_name << " " << g_local_id << " # " << g_global_id << ": " << message << std::endl;
 }
 
 double phish_timer()

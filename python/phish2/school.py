@@ -8,6 +8,8 @@ import zmq
 
 _debug = False
 _names = []
+_local_ids = []
+_local_counts = []
 _hosts = []
 _arguments = []
 _connections = []
@@ -76,11 +78,15 @@ def create_minnows(name, arguments, count=1, hosts=None):
   the localhost) a string hostname (all minnows will be started on the given
   host) or a collection of string hostnames, one-per-minnow."""
   global _names
+  global _local_ids
+  global _local_counts
   global _hosts
   global _arguments
 
   results = range(len(_names), len(_names) + count)
   _names += [name] * count
+  _local_ids += range(count)
+  _local_counts += [count] * count
   _arguments += [arguments] * count
 
   if hosts is None:
@@ -165,6 +171,10 @@ def start():
   try:
     for i in range(len(_names)):
       name = _names[i]
+      local_id = _local_ids[i]
+      local_count = _local_counts[i]
+      global_id = i
+      global_count = len(_names)
       rank = i
 
       # Create a specification for setting-up the minnow ...
@@ -174,7 +184,10 @@ def start():
 #        arguments += ["--phish-debug"]
 #      arguments += ["--phish-backend", "zmq"]
       arguments += ["--phish-name", name]
-      arguments += ["--phish-rank", str(rank)]
+      arguments += ["--phish-local-id", str(local_id)]
+      arguments += ["--phish-local-count", str(local_count)]
+      arguments += ["--phish-global-id", str(global_id)]
+      arguments += ["--phish-global-count", str(global_count)]
       arguments += ["--phish-control-port", control_ports_internal[i]]
       arguments += ["--phish-input-port", input_ports_internal[i]]
       for port, count in input_connection_counts[i].items():
