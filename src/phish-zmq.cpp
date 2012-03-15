@@ -4,16 +4,47 @@
 #include <set>
 #include <sstream>
 #include <stdexcept>
+#include <vector>
 
 #include <hash.h>
-#include <phish.hpp>
+#include <phish.h>
 #include <zmq.hpp>
 
 #include <sys/time.h>
 
 ///////////////////////////////////////////////////////////////////////////////////
-// Internal implementation details
+// Internal state
 
+// Human-readable name for this minnow ...
+static std::string g_name = std::string();
+// This minnow's ID within the local group ...
+static int g_local_id = 0;
+// Number of minnows in the local group ...
+static int g_local_count = 0;
+// This minnow's ID within the global school ...
+static int g_global_id = 0;
+// Number of minnows in the global school ...
+static int g_global_count = 0;
+
+// ZMQ context and incoming sockets ...
+static zmq::context_t* g_context = 0;
+static zmq::socket_t* g_control_port = 0;
+static zmq::socket_t* g_input_port = 0;
+
+// Input port configuration ...
+static std::map<int, void(*)(int)> g_input_port_message_callback;
+static std::map<int, void(*)()> g_input_port_closed_callback;
+static std::map<int, bool> g_input_port_optional;
+
+// Temporary storage for packing outgoing messages ...
+static std::vector<zmq::message_t*> g_pack_messages;
+
+// Temporary storage for unpacking incoming messages ...
+static std::vector<zmq::message_t*> g_unpack_messages;
+static uint32_t g_unpack_count = 0;
+static uint32_t g_unpack_index = 0;
+
+// Keeps track of message statistics ...
 static uint64_t g_received_count = 0;
 static uint64_t g_sent_count = 0;
 static uint64_t g_sent_close_count = 0;
@@ -30,9 +61,6 @@ enum message_frame
   TYPE_MASK = 0x80,
   CLOSE_MESSAGE = 0x80
 };
-
-// Provides temporary storage for packing messages until they're handed-off to zmq ...
-static std::vector<zmq::message_t*> g_pack_messages;
 
 void zmq_assert(int rc)
 {
@@ -90,33 +118,15 @@ public:
   virtual void send() = 0;
 };
 
-static zmq::context_t* g_context = 0;
-static std::string g_name = std::string();
-static int g_local_id = 0;
-static int g_local_count = 0;
-static int g_global_id = 0;
-static int g_global_count = 0;
-static zmq::socket_t* g_control_port = 0;
-static zmq::socket_t* g_input_port = 0;
-
 static std::map<int, int> g_input_connection_counts;
 
 static std::map<int, std::vector<output_connection*> > g_output_connections;
-
-static std::map<int, void(*)(int)> g_message_callbacks;
-static std::map<int, void(*)()> g_closed_callbacks;
-static std::map<int, bool> g_optional;
 
 static std::set<int> g_defined_output_ports;
 
 static void(*g_last_port_closed)();
 
 static bool g_running = false;
-
-// Provides temporary storage for unpacking messages ...
-static std::vector<zmq::message_t*> g_unpack_messages;
-static uint32_t g_unpack_count = 0;
-static uint32_t g_unpack_index = 0;
 
 /// output_connection implementation that broadcasts messages to every recipient.
 class broadcast_connection :
@@ -176,6 +186,9 @@ public:
   }
 };
 
+//////////////////////////////////////////////////////////////////////////////////
+// Internal implementation functions
+
 static const std::string pop_argument(std::vector<std::string>& arguments)
 {
   const std::string argument = arguments.front();
@@ -210,12 +223,6 @@ static inline void pack_array(const T* array, uint32_t count, uint8_t type)
   pack(type, count, sizeof(T), array);
 }
 
-///////////////////////////////////////////////////////////////////////////////////
-// Public API
-
-namespace phish
-{
-
 const port_collection output_ports()
 {
   port_collection ports;
@@ -224,7 +231,8 @@ const port_collection output_ports()
   return ports;
 }
 
-} // namespace phish
+///////////////////////////////////////////////////////////////////////////////////
+// Public API
 
 // Compatibility API for minnows written in C ...
 extern "C"
@@ -242,50 +250,42 @@ void phish_init(int* argc, char*** argv)
     if(argument == "--phish-name")
     {
       g_name = pop_argument(arguments);
-      //phish::debug(g_name);
     }
     else if(argument == "--phish-local-id")
     {
       std::istringstream stream(pop_argument(arguments));
       stream >> g_local_id;
-      //phish::debug(stream.str());
     }
     else if(argument == "--phish-local-count")
     {
       std::istringstream stream(pop_argument(arguments));
       stream >> g_local_count;
-      //phish::debug(stream.str());
     }
     else if(argument == "--phish-global-id")
     {
       std::istringstream stream(pop_argument(arguments));
       stream >> g_global_id;
-      //phish::debug(stream.str());
     }
     else if(argument == "--phish-global-count")
     {
       std::istringstream stream(pop_argument(arguments));
       stream >> g_global_count;
-      //phish::debug(stream.str());
     }
     else if(argument == "--phish-control-port")
     {
       const std::string address = pop_argument(arguments);
-      //phish::debug(address);
       g_control_port = new zmq::socket_t(*g_context, ZMQ_REP);
       g_control_port->bind(address.c_str());
     }
     else if(argument == "--phish-input-port")
     {
       const std::string address = pop_argument(arguments);
-      //phish::debug(address);
       g_input_port = new zmq::socket_t(*g_context, ZMQ_PULL);
       g_input_port->bind(address.c_str());
     }
     else if(argument == "--phish-input-connections")
     {
       std::string spec = pop_argument(arguments);
-      //phish::debug(spec);
       std::replace(spec.begin(), spec.end(), '+', ' ');
       int port = 0;
       int connection_count = 0;
@@ -298,7 +298,6 @@ void phish_init(int* argc, char*** argv)
     else if(argument == "--phish-output-connection")
     {
       std::string spec = pop_argument(arguments);
-      //phish::debug(spec);
       std::replace(spec.begin(), spec.end(), '+', ' ');
       int output_port = 0;
       std::string pattern;
@@ -355,7 +354,6 @@ void phish_init(int* argc, char*** argv)
   }
 
   // Wait to hear from the school ...
-  //phish::debug("Waiting for startup");
   zmq::message_t message;
   g_control_port->recv(&message, 0);
   const std::string request(reinterpret_cast<char*>(message.data()), message.size());
@@ -372,7 +370,6 @@ void phish_init(int* argc, char*** argv)
   }
 
   // Remove phish-specific arguments from argc & argv ...
-  //phish::debug("Updating argc and argv");
   int new_argc = kept_arguments.size();
   char** new_argv = new char*[kept_arguments.size()];
   for(int i = 0; i != kept_arguments.size(); ++i)
@@ -393,7 +390,7 @@ int phish_init_python(int, char **)
 void phish_exit()
 {
   // Close output ports ...
-  const port_collection ports = phish::output_ports();
+  const port_collection ports = output_ports();
   for(port_collection::const_iterator port = ports.begin(); port != ports.end(); ++port)
     phish_close(*port);
 
@@ -417,11 +414,11 @@ void phish_exit()
   g_context = 0;
 }
 
-void phish_input(int port, void(*message)(int), void(*port_closed)(), int optional)
+void phish_input(int port, void(*message_callback)(int), void(*port_closed_callback)(), int optional)
 {
-  g_message_callbacks[port] = message;
-  g_closed_callbacks[port] = port_closed;
-  g_optional[port] = optional;
+  g_input_port_message_callback[port] = message_callback;
+  g_input_port_closed_callback[port] = port_closed_callback;
+  g_input_port_optional[port] = optional;
 }
 
 void phish_output(int port)
@@ -433,16 +430,16 @@ void phish_check()
 {
   for(std::map<int, int>::iterator port = g_input_connection_counts.begin(); port != g_input_connection_counts.end(); ++port)
   {
-    if(!g_message_callbacks.count(port->first))
+    if(!g_input_port_message_callback.count(port->first))
     {
       std::ostringstream message;
       message << g_name << ": unexpected connection to undefined input port " << port->first;
       throw std::runtime_error(message.str());
     }
   }
-  for(std::map<int, void(*)(int)>::iterator port = g_message_callbacks.begin(); port != g_message_callbacks.end(); ++port)
+  for(std::map<int, void(*)(int)>::iterator port = g_input_port_message_callback.begin(); port != g_input_port_message_callback.end(); ++port)
   {
-    if(!g_input_connection_counts.count(port->first) && !g_optional[port->first])
+    if(!g_input_connection_counts.count(port->first) && !g_input_port_optional[port->first])
     {
       std::ostringstream message;
       message << g_name << ": required input port " << port->first << " does not have a connection.";
@@ -496,9 +493,9 @@ void phish_loop()
         if(g_input_connection_counts[port] == 0)
         {
           g_input_connection_counts.erase(port);
-          if(g_closed_callbacks.count(port))
+          if(g_input_port_closed_callback.count(port))
           {
-            g_closed_callbacks[port]();
+            g_input_port_closed_callback[port]();
           }
           if(g_input_connection_counts.size() == 0)
           {
@@ -524,7 +521,7 @@ void phish_loop()
           zmq_assert(g_input_port->recv(g_unpack_messages[g_unpack_count], 0));
           ++g_unpack_count;
         }
-        g_message_callbacks[port](g_unpack_count);
+        g_input_port_message_callback[port](g_unpack_count);
       }
     }
     catch(std::exception& e)
@@ -589,7 +586,7 @@ void phish_pack_raw(char* data, int length)
   pack(PHISH_RAW, length, sizeof(char), data);
 }
 
-void phish_pack_raw(char value)
+void phish_pack_char(char value)
 {
   pack_value(value, PHISH_CHAR);
 }
@@ -646,7 +643,7 @@ void phish_pack_double(double value)
 
 void phish_pack_string(char* value)
 {
-  pack(PHISH_STRING, strlen(value) + 1, sizeof(char), data);
+  pack(PHISH_STRING, strlen(value) + 1, sizeof(char), value);
 }
 
 void phish_pack_int8_array(int8_t* array, int count)
