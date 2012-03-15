@@ -179,6 +179,19 @@ static const std::string pop_argument(std::vector<std::string>& arguments)
   return argument;
 }
 
+static inline void pack_helper(const void* data, uint32_t length, int type)
+{
+  g_pack_messages.push_back(new zmq::message_t(1 + length));
+  reinterpret_cast<uint8_t*>(g_pack_messages.back()->data())[0] = type;
+  ::memcpy(reinterpret_cast<uint8_t*>(g_pack_messages.back()->data()) + 1, data, length);
+}
+
+template<typename T>
+static inline void pack_helper(const T& data, int type)
+{
+  pack_helper(&data, sizeof(T), type);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 // Public API
 
@@ -200,115 +213,6 @@ void loop_complete()
   g_running = false;
 }
 
-data_type unpack_type()
-{
-  if(g_unpack_index >= g_unpack_count)
-    throw std::runtime_error("No datum to type.");
-  return static_cast<data_type>(reinterpret_cast<uint8_t*>(g_unpack_messages[g_unpack_index]->data())[0]);
-}
-
-uint32_t unpack_length()
-{
-  if(g_unpack_index >= g_unpack_count)
-    throw std::runtime_error("No datum to size.");
-  return g_unpack_messages[g_unpack_index]->size();
-}
-
-void skip_part()
-{
-  if(g_unpack_index >= g_unpack_count)
-    throw std::runtime_error("No datum to skip.");
-  g_unpack_index += 1;
-}
-
-template<typename T>
-void unpack_helper(T& data, data_type type)
-{
-  if(g_unpack_index >= g_unpack_count)
-    throw std::runtime_error("No datum to unpack.");
-  if(reinterpret_cast<uint8_t*>(g_unpack_messages[g_unpack_index]->data())[0] != type)
-    throw std::runtime_error("Data type mismatch.");
-  if(g_unpack_messages[g_unpack_index]->size() != sizeof(T) + 1)
-    throw std::runtime_error("Data size mismatch.");
-  T temp; // This is a workaround for problems trying to take the address of data
-  ::memcpy(&temp, reinterpret_cast<uint8_t*>(g_unpack_messages[g_unpack_index]->data()) + 1, sizeof(T));
-  data = temp;
-  g_unpack_index += 1;
-}
-
-void unpack(int8_t& data)
-{
-  unpack_helper(data, INT8);
-}
-
-void unpack(int16_t& data)
-{
-  unpack_helper(data, INT8);
-}
-
-void unpack(int32_t& data)
-{
-  unpack_helper(data, INT32);
-}
-
-void unpack(int64_t& data)
-{
-  unpack_helper(data, INT64);
-}
-
-void unpack(uint8_t& data)
-{
-  unpack_helper(data, UINT8);
-}
-
-void unpack(uint16_t& data)
-{
-  unpack_helper(data, UINT8);
-}
-
-void unpack(uint32_t& data)
-{
-  unpack_helper(data, UINT32);
-}
-
-void unpack(uint64_t& data)
-{
-  unpack_helper(data, UINT64);
-}
-
-void unpack(float& data)
-{
-  unpack_helper(data, FLOAT);
-}
-
-void unpack(double& data)
-{
-  unpack_helper(data, FLOAT);
-}
-
-void unpack(std::string& data)
-{
-  if(g_unpack_index >= g_unpack_count)
-    throw std::runtime_error("No datum to unpack.");
-  if(reinterpret_cast<uint8_t*>(g_unpack_messages[g_unpack_index]->data())[0] != STRING)
-    throw std::runtime_error("Data type mismatch.");
-  data.assign(reinterpret_cast<const char*>(g_unpack_messages[g_unpack_index]->data()) + 1, g_unpack_messages[g_unpack_index]->size() - 1);
-  g_unpack_index += 1;
-}
-
-inline void pack_helper(const void* data, uint32_t length, int type)
-{
-  g_pack_messages.push_back(new zmq::message_t(1 + length));
-  reinterpret_cast<uint8_t*>(g_pack_messages.back()->data())[0] = type;
-  ::memcpy(reinterpret_cast<uint8_t*>(g_pack_messages.back()->data()) + 1, data, length);
-}
-
-template<typename T>
-inline void pack_helper(const T& data, int type)
-{
-  pack_helper(&data, sizeof(T), type);
-}
-
 } // namespace phish
 
 // Compatibility API for minnows written in C ...
@@ -327,32 +231,32 @@ void phish_init(int* argc, char*** argv)
     if(argument == "--phish-name")
     {
       g_name = pop_argument(arguments);
-      phish::debug(g_name);
+      //phish::debug(g_name);
     }
     else if(argument == "--phish-rank")
     {
       std::istringstream stream(pop_argument(arguments));
       stream >> g_rank;
-      phish::debug(stream.str());
+      //phish::debug(stream.str());
     }
     else if(argument == "--phish-control-port")
     {
       const std::string address = pop_argument(arguments);
-      phish::debug(address);
+      //phish::debug(address);
       g_control_port = new zmq::socket_t(*g_context, ZMQ_REP);
       g_control_port->bind(address.c_str());
     }
     else if(argument == "--phish-input-port")
     {
       const std::string address = pop_argument(arguments);
-      phish::debug(address);
+      //phish::debug(address);
       g_input_port = new zmq::socket_t(*g_context, ZMQ_PULL);
       g_input_port->bind(address.c_str());
     }
     else if(argument == "--phish-input-connections")
     {
       std::string spec = pop_argument(arguments);
-      phish::debug(spec);
+      //phish::debug(spec);
       std::replace(spec.begin(), spec.end(), '+', ' ');
       int port = 0;
       int connection_count = 0;
@@ -365,7 +269,7 @@ void phish_init(int* argc, char*** argv)
     else if(argument == "--phish-output-connection")
     {
       std::string spec = pop_argument(arguments);
-      phish::debug(spec);
+      //phish::debug(spec);
       std::replace(spec.begin(), spec.end(), '+', ' ');
       int output_port = 0;
       std::string pattern;
@@ -422,7 +326,7 @@ void phish_init(int* argc, char*** argv)
   }
 
   // Wait to hear from the school ...
-  phish::debug("Waiting for startup");
+  //phish::debug("Waiting for startup");
   zmq::message_t message;
   g_control_port->recv(&message, 0);
   const std::string request(reinterpret_cast<char*>(message.data()), message.size());
@@ -439,7 +343,7 @@ void phish_init(int* argc, char*** argv)
   }
 
   // Remove phish-specific arguments from argc & argv ...
-  phish::debug("Updating argc and argv");
+  //phish::debug("Updating argc and argv");
   int new_argc = kept_arguments.size();
   char** new_argv = new char*[kept_arguments.size()];
   for(int i = 0; i != kept_arguments.size(); ++i)
@@ -655,57 +559,57 @@ void phish_pack_raw(char *, int)
 
 void phish_pack_int8(int8_t data)
 {
-  phish::pack_helper(data, PHISH_INT8);
+  pack_helper(data, PHISH_INT8);
 }
 
 void phish_pack_int16(int16_t data)
 {
-  phish::pack_helper(data, PHISH_INT16);
+  pack_helper(data, PHISH_INT16);
 }
 
 void phish_pack_int32(int32_t data)
 {
-  phish::pack_helper(data, PHISH_INT32);
+  pack_helper(data, PHISH_INT32);
 }
 
 void phish_pack_int64(int64_t data)
 {
-  phish::pack_helper(data, PHISH_INT64);
+  pack_helper(data, PHISH_INT64);
 }
 
 void phish_pack_uint8(uint8_t data)
 {
-  phish::pack_helper(data, PHISH_UINT8);
+  pack_helper(data, PHISH_UINT8);
 }
 
 void phish_pack_uint16(uint16_t data)
 {
-  phish::pack_helper(data, PHISH_UINT16);
+  pack_helper(data, PHISH_UINT16);
 }
 
 void phish_pack_uint32(uint32_t data)
 {
-  phish::pack_helper(data, PHISH_UINT32);
+  pack_helper(data, PHISH_UINT32);
 }
 
 void phish_pack_uint64(uint64_t data)
 {
-  phish::pack_helper(data, PHISH_UINT64);
+  pack_helper(data, PHISH_UINT64);
 }
 
 void phish_pack_float(float data)
 {
-  phish::pack_helper(data, PHISH_FLOAT);
+  pack_helper(data, PHISH_FLOAT);
 }
 
 void phish_pack_double(double data)
 {
-  phish::pack_helper(data, PHISH_DOUBLE);
+  pack_helper(data, PHISH_DOUBLE);
 }
 
 void phish_pack_string(char* data)
 {
-  phish::pack_helper(data, strlen(data) + 1, PHISH_STRING);
+  pack_helper(data, strlen(data) + 1, PHISH_STRING);
 }
 
 void phish_pack_int8_array(int8_t *, int)
@@ -763,9 +667,13 @@ void phish_pack_pickle(char *, int)
   throw std::runtime_error("Not implemented.");
 }
 
-int phish_unpack(char **, int *)
+int phish_unpack(char** data, int* length)
 {
-  throw std::runtime_error("Not implemented.");
+  if(g_unpack_index >= g_unpack_count)
+    throw std::runtime_error("No data to unpack.");
+  *data = reinterpret_cast<char*>(g_unpack_messages[g_unpack_index]->data()) + 1;
+  *length = g_unpack_messages[g_unpack_index]->size() - 1;
+  return reinterpret_cast<char*>(g_unpack_messages[g_unpack_index++]->data())[0];
 }
 
 int phish_datum(char **, int *)

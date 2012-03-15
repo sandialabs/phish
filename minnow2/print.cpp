@@ -3,6 +3,12 @@
 
 static std::ostream* stream = &std::cerr;
 
+template<typename T>
+void print(char* buffer)
+{
+  *stream << *reinterpret_cast<T*>(buffer);
+}
+
 void message_callback(int parts)
 {
   *stream << "(";
@@ -10,44 +16,46 @@ void message_callback(int parts)
   {
     if(i)
       *stream << ", ";
-    switch(phish::unpack_type())
+
+    char* buffer;
+    int length;
+    switch(phish::unpack(buffer, length))
     {
       case phish::INT8:
-        *stream << phish::unpack<int8_t>();
+        print<int8_t>(buffer);
         break;
       case phish::INT16:
-        *stream << phish::unpack<int16_t>();
+        print<int16_t>(buffer);
         break;
       case phish::INT32:
-        *stream << phish::unpack<int32_t>();
+        print<int32_t>(buffer);
         break;
       case phish::INT64:
-        *stream << phish::unpack<int64_t>();
+        print<int64_t>(buffer);
         break;
       case phish::UINT8:
-        *stream << phish::unpack<uint8_t>();
+        print<uint8_t>(buffer);
         break;
       case phish::UINT16:
-        *stream << phish::unpack<uint16_t>();
+        print<uint16_t>(buffer);
         break;
       case phish::UINT32:
-        *stream << phish::unpack<uint32_t>();
+        print<uint32_t>(buffer);
         break;
       case phish::UINT64:
-        *stream << phish::unpack<uint64_t>();
+        print<uint64_t>(buffer);
         break;
       case phish::FLOAT:
-        *stream << phish::unpack<float>();
+        print<float>(buffer);
         break;
       case phish::DOUBLE:
-        *stream << phish::unpack<double>();
+        print<double>(buffer);
         break;
       case phish::STRING:
-        *stream << phish::unpack<std::string>();
+        *stream << std::string(buffer, length - 1);
         break;
       default:
-        *stream << phish::unpack_type() << " <unknown>";
-        phish::skip_part();
+        *stream << "<unknown>";
         break;
     }
   }
@@ -59,14 +67,5 @@ int main(int argc, char* argv[])
   phish::init(argc, argv);
   phish::input(0, message_callback, phish::exit);
   phish::check();
-
-/*
-  parser = optparse.OptionParser()
-  parser.add_option("--file", default="-", help="Output file path, or - for stdout.  Default: %default.")
-  parser.add_option("--format", default="{name} ({rank}) - {message}\n", help="Message format string.  Use {name} for the minnow name, {rank} for the minnow rank, {pid} for the process ID, and {message} for the message.  Default: %default.")
-  (options, arguments) = parser.parse_args()
-  file = open(options.file, "w") if options.file is not "-" else sys.stdout
-*/
-
   phish::loop();
 }
