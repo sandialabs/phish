@@ -584,64 +584,69 @@ void phish_pack_datum(char *, int)
   throw std::runtime_error("Not implemented.");
 }
 
-void phish_pack_raw(char *, int)
+void phish_pack_raw(char* data, int length)
 {
-  throw std::runtime_error("Not implemented.");
+  pack(PHISH_RAW, length, sizeof(char), data);
 }
 
-void phish_pack_int8(int8_t data)
+void phish_pack_raw(char value)
 {
-  pack_value(data, PHISH_INT8);
+  pack_value(value, PHISH_CHAR);
 }
 
-void phish_pack_int16(int16_t data)
+void phish_pack_int8(int8_t value)
 {
-  pack_value(data, PHISH_INT16);
+  pack_value(value, PHISH_INT8);
 }
 
-void phish_pack_int32(int32_t data)
+void phish_pack_int16(int16_t value)
 {
-  pack_value(data, PHISH_INT32);
+  pack_value(value, PHISH_INT16);
 }
 
-void phish_pack_int64(int64_t data)
+void phish_pack_int32(int32_t value)
 {
-  pack_value(data, PHISH_INT64);
+  pack_value(value, PHISH_INT32);
 }
 
-void phish_pack_uint8(uint8_t data)
+void phish_pack_int64(int64_t value)
 {
-  pack_value(data, PHISH_UINT8);
+  pack_value(value, PHISH_INT64);
 }
 
-void phish_pack_uint16(uint16_t data)
+void phish_pack_uint8(uint8_t value)
 {
-  pack_value(data, PHISH_UINT16);
+  pack_value(value, PHISH_UINT8);
 }
 
-void phish_pack_uint32(uint32_t data)
+void phish_pack_uint16(uint16_t value)
 {
-  pack_value(data, PHISH_UINT32);
+  pack_value(value, PHISH_UINT16);
 }
 
-void phish_pack_uint64(uint64_t data)
+void phish_pack_uint32(uint32_t value)
 {
-  pack_value(data, PHISH_UINT64);
+  pack_value(value, PHISH_UINT32);
 }
 
-void phish_pack_float(float data)
+void phish_pack_uint64(uint64_t value)
 {
-  pack_value(data, PHISH_FLOAT);
+  pack_value(value, PHISH_UINT64);
 }
 
-void phish_pack_double(double data)
+void phish_pack_float(float value)
 {
-  pack_value(data, PHISH_DOUBLE);
+  pack_value(value, PHISH_FLOAT);
 }
 
-void phish_pack_string(char* data)
+void phish_pack_double(double value)
 {
-  pack(PHISH_STRING, strlen(data) + 1, sizeof(char), data);
+  pack_value(value, PHISH_DOUBLE);
+}
+
+void phish_pack_string(char* value)
+{
+  pack(PHISH_STRING, strlen(value) + 1, sizeof(char), data);
 }
 
 void phish_pack_int8_array(int8_t* array, int count)
@@ -696,7 +701,7 @@ void phish_pack_double_array(double* array, int count)
 
 void phish_pack_pickle(char* data, int count)
 {
-  throw std::runtime_error("Not implemented.");
+  pack(PHISH_PICKLE, count, sizeof(char), data);
 }
 
 int phish_unpack(char** data, int* count)
