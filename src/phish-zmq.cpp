@@ -482,7 +482,10 @@ void phish_close(int port)
 void phish_loop()
 {
   if(g_running)
+  {
+    phish_warn("Cannot call phish_loop() while a loop is already running.");
     return;
+  }
   g_running = true;
 
   while(g_running)
@@ -539,14 +542,150 @@ void phish_loop()
   }
 }
 
-void phish_probe(void (*)())
+void phish_probe(void (*idle_callback)())
 {
-  throw std::runtime_error("Not implemented.");
+  if(g_running)
+  {
+    phish_warn("Cannot call phish_probe() while a loop is already running.");
+    return;
+  }
+  g_running = true;
+
+  while(g_running)
+  {
+    try
+    {
+      zmq::message_t frame_message;
+      const int rc = g_input_port->recv(&frame_message, ZMQ_NOBLOCK);
+      if(0 == rc)
+      {
+        const uint8_t frame = reinterpret_cast<uint8_t*>(frame_message.data())[0];
+        const int port = (frame & PORT_MASK);
+
+        if((frame & TYPE_MASK) == CLOSE_MESSAGE)
+        {
+          phish_warn("Received close message.");
+          g_input_port_connection_count[port] -= 1;
+          if(g_input_port_connection_count[port] == 0)
+          {
+            g_input_port_connection_count.erase(port);
+            if(g_input_port_closed_callback.count(port))
+            {
+              g_input_port_closed_callback[port]();
+            }
+            if(g_input_port_connection_count.size() == 0)
+            {
+              phish_warn("Last input port closed.");
+              g_running = false;
+              if(g_all_input_ports_closed)
+                g_all_input_ports_closed();
+            }
+          }
+        }
+        else
+        {
+          g_received_count += 1;
+
+          g_unpack_index = 0;
+          g_unpack_count = 0;
+          int64_t more_parts = 0;
+          size_t more_parts_size = sizeof(more_parts);
+          for(g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size); more_parts; g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size))
+          {
+            while(g_unpack_messages.size() <= g_unpack_count)
+              g_unpack_messages.push_back(new zmq::message_t());
+            zmq_assert(g_input_port->recv(g_unpack_messages[g_unpack_count], 0));
+            ++g_unpack_count;
+          }
+          g_input_port_message_callback[port](g_unpack_count);
+        }
+      }
+      else if(errno == EAGAIN)
+      {
+        idle_callback();
+      }
+      else
+      {
+        zmq_assert(rc);
+      }
+    }
+    catch(std::exception& e)
+    {
+      phish_warn(e.what());
+    }
+  }
 }
 
 int phish_recv()
 {
-  throw std::runtime_error("Not implemented.");
+  if(g_running)
+  {
+    phish_warn("Cannot call phish_recv() while a loop is running.");
+    return -1;
+  }
+
+  try
+  {
+    zmq::message_t frame_message;
+    const int rc = g_input_port->recv(&frame_message, ZMQ_NOBLOCK);
+    if(0 == rc)
+    {
+      const uint8_t frame = reinterpret_cast<uint8_t*>(frame_message.data())[0];
+      const int port = (frame & PORT_MASK);
+
+      if((frame & TYPE_MASK) == CLOSE_MESSAGE)
+      {
+        phish_warn("Received close message.");
+        g_input_port_connection_count[port] -= 1;
+        if(g_input_port_connection_count[port] == 0)
+        {
+          g_input_port_connection_count.erase(port);
+          if(g_input_port_closed_callback.count(port))
+          {
+            g_input_port_closed_callback[port]();
+          }
+          if(g_input_port_connection_count.size() == 0)
+          {
+            phish_warn("Last input port closed.");
+            g_running = false;
+            if(g_all_input_ports_closed)
+              g_all_input_ports_closed();
+          }
+        }
+        return -1;
+      }
+      else
+      {
+        g_received_count += 1;
+
+        g_unpack_index = 0;
+        g_unpack_count = 0;
+        int64_t more_parts = 0;
+        size_t more_parts_size = sizeof(more_parts);
+        for(g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size); more_parts; g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size))
+        {
+          while(g_unpack_messages.size() <= g_unpack_count)
+            g_unpack_messages.push_back(new zmq::message_t());
+          zmq_assert(g_input_port->recv(g_unpack_messages[g_unpack_count], 0));
+          ++g_unpack_count;
+        }
+        return g_unpack_count;
+      }
+    }
+    else if(errno == EAGAIN)
+    {
+      return 0;
+    }
+    else
+    {
+      zmq_assert(rc);
+    }
+  }
+  catch(std::exception& e)
+  {
+    phish_warn(e.what());
+    return -1;
+  }
 }
 
 void phish_send(int port)
