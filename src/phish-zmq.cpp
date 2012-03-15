@@ -107,6 +107,7 @@ static std::map<int, bool> g_optional;
 static std::set<int> g_defined_output_ports;
 
 static void(*g_last_port_closed)();
+
 static bool g_running = false;
 
 // Provides temporary storage for unpacking messages ...
@@ -204,13 +205,6 @@ const port_collection output_ports()
   for(std::map<int, std::vector<output_connection*> >::iterator i = g_output_connections.begin(); i != g_output_connections.end(); ++i)
     ports.push_back(i->first);
   return ports;
-}
-
-void loop_complete()
-{
-  if(!g_running)
-    return;
-  g_running = false;
 }
 
 } // namespace phish
@@ -368,7 +362,8 @@ void phish_exit()
   for(port_collection::const_iterator port = ports.begin(); port != ports.end(); ++port)
     phish_close(*port);
 
-  phish::loop_complete();
+  // Cancel any running loop ...
+  g_running = false;
 
   // Delete input port ...
   delete g_input_port;
@@ -448,8 +443,8 @@ void phish_loop()
 {
   if(g_running)
     return;
-
   g_running = true;
+
   while(g_running)
   {
     try
@@ -470,9 +465,12 @@ void phish_loop()
           {
             g_closed_callbacks[port]();
           }
-          if(g_input_connection_counts.size() == 0 && g_last_port_closed)
+          if(g_input_connection_counts.size() == 0)
           {
-            g_last_port_closed();
+            phish_warn("Last input port closed.");
+            g_running = false;
+            if(g_last_port_closed)
+              g_last_port_closed();
           }
         }
       }
@@ -496,8 +494,7 @@ void phish_loop()
     }
     catch(std::exception& e)
     {
-      std::cerr << g_name << " (" << g_rank << ") " << e.what() << std::endl;
-      //phish_warn(e.what());
+      phish_warn(e.what());
     }
   }
 }

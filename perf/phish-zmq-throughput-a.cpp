@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
   size = ::atoi(argv[1]);
   count = ::atoi(argv[2]);
 
-  phish::input(0, message_callback, phish::loop_complete);
+  phish::input(0, message_callback, phish::exit);
   phish::check();
   phish::loop();
 
@@ -35,8 +35,6 @@ int main(int argc, char* argv[])
   const double megabits = (throughput * size * 8.0) / 1000000.0;
 
   std::cout << elapsed << "," << size << "," << count << "," << throughput << "," << megabits << "\n";
-
-  phish::exit();
 
   return 0;
 }

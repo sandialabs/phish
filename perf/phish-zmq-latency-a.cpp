@@ -16,7 +16,7 @@ void message_callback(int parts)
 
   if(++received >= count)
   {
-    phish::loop_complete();
+    phish::exit();
     return;
   }
 

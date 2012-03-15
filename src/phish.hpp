@@ -76,12 +76,8 @@ void close(int port) { LOG_CALL(); ::phish_close(port); }
 
 /// Called to begin an event loop that will receive messages and invoke
 /// registered callbacks.  Loops cannot be nested, so subsequent calls to
-/// loop() before calling loop_complete() will be ignored.
+/// loop() will be ignored.
 void loop() { LOG_CALL(); ::phish_loop(); }
-/// Called to exit an event loop started with loop().  Note that multiple
-/// calls to loop_complete() and calls to loop_complete() before calling loop()
-/// will be ignored.
-void loop_complete();
 
 /// Sends a message from the given output port.  The message recipients will
 /// depend on the type(s) of connections to the port (round-robin, broadcast,
@@ -126,7 +122,7 @@ void unpack(float& data) { LOG_CALL(); unpack(data, FLOAT); }
 void unpack(double& data) { LOG_CALL(); unpack(data, DOUBLE); }
 void unpack(std::string& data)
 {
-  LOG_CALL(); 
+  LOG_CALL();
   char* buffer;
   int length;
   if(unpack(buffer, length) != STRING)
