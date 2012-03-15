@@ -32,9 +32,17 @@ static zmq::socket_t* g_control_port = 0;
 static zmq::socket_t* g_input_port = 0;
 
 // Input port configuration ...
+
+// Stores a message callback for each input port ...
 static std::map<int, void(*)(int)> g_input_port_message_callback;
+// Stores a port-closed callback for each input port ...
 static std::map<int, void(*)()> g_input_port_closed_callback;
+// Stores whether an input port is optional ...
 static std::map<int, bool> g_input_port_optional;
+// Stores the number of incoming connections for each input port ...
+static std::map<int, int> g_input_port_connection_count;
+// Stores a callback to be called when the last input port is closed ...
+static void(*g_all_input_ports_closed)();
 
 // Temporary storage for packing outgoing messages ...
 static std::vector<zmq::message_t*> g_pack_messages;
@@ -44,15 +52,80 @@ static std::vector<zmq::message_t*> g_unpack_messages;
 static uint32_t g_unpack_count = 0;
 static uint32_t g_unpack_index = 0;
 
+// Keeps track of whether a message loop is running ...
+static bool g_running = false;
+
 // Keeps track of message statistics ...
 static uint64_t g_received_count = 0;
 static uint64_t g_sent_count = 0;
 static uint64_t g_sent_close_count = 0;
 
-/// Defines a container for a collection of ports.
-typedef std::vector<int> port_collection;
 /// Defines a collection of message recipients (zmq sockets).
 typedef std::vector<zmq::socket_t*> recipients_t;
+/// Abstract interface for classes that route messages to their destination(s).
+class output_connection
+{
+public:
+  output_connection(int input_port, const recipients_t& recipients);
+  ~output_connection();
+  virtual void send() = 0;
+
+protected:
+  const int m_input_port;
+  const recipients_t m_recipients;
+  void raw_send(zmq::socket_t& recipient);
+};
+
+static std::map<int, std::vector<output_connection*> > g_output_connections;
+static std::set<int> g_defined_output_ports;
+
+//////////////////////////////////////////////////////////////////////////////////
+// Internal implementation details
+
+/// Helper function for argument-parsing ...
+static const std::string pop_argument(std::vector<std::string>& arguments)
+{
+  const std::string argument = arguments.front();
+  arguments.erase(arguments.begin());
+  return argument;
+}
+
+static inline void pack(uint8_t type, uint32_t count, uint32_t size, const void* data)
+{
+  zmq::message_t* const message = new zmq::message_t(sizeof(type) + sizeof(count) + (count * size));
+  uint8_t* message_data = reinterpret_cast<uint8_t*>(message->data());
+
+  *reinterpret_cast<uint8_t*>(message_data) = type;
+  message_data += sizeof(uint8_t);
+  *reinterpret_cast<uint32_t*>(message_data) = count;
+  message_data += sizeof(uint32_t);
+
+  ::memcpy(message_data, data, count * size);
+
+  g_pack_messages.push_back(message);
+}
+
+template<typename T>
+static inline void pack_value(const T& value, uint8_t type)
+{
+  pack(type, 1, sizeof(T), &value);
+}
+
+template<typename T>
+static inline void pack_array(const T* array, uint32_t count, uint8_t type)
+{
+  pack(type, count, sizeof(T), array);
+}
+
+/// Defines a container for a collection of ports.
+typedef std::vector<int> port_collection;
+const port_collection output_ports()
+{
+  port_collection ports;
+  for(std::map<int, std::vector<output_connection*> >::iterator i = g_output_connections.begin(); i != g_output_connections.end(); ++i)
+    ports.push_back(i->first);
+  return ports;
+}
 
 /// Defines constants for managing message framing & control.
 enum message_frame
@@ -68,65 +141,45 @@ void zmq_assert(int rc)
     throw std::runtime_error(zmq_strerror(errno));
 }
 
-/// Abstract interface for classes that route messages to their destination(s).
-class output_connection
+// output_connection implementation.
+output_connection::output_connection(int input_port, const recipients_t& recipients) :
+  m_input_port(input_port),
+  m_recipients(recipients)
 {
-protected:
-  const int m_input_port;
-  const recipients_t m_recipients;
+}
 
-  void raw_send(zmq::socket_t& recipient)
+output_connection::~output_connection()
+{
+  for(recipients_t::const_iterator recipient = m_recipients.begin(); recipient != m_recipients.end(); ++recipient)
   {
     zmq::message_t frame(1);
-    reinterpret_cast<uint8_t*>(frame.data())[0] = (m_input_port & PORT_MASK);
-    zmq_assert(recipient.send(frame, g_pack_messages.size() ? ZMQ_SNDMORE : 0));
-
-    for(int i = 0; i != g_pack_messages.size(); ++i)
-    {
-      zmq::message_t message;
-      message.copy(g_pack_messages[i]);
-      zmq_assert(recipient.send(message, (i+1) != g_pack_messages.size() ? ZMQ_SNDMORE : 0));
-    }
+    reinterpret_cast<uint8_t*>(frame.data())[0] = ((m_input_port & PORT_MASK) | CLOSE_MESSAGE);
+    zmq_assert((*recipient)->send(frame));
+    ++g_sent_close_count;
   }
-
-public:
-  output_connection(int input_port, const recipients_t& recipients) :
-    m_input_port(input_port),
-    m_recipients(recipients)
-  {
-  }
-
-  ~output_connection()
-  {
-    for(recipients_t::const_iterator recipient = m_recipients.begin(); recipient != m_recipients.end(); ++recipient)
-    {
-      zmq::message_t frame(1);
-      reinterpret_cast<uint8_t*>(frame.data())[0] = ((m_input_port & PORT_MASK) | CLOSE_MESSAGE);
-      zmq_assert((*recipient)->send(frame));
-      ++g_sent_close_count;
-    }
 
 /* Don't close the zmq sockets, see https://zeromq.jira.com/browse/LIBZMQ-229
 
-    for(recipients_t::const_iterator recipient = m_recipients.begin(); recipient != m_recipients.end(); ++recipient)
-    {
-      delete *recipient;
-    }
-*/
+  for(recipients_t::const_iterator recipient = m_recipients.begin(); recipient != m_recipients.end(); ++recipient)
+  {
+    delete *recipient;
   }
+*/
+}
 
-  virtual void send() = 0;
-};
+void output_connection::raw_send(zmq::socket_t& recipient)
+{
+  zmq::message_t frame(1);
+  reinterpret_cast<uint8_t*>(frame.data())[0] = (m_input_port & PORT_MASK);
+  zmq_assert(recipient.send(frame, g_pack_messages.size() ? ZMQ_SNDMORE : 0));
 
-static std::map<int, int> g_input_connection_counts;
-
-static std::map<int, std::vector<output_connection*> > g_output_connections;
-
-static std::set<int> g_defined_output_ports;
-
-static void(*g_last_port_closed)();
-
-static bool g_running = false;
+  for(int i = 0; i != g_pack_messages.size(); ++i)
+  {
+    zmq::message_t message;
+    message.copy(g_pack_messages[i]);
+    zmq_assert(recipient.send(message, (i+1) != g_pack_messages.size() ? ZMQ_SNDMORE : 0));
+  }
+}
 
 /// output_connection implementation that broadcasts messages to every recipient.
 class broadcast_connection :
@@ -185,51 +238,6 @@ public:
     raw_send(*recipient);
   }
 };
-
-//////////////////////////////////////////////////////////////////////////////////
-// Internal implementation functions
-
-static const std::string pop_argument(std::vector<std::string>& arguments)
-{
-  const std::string argument = arguments.front();
-  arguments.erase(arguments.begin());
-  return argument;
-}
-
-static inline void pack(uint8_t type, uint32_t count, uint32_t size, const void* data)
-{
-  zmq::message_t* const message = new zmq::message_t(sizeof(type) + sizeof(count) + (count * size));
-  uint8_t* message_data = reinterpret_cast<uint8_t*>(message->data());
-
-  *reinterpret_cast<uint8_t*>(message_data) = type;
-  message_data += sizeof(uint8_t);
-  *reinterpret_cast<uint32_t*>(message_data) = count;
-  message_data += sizeof(uint32_t);
-
-  ::memcpy(message_data, data, count * size);
-
-  g_pack_messages.push_back(message);
-}
-
-template<typename T>
-static inline void pack_value(const T& value, uint8_t type)
-{
-  pack(type, 1, sizeof(T), &value);
-}
-
-template<typename T>
-static inline void pack_array(const T* array, uint32_t count, uint8_t type)
-{
-  pack(type, count, sizeof(T), array);
-}
-
-const port_collection output_ports()
-{
-  port_collection ports;
-  for(std::map<int, std::vector<output_connection*> >::iterator i = g_output_connections.begin(); i != g_output_connections.end(); ++i)
-    ports.push_back(i->first);
-  return ports;
-}
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Public API
@@ -292,7 +300,7 @@ void phish_init(int* argc, char*** argv)
       std::istringstream stream(spec);
       stream >> port >> connection_count;
 
-      g_input_connection_counts[port] = connection_count;
+      g_input_port_connection_count[port] = connection_count;
 
     }
     else if(argument == "--phish-output-connection")
@@ -428,7 +436,7 @@ void phish_output(int port)
 
 void phish_check()
 {
-  for(std::map<int, int>::iterator port = g_input_connection_counts.begin(); port != g_input_connection_counts.end(); ++port)
+  for(std::map<int, int>::iterator port = g_input_port_connection_count.begin(); port != g_input_port_connection_count.end(); ++port)
   {
     if(!g_input_port_message_callback.count(port->first))
     {
@@ -439,7 +447,7 @@ void phish_check()
   }
   for(std::map<int, void(*)(int)>::iterator port = g_input_port_message_callback.begin(); port != g_input_port_message_callback.end(); ++port)
   {
-    if(!g_input_connection_counts.count(port->first) && !g_input_port_optional[port->first])
+    if(!g_input_port_connection_count.count(port->first) && !g_input_port_optional[port->first])
     {
       std::ostringstream message;
       message << g_name << ": required input port " << port->first << " does not have a connection.";
@@ -459,7 +467,7 @@ void phish_check()
 
 void phish_done(void (*callback)())
 {
-  g_last_port_closed = callback;
+  g_all_input_ports_closed = callback;
 }
 
 void phish_close(int port)
@@ -489,20 +497,20 @@ void phish_loop()
       if((frame & TYPE_MASK) == CLOSE_MESSAGE)
       {
         phish_warn("Received close message.");
-        g_input_connection_counts[port] -= 1;
-        if(g_input_connection_counts[port] == 0)
+        g_input_port_connection_count[port] -= 1;
+        if(g_input_port_connection_count[port] == 0)
         {
-          g_input_connection_counts.erase(port);
+          g_input_port_connection_count.erase(port);
           if(g_input_port_closed_callback.count(port))
           {
             g_input_port_closed_callback[port]();
           }
-          if(g_input_connection_counts.size() == 0)
+          if(g_input_port_connection_count.size() == 0)
           {
             phish_warn("Last input port closed.");
             g_running = false;
-            if(g_last_port_closed)
-              g_last_port_closed();
+            if(g_all_input_ports_closed)
+              g_all_input_ports_closed();
           }
         }
       }
