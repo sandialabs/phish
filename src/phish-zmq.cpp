@@ -183,17 +183,31 @@ static const std::string pop_argument(std::vector<std::string>& arguments)
   return argument;
 }
 
-static inline void pack_helper(const void* data, uint32_t length, int type)
+static inline void pack(uint8_t type, uint32_t count, uint32_t size, const void* data)
 {
-  g_pack_messages.push_back(new zmq::message_t(1 + length));
-  reinterpret_cast<uint8_t*>(g_pack_messages.back()->data())[0] = type;
-  ::memcpy(reinterpret_cast<uint8_t*>(g_pack_messages.back()->data()) + 1, data, length);
+  zmq::message_t* const message = new zmq::message_t(sizeof(type) + sizeof(count) + (count * size));
+  uint8_t* message_data = reinterpret_cast<uint8_t*>(message->data());
+
+  *reinterpret_cast<uint8_t*>(message_data) = type;
+  message_data += sizeof(uint8_t);
+  *reinterpret_cast<uint32_t*>(message_data) = count;
+  message_data += sizeof(uint32_t);
+
+  ::memcpy(message_data, data, count * size);
+
+  g_pack_messages.push_back(message);
 }
 
 template<typename T>
-static inline void pack_helper(const T& data, int type)
+static inline void pack_value(const T& value, uint8_t type)
 {
-  pack_helper(&data, sizeof(T), type);
+  pack(type, 1, sizeof(T), &value);
+}
+
+template<typename T>
+static inline void pack_array(const T* array, uint32_t count, uint8_t type)
+{
+  pack(type, count, sizeof(T), array);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -577,121 +591,131 @@ void phish_pack_raw(char *, int)
 
 void phish_pack_int8(int8_t data)
 {
-  pack_helper(data, PHISH_INT8);
+  pack_value(data, PHISH_INT8);
 }
 
 void phish_pack_int16(int16_t data)
 {
-  pack_helper(data, PHISH_INT16);
+  pack_value(data, PHISH_INT16);
 }
 
 void phish_pack_int32(int32_t data)
 {
-  pack_helper(data, PHISH_INT32);
+  pack_value(data, PHISH_INT32);
 }
 
 void phish_pack_int64(int64_t data)
 {
-  pack_helper(data, PHISH_INT64);
+  pack_value(data, PHISH_INT64);
 }
 
 void phish_pack_uint8(uint8_t data)
 {
-  pack_helper(data, PHISH_UINT8);
+  pack_value(data, PHISH_UINT8);
 }
 
 void phish_pack_uint16(uint16_t data)
 {
-  pack_helper(data, PHISH_UINT16);
+  pack_value(data, PHISH_UINT16);
 }
 
 void phish_pack_uint32(uint32_t data)
 {
-  pack_helper(data, PHISH_UINT32);
+  pack_value(data, PHISH_UINT32);
 }
 
 void phish_pack_uint64(uint64_t data)
 {
-  pack_helper(data, PHISH_UINT64);
+  pack_value(data, PHISH_UINT64);
 }
 
 void phish_pack_float(float data)
 {
-  pack_helper(data, PHISH_FLOAT);
+  pack_value(data, PHISH_FLOAT);
 }
 
 void phish_pack_double(double data)
 {
-  pack_helper(data, PHISH_DOUBLE);
+  pack_value(data, PHISH_DOUBLE);
 }
 
 void phish_pack_string(char* data)
 {
-  pack_helper(data, strlen(data) + 1, PHISH_STRING);
+  pack(PHISH_STRING, strlen(data) + 1, sizeof(char), data);
 }
 
-void phish_pack_int8_array(int8_t *, int)
+void phish_pack_int8_array(int8_t* array, int count)
+{
+  pack_array(array, count, PHISH_INT8_ARRAY);
+}
+
+void phish_pack_int16_array(int16_t* array, int count)
+{
+  pack_array(array, count, PHISH_INT16_ARRAY);
+}
+
+void phish_pack_int32_array(int32_t* array, int count)
+{
+  pack_array(array, count, PHISH_INT32_ARRAY);
+}
+
+void phish_pack_int64_array(int64_t* array, int count)
+{
+  pack_array(array, count, PHISH_INT64_ARRAY);
+}
+
+void phish_pack_uint8_array(uint8_t* array, int count)
+{
+  pack_array(array, count, PHISH_UINT8_ARRAY);
+}
+
+void phish_pack_uint16_array(uint16_t* array, int count)
+{
+  pack_array(array, count, PHISH_UINT16_ARRAY);
+}
+
+void phish_pack_uint32_array(uint32_t* array, int count)
+{
+  pack_array(array, count, PHISH_UINT32_ARRAY);
+}
+
+void phish_pack_uint64_array(uint64_t* array, int count)
+{
+  pack_array(array, count, PHISH_UINT64_ARRAY);
+}
+
+void phish_pack_float_array(float* array, int count)
+{
+  pack_array(array, count, PHISH_FLOAT_ARRAY);
+}
+
+void phish_pack_double_array(double* array, int count)
+{
+  pack_array(array, count, PHISH_DOUBLE_ARRAY);
+}
+
+void phish_pack_pickle(char* data, int count)
 {
   throw std::runtime_error("Not implemented.");
 }
 
-void phish_pack_int16_array(int16_t *, int)
-{
-  throw std::runtime_error("Not implemented.");
-}
-
-void phish_pack_int32_array(int32_t *, int)
-{
-  throw std::runtime_error("Not implemented.");
-}
-
-void phish_pack_int64_array(int64_t *, int)
-{
-  throw std::runtime_error("Not implemented.");
-}
-
-void phish_pack_uint8_array(uint8_t *, int)
-{
-  throw std::runtime_error("Not implemented.");
-}
-
-void phish_pack_uint16_array(uint16_t *, int)
-{
-  throw std::runtime_error("Not implemented.");
-}
-
-void phish_pack_uint32_array(uint32_t *, int)
-{
-  throw std::runtime_error("Not implemented.");
-}
-
-void phish_pack_uint64_array(uint64_t *, int)
-{
-  throw std::runtime_error("Not implemented.");
-}
-
-void phish_pack_float_array(float *, int)
-{
-  throw std::runtime_error("Not implemented.");
-}
-
-void phish_pack_double_array(double *, int)
-{
-  throw std::runtime_error("Not implemented.");
-}
-
-void phish_pack_pickle(char *, int)
-{
-  throw std::runtime_error("Not implemented.");
-}
-
-int phish_unpack(char** data, int* length)
+int phish_unpack(char** data, int* count)
 {
   if(g_unpack_index >= g_unpack_count)
     throw std::runtime_error("No data to unpack.");
-  *data = reinterpret_cast<char*>(g_unpack_messages[g_unpack_index]->data()) + 1;
-  *length = g_unpack_messages[g_unpack_index]->size() - 1;
-  return reinterpret_cast<char*>(g_unpack_messages[g_unpack_index++]->data())[0];
+
+  const uint8_t* message_data = reinterpret_cast<uint8_t*>(g_unpack_messages[g_unpack_index]->data());
+
+  uint8_t type = *reinterpret_cast<const uint8_t*>(message_data);
+  message_data += sizeof(uint8_t);
+
+  *count = *reinterpret_cast<const uint32_t*>(message_data);
+  message_data += sizeof(uint32_t);
+
+  *data = const_cast<char*>(reinterpret_cast<const char*>(message_data));
+
+  g_unpack_index += 1;
+  return type;
 }
 
 int phish_datum(char **, int *)
