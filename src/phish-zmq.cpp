@@ -69,6 +69,7 @@ public:
   output_connection(int input_port, const recipients_t& recipients);
   ~output_connection();
   virtual void send() = 0;
+  virtual void send_hashed(char* key, int key_length) = 0;
 
 protected:
   const int m_input_port;
@@ -198,6 +199,11 @@ public:
       raw_send(**recipient);
     }
   }
+
+  void send_hashed(char* key, int key_length)
+  {
+    phish_warn("Cannot send hashed with broadcast connection.");
+  }
 };
 
 /// output_connection implementation that sends a message to one recipient, choosing recipients in round-robin order.
@@ -219,6 +225,11 @@ public:
     m_index = (m_index + 1) % m_recipients.size();
     raw_send(*recipient);
   }
+
+  void send_hashed(char* key, int key_length)
+  {
+    phish_warn("Cannot send hashed with round-robin connection.");
+  }
 };
 
 /// output_connection implementation that sends a two-part message to one recipient, based on a hash of the first part.
@@ -233,7 +244,12 @@ public:
 
   void send()
   {
-    int index = hashlittle(reinterpret_cast<uint8_t*>(g_pack_messages[0]->data()) + 1, g_pack_messages[0]->size() - 1, 0) % m_recipients.size();
+    phish_warn("Cannot send over hashed connection without key.");
+  }
+
+  void send_hashed(char* key, int key_length)
+  {
+    int index = hashlittle(key, key_length, 0) % m_recipients.size();
     zmq::socket_t* const recipient = m_recipients[index];
     raw_send(*recipient);
   }
@@ -333,7 +349,6 @@ void phish_init(int* argc, char*** argv)
         socket->setsockopt(ZMQ_HWM, &hwm, sizeof(hwm));
         socket->connect(recipient->c_str());
         recipient_sockets.push_back(socket);
-
       }
 
       if(pattern == "broadcast")
@@ -708,9 +723,24 @@ void phish_send(int port)
   g_pack_messages.resize(0);
 }
 
-void phish_send_key(int, char *, int)
+void phish_send_key(int port, char* key, int key_length)
 {
-  throw std::runtime_error("Not implemented.");
+  if(!g_output_connections.count(port))
+  {
+    std::ostringstream message;
+    message << "Cannot send message to closed port: " << port;
+    throw std::runtime_error(message.str());
+  }
+
+  const int end = g_output_connections[port].size();
+  for(int i = 0; i != end; ++i)
+    g_output_connections[port][i]->send_hashed(key, key_length);
+
+  g_sent_count += 1;
+
+  for(int i = 0; i != g_pack_messages.size(); ++i)
+    delete g_pack_messages[i];
+  g_pack_messages.resize(0);
 }
 
 void phish_send_direct(int, int)
