@@ -10,7 +10,7 @@ int count = 0;
 void message_callback(int parts)
 {
   if(start == -1)
-    start = phish_timer();
+    start = phish::timer();
 
   const std::string message = phish::unpack<std::string>();
   if(message.size() != size)
@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
   phish::check();
   phish::loop();
 
-  const double elapsed = phish_timer() - start;
+  const double elapsed = phish::timer() - start;
   const double throughput = count / elapsed;
   const double megabits = (throughput * size * 8.0) / 1000000.0;
 

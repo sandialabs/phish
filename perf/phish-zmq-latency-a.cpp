@@ -37,13 +37,13 @@ int main(int argc, char* argv[])
   phish::output(0);
   phish::check();
 
-  const double start = phish_timer();
+  const double start = phish::timer();
 
   phish::pack(std::string(size, '*'));
   phish::send();
   phish::loop();
 
-  const double elapsed = phish_timer() - start;
+  const double elapsed = phish::timer() - start;
   const double latency = elapsed / (count * 2.0);
 
   std::cout << elapsed << "," << size << "," << count << "," << (latency * 1000000.0) << "\n" << std::flush;

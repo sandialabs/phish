@@ -145,33 +145,7 @@ const T unpack()
 void error(const std::string& message) { ::phish_error(message.c_str()); }
 void warn(const std::string& message) { ::phish_warn(message.c_str()); }
 void debug(const std::string& message) { ::phish_warn(message.c_str()); }
-
-namespace timer
-{
-
-class wallclock
-{
-public:
-  wallclock()
-  {
-    reset();
-  }
-
-  double elapsed() const
-  {
-    return ::phish_timer() - start;
-  }
-
-  void reset()
-  {
-    start = ::phish_timer();
-  }
-
-private:
-  double start;
-};
-
-} // namespace timer
+double timer() { return ::phish_timer(); }
 
 } // namespace phish
 
