@@ -1,13 +1,7 @@
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${ZMQ_INCLUDE_DIR})
 
-# Setup tests using Python / ZMQ ...
-
-configure_file(run-py-zmq-latency.py run-py-zmq-latency.py)
-
-configure_file(run-py-zmq-throughput.py run-py-zmq-throughput.py)
-
-# Setup tests using Phish / MPI ...
+# Setup tests using MPI ...
 if(BUILD_MPI_BACKEND)
 
   add_executable(phish-mpi-latency-a phish-mpi-latency-a.cpp)
@@ -20,8 +14,12 @@ if(BUILD_MPI_BACKEND)
 
 endif(BUILD_MPI_BACKEND)
 
-# Setup tests using Phish / ZMQ ...
+# Setup tests using ZMQ ...
 if(BUILD_ZMQ_BACKEND)
+
+  configure_file(run-py-zmq-latency.py run-py-zmq-latency.py)
+
+  configure_file(run-py-zmq-throughput.py run-py-zmq-throughput.py)
 
   add_executable(zmq-latency-a zmq-latency-a.cpp)
   target_link_libraries(zmq-latency-a ${ZMQ_LIBRARY} phish-zmq)
