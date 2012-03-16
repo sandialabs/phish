@@ -50,7 +50,7 @@ void init(int& argc, char**& argv) { LOG_CALL(); ::phish_init(&argc, &argv); }
 /// Note that this also implicitly closes any open output ports and completes
 /// any running loop.
 void exit() { LOG_CALL(); ::phish_exit(); }
-void atabort(voidcallback(*)(int*)) { LOG_CALL(); ::phish_atabort(callback); }
+void atabort(void(*callback)(int*)) { LOG_CALL(); ::phish_atabort(callback); }
 void abort() { LOG_CALL(); ::phish_abort(); }
 
 /// Specifies an input port to be enabled, along with an optional callback to
