@@ -84,7 +84,7 @@ void loop() { LOG_CALL(); ::phish_loop(); }
 /// hashed, etc.).  Note that sending a message to a nonexistent / closed port
 /// will throw std::runtime_error.
 void send(int port = 0) { LOG_CALL(); ::phish_send(port); }
-void send_key(int port, const char* key, int key_length) { LOG_CALL(); ::phish_send_key(port, const_cast<char*>(key), key_length); }
+void send_key(const char* key, int key_length, int port = 0) { LOG_CALL(); ::phish_send_key(port, const_cast<char*>(key), key_length); }
 
 void pack(int8_t data) { LOG_CALL(); ::phish_pack_int8(data); }
 void pack(int16_t data) { LOG_CALL(); ::phish_pack_int16(data); }
