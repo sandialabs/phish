@@ -70,6 +70,7 @@ public:
   ~output_connection();
   virtual void send() = 0;
   virtual void send_hashed(char* key, int key_length) = 0;
+  virtual void send_direct(int destination) = 0;
 
 protected:
   const int m_input_port;
@@ -204,6 +205,11 @@ public:
   {
     phish_warn("Cannot send hashed with broadcast connection.");
   }
+
+  void send_direct(int destination)
+  {
+    phish_warn("Cannot send direct with broadcast connection.");
+  }
 };
 
 /// output_connection implementation that sends a message to one recipient, choosing recipients in round-robin order.
@@ -230,9 +236,14 @@ public:
   {
     phish_warn("Cannot send hashed with round-robin connection.");
   }
+
+  void send_direct(int destination)
+  {
+    phish_warn("Cannot send direct with round-robin connection.");
+  }
 };
 
-/// output_connection implementation that sends a two-part message to one recipient, based on a hash of the first part.
+/// output_connection implementation that sends a message to one recipient, choosing recipients using a hashed key supplied by the caller.
 class hashed_connection :
   public output_connection
 {
@@ -250,6 +261,39 @@ public:
   void send_hashed(char* key, int key_length)
   {
     int index = hashlittle(key, key_length, 0) % m_recipients.size();
+    zmq::socket_t* const recipient = m_recipients[index];
+    raw_send(*recipient);
+  }
+
+  void send_direct(int destination)
+  {
+    phish_warn("Cannot send direct with hashed connection.");
+  }
+};
+
+/// output_connection implementation that sends a two-part message to one recipient, which is specified by the caller.
+class direct_connection :
+  public output_connection
+{
+public:
+  direct_connection(int input_port, const recipients_t& recipients) :
+    output_connection(input_port, recipients)
+  {
+  }
+
+  void send()
+  {
+    phish_warn("Cannot send over direct connection without recipient.");
+  }
+
+  void send_hashed(char* key, int key_length)
+  {
+    phish_warn("Cannot send hashed with direct connection.");
+  }
+
+  void send_direct(int destination)
+  {
+    int index = destination % m_recipients.size();
     zmq::socket_t* const recipient = m_recipients[index];
     raw_send(*recipient);
   }
@@ -362,6 +406,10 @@ void phish_init(int* argc, char*** argv)
       else if(pattern == "hashed")
       {
         g_output_connections[output_port].push_back(new hashed_connection(input_port, recipient_sockets));
+      }
+      else if(pattern == "direct")
+      {
+        g_output_connections[output_port].push_back(new direct_connection(input_port, recipient_sockets));
       }
       else
       {
@@ -735,9 +783,24 @@ void phish_send_key(int port, char* key, int key_length)
   g_pack_messages.resize(0);
 }
 
-void phish_send_direct(int, int)
+void phish_send_direct(int port, int receiver)
 {
-  throw std::runtime_error("Not implemented.");
+  if(!g_output_connections.count(port))
+  {
+    std::ostringstream message;
+    message << "Cannot send message to closed port: " << port;
+    throw std::runtime_error(message.str());
+  }
+
+  const int end = g_output_connections[port].size();
+  for(int i = 0; i != end; ++i)
+    g_output_connections[port][i]->send_direct(receiver);
+
+  g_sent_count += 1;
+
+  for(int i = 0; i != g_pack_messages.size(); ++i)
+    delete g_pack_messages[i];
+  g_pack_messages.resize(0);
 }
 
 void phish_reset_receiver(int, int)

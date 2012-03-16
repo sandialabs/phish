@@ -17,6 +17,7 @@ _connections = []
 ROUND_ROBIN = "round-robin"
 HASHED = "hashed"
 BROADCAST = "broadcast"
+DIRECT = "direct"
 
 def reset():
   global _names, _hosts, _arguments, _connections
