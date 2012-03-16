@@ -479,8 +479,17 @@ void phish_exit()
   std::cerr << "Stats: Minnow " << g_name << " ID " << g_local_id << " # " << g_global_id << ": " << g_received_count << " " << g_sent_count << " datums recv/sent\n";
 
   // Shut-down zmq ...
+/* Don't try to shutdown zmq, see https://zeromq.jira.com/browse/LIBZMQ-229
   delete g_context;
+*/
+  ::sleep(10);
   g_context = 0;
+}
+
+void phish_abort()
+{
+  phish_warn("Currently, phish_abort() doesn't shut-down the entire school.");
+  exit(-1);
 }
 
 void phish_input(int port, void(*message_callback)(int), void(*port_closed_callback)(), int optional)
@@ -976,7 +985,7 @@ int phish_query(const char* kw, int flag1, int flag2)
 void phish_error(const char* message)
 {
   std::cerr << "PHISH ZMQ ERROR: Minnow " << g_name << " ID " << g_local_id << " # " << g_global_id << ": " << message << std::endl;
-  throw std::runtime_error("Not implemented.");
+  phish_abort();
 }
 
 void phish_warn(const char* message)

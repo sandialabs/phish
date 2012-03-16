@@ -37,6 +37,7 @@ extern "C" {
 void phish_init(int *, char ***);
 int phish_init_python(int, char **);
 void phish_exit();
+void phish_abort();
 
 void phish_input(int, void(*)(int), void(*)(), int);
 void phish_output(int);
