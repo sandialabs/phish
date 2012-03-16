@@ -1385,7 +1385,7 @@ int phish_query(const char *keyword, int flag1, int flag2)
 
 void phish_error(const char *str)
 {
-  printf("PHISH MPI ERROR: Minnow %s ID %s # %d: %s\n",
+  fprintf(stderr, "PHISH MPI ERROR: Minnow %s ID %s # %d: %s\n",
 	 exename,idminnow,idglobal,str);
   MPI_Abort(world,1);
 }
@@ -1394,7 +1394,7 @@ void phish_error(const char *str)
 
 void phish_warn(const char *str)
 {
-  printf("PHISH MPI WARNING: Minnow %s ID %s # %d: %s\n",
+  fprintf(stderr, "PHISH MPI WARNING: Minnow %s ID %s # %d: %s\n",
 	 exename,idminnow,idglobal,str);
 }
 
@@ -1409,6 +1409,6 @@ double phish_timer()
 
 void stats()
 {
-  printf("Stats: Minnow %s ID %s # %d: %lu %lu datums recv/sent\n",
+  fprintf(stderr, "Stats: Minnow %s ID %s # %d: %lu %lu datums recv/sent\n",
 	 exename,idminnow,idglobal,rcount,scount);
 }
