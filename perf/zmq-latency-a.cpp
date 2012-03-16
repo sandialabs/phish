@@ -15,6 +15,8 @@ int main(int argc, char* argv[])
 
   zmq::context_t context(1);
   zmq::socket_t socket(context, ZMQ_REQ);
+  const uint64_t hwm = 100000;
+  socket.setsockopt(ZMQ_HWM, &hwm, sizeof(hwm));
   socket.connect(address.c_str());
 
   const double start = phish_timer();

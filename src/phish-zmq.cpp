@@ -392,7 +392,7 @@ void phish_init(int* argc, char*** argv)
       for(std::vector<std::string>::iterator recipient = recipients.begin(); recipient != recipients.end(); ++recipient)
       {
         zmq::socket_t* const socket = new zmq::socket_t(*g_context, ZMQ_PUSH);
-        const uint64_t hwm = 1000000;
+        const uint64_t hwm = 100000;
         socket->setsockopt(ZMQ_HWM, &hwm, sizeof(hwm));
         socket->connect(recipient->c_str());
         recipient_sockets.push_back(socket);

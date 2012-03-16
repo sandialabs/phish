@@ -11,6 +11,8 @@ int main(int argc, char* argv[])
 
   zmq::context_t context(1);
   zmq::socket_t socket(context, ZMQ_REP);
+  const uint64_t hwm = 100000;
+  socket.setsockopt(ZMQ_HWM, &hwm, sizeof(hwm));
   socket.bind(address.c_str());
 
   for(int i = 0; i != count; ++i)
