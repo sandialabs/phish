@@ -27,7 +27,7 @@ int main(int narg, char **args)
 void pong(int nvalues)
 {
   char *buf;
-  int len;
+  uint32_t len;
 
   if (nvalues != 1) phish_error("Pong processes one-value datums");
   int type = phish_unpack(&buf,&len);

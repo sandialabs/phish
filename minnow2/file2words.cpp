@@ -14,7 +14,7 @@ void message_callback(int parts)
       break;
     phish::pack(word);
     phish::pack(static_cast<uint32_t>(1));
-    phish::send_key(0, word.c_str(), word.size());
+    phish::send_key(word.c_str(), word.size());
   }
 }
 

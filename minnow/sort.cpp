@@ -43,7 +43,7 @@ int main(int narg, char **args)
 void store(int nvalues)
 {
   char *count,*word;
-  int len;
+  uint32_t len;
 
   if (nvalues != 2) phish_error("Sort processes two-value datums");
   int type1 = phish_unpack(&count,&len);

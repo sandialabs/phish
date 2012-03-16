@@ -47,7 +47,7 @@ int main(int narg, char **args)
 void read_file(int nvalues)
 {
   char *filename;
-  int len;
+  uint32_t len;
 
   if (nvalues != 1) phish_error("File2fields processes one-value datums");
   int type = phish_unpack(&filename,&len);

@@ -61,7 +61,7 @@ void launch(int nvalues)
   if (nvalues == 0) strcpy(cmd,program);
   else if (nvalues == 1) {
     char *buf;
-    int len;
+    uint32_t len;
     int type = phish_unpack(&buf,&len);
     if (type != PHISH_STRING) phish_error("Wrapsource processes string values");
     sprintf(cmd,program,buf);

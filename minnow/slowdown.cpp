@@ -43,7 +43,7 @@ void send(int nvalues)
   }
 
   char *buf;
-  int len;
+  uint32_t len;
 
   phish_datum(&buf,&len);
   phish_pack_datum(buf,len);

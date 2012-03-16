@@ -1,7 +1,5 @@
-#include <iostream>
 #include <map>
 #include <phish.hpp>
-#include <tr1/cstdint>
 
 std::map<std::string, uint32_t> counts;
 

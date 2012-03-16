@@ -86,6 +86,7 @@ void loop() { LOG_CALL(); ::phish_loop(); }
 void send(int port = 0) { LOG_CALL(); ::phish_send(port); }
 void send_key(const char* key, int key_length, int port = 0) { LOG_CALL(); ::phish_send_key(port, const_cast<char*>(key), key_length); }
 
+void pack(char data) { LOG_CALL(); ::phish_pack_char(data); }
 void pack(int8_t data) { LOG_CALL(); ::phish_pack_int8(data); }
 void pack(int16_t data) { LOG_CALL(); ::phish_pack_int16(data); }
 void pack(int32_t data) { LOG_CALL(); ::phish_pack_int32(data); }
@@ -99,18 +100,19 @@ void pack(double data) { LOG_CALL(); ::phish_pack_double(data); }
 void pack(const char* data) { LOG_CALL(); ::phish_pack_string(const_cast<char*>(data)); }
 void pack(const std::string& data) { LOG_CALL(); ::phish_pack_string(const_cast<char*>(data.c_str())); }
 
-data_type unpack(char*& data, int& count) { return static_cast<data_type>(::phish_unpack(&data, &count)); }
+data_type unpack(char*& data, uint32_t& count) { return static_cast<data_type>(::phish_unpack(&data, &count)); }
 
 template<typename T>
 void unpack(T& data, data_type type)
 {
   char* buffer;
-  int count;
+  uint32_t count;
   if(unpack(buffer, count) != type)
     throw std::runtime_error("Data type mismatch.");
   data = *reinterpret_cast<T*>(buffer);
 }
 
+void unpack(char& data) { LOG_CALL(); unpack(data, CHAR); }
 void unpack(int8_t& data) { LOG_CALL(); unpack(data, INT8); }
 void unpack(int16_t& data) { LOG_CALL(); unpack(data, INT16); }
 void unpack(int32_t& data) { LOG_CALL(); unpack(data, INT32); }
@@ -125,7 +127,7 @@ void unpack(std::string& data)
 {
   LOG_CALL();
   char* buffer;
-  int length;
+  uint32_t length;
   if(unpack(buffer, length) != STRING)
     throw std::runtime_error("Data type mismatch.");
   data = std::string(buffer, length-1);
