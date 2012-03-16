@@ -29,6 +29,8 @@ matplotlib.pyplot.figure(1)
 plot_latency("cpp-zmq-latency-tcp.csv", "C++ / ZMQ")
 plot_latency("py-zmq-latency-tcp.csv", "Python / ZMQ")
 plot_latency("cpp-phish-zmq-latency-tcp.csv", "C++ / Phish / ZMQ")
+plot_latency("cpp-phish-mpi-latency-sm.csv", "C++ / Phish / MPI / SM")
+plot_latency("cpp-phish-mpi-latency-tcp.csv", "C++ / Phish / MPI / TCP")
 matplotlib.pyplot.legend(loc="lower right")
 matplotlib.pyplot.ylim(ymin=0)
 

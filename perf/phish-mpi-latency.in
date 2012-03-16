@@ -1,8 +1,0 @@
-minnow 1 phish-mpi-latency-a 4900 100000
-minnow 2 phish-mpi-latency-b 4900 100000
-
-connect 1 single 2
-connect 2 single 1
-
-layout 1 1
-layout 2 1

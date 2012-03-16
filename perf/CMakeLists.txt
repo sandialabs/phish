@@ -10,7 +10,7 @@ if(BUILD_MPI_BACKEND)
   add_executable(phish-mpi-latency-b phish-mpi-latency-b.cpp)
   target_link_libraries(phish-mpi-latency-b phish-mpi ${MPI_EXTRA_LIBRARY} ${MPI_LIBRARY})
 
-  #configure_file(run-cpp-phish-zmq-latency.py run-cpp-phish-zmq-latency.py)
+  configure_file(run-cpp-phish-mpi-latency.py run-cpp-phish-mpi-latency.py)
 
 endif(BUILD_MPI_BACKEND)
 
