@@ -428,9 +428,7 @@ void phish_exit()
   delete g_control_port;
   g_control_port = 0;
 
-  std::ostringstream message;
-  message << "Received " << g_received_count << " messages, sent " << g_sent_count << " messages, sent " << g_sent_close_count << " close messages.";
-  phish_warn(message.str().c_str());
+  std::cerr << "Stats: Minnow " << g_name << " ID " << g_local_id << " # " << g_global_id << ": " << g_received_count << " " << g_sent_count << " datums recv/sent\n";
 
   // Shut-down zmq ...
   delete g_context;
@@ -514,7 +512,6 @@ void phish_loop()
 
       if((frame & TYPE_MASK) == CLOSE_MESSAGE)
       {
-        phish_warn("Received close message.");
         g_input_port_connection_count[port] -= 1;
         if(g_input_port_connection_count[port] == 0)
         {
@@ -525,7 +522,6 @@ void phish_loop()
           }
           if(g_input_port_connection_count.size() == 0)
           {
-            phish_warn("Last input port closed.");
             g_running = false;
             if(g_all_input_ports_closed)
               g_all_input_ports_closed();
@@ -579,7 +575,6 @@ void phish_probe(void (*idle_callback)())
 
         if((frame & TYPE_MASK) == CLOSE_MESSAGE)
         {
-          phish_warn("Received close message.");
           g_input_port_connection_count[port] -= 1;
           if(g_input_port_connection_count[port] == 0)
           {
@@ -590,7 +585,6 @@ void phish_probe(void (*idle_callback)())
             }
             if(g_input_port_connection_count.size() == 0)
             {
-              phish_warn("Last input port closed.");
               g_running = false;
               if(g_all_input_ports_closed)
                 g_all_input_ports_closed();
@@ -650,7 +644,6 @@ int phish_recv()
 
       if((frame & TYPE_MASK) == CLOSE_MESSAGE)
       {
-        phish_warn("Received close message.");
         g_input_port_connection_count[port] -= 1;
         if(g_input_port_connection_count[port] == 0)
         {
@@ -661,7 +654,6 @@ int phish_recv()
           }
           if(g_input_port_connection_count.size() == 0)
           {
-            phish_warn("Last input port closed.");
             g_running = false;
             if(g_all_input_ports_closed)
               g_all_input_ports_closed();
@@ -920,13 +912,13 @@ int phish_query(const char* kw, int flag1, int flag2)
 
 void phish_error(const char* message)
 {
-  std::cerr << "ERROR: " << g_name << " " << g_local_id << " # " << g_global_id << ": " << message << std::endl;
+  std::cerr << "PHISH ZMQ ERROR: Minnow " << g_name << " ID " << g_local_id << " # " << g_global_id << ": " << message << std::endl;
   throw std::runtime_error("Not implemented.");
 }
 
 void phish_warn(const char* message)
 {
-  std::cerr << g_name << " " << g_local_id << " # " << g_global_id << ": " << message << std::endl;
+  std::cerr << "PHISH ZMQ WARNING: Minnow " << g_name << " ID " << g_local_id << " # " << g_global_id << ": " << message << std::endl;
 }
 
 double phish_timer()
