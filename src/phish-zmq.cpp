@@ -26,6 +26,9 @@ static int g_global_id = 0;
 // Number of minnows in the global school ...
 static int g_global_count = 0;
 
+// Stores an optional callback to be called by phish_abort() ...
+static void(*g_at_abort)(int*) = 0;
+
 // ZMQ context and incoming sockets ...
 static zmq::context_t* g_context = 0;
 static zmq::socket_t* g_control_port = 0;
@@ -486,8 +489,21 @@ void phish_exit()
   g_context = 0;
 }
 
+void phish_atabort(void(*callback)(int*))
+{
+  g_at_abort = callback;
+}
+
 void phish_abort()
 {
+  if(g_at_abort)
+  {
+    int cancel = false;
+    g_at_abort(&cancel);
+    if(cancel)
+      return;
+  }
+
   phish_warn("Currently, phish_abort() doesn't shut-down the entire school.");
   exit(-1);
 }
