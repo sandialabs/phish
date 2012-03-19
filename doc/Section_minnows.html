@@ -10,22 +10,18 @@
 
 <H3>3. PHISH Minnows 
 </H3>
-<P>In PHISH lingo, a "minnow" is a stand-alone application which makes
-calls to the <A HREF = "Library.html">PHISH library</A>.  Typically they are small
-programs which perform a single task, e.g. they parse a string into
-keywords and store statistics on those keywords.
+<P>In PHISH lingo, a "minnow" is a stand-alone program which makes calls
+to the <A HREF = "Library.html">PHISH library</A>.  Often they are small programs
+which perform a single task, e.g. they parse a string into keywords
+and store statistics on those keywords.  But they can also be large
+programs which perform sophisticated computations and make only a few
+calls to the PHISH library.  In which case they should probably be
+called sharks or whales ...
 </P>
-<P>Hooked together by connections to other sets of minnows, in various
-communication patterns
-</P>
-<P>Often come in sets as specified by input script.  Parallel if working
-in tandem with other duplicate minnows, each processing a subset of
-datums.
-</P>
-<P>minnow vs shark vs whale
-</P>
-<P>how general vs specific to write minnow when processing datums
-  note that PHISH input script can send unexpected data to minnow
+<P>An individual minnow is part of a school of one or more duplicate
+minnows.  One or more schools make a PHISH net(work) which works
+together to perform a calculation.  Minnows communicate with each
+other to exchange data via calls to the PHISH library.
 </P>
 <P>This doc page covers these topics:
 </P>
@@ -58,15 +54,17 @@ some in Python, some in both:
 <LI><A HREF = "sort.html">sort</A> 
 </UL>
 <P>These are special minnows which can wrap stand-alone non-PHISH
-programs which read from stdin and write to stdout, so that they can
-be used in as minnows in a PHISH program:
+executables which read from stdin and write to stdout, so that they
+can be used as minnows in a PHISH net and communicate with other
+minnows:
 </P>
 <UL><LI><A HREF = "wrapsink.html">wrapsink</A>
 <LI><A HREF = "wrapsource.html">wrapsource</A>
 <LI><A HREF = "wrapss.html">wrapss</A> 
 </UL>
-<P>These are simple stand-alone programs that are examples of code that
-can be wrapped by the "wrap" minnows:
+<P>These are simple codes which can be compiled into stand-alone
+non-PHISH executables.  They are examples of code that can be wrapped
+by the "wrap" minnows:
 </P>
 <UL><LI><A HREF = "echo.html">echo</A>
 <LI><A HREF = "reverse.html">reverse</A> 
@@ -75,24 +73,11 @@ can be wrapped by the "wrap" minnows:
 
 <A NAME = "minnow_2"></A><H4>3.2 Code structure of a minnow 
 </H4>
-<P>Use count.py, is same in C
-</P>
-<P>Best way to make sense of what a minnow does is examine a few
-simple ones from the minnow dir.
-</P>
-<P>command line args
-setup calls to lib
-setting callbacks
-</P>
-<P>when to make various kinds of lib calls
-</P>
-<P>Deinfe ports as in connect command
-</P>
-<P>loop vs probe vs recv
-</P>
-<P>receving and unpacking a datum
-</P>
-<P>packing and sending a datum
+<P>The best way to make sense of how a minnow makes calls to the PHISH
+library, is to examine a few simple ones from the minnow directory.
+Here we list the count.py minnow which is written in Python.  There is
+a also a count.cpp minnow, written in C++, which does the same thing.
+The purpose of this minnow is to ...
 </P>
 <PRE>1   #!/usr/local/bin/python
 2
@@ -126,11 +111,73 @@ setting callbacks
 30  phish.loop()
 31  phish.exit() 
 </PRE>
+<P>Note that on line 4, the Python minnow imports the phish module, which
+is provided with the PHISH distribution.  Instructions on how to
+build this module, which wraps the PHISH library, and add it to your
+Python are given in "this section" of the documentation.
+</P>
+<P>The main program begins on line 21.  The call to phish.init() is
+typically the first line of a PHISH minnow.  When the minnow is
+launched, as described in "this section" extra PHISH library
+command-line arguments are used to describe how the minnow will
+communicate with other minnows.  These are stripped off by the
+phish.init() function, and the remaining minnow-specific arguments are
+returned as "args".  The phish.input() and phish.output() calls setup
+the input and output ports used by the minnow.  
+</P>
+<P>Is this first place ports are discussed?  Or in next section?
+One call for each input and each output port used by the minnow.
+Callback specified for input port, which is a minnow function that
+will be called when a datum is received on that input port.  Count in
+this case.  A callback function to call when the input port is closed
+can also be specified.  Sort in this case
+</P>
+<P>After errr checking, initialize hash to empty, and then call
+phish.loop().  This will look for incoming datums, invoking the
+callback count function when each is received.  It will not return
+until all input ports are closed, which will invoke the sort function.
+The minnow finally calls phish.exit() which deallocates memory
+allocated by the library, and closes any output ports of the minnow,
+which sends done messages to downstream minnows.
+</P>
+<P>Discuss count function.
+</P>
+<P>Discuss sort function.
+</P>
+<P>This structure is typical of many minnows.  A beginnning section with
+calls to phish.init() and input/output ports, and phish.check().
+</P>
+<P>Then a call to 
+loop vs probe vs recv
+to receive datums.
+</P>
+<P>The callbacks unpack datums, process them, store state, send
+messsages via phish.pack() and phish.send().
+</P>
+<P>After loop, etc exits, the minnow shuts down via a call to
+phish.close()
+or phish.exit(), since it will receive no more datums.
+</P>
 <HR>
 
 <A NAME = "minnow_3"></A><H4>3.3 Communication via ports 
 </H4>
 <P>rules about ports
+</P>
+<P>Deinfe ports as in connect command
+</P>
+<P>many connections to one port and vice versa is
+possible
+</P>
+<P>port is only think queryable about a message, other
+than content.  Doesn't make sense to query what
+connection it came on or which proc in connection.
+This is b/c the input script is separate from the
+minnow.  Minnow actions shouldn't depend on that
+info.  If it does, then encode it in message.
+</P>
+<P>how general vs specific to write minnow when processing datums
+  note that PHISH input script can send unexpected data to minnow
 </P>
 <HR>
 

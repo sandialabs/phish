@@ -41,7 +41,8 @@ Library calls for initialization :olb,l
   "phish_init()"_phish_init.html :ulb,b
   "phish_input()"_phish_port.html :b
   "phish_output()"_phish_port.html :b
-  "phish_done()"_phish_port.html :b
+  "phish_done_callback()"_phish_callback.html :b
+  "phish_abort_callback()"_phish_callback.html :b
   "phish_check()"_phish_check.html :ule,b
 
 Library calls for shutdown :l
@@ -75,6 +76,7 @@ Miscellaneous library calls :l
   "phish_reset_receiver()"_phish_misc.html :b
   "phish_error()"_phish_error.html :b
   "phish_warn()"_phish_error.html :b
+  "phish_abort()"_phish_error.html :b
   "phish_timer()"_phish_timer.html :ule,b
 :ole
 

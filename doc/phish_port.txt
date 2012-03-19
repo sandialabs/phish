@@ -8,26 +8,22 @@
 
 phish_input() function :h3
 phish_output() function :h3
-phish_done() function :h3
 
 [C syntax:]
 
 void phish_input(int iport, void (*datumfunc)(int), void (*donefunc)(), reqflag) :pre
 void phish_output(int iport) :pre
-void phish_done(void (*alldonefunc)()) :pre
 
 [C examples:]
 
 phish_input(0,count,NULL,1);
 phish_input(1,count,mydone,0);
 phish_output(0);
-phish_done(quit); :pre
 
 [Python syntax:]
 
 def input(iport,datumfunc,donefunc,reqflag) :pre
 def output(iport) :pre
-def done(alldonefunc) :pre
 
 [Python examples:]
 
@@ -35,7 +31,6 @@ import phish
 phish.input(0,count,None,1)
 phish.input(1,count,mydone,0)
 phish.output(0)
-phish.done(quit) :pre
 
 [Description:]
 
@@ -125,30 +120,6 @@ it uses, whether or not a particular PHISH input script actually
 connects to the port.  Usage of an output port by an input script is
 always optional, which makes it easy to develop and debug a sequence
 of pipelined operations, one minnow at a time.
-
-:line
-
-The phish_done() function can be used if desired to specify a callback
-function that will be invoked by the PHISH library when all the
-minnow's input ports have been closed.  The callback function should
-have the following form:
-
-void alldonefunc() \{
-\} :pre
-
-or
-
-def alldonefunc() :pre
-
-in Python,
-
-where "alldonefunc" is replaced by a function name of your choice.  A
-minnow might use the function to print out some final statistics
-before the PHISH library exits.  See the
-"phish_close"_phish_close.html function and "shutdown
-section"_Minnows.html#shutdown of the "Minnows"_Minnows.html doc page,
-for more discussion of how a school of minnows closes ports and shuts
-down.
 
 :line
 
