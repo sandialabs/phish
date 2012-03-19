@@ -1410,17 +1410,17 @@ void phish_error(const char *str)
 
 /* ---------------------------------------------------------------------- */
 
-void phish_abort()
-{
-  MPI_Abort(world,1);
-}
-
-/* ---------------------------------------------------------------------- */
-
 void phish_warn(const char *str)
 {
   fprintf(stderr,"PHISH MPI WARNING: Minnow %s ID %s # %d: %s\n",
 	  exename,idminnow,idglobal,str);
+}
+
+/* ---------------------------------------------------------------------- */
+
+void phish_abort()
+{
+  MPI_Abort(world,1);
 }
 
 /* ---------------------------------------------------------------------- */

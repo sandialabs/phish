@@ -85,8 +85,8 @@ int phish_datum(char **, uint32_t *);
 
 int phish_query(const char *, int, int);
 void phish_error(const char *);
-void phish_abort();
 void phish_warn(const char *);
+void phish_abort();
 double phish_timer();
 
 #ifdef __cplusplus
