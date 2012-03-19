@@ -38,8 +38,9 @@ enum{SINGLE,PAIRED,HASHED,ROUNDROBIN,DIRECT,BCAST,CHAIN,RING,PUBLISH,SUBSCRIBE};
 
 enum{UNUSED_PORT,OPEN_PORT,CLOSED_PORT};
 
-#define KBYTE 1024                     // 1 Kbyte
-#define MAXPORT 16                     // default setting for maxport
+#define KBYTE 1024       // 1 Kbyte
+#define MAXPORT 16       // max # of input and output ports
+                         // hardwired to insure all minnows use same value
 
 typedef void (DatumFunc)(int);         // callback prototypes
 typedef void (DoneFunc)();
@@ -64,7 +65,6 @@ int nglobal;              // # of total minnows in global school
 int maxbuf;               // max allowed datum size in bytes
 int memchunk;             // max allowed datum size in Kbytes
 int safe;                 // 1 for safe MPI send, 0 for normal
-int maxport;              // max # of input or output ports
 
 DoneFunc *alldonefunc;    // callback when all input ports closed
 AbortFunc *abortfunc;     // callback before aborting
@@ -162,7 +162,6 @@ void phish_init(int *pnarg, char ***pargs)
 
   memchunk = 1;
   safe = 0;
-  maxport = MAXPORT;
   alldonefunc = NULL;
   abortfunc = NULL;
 
@@ -205,15 +204,6 @@ void phish_init(int *pnarg, char ***pargs)
     } else if (strcmp(args[iarg],"-safe") == 0) {
       safe = 1;
 
-    } else if (strcmp(args[iarg],"-port") == 0) {
-      if (iarg+2 > narg)
-	phish_error("Invalid command-line args in phish_init");
-      deallocate_ports();
-      maxport = atoi(args[iarg+1]);
-      if (maxport < 0) 
-	phish_error("Invalid command-line args in phish_init");
-      allocate_ports();
-
     } else if (strcmp(args[iarg],"-in") == 0) {
       if (iarg+8 > narg)
 	phish_error("Invalid command-line args in phish_init");
@@ -248,7 +238,7 @@ void phish_init(int *pnarg, char ***pargs)
       rfirst = atoi(args[iarg+6]);
       rport = atoi(args[iarg+7]);
 
-      if (rport > maxport)
+      if (rport > MAXPORT)
 	phish_error("Invalid input port ID in phish_init");
       InputPort *ip = &inports[rport];
       ip->status = CLOSED_PORT;
@@ -312,7 +302,7 @@ void phish_init(int *pnarg, char ***pargs)
       rfirst = atoi(args[iarg+6]);
       rport = atoi(args[iarg+7]);
 
-      if (sport > maxport)
+      if (sport > MAXPORT)
 	phish_error("Invalid output port ID in phish_init");
       OutPort *op = &outports[sport];
       op->status = CLOSED_PORT;
@@ -440,13 +430,13 @@ void phish_exit()
 
   // warn if any input port is still open
 
-  for (int i = 0; i < maxport; i++)
+  for (int i = 0; i < MAXPORT; i++)
     if (inports[i].status == OPEN_PORT)
       phish_warn("Exiting with input port still open");
 
   // close all output ports
 
-  for (int i = 0; i < maxport; i++) phish_close(i);
+  for (int i = 0; i < MAXPORT; i++) phish_close(i);
 
   // free PHISH memory
 
@@ -473,7 +463,7 @@ void phish_input(int iport, void (*datumfunc)(int),
   if (!initflag) phish_error("Phish_init has not been called");
   if (checkflag) phish_error("Phish_check has already been called");
 
-  if (iport < 0 || iport > maxport)
+  if (iport < 0 || iport > MAXPORT)
     phish_error("Invalid port ID in phish_input");
 
   if (reqflag && inports[iport].status == UNUSED_PORT)
@@ -495,7 +485,7 @@ void phish_output(int iport)
   if (!initflag) phish_error("Phish_init has not been called");
   if (checkflag) phish_error("Phish_check has already been called");
 
-  if (iport < 0 || iport > maxport)
+  if (iport < 0 || iport > MAXPORT)
     phish_error("Invalid port count in phish_output");
 
   if (outports[iport].status == UNUSED_PORT) return;
@@ -520,7 +510,7 @@ void phish_check()
   // initialize donecount before datum exchanges begin
 
   ninports = 0;
-  for (int i = 0; i < maxport; i++) {
+  for (int i = 0; i < MAXPORT; i++) {
     if (inports[i].status == CLOSED_PORT)
       phish_error("Input script uses an undefined input port");
     if (inports[i].status == OPEN_PORT) ninports++;
@@ -534,7 +524,7 @@ void phish_check()
   // set noutports = # of used output ports
 
   noutports = 0;
-  for (int i = 0; i < maxport; i++) {
+  for (int i = 0; i < MAXPORT; i++) {
     if (outports[i].status == CLOSED_PORT)
       phish_error("Input script uses an undefined output port");
     if (outports[i].status == OPEN_PORT) noutports++;
@@ -566,7 +556,7 @@ void phish_close(int iport)
 {
   if (!checkflag) phish_error("Phish_check has not been called");
 
-  if (iport < 0 || iport >= maxport)
+  if (iport < 0 || iport >= MAXPORT)
     phish_error("Invalid port ID for phish_close");
   OutPort *op = &outports[iport];
   if (op->status != OPEN_PORT) return;
@@ -578,7 +568,7 @@ void phish_close(int iport)
 
   for (int iconnect = 0; iconnect < op->nconnect; iconnect++) {
     OutConnect *oc = &op->connects[iconnect];
-    int tag = maxport + oc->recvport;
+    int tag = MAXPORT + oc->recvport;
     switch (oc->style) {
     case SINGLE:
     case PAIRED:
@@ -625,8 +615,8 @@ void phish_loop()
     MPI_Recv(rbuf,maxbuf,MPI_BYTE,MPI_ANY_SOURCE,MPI_ANY_TAG,world,&status);
 
     iport = status.MPI_TAG;
-    if (iport >= maxport) {
-      iport -= maxport;
+    if (iport >= MAXPORT) {
+      iport -= MAXPORT;
       doneflag = 1;
     } else doneflag = 0;
 
@@ -681,8 +671,8 @@ void phish_probe(void (*probefunc)())
       MPI_Recv(rbuf,maxbuf,MPI_BYTE,MPI_ANY_SOURCE,MPI_ANY_TAG,world,&status);
 
       iport = status.MPI_TAG;
-      if (iport >= maxport) {
-	iport -= maxport;
+      if (iport >= MAXPORT) {
+	iport -= MAXPORT;
 	doneflag = 1;
       } else doneflag = 0;
 
@@ -741,8 +731,8 @@ int phish_recv()
 
   int doneflag;
   int iport = status.MPI_TAG;
-  if (iport >= maxport) {
-    iport -= maxport;
+  if (iport >= MAXPORT) {
+    iport -= MAXPORT;
     doneflag = 1;
   } else doneflag = 0;
     
@@ -776,7 +766,7 @@ int phish_recv()
 
 void phish_send(int iport)
 {
-  if (iport < 0 || iport >= maxport) 
+  if (iport < 0 || iport >= MAXPORT) 
     phish_error("Invalid port ID for phish_send");
   OutPort *op = &outports[iport];
   if (op->status == UNUSED_PORT) return;
@@ -809,7 +799,7 @@ void phish_send(int iport)
 
 void phish_send_key(int iport, char *key, int keybytes)
 {
-  if (iport < 0 || iport >= maxport)
+  if (iport < 0 || iport >= MAXPORT)
     phish_error("Invalid port ID for phish_send_key");
   OutPort *op = &outports[iport];
   if (op->status == UNUSED_PORT) return;
@@ -860,7 +850,7 @@ void phish_send_key(int iport, char *key, int keybytes)
 
 void phish_send_direct(int iport, int receiver)
 {
-  if (iport < 0 || iport >= maxport) 
+  if (iport < 0 || iport >= MAXPORT) 
     phish_error("Invalid port ID for phish_send");
   OutPort *op = &outports[iport];
   if (op->status == UNUSED_PORT) return;
@@ -963,7 +953,7 @@ void send(OutConnect *oc)
 
 void phish_reset_receiver(int iport, int receiver)
 {
-  if (iport < 0 || iport >= maxport) 
+  if (iport < 0 || iport >= MAXPORT) 
     phish_error("Invalid port ID for phish_reset_receiver");
   OutPort *op = &outports[iport];
   if (op->status == UNUSED_PORT || op->status == CLOSED_PORT) 
@@ -1341,39 +1331,39 @@ int phish_query(const char *keyword, int flag1, int flag2)
   else if (strcmp(keyword,"nglobal") == 0) return nglobal;
   else if (strcmp(keyword,"inport/status") == 0) {
     int iport = flag1;
-    if (iport < 0 || iport >= maxport) phish_error("Invalid phish_query");
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
     return inports[iport].status;
   } else if (strcmp(keyword,"inport/connections") == 0) {
     int iport = flag1;
-    if (iport < 0 || iport >= maxport) phish_error("Invalid phish_query");
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
     if (inports[iport].status == UNUSED_PORT) return -1;
     return inports[iport].nconnect;
   } else if (strcmp(keyword,"inport/nminnows") == 0) {
     int iport = flag1;
-    if (iport < 0 || iport >= maxport) phish_error("Invalid phish_query");
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
     if (inports[iport].status == UNUSED_PORT) return -1;
     int iconnect = flag2;
     if (iconnect < 0 || iconnect >= inports[iport].nconnect) return -1;
     return inports[iport].connects[iconnect].nsend;
   } else if (strcmp(keyword,"outport/status") == 0) {
     int iport = flag1;
-    if (iport < 0 || iport >= maxport) phish_error("Invalid phish_query");
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
     return outports[iport].status;
   } else if (strcmp(keyword,"outport/connections") == 0) {
     int iport = flag1;
-    if (iport < 0 || iport >= maxport) phish_error("Invalid phish_query");
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
     if (outports[iport].status == UNUSED_PORT) return -1;
     return outports[iport].nconnect;
   } else if (strcmp(keyword,"outport/nminnows") == 0) {
     int iport = flag1;
-    if (iport < 0 || iport >= maxport) phish_error("Invalid phish_query");
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
     if (outports[iport].status == UNUSED_PORT) return -1;
     int iconnect = flag2;
     if (iconnect < 0 || iconnect >= outports[iport].nconnect) return -1;
     return outports[iport].connects[iconnect].nrecv;
   } else if (strcmp(keyword,"outport/direct") == 0) {
     int iport = flag1;
-    if (iport < 0 || iport >= maxport) phish_error("Invalid phish_query");
+    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
     if (outports[iport].status == UNUSED_PORT) return -1;
     for (int iconnect = 0; iconnect < outports[iport].nconnect; iconnect++)
       if (outports[iport].connects[iconnect].style == DIRECT) 
@@ -1434,13 +1424,13 @@ void stats()
 }
 
 /* ----------------------------------------------------------------------
-   allocate/deallocate port memory for up to maxports
+   allocate/deallocate memory for MAXPORT input and output ports
 ------------------------------------------------------------------------- */
 
 void allocate_ports()
 {
-  inports = new InputPort[maxport];
-  for (int i = 0; i < maxport; i++) {
+  inports = new InputPort[MAXPORT];
+  for (int i = 0; i < MAXPORT; i++) {
     inports[i].status = UNUSED_PORT;
     inports[i].donecount = 0;
     inports[i].donemax = 0;
@@ -1448,8 +1438,8 @@ void allocate_ports()
     inports[i].connects = NULL;
   }
 
-  outports = new OutPort[maxport];
-  for (int i = 0; i < maxport; i++) {
+  outports = new OutPort[MAXPORT];
+  for (int i = 0; i < MAXPORT; i++) {
     outports[i].status = UNUSED_PORT;
     outports[i].nconnect = 0;
     outports[i].connects = NULL;
@@ -1460,14 +1450,14 @@ void allocate_ports()
 
 void deallocate_ports()
 {
-  for (int i = 0; i < maxport; i++)
+  for (int i = 0; i < MAXPORT; i++)
     if (inports[i].status != UNUSED_PORT) {
       for (int j = 0; j < inports[i].nconnect; j++)
 	delete [] inports[i].connects[j].host;
       free(inports[i].connects);
     }
   delete [] inports;
-  for (int i = 0; i < maxport; i++)
+  for (int i = 0; i < MAXPORT; i++)
     if (outports[i].status != UNUSED_PORT) free(outports[i].connects);
   delete [] outports;
 }
