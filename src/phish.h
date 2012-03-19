@@ -41,8 +41,7 @@ void phish_exit();
 void phish_input(int, void(*)(int), void(*)(), int);
 void phish_output(int);
 void phish_check();
-void phish_done_callback(void (*)());
-void phish_abort_callback(void(*)(int*));
+void phish_callback(void (*)(), void(*)(int*));
 void phish_close(int);
 
 void phish_loop();
