@@ -45,6 +45,10 @@ except:
   except:
     raise StandardError,"Could not load PHISH dynamic library"
 
+# phish_timer() returns a double
+  
+lib.phish_timer.restype = c_double
+
 # function defs
 # one-to-one match to functions in src/phish.h
 
