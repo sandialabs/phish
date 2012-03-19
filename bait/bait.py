@@ -63,10 +63,6 @@ def set(args):
   elif args[0] == "safe":
     if len(args) != 1: error("Illegal set command");
     safe = 1
-  elif args[0] == "port":
-    if len(args) != 2: error("Illegal set command");
-    maxport = int(args[1])
-    if maxport < 0: error("Illegal set command");
   else: error("Unrecognized set parameter %s" % arg[0])
 
 # convert non-default global settings to a minnow param string
@@ -75,7 +71,6 @@ def set2param():
   str = ""
   if memchunk != MEMCHUNK: str += " -memory %d" % memchunk
   if safe != SAFE: str += " -safe"
-  if maxport != MAXPORT: str += " -port %d" % maxport
   return str
 
 # create a variable via variable command in input script
@@ -317,7 +312,6 @@ if mode == "socket": error("Socket mode not yet supported")
 
 memchunk = MEMCHUNK = 1
 safe = SAFE = 0
-maxport = MAXPORT = 16
 
 # initialize data structures for minnows, connects, layouts
 
