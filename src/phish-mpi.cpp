@@ -43,6 +43,7 @@ enum{UNUSED_PORT,OPEN_PORT,CLOSED_PORT};
 
 typedef void (DatumFunc)(int);         // callback prototypes
 typedef void (DoneFunc)();
+typedef void (AbortFunc)(int);
 
 /* ---------------------------------------------------------------------- */
 // variables local to single PHISH instance
@@ -63,6 +64,8 @@ int nglobal;              // # of total minnows in global school
 int maxbuf;               // max allowed datum size in bytes
 int memchunk;             // max allowed datum size in Kbytes
 int safe;                 // 1 for safe MPI send, 0 for normal
+
+AbortFunc *abortfunc;     // callback before aborting
 
 // input ports
 // each can have multiple connections from output ports of other minnows
@@ -150,6 +153,11 @@ void phish_init(int *pnarg, char ***pargs)
   MPI_Comm_rank(world,&me);
   MPI_Comm_size(world,&nprocs);
 
+  // callbacks
+
+  alldonefunc = NULL;
+  abortfunc = NULL;
+
   // memory allocation/initialization for ports
 
   inports = new InputPort[MAXPORT];
@@ -160,7 +168,6 @@ void phish_init(int *pnarg, char ***pargs)
     inports[i].nconnect = 0;
     inports[i].connects = NULL;
   }
-  alldonefunc = NULL;
 
   outports = new OutPort[MAXPORT];
   for (int i = 0; i < MAXPORT; i++) {
@@ -552,11 +559,21 @@ void phish_check()
    set callback function to invoke when all input ports are closed
 ------------------------------------------------------------------------- */
 
-void phish_done(void (*donefunc)())
+void phish_done_callback(void (*func)())
 {
   if (!initflag) phish_error("Phish_init has not been called");
 
-  alldonefunc = donefunc;
+  alldonefunc = func;
+}
+
+/* ----------------------------------------------------------------------
+   set callback function to invoke before aborting
+   allow it before phish_init() is called
+------------------------------------------------------------------------- */
+
+void phish_abort_callback(void (*func)(int))
+{
+  abortfunc = func;
 }
 
 /* ----------------------------------------------------------------------
@@ -1385,8 +1402,16 @@ int phish_query(const char *keyword, int flag1, int flag2)
 
 void phish_error(const char *str)
 {
-  fprintf(stderr, "PHISH MPI ERROR: Minnow %s ID %s # %d: %s\n",
-	 exename,idminnow,idglobal,str);
+  fprintf(stderr,"PHISH MPI ERROR: Minnow %s ID %s # %d: %s\n",
+	  exename,idminnow,idglobal,str);
+  if (abortfunc) (*abortfunc)(0);
+  MPI_Abort(world,1);
+}
+
+/* ---------------------------------------------------------------------- */
+
+void phish_abort()
+{
   MPI_Abort(world,1);
 }
 
@@ -1394,8 +1419,8 @@ void phish_error(const char *str)
 
 void phish_warn(const char *str)
 {
-  fprintf(stderr, "PHISH MPI WARNING: Minnow %s ID %s # %d: %s\n",
-	 exename,idminnow,idglobal,str);
+  fprintf(stderr,"PHISH MPI WARNING: Minnow %s ID %s # %d: %s\n",
+	  exename,idminnow,idglobal,str);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -1409,6 +1434,6 @@ double phish_timer()
 
 void stats()
 {
-  fprintf(stderr, "Stats: Minnow %s ID %s # %d: %lu %lu datums recv/sent\n",
-	 exename,idminnow,idglobal,rcount,scount);
+  fprintf(stderr,"Stats: Minnow %s ID %s # %d: %lu %lu datums recv/sent\n",
+	  exename,idminnow,idglobal,rcount,scount);
 }
