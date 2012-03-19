@@ -12,6 +12,20 @@ This is the API to the PHISH library that minnows (stand-alone
 applications) call.  The API for the MPI and socket verions of the
 PHISH library are identical.
 
+A general discussion of how and when minnows call PHISH library
+functions is given in the "Minnows"_Minnows.html section of the
+manual.
+
+PHISH minnows communicate with other minnows by sending and receiving
+datums.  Before looking at individual library calls, it may be helpful
+to understand how data is stored internally in a datum by the PHISH
+library.  This topic is discussed below, in the section entitled
+"Format of a datum"_#library_2.
+
+NOTE: Say something about using int32 or uint32 or just int in minnow.
+
+NOTE: put this next text in a sub-section 4.2 or 4.3?
+
 The PHISH library has a C-style API, so it is easy to write minnows in
 any language, e.g. C, C++, Fortran, Python.  The doc pages for
 individual library functions document the C, C++, and Python
@@ -39,16 +53,6 @@ phish::error("My error"); :pre
 To use the Python interface, the Python PHISH wrapper needs to be
 installed in your machine's Python.  See "this
 section"_Section_python.html of the manual for details.
-
-A general discussion of how and when minnows call PHISH library
-functions is given in the "Minnows"_Minnows.html section of the
-manual.
-
-PHISH minnows communicate with other minnows by sending and receiving
-datums.  Before looking at individual library calls, it may be helpful
-to understand how data is stored internally in a datum by the PHISH
-library.  This topic is discussed below, in the section entitled
-"Format of a datum"_#library_2.
 
 4.1 "List of library functions"_#library_1
 4.2 "Format of a datum"_#library_2 :ul
@@ -112,7 +116,7 @@ A datum is a chunk of bytes sent from one PHISH minnow to another.
 This section describes the format of the chunk, which is the same whether
 the datum is sent via MPI or via sockets.
 
-use int32_t
+NOTE: discuss and use int32_t in what is below
 
 # of fields in datum (int)
 type of 1st field (int)
@@ -153,6 +157,11 @@ PHISH_FLOAT_ARRAY = 21
 PHISH_DOUBLE_ARRAY = 22
 PHISH_PICKLE = 23 :ul
 
+NOTE: add info on all new data types
+
+NOTE: discuss why are picky about int32, etc so can be
+portable across machines
+
 PHISH_RAW is a string of raw bytes, which can be of any length, and
 which the minnow can format in any manner.  PHISH_BYTE, PHISH_INT,
 PHISH_UINT64, and PHISH_DOUBLE are a single byte, int, uint64, and
@@ -172,7 +181,7 @@ or floating point values.
 The maximum allowed size of an entire datum (in bytes) is set by
 MAXBUF in src/phish.cpp, which defaults to 1 Mbyte.
 
-NOTE: should this be a user-settable parameter
+NOTE: this is now a user-settable parameter
 
 When a datum is sent via the MPI version of the PHISH library, MPI
 flags the message with an MPI "tag".  This tag encodes the receiving
@@ -186,3 +195,5 @@ ports.  See the "shutdown section"_Minnows.html#shutdown of the
 "Minnows"_Minnows.html doc page for a discussion of "done" messages.
 
 NOTE: How is this encoding of port and done implemented for sockets?
+
+NOTE: add user setting for maxport
