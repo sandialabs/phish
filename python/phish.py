@@ -4,7 +4,7 @@ import types
 from ctypes import *
 from cPickle import dumps,loads
 
-# same data type defs as in src/phish.h
+# data type defs from src/phish.h
 
 RAW = 0
 CHAR = 1
@@ -96,15 +96,21 @@ def output(iport):
 def check():
   lib.phish_check()
 
-def done(donefunc):
-  global alldone_caller
-  alldone_caller = donefunc
-  if donefunc: lib.phish_done(alldone_def)
-  else: lib.phish_done(None)
+def callback(alldonefunc,abortfunc):
+  global alldone_caller,abort_caller
+  alldone_caller = alldonefunc
+  abort_caller = abortfunc
+  if alldonefunc and abortfunc: lib.phish_callback(alldone_def,abort_def)
+  elif alldonefunc: lib.phish_callback(alldone_def,None)
+  elif abortfunc: lib.phish_callback(None,abort_def)
+  else: lib.phish_done(None,None)
 
 def alldone_callback():
   alldone_caller()
 
+def abort_callback(flag):
+  abort_caller(flag)
+  
 def close(iport):
   lib.phish_close(iport)
 
@@ -396,19 +402,24 @@ def error(str):
 def warn(str):
   lib.phish_warn(str)
 
+def abort():
+  lib.phish_abort()
+
 def timer():
   return lib.phish_timer()
-
-# define other PHISH module variables
 
 # callback functions
 
 ALLDONEFUNC = CFUNCTYPE(c_void_p)
 alldone_def = ALLDONEFUNC(alldone_callback)
-    
+
+ABORTFUNC = CFUNCTYPE(c_void_p,c_int)
+abort_def = ABORTFUNC(abort_callback)
+
 DATUMFUNC = CFUNCTYPE(c_void_p,c_int)
 datum0_def = DATUMFUNC(datum0_callback)
 datum1_def = DATUMFUNC(datum1_callback)
+
 DONEFUNC = CFUNCTYPE(c_void_p)
 done0_def = DONEFUNC(done0_callback)
 done1_def = DONEFUNC(done1_callback)
