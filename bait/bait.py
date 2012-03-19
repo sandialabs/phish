@@ -55,7 +55,7 @@ def next_command(lines):
 # set a global setting via command in input script
 
 def set(args):
-  global memchunk,safe,maxport
+  global memchunk,safe,port
   if args[0] == "memory":
     if len(args) != 2: error("Illegal set command");
     memchunk = int(args[1])
@@ -63,7 +63,7 @@ def set(args):
   elif args[0] == "safe":
     if len(args) != 1: error("Illegal set command");
     safe = 1
-  elif args[0] == "maxport":
+  elif args[0] == "port":
     if len(args) != 2: error("Illegal set command");
     maxport = int(args[1])
     if maxport < 0: error("Illegal set command");
@@ -75,7 +75,7 @@ def set2param():
   str = ""
   if memchunk != MEMCHUNK: str += " -memory %d" % memchunk
   if safe != SAFE: str += " -safe"
-  if maxport != MAXPORT: str += " -maxport %d" % maxport
+  if maxport != MAXPORT: str += " -port %d" % maxport
   return str
 
 # create a variable via variable command in input script
