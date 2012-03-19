@@ -14,6 +14,20 @@
 applications) call.  The API for the MPI and socket verions of the
 PHISH library are identical.
 </P>
+<P>A general discussion of how and when minnows call PHISH library
+functions is given in the <A HREF = "Minnows.html">Minnows</A> section of the
+manual.
+</P>
+<P>PHISH minnows communicate with other minnows by sending and receiving
+datums.  Before looking at individual library calls, it may be helpful
+to understand how data is stored internally in a datum by the PHISH
+library.  This topic is discussed below, in the section entitled
+<A HREF = "#library_2">Format of a datum</A>.
+</P>
+<P>NOTE: Say something about using int32 or uint32 or just int in minnow.
+</P>
+<P>NOTE: put this next text in a sub-section 4.2 or 4.3?
+</P>
 <P>The PHISH library has a C-style API, so it is easy to write minnows in
 any language, e.g. C, C++, Fortran, Python.  The doc pages for
 individual library functions document the C, C++, and Python
@@ -41,16 +55,6 @@ phish::error("My error");
 <P>To use the Python interface, the Python PHISH wrapper needs to be
 installed in your machine's Python.  See <A HREF = "Section_python.html">this
 section</A> of the manual for details.
-</P>
-<P>A general discussion of how and when minnows call PHISH library
-functions is given in the <A HREF = "Minnows.html">Minnows</A> section of the
-manual.
-</P>
-<P>PHISH minnows communicate with other minnows by sending and receiving
-datums.  Before looking at individual library calls, it may be helpful
-to understand how data is stored internally in a datum by the PHISH
-library.  This topic is discussed below, in the section entitled
-<A HREF = "#library_2">Format of a datum</A>.
 </P>
 <UL><LI>4.1 <A HREF = "#library_1">List of library functions</A>
 <LI>4.2 <A HREF = "#library_2">Format of a datum</A> 
@@ -147,7 +151,7 @@ to see a doc page for each library call.
 This section describes the format of the chunk, which is the same whether
 the datum is sent via MPI or via sockets.
 </P>
-<P>use int32_t
+<P>NOTE: discuss and use int32_t in what is below
 </P>
 <UL><LI># of fields in datum (int)
 <LI>type of 1st field (int)
@@ -188,6 +192,11 @@ the datum is sent via MPI or via sockets.
 <LI>PHISH_DOUBLE_ARRAY = 22
 <LI>PHISH_PICKLE = 23 
 </UL>
+<P>NOTE: add info on all new data types
+</P>
+<P>NOTE: discuss why are picky about int32, etc so can be
+portable across machines
+</P>
 <P>PHISH_RAW is a string of raw bytes, which can be of any length, and
 which the minnow can format in any manner.  PHISH_BYTE, PHISH_INT,
 PHISH_UINT64, and PHISH_DOUBLE are a single byte, int, uint64, and
@@ -207,7 +216,7 @@ or floating point values.
 <P>The maximum allowed size of an entire datum (in bytes) is set by
 MAXBUF in src/phish.cpp, which defaults to 1 Mbyte.
 </P>
-<P>NOTE: should this be a user-settable parameter
+<P>NOTE: this is now a user-settable parameter
 </P>
 <P>When a datum is sent via the MPI version of the PHISH library, MPI
 flags the message with an MPI "tag".  This tag encodes the receiving
@@ -216,10 +225,13 @@ datum is not a done message, the tag is the receiver's input port (0
 to Nport-1).  For a done message a value of MAXPORT (defined at the
 top of src/phish.cpp) is added to the tag.
 </P>
+<P>NOTE: MAXPORT is hardwired, could re-compile - this is
+so all minnows use same setting.
+</P>
 <P>See the <A HREF = "phish_port.html">phish_input</A> doc page for a discussion of
 ports.  See the <A HREF = "Minnows.html#shutdown">shutdown section</A> of the
 <A HREF = "Minnows.html">Minnows</A> doc page for a discussion of "done" messages.
 </P>
-<P>NOTE: How is this encoding of port and done implemented for sockets?
+<P>TIM: How is this encoding of port and done implemented for sockets?
 </P>
 </HTML>

@@ -16,15 +16,12 @@ keyword = {memory} or {safe} or {port} :ulb,l
   {memory} value = N
     N = max size of datum in Kbytes
   {safe} value = none :pre
-  {memory} value = Nport
-    Nport = max # of input or output ports
 :ule
 
 [Examples:]
 
 set memory 1024
 set safe
-set port 24
 
 [Description:]
 
@@ -61,14 +58,6 @@ robust enough to insure no messages are dropped.
 Note that the {safe} keyword takes no value.  If it is not specified,
 the default is for the PHISH library to use normal MPI_Send() calls.
 
-The {port} keyword sets the maximum number of input or output ports
-that minnows can define to exchange datums to other minnows.  The
-default is 16, and most minnows use only 1 or 2, so it is unlikely
-that this setting needs to be changed.  See "this
-section"_Section_minnows.html#minnow_3 of the
-"Minnows"_Section_minnows.html doc page for more details on input and
-output ports.
-
 [Restrictions:] none
 
 [Related commands:]
@@ -78,5 +67,4 @@ See the discussion of command-line arguments for the
 
 [Default:]
 
-The default settings are memory = 1 (1 Kbyte), safe is not set,
-and port = 16.
+The default settings are memory = 1 (1 Kbyte), safe is not set.

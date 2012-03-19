@@ -91,15 +91,18 @@ count.py.  The ID is the minnow ID in the PHISH input script.  The
 minnows in sets of minnows previous to this one.  It is used to infer
 the {local-ID} value discussed above.
 
-The {-memory} and {-safe} switches change default settings within the
-PHISH library.  The {-memory} value {N} sets the maximum size of the
-buffers used to send and receive datums.  The {-safe} switch forces
-the MPI version of the PHISH library to use MPI_SSend() calls instead
-of the standard MPI_Send().  These are "safer" in the sense they
-insure messages are not dropped due to a minnow not keeping up with
-its incoming messages.  See the "set"_bait_set.html command of the
-"bait.py"_Section_bait.html tool for more information on the settings
-of these switches.
+The {-memory} and {-safe} and switches change default settings within
+the PHISH library.
+
+The {-memory} value {N} sets the maximum size of the buffers used to
+send and receive datums.
+
+The {-safe} switch forces the MPI version of the PHISH library to use
+MPI_SSend() calls instead of the standard MPI_Send().  These are
+"safer" in the sense they insure messages are not dropped due to a
+minnow not keeping up with its incoming messages.  See the
+"set"_bait_set.html command of the "bait.py"_Section_bait.html tool
+for more information on the settings of these switches.
 
 The {-in} switch appears once for every connection the minnow has with
 other minnows, where it is a receiver of datums.  See the

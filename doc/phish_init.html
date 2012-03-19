@@ -94,15 +94,18 @@ count.py.  The ID is the minnow ID in the PHISH input script.  The
 minnows in sets of minnows previous to this one.  It is used to infer
 the <I>local-ID</I> value discussed above.
 </P>
-<P>The <I>-memory</I> and <I>-safe</I> switches change default settings within the
-PHISH library.  The <I>-memory</I> value <I>N</I> sets the maximum size of the
-buffers used to send and receive datums.  The <I>-safe</I> switch forces
-the MPI version of the PHISH library to use MPI_SSend() calls instead
-of the standard MPI_Send().  These are "safer" in the sense they
-insure messages are not dropped due to a minnow not keeping up with
-its incoming messages.  See the <A HREF = "bait_set.html">set</A> command of the
-<A HREF = "Section_bait.html">bait.py</A> tool for more information on the settings
-of these switches.
+<P>The <I>-memory</I> and <I>-safe</I> and switches change default settings within
+the PHISH library.
+</P>
+<P>The <I>-memory</I> value <I>N</I> sets the maximum size of the buffers used to
+send and receive datums.
+</P>
+<P>The <I>-safe</I> switch forces the MPI version of the PHISH library to use
+MPI_SSend() calls instead of the standard MPI_Send().  These are
+"safer" in the sense they insure messages are not dropped due to a
+minnow not keeping up with its incoming messages.  See the
+<A HREF = "bait_set.html">set</A> command of the <A HREF = "Section_bait.html">bait.py</A> tool
+for more information on the settings of these switches.
 </P>
 <P>The <I>-in</I> switch appears once for every connection the minnow has with
 other minnows, where it is a receiver of datums.  See the

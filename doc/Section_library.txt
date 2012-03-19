@@ -190,10 +190,13 @@ datum is not a done message, the tag is the receiver's input port (0
 to Nport-1).  For a done message a value of MAXPORT (defined at the
 top of src/phish.cpp) is added to the tag.
 
+NOTE: MAXPORT is hardwired, could re-compile - this is
+so all minnows use same setting.
+
 See the "phish_input"_phish_port.html doc page for a discussion of
 ports.  See the "shutdown section"_Minnows.html#shutdown of the
 "Minnows"_Minnows.html doc page for a discussion of "done" messages.
 
-NOTE: How is this encoding of port and done implemented for sockets?
+TIM: How is this encoding of port and done implemented for sockets?
 
-NOTE: add user setting for maxport
+
