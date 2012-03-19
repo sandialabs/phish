@@ -11,21 +11,46 @@
 <H3>4. PHISH Library 
 </H3>
 <P>This is the API to the PHISH library that minnows (stand-alone
-applications) call.  It is a C-style API, so it is easy to write
-minnows in any language, e.g. C, C++, Fortran, Python.  The doc pages
-below for individual library functions also document the <A HREF = "Python.html">Python
-interface</A> to the library.
+applications) call.  The API for the MPI and socket verions of the
+PHISH library are identical.
 </P>
-<P>MPI and socket API are identical.
+<P>The PHISH library has a C-style API, so it is easy to write minnows in
+any language, e.g. C, C++, Fortran, Python.  The doc pages for
+individual library functions document the C, C++, and Python
+interface_Python.html to the library.  Note that a C++ program can use
+either the C or C++ interface.
+</P>
+<P>To use the C interface, a C or C++ program includes the file
+src/phish.h and makes calls to functions as follows:
+</P>
+<PRE>#include "phish.h"
+phish_error("My error"); 
+</PRE>
+<P>The C++ interface in src/phish.hpp encloses the PHISH API in the
+namespace "phish", so functions can be invoked as
+</P>
+<PRE>#include "phish.hpp"
+using namespace phish
+error("My error"); 
+</PRE>
+<P>or as
+</P>
+<PRE>#include "phish.hpp"
+phish::error("My error"); 
+</PRE>
+<P>To use the Python interface, the Python PHISH wrapper needs to be
+installed in your machine's Python.  See <A HREF = "Section_python.html">this
+section</A> of the manual for details.
+</P>
+<P>A general discussion of how and when minnows call PHISH library
+functions is given in the <A HREF = "Minnows.html">Minnows</A> section of the
+manual.
 </P>
 <P>PHISH minnows communicate with other minnows by sending and receiving
-datums.  A general discussion of how minnows call these functions is
-given in the <A HREF = "Minnows.html">Minnows</A> section of the manual.
-</P>
-<P>Before looking at individual library calls, it may be helpful to
-understand how the data in a datum is structured by the PHISH library.
-This topic is discussed below, in the section entitled <A HREF = "#library_2">Format of a
-datum</A>.
+datums.  Before looking at individual library calls, it may be helpful
+to understand how data is stored internally in a datum by the PHISH
+library.  This topic is discussed below, in the section entitled
+<A HREF = "#library_2">Format of a datum</A>.
 </P>
 <UL><LI>4.1 <A HREF = "#library_1">List of library functions</A>
 <LI>4.2 <A HREF = "#library_2">Format of a datum</A> 
@@ -48,9 +73,7 @@ to see a doc page for each library call.
 <BR>
   <A HREF = "phish_port.html">phish_output()</A> 
 <BR>
-  <A HREF = "phish_callback.html">phish_done_callback()</A> 
-<BR>
-  <A HREF = "phish_callback.html">phish_abort_callback()</A> 
+  <A HREF = "phish_callback.html">phish_callback()</A> 
 <BR>
   <A HREF = "phish_check.html">phish_check()</A> 
 <BR></UL>
@@ -124,6 +147,8 @@ to see a doc page for each library call.
 This section describes the format of the chunk, which is the same whether
 the datum is sent via MPI or via sockets.
 </P>
+<P>use int32_t
+</P>
 <UL><LI># of fields in datum (int)
 <LI>type of 1st field (int)
 <LI>size of 1st field (optional int)
@@ -139,14 +164,29 @@ the datum is sent via MPI or via sockets.
 <P>The "type" values are one of these settings, as defined in src/phish.h:
 </P>
 <UL><LI>PHISH_RAW = 0
-<LI>PHISH_BYTE = 1
-<LI>PHISH_INT = 2
-<LI>PHISH_UINT64 = 3
-<LI>PHISH_DOUBLE = 4
-<LI>PHISH_STRING = 5
-<LI>PHISH_INT_ARRAY = 6
-<LI>PHISH_UINT64_ARRAY = 7
-<LI>PHISH_DOUBLE_ARRAY = 8 
+<LI>PHISH_CHAR = 1
+<LI>PHISH_INT8 = 2
+<LI>PHISH_INT16 = 3
+<LI>PHISH_INT32 = 4
+<LI>PHISH_INT64 = 5
+<LI>PHISH_UINT8 = 6
+<LI>PHISH_UINT16 = 7
+<LI>PHISH_UINT32 = 8
+<LI>PHISH_UINT64 = 9
+<LI>PHISH_FLOAT = 10
+<LI>PHISH_DOUBLE = 11
+<LI>PHISH_STRING = 12
+<LI>PHISH_INT8_ARRAY = 13
+<LI>PHISH_INT16_ARRAY = 14
+<LI>PHISH_INT32_ARRAY = 15
+<LI>PHISH_INT64_ARRAY = 16
+<LI>PHISH_UINT8_ARRAY = 17
+<LI>PHISH_UINT16_ARRAY = 18
+<LI>PHISH_UINT32_ARRAY = 19
+<LI>PHISH_UINT64_ARRAY = 20
+<LI>PHISH_FLOAT_ARRAY = 21
+<LI>PHISH_DOUBLE_ARRAY = 22
+<LI>PHISH_PICKLE = 23 
 </UL>
 <P>PHISH_RAW is a string of raw bytes, which can be of any length, and
 which the minnow can format in any manner.  PHISH_BYTE, PHISH_INT,

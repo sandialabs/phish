@@ -50,7 +50,7 @@ minnows, so they can be read by this minnow.  An output port is where
 the minnow sends datums to route them to the input ports of other
 minnows.  These inter-minnow connections are setup by the
 <A HREF = "bait_connect.html">connect</A> command in a PHISH input script, as
-discussed on the <A HREF = "Bait.html">bait.py</A> tool doc page.
+discussed on the <A HREF = "Bait.html">bait.py</A> doc page.
 </P>
 <P>A minnnow can define and use multiple input and output ports, to send
 and receive datums of different kinds to different sets of minnows.
@@ -66,10 +66,10 @@ the <A HREF = "bait_connect.html">connect</A> command for details.
 <P>The minnow should make one call to phish_input() for each input port
 it uses, whether or not a particular PHISH input script actually
 connects to the port.  Specify <I>reqflag</I> = 1 if a PHISH input script
-must specify a connection to the input port; specify <I>reqflag</I> = 0 if
-it is optional.  The <A HREF = "phish_check.html">phish_check</A> function will
-check for compatibility between the PHISH input script and the minnow
-ports.
+must specify a connection to the input port in order to use the
+minnow; specify <I>reqflag</I> = 0 if it is optional.  The
+<A HREF = "phish_check.html">phish_check</A> function will check for compatibility
+between the PHISH input script and the minnow ports.
 </P>
 <P>Two callback function pointers are passed as arguments to
 phish_input().  Either or both can be specied as <I>NULL</I>, or <I>None</I> in
@@ -124,8 +124,9 @@ down.
 <P>The minnow should make one call to phish_output() for each output port
 it uses, whether or not a particular PHISH input script actually
 connects to the port.  Usage of an output port by an input script is
-always optional, which makes it easy to develop and debug a sequence
-of pipelined operations, one minnow at a time.
+always optional.  This makes it easy to develop and debug a sequence
+of pipelined operations, one minnow at a time, without requiring a
+minnow's output to be used by an input script.
 </P>
 <HR>
 

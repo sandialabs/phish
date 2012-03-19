@@ -17,7 +17,8 @@
 </H3>
 <P><B>C syntax:</B>
 </P>
-<PRE>void phish_error(char *str) 
+<PRE>#include "phish.h"
+void phish_error(char *str) 
 </PRE>
 <PRE>void phish_warn(char *str) 
 </PRE>
@@ -28,6 +29,21 @@
 <P>phish_error("Bad datum received");
 phish_warn("May overflow internal buffer");
 phish_abort();
+</P>
+<P><B>C++ syntax:</B>
+</P>
+<PRE>void error(char *str) 
+</PRE>
+<PRE>void warn(char *str) 
+</PRE>
+<PRE>void abort() 
+</PRE>
+<P><B>C++ examples:</B>
+</P>
+<P>#include "phish.hpp"
+PHISH::error("Bad datum received");
+PHISH::warn("May overflow internal buffer");
+PHISH::abort();
 </P>
 <P><B>Python syntax:</B>
 </P>
@@ -50,25 +66,31 @@ phish.abort()
 application.  In PHISH lingo, a "minnow" is a stand-alone application
 which makes calls to the <A HREF = "Library.html">PHISH library</A>.
 </P>
-<P>The phish_error() function prints the specified character string (str)
-to the screen, invokes the user-specified abort callback if it is
-defined via the phish_abort_callback() function, then calls
+<P>These functions print error or warning messages.  The phish_error()
+and phish_abort() functions also cause a PHISH program and all of its
+minnows to exit.
+</P>
+<P>These functions can be called by a minnow, but are also called
+internally by the PHISH library when error conditions are encountered.
+</P>
+<P>Also note that unlike calling <A HREF = "phish_exit.html">phish_exit</A>, these
+functions do not close a minnows input or output ports.  The latter
+trigger "done" messages to be sent to downstream minnows.  This means
+that no other minnows are explicitly told about the failed minnow.
+However, see the discussion below about the phish_abort() function and
+its effect on other minnows.
+</P>
+<HR>
+
+<P>The phish_error() function prints the specified character string to
+the screen, invokes the user-specified abort callback function if it
+is defined via <A HREF = "phish_callback.html">phish_callback</A>, then calls
 phish_abort().
 </P>
-<P>and forces the running minnow to exit.  None of the
-minnows ports are closed, which would trigger messages to other
-minnows, so no other minnows are explicitly told about the failed
-minnow.
+<P>The error message is printed in this format for the MPI version of the
+MPI library (replated MPI by SOCKET for the socket version):
 </P>
-<P>For the MPI version of the library, phish_error() makes a final call
-to MPI_Abort(), which should force all minnows to exit, as well as the
-calling "mpirun" command.
-</P>
-<P>NOTE: how does this work for socket version?
-</P>
-<P>The error message is printed in this format:
-</P>
-<PRE>ERROR: Minnow exename ID idminnow # idglobal: message 
+<PRE>PHISH MPI ERROR: Minnow exename ID idminnow # idglobal: message 
 </PRE>
 <P>where exename is the name of executable minnow file (not the full
 path, just the filename), idminnow is the ID of the minnow as
@@ -79,13 +101,30 @@ the school of minnows specified by the PHISH input script.  This
 supplementary information is helpful in debugging which minnow
 generated the error message.
 </P>
-<P>The phish_warning() function prints the specified character string
-(str) to the screen, with the same supplementary information as
-phish_error().  Control is returned to the calling minnow which can
-continue on.
+<HR>
+
+<P>The phish_warn() function prints the specified character string to the
+screen, in the same format as phish_error(), execpt ERROR is replaced
+by WARNING.  The abort callback is not invoked and neither is
+phish_abort().  Control is simply returned to the calling minnow which
+can continue on.
+</P>
+<HR>
+
+<P>The phish_abort() function prints no message.  
+</P>
+<P>For the MPI version of the PHISH library, phish_abort() invokes
+MPI_Abort(), which should force all minnows in the PHISH school to
+exit, and the "mpirun" or "mpiexec" command that launced the school to
+exit.
+</P>
+<P>TIM: how does this work for socket version?  Does it cause
+all minnows to exit?
 </P>
 <P><B>Restrictions:</B> none
 </P>
-<P><B>Related commands:</B> none
+<P><B>Related commands:</B>
+</P>
+<P><A HREF = "phish_exit.html">phish_exit</A>
 </P>
 </HTML>

@@ -9,21 +9,46 @@
 4. PHISH Library :h3
 
 This is the API to the PHISH library that minnows (stand-alone
-applications) call.  It is a C-style API, so it is easy to write
-minnows in any language, e.g. C, C++, Fortran, Python.  The doc pages
-below for individual library functions also document the "Python
-interface"_Python.html to the library.
+applications) call.  The API for the MPI and socket verions of the
+PHISH library are identical.
 
-MPI and socket API are identical.
+The PHISH library has a C-style API, so it is easy to write minnows in
+any language, e.g. C, C++, Fortran, Python.  The doc pages for
+individual library functions document the C, C++, and Python
+interface_Python.html to the library.  Note that a C++ program can use
+either the C or C++ interface.
+
+To use the C interface, a C or C++ program includes the file
+src/phish.h and makes calls to functions as follows:
+
+#include "phish.h"
+phish_error("My error"); :pre
+
+The C++ interface in src/phish.hpp encloses the PHISH API in the
+namespace "phish", so functions can be invoked as
+
+#include "phish.hpp"
+using namespace phish
+error("My error"); :pre
+
+or as
+
+#include "phish.hpp"
+phish::error("My error"); :pre
+
+To use the Python interface, the Python PHISH wrapper needs to be
+installed in your machine's Python.  See "this
+section"_Section_python.html of the manual for details.
+
+A general discussion of how and when minnows call PHISH library
+functions is given in the "Minnows"_Minnows.html section of the
+manual.
 
 PHISH minnows communicate with other minnows by sending and receiving
-datums.  A general discussion of how minnows call these functions is
-given in the "Minnows"_Minnows.html section of the manual.
-
-Before looking at individual library calls, it may be helpful to
-understand how the data in a datum is structured by the PHISH library.
-This topic is discussed below, in the section entitled "Format of a
-datum"_#library_2.
+datums.  Before looking at individual library calls, it may be helpful
+to understand how data is stored internally in a datum by the PHISH
+library.  This topic is discussed below, in the section entitled
+"Format of a datum"_#library_2.
 
 4.1 "List of library functions"_#library_1
 4.2 "Format of a datum"_#library_2 :ul
@@ -41,8 +66,7 @@ Library calls for initialization :olb,l
   "phish_init()"_phish_init.html :ulb,b
   "phish_input()"_phish_port.html :b
   "phish_output()"_phish_port.html :b
-  "phish_done_callback()"_phish_callback.html :b
-  "phish_abort_callback()"_phish_callback.html :b
+  "phish_callback()"_phish_callback.html :b
   "phish_check()"_phish_check.html :ule,b
 
 Library calls for shutdown :l
@@ -88,6 +112,8 @@ A datum is a chunk of bytes sent from one PHISH minnow to another.
 This section describes the format of the chunk, which is the same whether
 the datum is sent via MPI or via sockets.
 
+use int32_t
+
 # of fields in datum (int)
 type of 1st field (int)
 size of 1st field (optional int)
@@ -103,14 +129,29 @@ data for Nth field (bytes) :ul
 The "type" values are one of these settings, as defined in src/phish.h:
 
 PHISH_RAW = 0
-PHISH_BYTE = 1
-PHISH_INT = 2
-PHISH_UINT64 = 3
-PHISH_DOUBLE = 4
-PHISH_STRING = 5
-PHISH_INT_ARRAY = 6
-PHISH_UINT64_ARRAY = 7
-PHISH_DOUBLE_ARRAY = 8 :ul
+PHISH_CHAR = 1
+PHISH_INT8 = 2
+PHISH_INT16 = 3
+PHISH_INT32 = 4
+PHISH_INT64 = 5
+PHISH_UINT8 = 6
+PHISH_UINT16 = 7
+PHISH_UINT32 = 8
+PHISH_UINT64 = 9
+PHISH_FLOAT = 10
+PHISH_DOUBLE = 11
+PHISH_STRING = 12
+PHISH_INT8_ARRAY = 13
+PHISH_INT16_ARRAY = 14
+PHISH_INT32_ARRAY = 15
+PHISH_INT64_ARRAY = 16
+PHISH_UINT8_ARRAY = 17
+PHISH_UINT16_ARRAY = 18
+PHISH_UINT32_ARRAY = 19
+PHISH_UINT64_ARRAY = 20
+PHISH_FLOAT_ARRAY = 21
+PHISH_DOUBLE_ARRAY = 22
+PHISH_PICKLE = 23 :ul
 
 PHISH_RAW is a string of raw bytes, which can be of any length, and
 which the minnow can format in any manner.  PHISH_BYTE, PHISH_INT,
