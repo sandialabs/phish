@@ -31,9 +31,9 @@ def recv() :pre
 [Python examples:]
 
 import phish
-phish.loop();
-phish.probe(count);
-n = phish.recv(); :pre
+phish.loop()
+phish.probe(count)
+n = phish.recv() :pre
 
 [Description:]
 
