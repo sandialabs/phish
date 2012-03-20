@@ -85,6 +85,8 @@ but various kinds of statistical, data mining, machine learning, and
 anomaly detection algorithms can be formulated for streaming data, in
 the context of the model described above.
 
+:line
+
 1.2 PHISH lingo :link(intro_2),h4
 
 The name PHISH was also chosen because it evokes the idea of one or
@@ -93,17 +95,14 @@ to the following PHISH lingo, which we use without apology throughout
 the rest of the documentation:
 
 minnow = a (typically small) stand-alone program, run as an individual process
-school = a set of duplicate minnows, working (swimming) in a
-coordinated fashion
-net(work) = a PHISH program, typically consisting of multiple minnow
-schools, connected together to perform a calculation, as in the diagram below
+school = a set of duplicate minnows, working (swimming) in a coordinated fashion
+net(work) = a PHISH program, typically consisting of multiple minnow schools, connected together to perform a calculation, as in the diagram below
 bait = Bait.py = a script for hooking schools of minnows together into a net
-wrapper = a Python wrapper for the PHISH library, included in the
-PHISH distribution :ul
+wrapper = a Python wrapper for the PHISH library, included in the PHISH distribution :ul
 
 :line
 
-1.3 PHISH Pheatures:link(intro_3),h4
+1.3 PHISH Pheatures :link(intro_3),h4
 
 The model described above is not unique to PHISH.  Many programs
 provide a framework for moving chunks of data between computational
@@ -414,7 +413,7 @@ pointer to the PHISH WWW Site (http://phish.sandia.gov):
 S. J. Plimpton and T. Shead, PHISH in action, J Parallel and
 Distributed Compuing, submitted (2012).
 
-PHISH was developed by the following folks at Sandia National Labs:
+PHISH was developed by the following individuals at Sandia:
 
 Steve Plimpton, sjplimp at sandia.gov
 Tim Shead, tshead at sandia.gov :ul
@@ -425,7 +424,7 @@ charge, under the terms of the Berkeley Softward Distribution (BSD)
 License. 
 
 Source code for PHISH is freely available for download from the "PHISH
-web site"_phish and is licensed under the modified "Berkeley Software
+web site"_pws and is licensed under the modified "Berkeley Software
 Distribution (BSD) License"_bsd.  This basically means they can be
 used by anyone for any purpose.  See the LICENSE file provided with
 the distribution for more details.
