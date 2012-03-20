@@ -392,6 +392,15 @@ def datum():
   iport = lib.phish_datum(byref(buf),byref(len))
   return iport,buf,len.value
 
+def queue():
+  return lib.phish_queue()
+
+def nqueue():
+  return lib.phish_nqueue()
+
+def dequeue(n):
+  return lib.phish_dequeue(n)
+
 def query(str,flag1,flag2):
   cstr = c_char_p(str)
   return lib.phish_query(cstr,flag1,flag2)
