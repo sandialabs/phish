@@ -1368,18 +1368,8 @@ int phish_queue()
 }
 
 /* ----------------------------------------------------------------------
-   return count of internally queued datums
-------------------------------------------------------------------------- */
-
-int phish_nqueue()
-{
-  return nqueue;
-}
-
-/* ----------------------------------------------------------------------
    remove datum N from internal queue
-   copy it to receive buffer, as if just received
-   compress queue
+   copy it to receive buffer, as if just received, compress queue
    return # of values in the datum
 ------------------------------------------------------------------------- */
 
@@ -1399,6 +1389,15 @@ int phish_dequeue(int n)
  nqueue--;
 
  return nrfields;
+}
+
+/* ----------------------------------------------------------------------
+   return count of internally queued datums
+------------------------------------------------------------------------- */
+
+int phish_nqueue()
+{
+  return nqueue;
 }
 
 /* ----------------------------------------------------------------------
