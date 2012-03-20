@@ -159,6 +159,8 @@ or phish.exit(), since it will receive no more datums.
 
 3.3 Communication via ports :link(minnow_3),h4
 
+NOTE: dropping data versus perfrect answer (pipeline throttles itself)
+
 rules about ports
 
 Deinfe ports as in connect command

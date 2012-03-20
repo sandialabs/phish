@@ -6,9 +6,6 @@
 
 :line
 
-NOTE: dropping data versus perfrect answer (pipeline throttles itself)
-NOTE: PHISH is different than typicaly MPI where all procs run one program
-
 1. Introduction :h3
 
 This section explains what the PHISH software package is and why we
@@ -182,13 +179,18 @@ provided Bait.py program.  This produces a file suitable for running
 either with MPI or sockets. :l
 
 PHISH programs (nets) running on top of MPI are launched via the
-standard mpirun or mpiexec command.  PHISH programs (nets) running on
-top of sockets are launched via a provided Python script, called
-Launch.py, which mimics the operation of mpirun.  It invokes the set
-of independent processes (minnows) on various machines via ssh
-commands, sets up the socket connections between them, and
-synchrnoizes their launch so that no data is dropped as the processes
-(minnows) begin exchanging data. :l
+standard mpirun or mpiexec command.  Note that a PHISH net is
+different than the usual MPI program run on P processors where P
+copies of the same executable are launched.  A PHISH net typically
+consists of several different schools of minnows; each minnow is an
+independent executable. :l
+
+PHISH programs (nets) running on top of sockets are launched via a
+provided Python script, called Launch.py, which mimics the operation
+of mpirun.  It invokes the set of independent processes (minnows) on
+various machines via ssh commands, sets up the socket connections
+between them, and synchrnoizes their launch so that no data is dropped
+as the processes (minnows) begin exchanging data. :l
 
 PHISH programs (nets) can be run on a single processor, so long as the
 OS supports multiple processes.  They can be run on a multicore box.

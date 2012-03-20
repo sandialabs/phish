@@ -83,6 +83,9 @@ this function to pack a datum just received and unpacked via the
 "phish_datum"_phish_unpack.html function, so that it can be sent as-is
 to another minnow.
 
+NOTE: This call be followed by additional pack calls,
+but not vice versa.
+
 :line
 
 The remaining pack functions correspond one-to-one with the kinds of
