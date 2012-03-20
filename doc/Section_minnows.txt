@@ -199,6 +199,11 @@ or when school has loops
 Ctrl-C option
 output at end
 
+doc how to shutdown a ring, which is tricky
+  if one calls phish exit first, then can't receive its close messgae
+  do it like in ccdummy, where one calls phish close first,
+    then wait in loop for last message to return to it
+
 shutdown in ZMQ is buggy
 
 :line
