@@ -63,7 +63,7 @@ section"_Section_python.html of the manual for details.
 4.1 List of library functions :link(library_1),h4
 
 The PHISH library is not large; there are only a handful of calls.
-They can be grouped into the following 5 categories.  Follow the links
+They can be grouped into the following categories.  Follow the links
 to see a doc page for each library call.  
 
 Library calls for initialization :olb,l
@@ -98,6 +98,11 @@ Library calls for sending datums :l
   "phish_pack_int_array()"_phish_pack.html :b
   "phish_pack_uint64_array()"_phish_pack.html :b
   "phish_pack_double_array()"_phish_pack.html :ule,b
+
+Library calls for queueing datums :l
+  "phish_queue()"_phish_queue.html :ulb,b
+  "phish_dequeue()"_phish_queue.html :b
+  "phish_nqueue()"_phish_queue.html :ule,b
 
 Miscellaneous library calls :l
   "phish_query()"_phish_query.html :ulb,b
