@@ -395,11 +395,11 @@ def datum():
 def queue():
   return lib.phish_queue()
 
-def nqueue():
-  return lib.phish_nqueue()
-
 def dequeue(n):
   return lib.phish_dequeue(n)
+
+def nqueue():
+  return lib.phish_nqueue()
 
 def query(str,flag1,flag2):
   cstr = c_char_p(str)
