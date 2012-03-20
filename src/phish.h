@@ -82,6 +82,10 @@ void phish_pack_pickle(char *, uint32_t);
 int phish_unpack(char **, uint32_t *);
 int phish_datum(char **, uint32_t *);
 
+int phish_queue();
+int phish_nqueue();
+int phish_dequeue(int);
+
 int phish_query(const char *, int, int);
 void phish_error(const char *);
 void phish_warn(const char *);

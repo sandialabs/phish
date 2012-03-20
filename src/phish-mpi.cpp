@@ -42,6 +42,8 @@ enum{UNUSED_PORT,OPEN_PORT,CLOSED_PORT};
 #define MAXPORT 16       // max # of input and output ports
                          // hardwired to insure all minnows use same value
 
+#define DELTAQUEUE 16    // increment for # queue entries
+
 typedef void (DatumFunc)(int);         // callback prototypes
 typedef void (DoneFunc)();
 typedef void (AbortFunc)(int);
@@ -128,6 +130,18 @@ int nrfields;              // # of fields in received datum
 char *rptr;                // ptr to current loc in rbuf for unpacking
 int nunpack;               // # of fields unpacked thus far from rbuf
 
+// queued datums
+
+struct Queue {             // one queued datum
+  char *datum;             // copy of entire datum
+  int nbytes;              // size of datum
+  int iport;               // port the datum was received on
+};
+
+Queue *queue;              // internal queue
+int nqueue;                // # of datums in queue
+int maxqueue;              // max # of datums queue can hold
+
 // stats
 
 uint64_t rcount;           // # of datums received
@@ -144,6 +158,8 @@ void deallocate_ports();
 
 void phish_init(int *pnarg, char ***pargs)
 {
+  if (initflag) phish_error("Phish_init has already been called");
+
   // initialize MPI
 
   MPI_Init(pnarg,pargs);
@@ -157,6 +173,8 @@ void phish_init(int *pnarg, char ***pargs)
   initflag = 1;
   checkflag = 0;
   lastport = -1;
+  nqueue = maxqueue = 0;
+  queue = NULL;
 
   // default settings
 
@@ -442,6 +460,9 @@ void phish_exit()
 
   free(sbuf);
   free(rbuf);
+  for (int i = 0; i < nqueue; i++) delete [] queue[i].datum;
+  free(queue);
+
   deallocate_ports();
   delete [] exename;
   delete [] idminnow;
@@ -539,7 +560,7 @@ void phish_check()
    set callback functions
    alldonefunc = invoked when all input ports are closed
    abortfunc = invoked when PHISH aborts via phish_error()
-   this one func is OK to call before phish_init() is called
+   allow this one func to be called before phish_init() is called
 ------------------------------------------------------------------------- */
 
 void phish_callback(void (*func1)(), void (*func2)(int))
@@ -768,6 +789,7 @@ void phish_send(int iport)
 {
   if (iport < 0 || iport >= MAXPORT) 
     phish_error("Invalid port ID for phish_send");
+
   OutPort *op = &outports[iport];
   if (op->status == UNUSED_PORT) return;
   if (op->status == CLOSED_PORT) 
@@ -801,6 +823,7 @@ void phish_send_key(int iport, char *key, int keybytes)
 {
   if (iport < 0 || iport >= MAXPORT)
     phish_error("Invalid port ID for phish_send_key");
+
   OutPort *op = &outports[iport];
   if (op->status == UNUSED_PORT) return;
   if (op->status == CLOSED_PORT) 
@@ -852,6 +875,7 @@ void phish_send_direct(int iport, int receiver)
 {
   if (iport < 0 || iport >= MAXPORT) 
     phish_error("Invalid port ID for phish_send");
+
   OutPort *op = &outports[iport];
   if (op->status == UNUSED_PORT) return;
   if (op->status == CLOSED_PORT) 
@@ -897,6 +921,7 @@ void phish_send_direct(int iport, int receiver)
 
 /* ----------------------------------------------------------------------
    send datum packed in sbuf to downstream proc(s)
+   internal function, NOT a function in the PHISH API
 ------------------------------------------------------------------------- */
 
 void send(OutConnect *oc)
@@ -974,6 +999,8 @@ void phish_reset_receiver(int iport, int receiver)
    first field = value type
    second field (only for arrays) = # of values
    third field = value(s)
+   phish_pack_helper(), phish_pack_array_helper() are internal functions,
+     NOT functions in the PHISH API
 ------------------------------------------------------------------------- */
 
 // NOTE: can we use int32_t instead of uint32 everywhere?
@@ -1318,6 +1345,63 @@ int phish_datum(char **buf, uint32_t *len)
 }
 
 /* ----------------------------------------------------------------------
+   add current datum to end of internal queue
+   return count of queued datums
+------------------------------------------------------------------------- */
+
+int phish_queue()
+{
+  if (nqueue == maxqueue) {
+    maxqueue += DELTAQUEUE;
+    queue = (Queue *) realloc(queue,maxqueue*sizeof(Queue));
+    if (!queue) phish_error("Phish_queue ran out of memory");
+  }
+
+  queue[nqueue].datum = new char[nrbytes];
+  if (!queue[nqueue].datum) phish_error("Phish_queue ran out of memory");
+  memcpy(queue[nqueue].datum,rbuf,nrbytes);
+  queue[nqueue].nbytes = nrbytes;
+  queue[nqueue].iport = lastport;
+  nqueue++;
+
+  return nqueue;
+}
+
+/* ----------------------------------------------------------------------
+   return count of internally queued datums
+------------------------------------------------------------------------- */
+
+int phish_nqueue()
+{
+  return nqueue;
+}
+
+/* ----------------------------------------------------------------------
+   remove datum N from internal queue
+   copy it to receive buffer, as if just received
+   compress queue
+   return # of values in the datum
+------------------------------------------------------------------------- */
+
+int phish_dequeue(int n)
+{
+  if (n < 0 || n >= nqueue) phish_error("Invalid phish_dequeue");
+
+ nrbytes = queue[n].nbytes;
+ memcpy(rbuf,queue[n].datum,nrbytes);
+ delete [] queue[n].datum;
+ nrfields = *(int *) rbuf;
+ rptr = rbuf + sizeof(int);
+ nunpack = 0;
+ lastport = queue[n].iport;
+
+ memmove(&queue[n],&queue[n+1],(nqueue-n-1)*sizeof(Queue));
+ nqueue--;
+
+ return nrfields;
+}
+
+/* ----------------------------------------------------------------------
    return info about minnow counts and input/output ports
 ------------------------------------------------------------------------- */
 
@@ -1412,6 +1496,14 @@ double phish_timer()
   return MPI_Wtime();
 }
 
+/* ---------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------- */
+
+/* ----------------------------------------------------------------------
+   internal functions, NOT functions in the PHISH API
+------------------------------------------------------------------------- */
+
 /* ----------------------------------------------------------------------
    print stats about datums received/sent by minnow
 ------------------------------------------------------------------------- */
@@ -1461,4 +1553,3 @@ void deallocate_ports()
     if (outports[i].status != UNUSED_PORT) free(outports[i].connects);
   delete [] outports;
 }
-
