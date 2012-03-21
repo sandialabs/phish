@@ -218,9 +218,11 @@ void phish_init(int *pnarg, char ***pargs)
       memchunk = atoi(args[iarg+1]);
       if (memchunk < 0) 
 	phish_error("Invalid command-line args in phish_init");
+      iarg += 2;
 
     } else if (strcmp(args[iarg],"-safe") == 0) {
       safe = 1;
+      iarg += 1;
 
     } else if (strcmp(args[iarg],"-in") == 0) {
       if (iarg+8 > narg)

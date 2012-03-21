@@ -25,17 +25,18 @@ int main(int narg, char **args)
 
   buf = new char[m];
   for (int i = 0; i < m; i++)
-    buf[i] = i+1 < m ? '*' : '\0';
+    buf[i] = '\0';
+    //    buf[i] = i+1 < m ? '*' : '\0';
   count = 0;
 
   double time_start = phish_timer();
 
-  phish_pack_string(buf);
+  phish_pack_raw(buf,m);
   phish_send(0);
   phish_loop();
 
   double time_stop = phish_timer();
-  printf("Elapsed time for %d pingpong of %d bytes = %g secs\n",
+  printf("Elapsed time for %d pingpong exchanges of %d bytes = %g secs\n",
 	 n,m,time_stop-time_start);
 
   delete [] buf;
@@ -49,13 +50,10 @@ void ping(int nvalues)
   char *buf;
   uint32_t len;
 
-  if (nvalues != 1) phish_error("Ping processes one-value datums");
-  int type = phish_unpack(&buf,&len);
-  if (type != PHISH_STRING) phish_error("Ping processes string values");
-
   count++;
   if (count < n) {
-    phish_pack_string(buf);
+    phish_datum(&buf,&len);
+    phish_pack_datum(buf,len);
     phish_send(0);
   } else phish_close(0);
 }

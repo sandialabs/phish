@@ -29,10 +29,7 @@ void pong(int nvalues)
   char *buf;
   uint32_t len;
 
-  if (nvalues != 1) phish_error("Pong processes one-value datums");
-  int type = phish_unpack(&buf,&len);
-  if (type != PHISH_STRING) phish_error("Pong processes string values");
-
-  phish_pack_string(buf);
+  phish_datum(&buf,&len);
+  phish_pack_datum(buf,len);
   phish_send(0);
 }
