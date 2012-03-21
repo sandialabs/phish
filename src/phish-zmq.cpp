@@ -551,9 +551,9 @@ void phish_check()
   }
 }
 
-void phish_done(void (*callback)())
+void phish_callback(void (*done)(), void(*abort)(int*))
 {
-  g_all_input_ports_closed = callback;
+  g_all_input_ports_closed = done;
 }
 
 void phish_close(int port)

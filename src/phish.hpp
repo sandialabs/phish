@@ -50,8 +50,8 @@ void init(int& argc, char**& argv) { LOG_CALL(); ::phish_init(&argc, &argv); }
 /// Note that this also implicitly closes any open output ports and completes
 /// any running loop.
 void exit() { LOG_CALL(); ::phish_exit(); }
-void atabort(void(*callback)(int*)) { LOG_CALL(); ::phish_atabort(callback); }
-void abort() { LOG_CALL(); ::phish_abort(); }
+///void atabort(void(*callback)(int*)) { LOG_CALL(); ::phish_atabort(callback); }
+///void abort() { LOG_CALL(); ::phish_abort(); }
 
 /// Specifies an input port to be enabled, along with an optional callback to
 /// be called when a message is received on the port, an optional callback to be
@@ -70,7 +70,7 @@ void check() { LOG_CALL(); ::phish_check(); }
 /// Specifies a callback to be called exactly once when every input port has
 /// been closed.  Note: this callback will never be called for minnows that
 /// have no input ports.
-void done(void (*callback)()) { LOG_CALL(); ::phish_done(callback); }
+void callback(void (*done)(), void(*abort)(int*) ) { LOG_CALL(); ::phish_callback(done, abort); }
 /// Notifies downstream minnows that the given output port has been closed.
 void close(int port) { LOG_CALL(); ::phish_close(port); }
 
