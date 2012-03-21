@@ -46,7 +46,8 @@ int main(int argc, char* argv[])
 
   const double start = phish_timer();
 
-  phish_pack_string(const_cast<char*>(std::string(size, '*').c_str()));
+  std::string message(size, '*');
+  phish_pack_string(const_cast<char*>(message.c_str()));
   phish_send(0);
   phish_loop();
 
