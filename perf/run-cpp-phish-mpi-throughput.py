@@ -19,6 +19,8 @@ for size in range(int(size_begin), int(size_end), int(size_step)):
   sys.stderr.flush()
 
   bait_input = """
+set memory 100
+
 minnow 1 phish-mpi-throughput-a %s %s
 minnow 2 phish-mpi-throughput-b %s %s
 

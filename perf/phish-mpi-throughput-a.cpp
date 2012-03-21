@@ -20,7 +20,7 @@ void message_callback(int parts)
   if(length != size + 1)
     throw std::runtime_error("message size mismatch");
   received += 1;
-  std::cerr << received << std::endl;
+  //std::cerr << received << std::endl;
 }
 
 int main(int argc, char* argv[])

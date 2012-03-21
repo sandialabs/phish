@@ -1,8 +1,8 @@
 # ping-pong test between 2 processes
 
-set memory 1
+set memory 2
 
-minnow 1 mpi-ping 1000000 1000
+minnow 1 mpi-ping 1000000 2000
 minnow 2 mpi-pong
 
 connect 1 single 2
