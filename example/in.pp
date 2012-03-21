@@ -1,6 +1,8 @@
 # ping-pong test between 2 processes
 
-minnow 1 ping 1000000 0
+set memory 1025
+
+minnow 1 ping 100000 10000
 minnow 2 pong
 
 connect 1 single 2
