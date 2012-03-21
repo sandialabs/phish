@@ -8,37 +8,112 @@
 
 5. Examples :h3
 
-This is the list of PHISH input scripts provided in
-the examples directory of the distribution.
+Below is the list of PHISH input scripts provided in the examples
+directory of the distribution.  Many of them come in two flavors,
+using minnows written in C++, or minnows written in Python.  The
+scripts can also be edited to use a mixture of C++ and Python minnows
+in the same PHISH net.  See the comment lines at the top of each
+script for instructions on what variables they expect to be defined
+via command-line arguements to the "bait.py"_Section_bait.html tool.
 
-** in.pp = ping-pong test between 2 processes
+As discussed in "this section"_Section_intro.html#intro_4 of the
+"Introduction"_Section_intro.html, the "bait.py"_Section_bait.html
+tool produces an output file.  The output file can be launched as a
+parallel job by the MPI commands mpirun or mpiexec, if the minnows
+specified in the input script were built with the MPI version of the
+PHISH library.  Or the output file can be used with the "launch.py"
+tool to run a parallel job if the minnows were built with the socket
+version of the PHISH library.
 
-2 procs, each connect to each other via one2one
-send message of M bytes back-and-forth N times
+:line
+:line
 
-** in.test = test bait.py syntax processing
+in.pp :h4
+in.pp.py :h4
 
-arbitrary commands to test that bait.py can process it correctly
+These scripts ping-pong a message back-and-forth between 2 minnows,
+"ping"_ping.html and "pong"_pong.html.  Each minnow is connected to
+the other and they exchange a M byte message N times.
 
-** in.wc = word count from files
+Here is an example of how to process the script with bait.py:
 
-open files from list
-convert to words
-count word occurrence
-sort to keep top N
-print the results
+../bait/bait.py -v m 1000 -v n 100 -p ../minnow < in.pp :pre
 
-can use many procs for file reading and accumulating counts
-like MapReduce
+can M and N be defined with default values in input script?
 
-** in.wrapsink = reverse each filename in a list of filenames
+:line
 
-uses wrapssink
-pass filenames to simple standalone reverse program
-can launch multiple instances of reverse
+in.wc :h4
+in.wc.py :h4
 
-** in.wrapss = reverse each filename in a list of filenames
+These script perform a word frequency count across a set of input text
+files, similar to a MapReduce operation.  It uses the
+"filegen"_filegen.html, "readfile"_readfile.html, "count"_count.html,
+"sort"_sort.html, and "print"_print.html minnows, connected as
+diagramed in "this section"_Section_intro.html#intro_5 of the
+"Introduction"_Section_intro.html.
 
-uses wrapss
-wrap simple standalone reverse program
-can launch multiple instances of reverse
+The scripts can perfrom the operation in parallel by changing the size
+of the school of "readfile"_readfile.html and "count"_count.html
+minnows in the "layout"_bait_layout.html commands within the input
+script.  They can process a large corpus of files by specifying one or
+more directory names as arguments to the "filegen"_filegen.html
+minnow.
+
+Here is an example of how to process the script with bait.py:
+
+../bait/bait.py -v files in.* -p ../minnow < in.wc :pre
+
+make Nmap and Nreduce variables
+
+:line
+
+in.wrapsink :h4
+in.wrapsink.py :h4
+
+These scripts demonstrate the use of the "wrapsink"_wrapsink.html
+minnow which is used to wrap a stand-alone non-PHISH program.  The
+program reads from stdin to receive messages sent to it from other
+minnows, and writes directly to stdout.
+
+In this case the "reverse" program in the minnows directory is wrapped
+and it reverses each filename in a list of input filenames.  Multiple
+copies of "reverse"_reverse.html can be launched by changing the size
+of the school of "wrapsink"_wrapsink.html minnows in the
+"layout"_bait_layout.html commands within the input script.
+
+Here is an example of how to process the script with bait.py:
+
+../bait/bait.py -v files in.* -p ../minnow < in.wrapsink :pre
+
+make layout arg a variable
+
+:line
+
+in.wrapss :h4
+in.wrapss.py :h4
+
+These scripts are similar to the preceding in.wrapsink scripts.  They
+reverse each filename in a list of input filenames.  In this case the
+"reverse"_reverse.html program is wrapped with the
+"wrapss"_wrapss.html tool which lets the program read from stdin to
+receive messages sent to it from other minnows, and sends the output
+it writes to stdout as messages to downstream minnows, in this case
+the "print"_print.html minnow.  As before, multiple copies of
+"reverse"_reverse.html can be launched by changing the size of the
+school of "wrapss"_wrapss.html minnows in the
+"layout"_bait_layout.html commands within the input script.
+
+Here is an example of how to process the script with bait.py:
+
+../bait/bait.py -v files in.* -p ../minnow < in.wrapss :pre
+
+make layout arg(s) a variable
+
+:line
+
+in.wrapsource :h4
+in.wrapsource.py :h4
+
+what does this do?
+does it exist?

@@ -10,39 +10,120 @@
 
 <H3>5. Examples 
 </H3>
-<P>This is the list of PHISH input scripts provided in
-the examples directory of the distribution.
+<P>Below is the list of PHISH input scripts provided in the examples
+directory of the distribution.  Many of them come in two flavors,
+using minnows written in C++, or minnows written in Python.  The
+scripts can also be edited to use a mixture of C++ and Python minnows
+in the same PHISH net.  See the comment lines at the top of each
+script for instructions on what variables they expect to be defined
+via command-line arguements to the <A HREF = "Section_bait.html">bait.py</A> tool.
 </P>
-<P>** in.pp = ping-pong test between 2 processes
+<P>As discussed in <A HREF = "Section_intro.html#intro_4">this section</A> of the
+<A HREF = "Section_intro.html">Introduction</A>, the <A HREF = "Section_bait.html">bait.py</A>
+tool produces an output file.  The output file can be launched as a
+parallel job by the MPI commands mpirun or mpiexec, if the minnows
+specified in the input script were built with the MPI version of the
+PHISH library.  Or the output file can be used with the "launch.py"
+tool to run a parallel job if the minnows were built with the socket
+version of the PHISH library.
 </P>
-<P>2 procs, each connect to each other via one2one
-send message of M bytes back-and-forth N times
+<HR>
+
+<HR>
+
+<H4>in.pp 
+</H4>
+<H4>in.pp.py 
+</H4>
+<P>These scripts ping-pong a message back-and-forth between 2 minnows,
+<A HREF = "ping.html">ping</A> and <A HREF = "pong.html">pong</A>.  Each minnow is connected to
+the other and they exchange a M byte message N times.
 </P>
-<P>** in.test = test bait.py syntax processing
+<P>Here is an example of how to process the script with bait.py:
 </P>
-<P>arbitrary commands to test that bait.py can process it correctly
+<PRE>../bait/bait.py -v m 1000 -v n 100 -p ../minnow < in.pp 
+</PRE>
+<P>can M and N be defined with default values in input script?
 </P>
-<P>** in.wc = word count from files
+<HR>
+
+<H4>in.wc 
+</H4>
+<H4>in.wc.py 
+</H4>
+<P>These script perform a word frequency count across a set of input text
+files, similar to a MapReduce operation.  It uses the
+<A HREF = "filegen.html">filegen</A>, <A HREF = "readfile.html">readfile</A>, <A HREF = "count.html">count</A>,
+<A HREF = "sort.html">sort</A>, and <A HREF = "print.html">print</A> minnows, connected as
+diagramed in <A HREF = "Section_intro.html#intro_5">this section</A> of the
+<A HREF = "Section_intro.html">Introduction</A>.
 </P>
-<P>open files from list
-convert to words
-count word occurrence
-sort to keep top N
-print the results
+<P>The scripts can perfrom the operation in parallel by changing the size
+of the school of <A HREF = "readfile.html">readfile</A> and <A HREF = "count.html">count</A>
+minnows in the <A HREF = "bait_layout.html">layout</A> commands within the input
+script.  They can process a large corpus of files by specifying one or
+more directory names as arguments to the <A HREF = "filegen.html">filegen</A>
+minnow.
 </P>
-<P>can use many procs for file reading and accumulating counts
-like MapReduce
+<P>Here is an example of how to process the script with bait.py:
 </P>
-<P>** in.wrapsink = reverse each filename in a list of filenames
+<PRE>../bait/bait.py -v files in.* -p ../minnow < in.wc 
+</PRE>
+<P>make Nmap and Nreduce variables
 </P>
-<P>uses wrapssink
-pass filenames to simple standalone reverse program
-can launch multiple instances of reverse
+<HR>
+
+<H4>in.wrapsink 
+</H4>
+<H4>in.wrapsink.py 
+</H4>
+<P>These scripts demonstrate the use of the <A HREF = "wrapsink.html">wrapsink</A>
+minnow which is used to wrap a stand-alone non-PHISH program.  The
+program reads from stdin to receive messages sent to it from other
+minnows, and writes directly to stdout.
 </P>
-<P>** in.wrapss = reverse each filename in a list of filenames
+<P>In this case the "reverse" program in the minnows directory is wrapped
+and it reverses each filename in a list of input filenames.  Multiple
+copies of <A HREF = "reverse.html">reverse</A> can be launched by changing the size
+of the school of <A HREF = "wrapsink.html">wrapsink</A> minnows in the
+<A HREF = "bait_layout.html">layout</A> commands within the input script.
 </P>
-<P>uses wrapss
-wrap simple standalone reverse program
-can launch multiple instances of reverse
+<P>Here is an example of how to process the script with bait.py:
+</P>
+<PRE>../bait/bait.py -v files in.* -p ../minnow < in.wrapsink 
+</PRE>
+<P>make layout arg a variable
+</P>
+<HR>
+
+<H4>in.wrapss 
+</H4>
+<H4>in.wrapss.py 
+</H4>
+<P>These scripts are similar to the preceding in.wrapsink scripts.  They
+reverse each filename in a list of input filenames.  In this case the
+<A HREF = "reverse.html">reverse</A> program is wrapped with the
+<A HREF = "wrapss.html">wrapss</A> tool which lets the program read from stdin to
+receive messages sent to it from other minnows, and sends the output
+it writes to stdout as messages to downstream minnows, in this case
+the <A HREF = "print.html">print</A> minnow.  As before, multiple copies of
+<A HREF = "reverse.html">reverse</A> can be launched by changing the size of the
+school of <A HREF = "wrapss.html">wrapss</A> minnows in the
+<A HREF = "bait_layout.html">layout</A> commands within the input script.
+</P>
+<P>Here is an example of how to process the script with bait.py:
+</P>
+<PRE>../bait/bait.py -v files in.* -p ../minnow < in.wrapss 
+</PRE>
+<P>make layout arg(s) a variable
+</P>
+<HR>
+
+<H4>in.wrapsource 
+</H4>
+<H4>in.wrapsource.py 
+</H4>
+<P>what does this do?
+does it exist?
 </P>
 </HTML>
