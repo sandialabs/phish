@@ -24,7 +24,8 @@ int main(int narg, char **args)
   int m = atoi(args[1]);
 
   buf = new char[m];
-  for (int i = 0; i < m; i++) buf[i] = '\0';
+  for (int i = 0; i < m; i++)
+    buf[i] = i+1 < m ? '*' : '\0';
   count = 0;
 
   double time_start = phish_timer();
