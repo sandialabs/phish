@@ -28,9 +28,10 @@ connect ... :pre
 Connect is a command that can be used in a PHISH input script which is
 recognized by the "bait.py"_Bait.html setup program.  It determines
 how the output from one minnow is routed to the input of another
-minnow when the PHISH program is run.  In PHISH lingo, a "minnow" is a
-stand-alone application which makes calls to the "PHISH
-library"_Library.html to exchange data with other PHISH minnows.
+minnow when the PHISH program is run.  In "PHISH
+lingo"_Section_intro.html#intro_2, a "minnow" is a stand-alone
+application which makes calls to the "PHISH library"_Library.html to
+exchange data with other PHISH minnows.
 
 The topology of connections defined by a series of connect commands
 defines how a school of minnows is harnessed together to perform a

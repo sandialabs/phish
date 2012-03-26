@@ -97,7 +97,7 @@ more fish swimming in a stream (of data).  This unavoidably gives rise
 to the following PHISH lingo, which we use without apology throughout
 the rest of the documentation:
 </P>
-<UL><LI>minnow = a (typically small) stand-alone program, run as an individual process
+<UL><LI>minnow = a (typically small) stand-alone application, run as an individual process
 <LI>school = a set of duplicate minnows, working (swimming) in a coordinated fashion
 <LI>net(work) = a PHISH program, typically consisting of multiple minnow schools, connected together to perform a calculation, as in the diagram below
 <LI>bait = Bait.py = a script for hooking schools of minnows together into a net
@@ -133,7 +133,7 @@ independent processes and the PHISH library moves data between them
 via "messages" which requires copying the aata, either using the
 message-passing MPI library or sockets.  This allows PHISH programs to
 be run on a broader range of hardware, and PHISH minnows to be
-developed as independent stand-alone programs, but also incurs a
+developed as independent stand-alone applications, but also incurs a
 higher overhead for moving data from process to process.
 </P>
 <P>The following list highlights additional PHISH pheatures:
@@ -211,7 +211,7 @@ provided in the distribution, as are some example PHISH input scripts
 that encode PHISH programs (nets).  Makefiles are also provided to
 assist in creating and building your own new programs (minnows). 
 
-<LI>Programs (minnows) are provided that wrap stand-alone executables that
+<LI>Programs (minnows) are provided that wrap non-PHISH applications that
 read from stdin and/or write to stdout.  This allows those executables
 to be used in a PHISH program (net) and exchange data with other
 programs (minnows). 

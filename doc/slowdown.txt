@@ -21,9 +21,9 @@ count :pre
 [Description:]
 
 Slowdown is a PHISH minnow that can be used in a PHISH program.  In
-PHISH lingo, a "minnow" is a stand-alone application which makes calls
-to the "PHISH library"_Library.html to exchange data with other PHISH
-minnows.
+"PHISH lingo"_Section_intro.html#intro_2, a "minnow" is a stand-alone
+application which makes calls to the "PHISH library"_Library.html to
+exchange data with other PHISH minnows.
 
 The slowdown minnow sends datums as it receives them, but insures
 successive datums are sent no more often than every {delta} seconds.

@@ -27,9 +27,9 @@ minnow myapp app 3 f1.txt 4.0 :pre
 Minnow is a command that can be used in a PHISH input script which is
 recognized by the "bait.py"_Bait.html setup program.  It defines a
 minnow application and assigns it an ID which can be used elsewhere in
-the input script.  In PHISH lingo, a "minnow" is a stand-alone
-application which makes calls to the "PHISH library"_Library.html to
-exchange data with other PHISH minnows.
+the input script.  In "PHISH lingo"_Section_intro.html#intro_2, a
+"minnow" is a stand-alone application which makes calls to the "PHISH
+library"_Library.html to exchange data with other PHISH minnows.
 
 The {ID} of the minnow can only contain alphanumeric characters and
 underscores.

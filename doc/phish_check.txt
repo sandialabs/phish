@@ -16,6 +16,14 @@ void phish_check() :pre
 
 phish_check(); :pre
 
+[C++ syntax:]
+
+void check() :pre
+
+[C++ examples:]
+
+PHISH::check(); :pre
+
 [Python syntax:]
 
 def check() :pre
@@ -28,8 +36,9 @@ phish.check() :pre
 [Description:]
 
 This is a PHISH library function which can be called from a minnow
-application.  In PHISH lingo, a "minnow" is a stand-alone application
-which makes calls to the "PHISH library"_Library.html.
+application.  In "PHISH lingo"_Section_intro.html#intro_2, a "minnow"
+is a stand-alone application which makes calls to the "PHISH
+library"_Library.html.
 
 This function is typically the final function called by a minnow
 during its setup phase, after the minnow has defined its input and

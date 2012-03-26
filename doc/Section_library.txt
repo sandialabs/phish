@@ -8,7 +8,7 @@
 
 4. PHISH Library :h3
 
-This is the API to the PHISH library that minnows (stand-alone
+This is the API to the PHISH library that PHISH minnows (stand-alone
 applications) call.  The API for the MPI and socket verions of the
 PHISH library are identical.
 
@@ -16,46 +16,26 @@ A general discussion of how and when minnows call PHISH library
 functions is given in the "Minnows"_Minnows.html section of the
 manual.
 
+The PHISH library has a C-style API, so it is easy to write minnows in
+any language, e.g. C, C++, Fortran, Python.  A C++-style API is also
+provided, which means a C++ program can use either the C or C++ API.
+A Python wrapper on the C-style API.  The doc pages for individual
+library functions document all 3 APIs; they are very similar.  See the
+section below entitled "C vs C++ vs Python interface"_#library_2 for a
+quick overview.
+
 PHISH minnows communicate with other minnows by sending and receiving
 datums.  Before looking at individual library calls, it may be helpful
 to understand how data is stored internally in a datum by the PHISH
 library.  This topic is discussed below, in the section entitled
-"Format of a datum"_#library_2.
+"Format of a datum"_#library_3.
 
-NOTE: Say something about using int32 or uint32 or just int in minnow.
-
-NOTE: put this next text in a sub-section 4.2 or 4.3?
-
-The PHISH library has a C-style API, so it is easy to write minnows in
-any language, e.g. C, C++, Fortran, Python.  The doc pages for
-individual library functions document the C, C++, and Python
-interface_Python.html to the library.  Note that a C++ program can use
-either the C or C++ interface.
-
-To use the C interface, a C or C++ program includes the file
-src/phish.h and makes calls to functions as follows:
-
-#include "phish.h"
-phish_error("My error"); :pre
-
-The C++ interface in src/phish.hpp encloses the PHISH API in the
-namespace "phish", so functions can be invoked as
-
-#include "phish.hpp"
-using namespace phish
-error("My error"); :pre
-
-or as
-
-#include "phish.hpp"
-phish::error("My error"); :pre
-
-To use the Python interface, the Python PHISH wrapper needs to be
-installed in your machine's Python.  See "this
-section"_Section_python.html of the manual for details.
+NOTE: Say something about using int32 or uint32 versus just int in
+minnow.  Either here or in datum format section or both.
 
 4.1 "List of library functions"_#library_1
-4.2 "Format of a datum"_#library_2 :ul
+4.2 "C vs C++ vs Python interface"_#library_2
+4.3 "Format of a datum"_#library_3 :ul
 
 :line
 :line
@@ -115,7 +95,44 @@ Miscellaneous library calls :l
 
 :line
 
-4.2 Format of a datum :link(library_2),h4
+4.2 C vs C++ vs Python interface :link(library_1),h4
+
+As noted above, the APIs to the PHISH library for
+C versus C++ versus Python are very simliar.  A C++ program
+can use either the C or C++ API.
+
+To use the C interface, a C or C++ program includes the file
+src/phish.h and makes calls to functions as follows:
+
+#include "phish.h"
+phish_error("My error"); :pre
+
+NOTE: should namespace be PHISH or phish or Phish?
+      change in phish.hpp accordingly
+
+The C++ interface in src/phish.hpp encloses the PHISH API in the
+namespace "PHISH", so functions can be invoked as
+
+#include "phish.hpp"
+PHISH::error("My error"); :pre
+
+or as
+
+#include "phish.hpp"
+using namespace PHISH
+error("My error"); :pre
+
+To use the Python interface, the Python PHISH wrapper needs to be
+installed in your machine's Python.  See "this
+section"_Section_python.html of the manual for details.
+A Python program can then invoke a library function as
+
+import phish
+phish.error("My error") :pre
+
+:line
+
+4.3 Format of a datum :link(library_3),h4
 
 Care taken to pack datum with expliclty sized values, since may be
 done on different machines, with different word lengths.  At some

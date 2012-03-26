@@ -17,7 +17,7 @@ void phish_callback(void (*alldonefunc)(), void (*abortfunc)()) :pre
 #include "phish.h"
 phish_callback(mydone,NULL);
 phish_callback(NULL,myabort);
-phish_callback(mydone,myabort);
+phish_callback(mydone,myabort); :pre
 
 [C++ syntax:]
 
@@ -28,7 +28,7 @@ void callback(void (*alldonefunc)(), void (*abortfunc)()) :pre
 #include "phish.hpp"
 PHISH::callback(mydone,NULL);
 PHISH::callback(NULL,myabort);
-PHISH::callback(mydone,myabort);
+PHISH::callback(mydone,myabort); :pre
 
 [Python syntax:]
 
@@ -44,13 +44,14 @@ phish.callback(mydone,myabort) :pre
 [Description:]
 
 This is a PHISH library function which can be called from a minnow
-application.  In PHISH lingo, a "minnow" is a stand-alone application
-which makes calls to the "PHISH library"_Library.html.
+application.  In "PHISH lingo"_Section_intro.html#intro_2, a "minnow"
+is a stand-alone application which makes calls to the "PHISH
+library"_Library.html.
 
 This function allows you to define 2 callback functions which the
 PHISH library will use to call back to the minnow under specific
-conditions.  If one or both is not set, which is the default, then the
-PHISH library does not make a callback.
+conditions.  If they are not set, which is the default, then the PHISH
+library does not make a callback.
 
 :line
 
@@ -58,8 +59,7 @@ The alldonefunc() function is used to specify a callback function
 invoked by the PHISH library when all the minnow's input ports have
 been closed.  The callback function should have the following form:
 
-void alldonefunc() \{
-\} :pre
+void alldonefunc() \{ \} :pre
 
 or
 
@@ -81,10 +81,9 @@ The abortfunc() function is used to specify a callback function that
 invoked by the PHISH library when "phish_error"_phish_error.html is
 called, either by the minnow, or internally by the PHISH library.
 
-The callback function should have the following form:
+The callback function should have the following form in C or C++:
 
-void abortfunc(int flag) \{
-\} :pre
+void abortfunc(int flag) \{ \} :pre
 
 or
 
@@ -110,9 +109,9 @@ TIM: what is the flag?
 [Restrictions:]
 
 This function can be called anytime.  It is the only PHISH library
-function that can be called before "phish_init"_phish_check.html has
-been called, which can be useful if you wish to do some clean-up via
-abortfunc() even if phish_init() encounters an error.
+function that can be called before "phish_init"_phish_check.html,
+which can be useful to perform needed clean-up via abortfunc() if
+phish_init() encounters an error.
 
 [Related commands:]
 

@@ -72,9 +72,9 @@ in.wrapsink :h4
 in.wrapsink.py :h4
 
 These scripts demonstrate the use of the "wrapsink"_wrapsink.html
-minnow which is used to wrap a stand-alone non-PHISH program.  The
-program reads from stdin to receive messages sent to it from other
-minnows, and writes directly to stdout.
+minnow which is used to wrap a non-PHISH application.  The program
+reads from stdin to receive messages sent to it from other minnows,
+and writes directly to stdout.
 
 In this case the "reverse" program in the minnows directory is wrapped
 and it reverses each filename in a list of input filenames.  Multiple

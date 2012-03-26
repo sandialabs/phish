@@ -22,9 +22,10 @@ wrapss "reverse" :pre
 [Description:]
 
 Reverse is a stand-along non-PHISH program that can be wrapped with a
-PHISH minnow so it can be used in a PHISH program.  In PHISH lingo, a
-"minnow" is a stand-alone application which makes calls to the "PHISH
-library"_Library.html to exchange data with other PHISH minnows.
+PHISH minnow so it can be used in a PHISH program.  In "PHISH
+lingo"_Section_intro.html#intro_2, a "minnow" is a stand-alone
+application which makes calls to the "PHISH library"_Library.html to
+exchange data with other PHISH minnows.
 
 The reverse program simply reads lines from stdin, reverses the order
 of the characters, and writes the resulting string to stdout.  PHISH

@@ -8,18 +8,20 @@
 
 3. PHISH Minnows :h3
 
-In PHISH lingo, a "minnow" is a stand-alone program which makes calls
-to the "PHISH library"_Library.html.  Minnows are typically small
-programs which perform a single task, e.g. they parse a string
-searcing for keywords and store statistics about those keywords.  But
-they can also be large programs which perform sophisticated
-computations and make only occasional calls to the PHISH library.  In
-which case they should probably be called sharks or whales ...
+In "PHISH lingo"_Section_intro.html#intro_2, a "minnow" is a
+stand-alone application which makes calls to the "PHISH
+library"_Library.html.  Minnows are typically small programs which
+perform a single task, e.g. they parse a string searcing for keywords
+and store statistics about those keywords.  But they can also be large
+programs which perform sophisticated computations and make only
+occasional calls to the PHISH library.  In which case they should
+probably be called sharks or whales ...
 
-An individual minnow is part of a school of one or more duplicate
-minnows.  One or more schools form a PHISH net(work) which works in a
-coordinated fashion to perform a calculation.  Minnows communicate
-with each other to exchange data via calls to the PHISH library.
+An individual minnow is part of a "school" of one or more duplicate
+minnows.  One or more schools form a PHISH "net(work)" which compute
+in a coordinated fashion to perform a calculation.  Minnows
+communicate with each other to exchange data via calls to the PHISH
+library.
 
 This doc page covers the following topics:
 

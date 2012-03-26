@@ -17,22 +17,22 @@
 </PRE>
 <P><B>C examples:</B>
 </P>
-<P>#include "phish.h"
+<PRE>#include "phish.h"
 phish_callback(mydone,NULL);
 phish_callback(NULL,myabort);
-phish_callback(mydone,myabort);
-</P>
+phish_callback(mydone,myabort); 
+</PRE>
 <P><B>C++ syntax:</B>
 </P>
 <PRE>void callback(void (*alldonefunc)(), void (*abortfunc)()) 
 </PRE>
 <P><B>C++ examples:</B>
 </P>
-<P>#include "phish.hpp"
+<PRE>#include "phish.hpp"
 PHISH::callback(mydone,NULL);
 PHISH::callback(NULL,myabort);
-PHISH::callback(mydone,myabort);
-</P>
+PHISH::callback(mydone,myabort); 
+</PRE>
 <P><B>Python syntax:</B>
 </P>
 <PRE>def callback(alldonefunc,abortfunc) 
@@ -47,13 +47,14 @@ phish.callback(mydone,myabort)
 <P><B>Description:</B>
 </P>
 <P>This is a PHISH library function which can be called from a minnow
-application.  In PHISH lingo, a "minnow" is a stand-alone application
-which makes calls to the <A HREF = "Library.html">PHISH library</A>.
+application.  In <A HREF = "Section_intro.html#intro_2">PHISH lingo</A>, a "minnow"
+is a stand-alone application which makes calls to the <A HREF = "Library.html">PHISH
+library</A>.
 </P>
 <P>This function allows you to define 2 callback functions which the
 PHISH library will use to call back to the minnow under specific
-conditions.  If one or both is not set, which is the default, then the
-PHISH library does not make a callback.
+conditions.  If they are not set, which is the default, then the PHISH
+library does not make a callback.
 </P>
 <HR>
 
@@ -61,8 +62,7 @@ PHISH library does not make a callback.
 invoked by the PHISH library when all the minnow's input ports have
 been closed.  The callback function should have the following form:
 </P>
-<PRE>void alldonefunc() {
-} 
+<PRE>void alldonefunc() { } 
 </PRE>
 <P>or
 </P>
@@ -84,10 +84,9 @@ down.
 invoked by the PHISH library when <A HREF = "phish_error.html">phish_error</A> is
 called, either by the minnow, or internally by the PHISH library.
 </P>
-<P>The callback function should have the following form:
+<P>The callback function should have the following form in C or C++:
 </P>
-<PRE>void abortfunc(int flag) {
-} 
+<PRE>void abortfunc(int flag) { } 
 </PRE>
 <P>or
 </P>
@@ -113,9 +112,9 @@ error condition.
 <P><B>Restrictions:</B>
 </P>
 <P>This function can be called anytime.  It is the only PHISH library
-function that can be called before <A HREF = "phish_check.html">phish_init</A> has
-been called, which can be useful if you wish to do some clean-up via
-abortfunc() even if phish_init() encounters an error.
+function that can be called before <A HREF = "phish_check.html">phish_init</A>,
+which can be useful to perform needed clean-up via abortfunc() if
+phish_init() encounters an error.
 </P>
 <P><B>Related commands:</B>
 </P>

@@ -46,8 +46,9 @@ nrecv = phish.query("outport/direct",2,0)
 [Description:]
 
 This is a PHISH library functions which can be called from a minnow
-application.  In PHISH lingo, a "minnow" is a stand-alone application
-which makes calls to the "PHISH library"_Library.html.
+application.  In "PHISH lingo"_Section_intro.html#intro_2, a "minnow"
+is a stand-alone application which makes calls to the "PHISH
+library"_Library.html.
 
 This function is used by a minnow to query information about the set
 of minnows it belongs to and the global school of minnows running the

@@ -8,20 +8,21 @@
 
 2. Bait.py Tool :h3
 
-Bait.py is a Python program which converts a PHISH input script into a
-configuration file that can be launched via MPI or a shell script, so
-as to run a school of minnows in parallel on many processors, i.e. to
-run as a PHISH program and perform a calculation.  A minnow is simply
-PHISH-speak for an independent process, created by running one
-instance of a stand-alone program.
+Bait.py is a Python program which converts a PHISH input script into
+another file that can be launched via MPI or the
+"launch.py"_Section_intro.html#intro_4 tool, to run a PHISH net and
+perform a calculation.  In "PHISH lingo"_Section_intro.html#intro_2, a
+"minnow" is a stand-alone application which makes calls to the "PHISH
+library"_Library.html to exchange data with other PHISH minnows via
+its input and output ports.  A "net" is collection of minnows.
 
 You can edit the input script or pass it different parameters via
-command-line arguments to bait.py to change the calculation.
-Rerunning bait.py will create a new launch script.
+bait.py command-line arguments to change the calculation.  Re-running
+bait.py will create a new launch script.
 
 The remainder of this page discusses how bait.py is used and how a
-PHISH input script is formatted.  The PHISH input script commands
-recognized by bait.py have their own doc pages.
+PHISH input script is formatted.  The input script commands recognized
+by bait.py have their own doc pages.
 
 2.1 "Input script commands"_#bait_1
 2.2 "Running bait.py"_#bait_2

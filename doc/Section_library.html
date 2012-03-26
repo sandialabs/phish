@@ -10,7 +10,7 @@
 
 <H3>4. PHISH Library 
 </H3>
-<P>This is the API to the PHISH library that minnows (stand-alone
+<P>This is the API to the PHISH library that PHISH minnows (stand-alone
 applications) call.  The API for the MPI and socket verions of the
 PHISH library are identical.
 </P>
@@ -18,46 +18,26 @@ PHISH library are identical.
 functions is given in the <A HREF = "Minnows.html">Minnows</A> section of the
 manual.
 </P>
+<P>The PHISH library has a C-style API, so it is easy to write minnows in
+any language, e.g. C, C++, Fortran, Python.  A C++-style API is also
+provided, which means a C++ program can use either the C or C++ API.
+A Python wrapper on the C-style API.  The doc pages for individual
+library functions document all 3 APIs; they are very similar.  See the
+section below entitled <A HREF = "#library_2">C vs C++ vs Python interface</A> for a
+quick overview.
+</P>
 <P>PHISH minnows communicate with other minnows by sending and receiving
 datums.  Before looking at individual library calls, it may be helpful
 to understand how data is stored internally in a datum by the PHISH
 library.  This topic is discussed below, in the section entitled
-<A HREF = "#library_2">Format of a datum</A>.
+<A HREF = "#library_3">Format of a datum</A>.
 </P>
-<P>NOTE: Say something about using int32 or uint32 or just int in minnow.
-</P>
-<P>NOTE: put this next text in a sub-section 4.2 or 4.3?
-</P>
-<P>The PHISH library has a C-style API, so it is easy to write minnows in
-any language, e.g. C, C++, Fortran, Python.  The doc pages for
-individual library functions document the C, C++, and Python
-interface_Python.html to the library.  Note that a C++ program can use
-either the C or C++ interface.
-</P>
-<P>To use the C interface, a C or C++ program includes the file
-src/phish.h and makes calls to functions as follows:
-</P>
-<PRE>#include "phish.h"
-phish_error("My error"); 
-</PRE>
-<P>The C++ interface in src/phish.hpp encloses the PHISH API in the
-namespace "phish", so functions can be invoked as
-</P>
-<PRE>#include "phish.hpp"
-using namespace phish
-error("My error"); 
-</PRE>
-<P>or as
-</P>
-<PRE>#include "phish.hpp"
-phish::error("My error"); 
-</PRE>
-<P>To use the Python interface, the Python PHISH wrapper needs to be
-installed in your machine's Python.  See <A HREF = "Section_python.html">this
-section</A> of the manual for details.
+<P>NOTE: Say something about using int32 or uint32 versus just int in
+minnow.  Either here or in datum format section or both.
 </P>
 <UL><LI>4.1 <A HREF = "#library_1">List of library functions</A>
-<LI>4.2 <A HREF = "#library_2">Format of a datum</A> 
+<LI>4.2 <A HREF = "#library_2">C vs C++ vs Python interface</A>
+<LI>4.3 <A HREF = "#library_3">Format of a datum</A> 
 </UL>
 <HR>
 
@@ -153,7 +133,44 @@ to see a doc page for each library call.
 </OL>
 <HR>
 
-<A NAME = "library_2"></A><H4>4.2 Format of a datum 
+<A NAME = "library_1"></A><H4>4.2 C vs C++ vs Python interface 
+</H4>
+<P>As noted above, the APIs to the PHISH library for
+C versus C++ versus Python are very simliar.  A C++ program
+can use either the C or C++ API.
+</P>
+<P>To use the C interface, a C or C++ program includes the file
+src/phish.h and makes calls to functions as follows:
+</P>
+<PRE>#include "phish.h"
+phish_error("My error"); 
+</PRE>
+<P>NOTE: should namespace be PHISH or phish or Phish?
+      change in phish.hpp accordingly
+</P>
+<P>The C++ interface in src/phish.hpp encloses the PHISH API in the
+namespace "PHISH", so functions can be invoked as
+</P>
+<PRE>#include "phish.hpp"
+PHISH::error("My error"); 
+</PRE>
+<P>or as
+</P>
+<PRE>#include "phish.hpp"
+using namespace PHISH
+error("My error"); 
+</PRE>
+<P>To use the Python interface, the Python PHISH wrapper needs to be
+installed in your machine's Python.  See <A HREF = "Section_python.html">this
+section</A> of the manual for details.
+A Python program can then invoke a library function as
+</P>
+<PRE>import phish
+phish.error("My error") 
+</PRE>
+<HR>
+
+<A NAME = "library_3"></A><H4>4.3 Format of a datum 
 </H4>
 <P>Care taken to pack datum with expliclty sized values, since may be
 done on different machines, with different word lengths.  At some

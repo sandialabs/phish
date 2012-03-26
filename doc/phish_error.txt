@@ -13,8 +13,8 @@ phish_abort() function :h3
 [C syntax:]
 
 #include "phish.h"
-void phish_error(char *str) :pre
-void phish_warn(char *str) :pre
+void phish_error(char *str)
+void phish_warn(char *str)
 void phish_abort() :pre
 
 [C examples:]
@@ -25,8 +25,8 @@ phish_abort();
 
 [C++ syntax:]
 
-void error(char *str) :pre
-void warn(char *str) :pre
+void error(char *str)
+void warn(char *str)
 void abort() :pre
 
 [C++ examples:]
@@ -38,8 +38,8 @@ PHISH::abort();
 
 [Python syntax:]
 
-def error(str) :pre
-def warn(str) :pre
+def error(str)
+def warn(str)
 def abort() :pre
 
 [Python examples:]
@@ -52,8 +52,9 @@ phish.abort() :pre
 [Description:]
 
 There are PHISH library functions which can be called from a minnow
-application.  In PHISH lingo, a "minnow" is a stand-alone application
-which makes calls to the "PHISH library"_Library.html.
+application.  In "PHISH lingo"_Section_intro.html#intro_2, a "minnow"
+is a stand-alone application which makes calls to the "PHISH
+library"_Library.html.
 
 These functions print error or warning messages.  The phish_error()
 and phish_abort() functions also cause a PHISH program and all of its

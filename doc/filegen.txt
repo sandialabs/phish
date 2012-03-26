@@ -22,9 +22,9 @@ filegen dir1 dir2 ... dir100 :pre
 [Description:]
 
 Filegen is a PHISH minnow that can be used in a PHISH program.  In
-PHISH lingo, a "minnow" is a stand-alone application which makes calls
-to the "PHISH library"_Library.html to exchange data with other PHISH
-minnows via its input and output ports.
+"PHISH lingo"_Section_intro.html#intro_2, a "minnow" is a stand-alone
+application which makes calls to the "PHISH library"_Library.html to
+exchange data with other PHISH minnows via its input and output ports.
 
 The filegen minnow generates a list of filenames from the filenames
 and directory names given to it as arguments.  Each directory
