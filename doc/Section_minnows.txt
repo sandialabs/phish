@@ -249,7 +249,7 @@ minnows and multiple input ports. This means an individual datum may
 be sent multiple times to different minnows. :b
 
 A minnow can send datums via its output port to its own input
-port. :b
+port. :ule,b
 
 All of these scenarios can be setup by appropriate use of
 "connect"_bait.html commands in a PHISH input script.
