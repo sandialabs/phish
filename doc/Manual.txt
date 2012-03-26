@@ -70,9 +70,9 @@ we can improve the PHISH documentation.
 
 "Introduction"_Section_intro.html :olb,l
   1.1 "Motivation"_intro_1 :ulb,b
-  1.2 "PHISH Pheatures"_intro_2 :b
+  1.2 "PHISH pheatures"_intro_2 :b
   1.3 "PHISH lingo"_intro_3 :b
-  1.4 "Steps to creating and running a PHISH program"_intro_4 :b
+  1.4 "Steps to creating and running a PHISH net"_intro_4 :b
   1.5 "Simple example"_intro_5 :b
   1.6 "Acknowledgments and citations"_intro_6 :ule,b
 "Bait.py Tool"_Section_bait.html :l
