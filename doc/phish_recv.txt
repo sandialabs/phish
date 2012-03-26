@@ -12,20 +12,34 @@ phish_recv() function :h3
 
 [C syntax:]
 
-void phish_loop() :pre
-void phish_probe(void (*probefunc)()) :pre
+void phish_loop()
+void phish_probe(void (*probefunc)())
 int phish_recv() :pre
 
 [C examples:]
 
+#include "phish.h"
 phish_loop();
 phish_probe(count);
-n = phish_recv(); :pre
+int n = phish_recv(); :pre
+
+[C++ syntax:]
+
+void loop()
+void probe(void (*probefunc)())
+int recv() :pre
+
+[C++ examples:]
+
+#include "phish.hpp"
+PHISH::loop();
+PHISH::probe(count);
+int n = PHISH::recv(); :pre
 
 [Python syntax:]
 
-def loop() :pre
-def probe(probefunc) :pre
+def loop()
+def probe(probefunc)
 def recv() :pre
 
 [Python examples:]
@@ -96,8 +110,7 @@ useful work while waiting for the next datum to arrive.
 
 The {probefunc} function should have the following form:
 
-void probefunc() \{
-\} :pre
+void probefunc() \{ \} :pre
 
 or
 

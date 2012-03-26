@@ -17,25 +17,35 @@
 </H3>
 <P><B>C syntax:</B>
 </P>
-<PRE>void phish_loop() 
-</PRE>
-<PRE>void phish_probe(void (*probefunc)()) 
-</PRE>
-<PRE>int phish_recv() 
+<PRE>void phish_loop()
+void phish_probe(void (*probefunc)())
+int phish_recv() 
 </PRE>
 <P><B>C examples:</B>
 </P>
-<PRE>phish_loop();
+<PRE>#include "phish.h"
+phish_loop();
 phish_probe(count);
-n = phish_recv(); 
+int n = phish_recv(); 
+</PRE>
+<P><B>C++ syntax:</B>
+</P>
+<PRE>void loop()
+void probe(void (*probefunc)())
+int recv() 
+</PRE>
+<P><B>C++ examples:</B>
+</P>
+<PRE>#include "phish.hpp"
+PHISH::loop();
+PHISH::probe(count);
+int n = PHISH::recv(); 
 </PRE>
 <P><B>Python syntax:</B>
 </P>
-<PRE>def loop() 
-</PRE>
-<PRE>def probe(probefunc) 
-</PRE>
-<PRE>def recv() 
+<PRE>def loop()
+def probe(probefunc)
+def recv() 
 </PRE>
 <P><B>Python examples:</B>
 </P>
@@ -105,8 +115,7 @@ useful work while waiting for the next datum to arrive.
 </P>
 <P>The <I>probefunc</I> function should have the following form:
 </P>
-<PRE>void probefunc() {
-} 
+<PRE>void probefunc() { } 
 </PRE>
 <P>or
 </P>

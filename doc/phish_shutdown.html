@@ -15,20 +15,30 @@
 </H3>
 <P><B>C syntax:</B>
 </P>
-<PRE>void phish_exit() 
-</PRE>
-<PRE>void phish_close(int iport) 
+<PRE>void phish_exit()
+void phish_close(int iport) 
 </PRE>
 <P><B>C examples:</B>
 </P>
-<PRE>phish_exit();
+<PRE>#include "phish.h"
+phish_exit();
 phish_close(0); 
+</PRE>
+<P><B>C++ syntax:</B>
+</P>
+<PRE>void exit()
+void close(int iport) 
+</PRE>
+<P><B>C++ examples:</B>
+</P>
+<PRE>#include "phish.hpp"
+PHISH::exit();
+PHISH::close(0); 
 </PRE>
 <P><B>Python syntax:</B>
 </P>
-<PRE>def exit() 
-</PRE>
-<PRE>def close(iport) 
+<PRE>def exit()
+def close(iport) 
 </PRE>
 <P><B>Python examples:</B>
 </P>

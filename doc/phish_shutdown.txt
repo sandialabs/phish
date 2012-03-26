@@ -11,17 +11,29 @@ phish_close() function :h3
 
 [C syntax:]
 
-void phish_exit() :pre
+void phish_exit()
 void phish_close(int iport) :pre
 
 [C examples:]
 
+#include "phish.h"
 phish_exit();
 phish_close(0); :pre
 
+[C++ syntax:]
+
+void exit()
+void close(int iport) :pre
+
+[C++ examples:]
+
+#include "phish.hpp"
+PHISH::exit();
+PHISH::close(0); :pre
+
 [Python syntax:]
 
-def exit() :pre
+def exit()
 def close(iport) :pre
 
 [Python examples:]

@@ -8,9 +8,12 @@
 
 4. PHISH Library :h3
 
-This is the API to the PHISH library that PHISH minnows (stand-alone
-applications) call.  The API for the MPI and socket verions of the
-PHISH library are identical.
+This is the API to the PHISH library that PHISH minnows call.  In
+PHISH lingo, a "minnow" is a stand-alone application which makes calls
+to the "PHISH library"_Library.html.
+
+The API for the MPI and socket verions of the PHISH library are
+identical.
 
 A general discussion of how and when minnows call PHISH library
 functions is given in the "Minnows"_Minnows.html section of the
@@ -31,7 +34,8 @@ library.  This topic is discussed below, in the section entitled
 "Format of a datum"_#library_3.
 
 NOTE: Say something about using int32 or uint32 versus just int in
-minnow.  Either here or in datum format section or both.
+minnow.  Either here and in datum format section and in phish_pack
+doc page.
 
 4.1 "List of library functions"_#library_1
 4.2 "C vs C++ vs Python interface"_#library_2
@@ -70,14 +74,29 @@ Library calls for sending datums :l
   "phish_send_direct()"_phish_send.html :b
   "phish_pack_datum()"_phish_pack.html :b
   "phish_pack_raw()"_phish_pack.html :b
-  "phish_pack_byte()"_phish_pack.html :b
-  "phish_pack_int()"_phish_pack.html :b
+  "phish_pack_char()"_phish_pack.html :b
+  "phish_pack_int8()"_phish_pack.html :b
+  "phish_pack_int16()"_phish_pack.html :b
+  "phish_pack_int32()"_phish_pack.html :b
+  "phish_pack_int64()"_phish_pack.html :b
+  "phish_pack_uint8()"_phish_pack.html :b
+  "phish_pack_uint16()"_phish_pack.html :b
+  "phish_pack_uint32()"_phish_pack.html :b
   "phish_pack_uint64()"_phish_pack.html :b
+  "phish_pack_float()"_phish_pack.html :b
   "phish_pack_double()"_phish_pack.html :b
   "phish_pack_string()"_phish_pack.html :b
-  "phish_pack_int_array()"_phish_pack.html :b
+  "phish_pack_int8_array()"_phish_pack.html :b
+  "phish_pack_int16_array()"_phish_pack.html :b
+  "phish_pack_int32_array()"_phish_pack.html :b
+  "phish_pack_int64_array()"_phish_pack.html :b
+  "phish_pack_uint8_array()"_phish_pack.html :b
+  "phish_pack_uint16_array()"_phish_pack.html :b
+  "phish_pack_uint32_array()"_phish_pack.html :b
   "phish_pack_uint64_array()"_phish_pack.html :b
-  "phish_pack_double_array()"_phish_pack.html :ule,b
+  "phish_pack_float_array()"_phish_pack.html :b
+  "phish_pack_double_array()"_phish_pack.html :b
+  "phish_pack_pickle()"_phish_pack.html :ule,b
 
 Library calls for queueing datums :l
   "phish_queue()"_phish_queue.html :ulb,b

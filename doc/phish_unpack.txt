@@ -11,19 +11,33 @@ phish_datum() function :h3
 
 [C syntax:]
 
-int phish_unpack(char **buf, int *len) :pre
+int phish_unpack(char **buf, int *len)
 int phish_datum(char **buf, int *len) :pre
 
 [C examples:]
 
+#include "phish.h"
 char *buf;
 int len;
 int type = phish_unpack(&buf,&len);
 int iport = phish_datum(&buf,&len); :pre
 
+[C++ syntax:]
+
+int unpack(char **buf, int *len)
+int datum(char **buf, int *len) :pre
+
+[C++ examples:]
+
+#include "phish.hpp"
+char *buf;
+int len;
+int type = PHISH::unpack(&buf,&len);
+int iport = PHISH::datum(&buf,&len); :pre
+
 [Python syntax:]
 
-def unpack() :pre
+def unpack()
 def datum() :pre
 
 [Python examples:]
@@ -72,14 +86,29 @@ received datum.  The function itself returns an integer flag set to
 one of these values (defined in src/phish.h):
 
 PHISH_RAW = 0
-PHISH_BYTE = 1
-PHISH_INT = 2
-PHISH_UINT64 = 3
-PHISH_DOUBLE = 4
-PHISH_STRING = 5
-PHISH_INT_ARRAY = 6
-PHISH_UINT64_ARRAY = 7
-PHISH_DOUBLE_ARRAY = 8 :ul
+PHISH_CHAR = 1
+PHISH_INT8 = 2
+PHISH_INT16 = 3
+PHISH_INT32 = 4
+PHISH_INT64 = 5
+PHISH_UINT8 = 6
+PHISH_UINT16 = 7
+PHISH_UINT32 = 8
+PHISH_UINT64 = 9
+PHISH_FLOAT = 10
+PHISH_DOUBLE = 11
+PHISH_STRING = 12
+PHISH_INT8_ARRAY = 13
+PHISH_INT16_ARRAY = 14
+PHISH_INT32_ARRAY = 15
+PHISH_INT64_ARRAY = 16
+PHISH_UINT8_ARRAY = 17
+PHISH_UINT16_ARRAY = 18
+PHISH_UINT32_ARRAY = 19
+PHISH_UINT64_ARRAY = 20
+PHISH_FLOAT_ARRAY = 21
+PHISH_DOUBLE_ARRAY = 22
+PHISH_PICKLE = 23 :ul
 
 PHISH_RAW is a string of raw bytes which can store whatever the
 sending minnow put into its send buffer, e.g. a C data structure
@@ -103,6 +132,8 @@ PHISH_STRING: len = # of bytes, including the trailing NULL
 PHISH_INT_ARRAY: len = # of int values
 PHISH_UINT64_ARRAY: len = # of uint64 values
 PHISH_DOUBLE_ARRAY: len = # of double values :ul
+
+NOTE: need to exapand to current list
 
 :line
 

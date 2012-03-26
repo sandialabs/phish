@@ -15,22 +15,34 @@
 </H3>
 <P><B>C syntax:</B>
 </P>
-<PRE>int phish_unpack(char **buf, int *len) 
-</PRE>
-<PRE>int phish_datum(char **buf, int *len) 
+<PRE>int phish_unpack(char **buf, int *len)
+int phish_datum(char **buf, int *len) 
 </PRE>
 <P><B>C examples:</B>
 </P>
-<PRE>char *buf;
+<PRE>#include "phish.h"
+char *buf;
 int len;
 int type = phish_unpack(&buf,&len);
 int iport = phish_datum(&buf,&len); 
 </PRE>
+<P><B>C++ syntax:</B>
+</P>
+<PRE>int unpack(char **buf, int *len)
+int datum(char **buf, int *len) 
+</PRE>
+<P><B>C++ examples:</B>
+</P>
+<PRE>#include "phish.hpp"
+char *buf;
+int len;
+int type = PHISH::unpack(&buf,&len);
+int iport = PHISH::datum(&buf,&len); 
+</PRE>
 <P><B>Python syntax:</B>
 </P>
-<PRE>def unpack() 
-</PRE>
-<PRE>def datum() 
+<PRE>def unpack()
+def datum() 
 </PRE>
 <P><B>Python examples:</B>
 </P>
@@ -78,14 +90,29 @@ received datum.  The function itself returns an integer flag set to
 one of these values (defined in src/phish.h):
 </P>
 <UL><LI>PHISH_RAW = 0
-<LI>PHISH_BYTE = 1
-<LI>PHISH_INT = 2
-<LI>PHISH_UINT64 = 3
-<LI>PHISH_DOUBLE = 4
-<LI>PHISH_STRING = 5
-<LI>PHISH_INT_ARRAY = 6
-<LI>PHISH_UINT64_ARRAY = 7
-<LI>PHISH_DOUBLE_ARRAY = 8 
+<LI>PHISH_CHAR = 1
+<LI>PHISH_INT8 = 2
+<LI>PHISH_INT16 = 3
+<LI>PHISH_INT32 = 4
+<LI>PHISH_INT64 = 5
+<LI>PHISH_UINT8 = 6
+<LI>PHISH_UINT16 = 7
+<LI>PHISH_UINT32 = 8
+<LI>PHISH_UINT64 = 9
+<LI>PHISH_FLOAT = 10
+<LI>PHISH_DOUBLE = 11
+<LI>PHISH_STRING = 12
+<LI>PHISH_INT8_ARRAY = 13
+<LI>PHISH_INT16_ARRAY = 14
+<LI>PHISH_INT32_ARRAY = 15
+<LI>PHISH_INT64_ARRAY = 16
+<LI>PHISH_UINT8_ARRAY = 17
+<LI>PHISH_UINT16_ARRAY = 18
+<LI>PHISH_UINT32_ARRAY = 19
+<LI>PHISH_UINT64_ARRAY = 20
+<LI>PHISH_FLOAT_ARRAY = 21
+<LI>PHISH_DOUBLE_ARRAY = 22
+<LI>PHISH_PICKLE = 23 
 </UL>
 <P>PHISH_RAW is a string of raw bytes which can store whatever the
 sending minnow put into its send buffer, e.g. a C data structure
@@ -110,6 +137,8 @@ the field, with the following meanings:
 <LI>PHISH_UINT64_ARRAY: len = # of uint64 values
 <LI>PHISH_DOUBLE_ARRAY: len = # of double values 
 </UL>
+<P>NOTE: need to exapand to current list
+</P>
 <HR>
 
 <P>The phish_datum() function returns information about the entire datum.

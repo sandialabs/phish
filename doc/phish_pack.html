@@ -13,37 +13,118 @@
 </H3>
 <H3>phish_pack_raw 
 </H3>
-<H3>phish_pack_byte 
+<H3>phish_pack_char 
 </H3>
-<H3>phish_pack_int 
+<H3>phish_pack_int8 
+</H3>
+<H3>phish_pack_int16 
+</H3>
+<H3>phish_pack_int32 
+</H3>
+<H3>phish_pack_int64 
+</H3>
+<H3>phish_pack_uint8 
+</H3>
+<H3>phish_pack_uint16 
+</H3>
+<H3>phish_pack_uint32 
 </H3>
 <H3>phish_pack_uint64 
+</H3>
+<H3>phish_pack_float 
 </H3>
 <H3>phish_pack_double 
 </H3>
 <H3>phish_pack_string 
 </H3>
-<H3>phish_pack_int_array 
+<H3>phish_pack_int8_array 
+</H3>
+<H3>phish_pack_int16_array 
+</H3>
+<H3>phish_pack_int32_array 
+</H3>
+<H3>phish_pack_int64_array 
+</H3>
+<H3>phish_pack_uint8_array 
+</H3>
+<H3>phish_pack_uint16_array 
+</H3>
+<H3>phish_pack_uint32_array 
 </H3>
 <H3>phish_pack_uint64_array 
 </H3>
+<H3>phish_pack_float_array 
+</H3>
 <H3>phish_pack_double_array 
+</H3>
+<H3>phish_pack_pickle 
 </H3>
 <P><B>C syntax:</B>
 </P>
-<P>void phish_pack_datum(char *buf, int n)
-void phish_pack_raw(char *buf, int n)
-void phish_pack_byte(char cvalue)
-void phish_pack_int(int ivalue)
-void phish_pack_uint64(uint64_t uvalue)
-void phish_pack_double(double dvalue)
-void phish_pack_string(char *str)
-void phish_pack_int_array(int *ivec, int n)
-void phish_pack_uint64_array(uint64_t *uvec, int n)
-void phish_pack_double_array(int *dvec, int n)
-</P>
+<PRE>void phish_pack_datum(char *buf, uint32_t n);
+void phish_pack_raw(char *buf, uint32_t n);
+void phish_pack_char(char value);
+void phish_pack_int8(int8_t value);
+void phish_pack_int16(int16_t value);
+void phish_pack_int32(int32_t value);
+void phish_pack_int64(int64_t value);
+void phish_pack_uint8(uint8_t value);
+void phish_pack_uint16(uint16_t value);
+void phish_pack_uint32(uint32_t value);
+void phish_pack_uint64(uint64_t value);
+void phish_pack_float(float value);
+void phish_pack_double(double value);
+void phish_pack_string(char *str);
+void phish_pack_int8_array(int8_t *vec, uint32_t n);
+void phish_pack_int16_array(int16_t *vec, uint32_t n);
+void phish_pack_int32_array(int32_t *vec, uint32_t n);
+void phish_pack_int64_array(int64_t *vec, uint32_t n);
+void phish_pack_int8_array(int8_t *vec, uint32_t n);
+void phish_pack_int16_array(int16_t *vec, uint32_t n);
+void phish_pack_int32_array(int32_t *vec, uint32_t n);
+void phish_pack_int64_array(int64_t *vec, uint32_t n);
+void phish_pack_float_array(float *vec, uint32_t n)
+void phish_pack_double_array(double *vec, uint32_t n)
+void phish_pack_pickle(char *buf, uint32_t n) 
+</PRE>
 <P><B>C examples:</B>
 </P>
+<PRE>#include "phish.h"
+need to provide examples 
+</PRE>
+<P><B>C++ syntax:</B>
+</P>
+<PRE>void pack_datum(char *buf, uint32_t n);
+void pack_raw(char *buf, uint32_t n);
+void pack_char(char value);
+void pack_int8(int8_t value);
+void pack_int16(int16_t value);
+void pack_int32(int32_t value);
+void pack_int64(int64_t value);
+void pack_uint8(uint8_t value);
+void pack_uint16(uint16_t value);
+void pack_uint32(uint32_t value);
+void pack_uint64(uint64_t value);
+void pack_float(float value);
+void pack_double(double value);
+void pack_string(char *str);
+void pack_int8_array(int8_t *vec, uint32_t n);
+void pack_int16_array(int16_t *vec, uint32_t n);
+void pack_int32_array(int32_t *vec, uint32_t n);
+void pack_int64_array(int64_t *vec, uint32_t n);
+void pack_int8_array(int8_t *vec, uint32_t n);
+void pack_int16_array(int16_t *vec, uint32_t n);
+void pack_int32_array(int32_t *vec, uint32_t n);
+void pack_int64_array(int64_t *vec, uint32_t n);
+void pack_float_array(float *vec, uint32_t n)
+void pack_double_array(double *vec, uint32_t n)
+void pack_pickle(char *buf, uint32_t n) 
+</PRE>
+<P><B>C examples:</B>
+</P>
+<PRE>#include "phish.hpp"
+need to provide examples 
+</PRE>
 <P><B>Python syntax:</B>
 </P>
 <P>def pack_datum(buf,n)
@@ -60,7 +141,7 @@ def pack_double_array(dvec,n)
 <P><B>Python examples:</B>
 </P>
 <P>NOTE: need to provide examples
-NOTE:  need to doc how Python is different below
+NOTE: need to doc how Python is different below
 </P>
 <P><B>Description:</B>
 </P>
@@ -84,6 +165,8 @@ extract data from the datum, one field at a time.
 </P>
 <P>Once data has been packed, the minnow may re-use the memory that
 stores the data; the pack functions copy the data into a send buffer.
+</P>
+<P>NOTE: discuss use of int vs int32
 </P>
 <HR>
 

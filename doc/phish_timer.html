@@ -17,9 +17,22 @@
 </PRE>
 <P><B>C examples:</B>
 </P>
-<PRE>double t1 = phish_timer();
+<PRE>#include "phish.h"
+double t1 = phish_timer();
 ...
 double t2 = phish_timer();
+printf("Elapsed time = %g\n",t2-t1); 
+</PRE>
+<P><B>C++ syntax:</B>
+</P>
+<PRE>double timer() 
+</PRE>
+<P><B>C++ examples:</B>
+</P>
+<PRE>#include "phish.hpp"
+double t1 = PHISH::timer();
+...
+double t2 = PHISH::timer();
 printf("Elapsed time = %g\n",t2-t1); 
 </PRE>
 <P><B>Python syntax:</B>

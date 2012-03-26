@@ -16,6 +16,15 @@ void phish_reset_receiver(int iport, int receiver) :pre
 
 phish_reset_receiver(0,3); :pre
 
+[C++ syntax:]
+
+void reset_receiver(int iport, int receiver) :pre
+
+[C++ examples:]
+
+#include "phish.hpp"
+PHISH::reset_receiver(0,3); :pre
+
 [Python syntax:]
 
 def reset_receiver(iport,receiver) :pre

@@ -35,8 +35,19 @@
 </UL>
 <P><B>C examples:</B>
 </P>
-<PRE>int nlocal = phish_query("nlocal",0,0);
+<PRE>#include "phish.h"
+int nlocal = phish_query("nlocal",0,0);
 int nrecv = phish_query("outport/direct",2,0); 
+</PRE>
+<P><B>C syntax:</B>
+</P>
+<PRE>int query(char *keyword, int flag1, int flag2) 
+</PRE>
+<P><B>C++ examples:</B>
+</P>
+<PRE>#include "phish.hpp"
+int nlocal = PHISH::query("nlocal",0,0);
+int nrecv = PHISH::query("outport/direct",2,0); 
 </PRE>
 <P><B>Python syntax:</B>
 </P>
@@ -44,10 +55,10 @@ int nrecv = phish_query("outport/direct",2,0);
 </PRE>
 <P><B>Python examples:</B>
 </P>
-<P>import phish
+<PRE>import phish
 nlocal = phish.query("nlocal",0,0)
-nrecv = phish.query("outport/direct",2,0)
-</P>
+nrecv = phish.query("outport/direct",2,0) 
+</PRE>
 <P><B>Description:</B>
 </P>
 <P>This is a PHISH library functions which can be called from a minnow

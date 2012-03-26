@@ -17,25 +17,35 @@
 </H3>
 <P><B>C syntax:</B>
 </P>
-<PRE>void phish_send(int iport) 
-</PRE>
-<PRE>void phish_send_key(int iport, char *key, int nbytes) 
-</PRE>
-<PRE>void phish_send_direct(int iport, int receiver) 
+<PRE>void phish_send(int iport)
+void phish_send_key(int iport, char *key, int nbytes)
+void phish_send_direct(int iport, int receiver) 
 </PRE>
 <P><B>C examples:</B>
 </P>
-<PRE>phish_send(0);
+<PRE>#include "phish.h"
+phish_send(0);
 phish_send_key(1,id,strlen(id));
 phish_send_direct(0,3); 
 </PRE>
+<P><B>C++ syntax:</B>
+</P>
+<PRE>void send(int iport)
+void send_key(int iport, char *key, int nbytes)
+void send_direct(int iport, int receiver) 
+</PRE>
+<P><B>C++ examples:</B>
+</P>
+<PRE>#include "phish.hpp"
+PHISH::send(0);
+PHISH::send_key(1,id,strlen(id));
+PHISH::send_direct(0,3); 
+</PRE>
 <P><B>Python syntax:</B>
 </P>
-<PRE>def send(iport) 
-</PRE>
-<PRE>def send_key(iport,key) 
-</PRE>
-<PRE>def send_direct(iport,receiver) 
+<PRE>def send(iport)
+def send_key(iport,key)
+def send_direct(iport,receiver) 
 </PRE>
 <P><B>Python examples:</B>
 </P>

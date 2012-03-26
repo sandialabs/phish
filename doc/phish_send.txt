@@ -12,20 +12,34 @@ phish_send_direct() function :h3
 
 [C syntax:]
 
-void phish_send(int iport) :pre
-void phish_send_key(int iport, char *key, int nbytes) :pre
+void phish_send(int iport)
+void phish_send_key(int iport, char *key, int nbytes)
 void phish_send_direct(int iport, int receiver) :pre
 
 [C examples:]
 
+#include "phish.h"
 phish_send(0);
 phish_send_key(1,id,strlen(id));
 phish_send_direct(0,3); :pre
 
+[C++ syntax:]
+
+void send(int iport)
+void send_key(int iport, char *key, int nbytes)
+void send_direct(int iport, int receiver) :pre
+
+[C++ examples:]
+
+#include "phish.hpp"
+PHISH::send(0);
+PHISH::send_key(1,id,strlen(id));
+PHISH::send_direct(0,3); :pre
+
 [Python syntax:]
 
-def send(iport) :pre
-def send_key(iport,key) :pre
+def send(iport)
+def send_key(iport,key)
 def send_direct(iport,receiver) :pre
 
 [Python examples:]

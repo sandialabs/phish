@@ -10,9 +10,12 @@
 
 <H3>4. PHISH Library 
 </H3>
-<P>This is the API to the PHISH library that PHISH minnows (stand-alone
-applications) call.  The API for the MPI and socket verions of the
-PHISH library are identical.
+<P>This is the API to the PHISH library that PHISH minnows call.  In
+PHISH lingo, a "minnow" is a stand-alone application which makes calls
+to the <A HREF = "Library.html">PHISH library</A>.
+</P>
+<P>The API for the MPI and socket verions of the PHISH library are
+identical.
 </P>
 <P>A general discussion of how and when minnows call PHISH library
 functions is given in the <A HREF = "Minnows.html">Minnows</A> section of the
@@ -33,7 +36,8 @@ library.  This topic is discussed below, in the section entitled
 <A HREF = "#library_3">Format of a datum</A>.
 </P>
 <P>NOTE: Say something about using int32 or uint32 versus just int in
-minnow.  Either here or in datum format section or both.
+minnow.  Either here and in datum format section and in phish_pack
+doc page.
 </P>
 <UL><LI>4.1 <A HREF = "#library_1">List of library functions</A>
 <LI>4.2 <A HREF = "#library_2">C vs C++ vs Python interface</A>
@@ -91,21 +95,51 @@ to see a doc page for each library call.
 <BR>
   <A HREF = "phish_pack.html">phish_pack_raw()</A> 
 <BR>
-  <A HREF = "phish_pack.html">phish_pack_byte()</A> 
+  <A HREF = "phish_pack.html">phish_pack_char()</A> 
 <BR>
-  <A HREF = "phish_pack.html">phish_pack_int()</A> 
+  <A HREF = "phish_pack.html">phish_pack_int8()</A> 
+<BR>
+  <A HREF = "phish_pack.html">phish_pack_int16()</A> 
+<BR>
+  <A HREF = "phish_pack.html">phish_pack_int32()</A> 
+<BR>
+  <A HREF = "phish_pack.html">phish_pack_int64()</A> 
+<BR>
+  <A HREF = "phish_pack.html">phish_pack_uint8()</A> 
+<BR>
+  <A HREF = "phish_pack.html">phish_pack_uint16()</A> 
+<BR>
+  <A HREF = "phish_pack.html">phish_pack_uint32()</A> 
 <BR>
   <A HREF = "phish_pack.html">phish_pack_uint64()</A> 
+<BR>
+  <A HREF = "phish_pack.html">phish_pack_float()</A> 
 <BR>
   <A HREF = "phish_pack.html">phish_pack_double()</A> 
 <BR>
   <A HREF = "phish_pack.html">phish_pack_string()</A> 
 <BR>
-  <A HREF = "phish_pack.html">phish_pack_int_array()</A> 
+  <A HREF = "phish_pack.html">phish_pack_int8_array()</A> 
+<BR>
+  <A HREF = "phish_pack.html">phish_pack_int16_array()</A> 
+<BR>
+  <A HREF = "phish_pack.html">phish_pack_int32_array()</A> 
+<BR>
+  <A HREF = "phish_pack.html">phish_pack_int64_array()</A> 
+<BR>
+  <A HREF = "phish_pack.html">phish_pack_uint8_array()</A> 
+<BR>
+  <A HREF = "phish_pack.html">phish_pack_uint16_array()</A> 
+<BR>
+  <A HREF = "phish_pack.html">phish_pack_uint32_array()</A> 
 <BR>
   <A HREF = "phish_pack.html">phish_pack_uint64_array()</A> 
 <BR>
+  <A HREF = "phish_pack.html">phish_pack_float_array()</A> 
+<BR>
   <A HREF = "phish_pack.html">phish_pack_double_array()</A> 
+<BR>
+  <A HREF = "phish_pack.html">phish_pack_pickle()</A> 
 <BR></UL>
 <LI>Library calls for queueing datums 
 

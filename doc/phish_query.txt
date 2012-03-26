@@ -30,8 +30,19 @@ keyword = "idlocal" or "nlocal" or "idglobal" or "nglobal" or "inport/status" or
 
 [C examples:]
 
+#include "phish.h"
 int nlocal = phish_query("nlocal",0,0);
 int nrecv = phish_query("outport/direct",2,0); :pre
+
+[C syntax:]
+
+int query(char *keyword, int flag1, int flag2) :pre
+
+[C++ examples:]
+
+#include "phish.hpp"
+int nlocal = PHISH::query("nlocal",0,0);
+int nrecv = PHISH::query("outport/direct",2,0); :pre
 
 [Python syntax:]
 
@@ -41,7 +52,7 @@ def query(str,flag1,flag2) :pre
 
 import phish
 nlocal = phish.query("nlocal",0,0)
-nrecv = phish.query("outport/direct",2,0)
+nrecv = phish.query("outport/direct",2,0) :pre
 
 [Description:]
 

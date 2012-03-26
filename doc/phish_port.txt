@@ -11,18 +11,31 @@ phish_output() function :h3
 
 [C syntax:]
 
-void phish_input(int iport, void (*datumfunc)(int), void (*donefunc)(), reqflag) :pre
+void phish_input(int iport, void (*datumfunc)(int), void (*donefunc)(), reqflag)
 void phish_output(int iport) :pre
 
 [C examples:]
 
+#include "phish.h"
 phish_input(0,count,NULL,1);
 phish_input(1,count,mydone,0);
-phish_output(0);
+phish_output(0); :pre
+
+[C++ syntax:]
+
+void input(int iport, void (*datumfunc)(int), void (*donefunc)(), reqflag)
+void output(int iport) :pre
+
+[C++ examples:]
+
+#include "phish.h.pp"
+PHISH::input(0,count,NULL,1);
+PHISH::input(1,count,mydone,0);
+PHISH::output(0); :pre
 
 [Python syntax:]
 
-def input(iport,datumfunc,donefunc,reqflag) :pre
+def input(iport,datumfunc,donefunc,reqflag)
 def output(iport) :pre
 
 [Python examples:]
@@ -30,7 +43,7 @@ def output(iport) :pre
 import phish
 phish.input(0,count,None,1)
 phish.input(1,count,mydone,0)
-phish.output(0)
+phish.output(0) :pre
 
 [Description:]
 
@@ -76,8 +89,7 @@ each time a datum is received on that input port.
 
 The {datumfunc} function should have the following form:
 
-void datumfunc(int nfields) \{
-\} :pre
+void datumfunc(int nfields) \{ \} :pre
 
 or
 
@@ -96,8 +108,7 @@ library when the input port is closed.
 
 The {donefunc} function should have the following form:
 
-void donefunc() \{
-\} :pre
+void donefunc() \{ \} :pre
 
 or
 
