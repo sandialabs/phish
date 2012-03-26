@@ -10,43 +10,49 @@ slowdown minnow :h3
 
 [Syntax:]
 
-ping N M :pre
+slowdown delta :pre
 
-N = # of datums to ping/pong with partner minnow
-M = # of bytes in each datum :ul
+delta = delay in seconds :ul
 
 [Examples:]
 
-ping 1000 0
-ping 100 100000 :pre
+count :pre
 
 [Description:]
 
-Ping is a PHISH minnow that can be used as one of a school of minnows
-in a PHISH program.  In PHISH lingo, a "minnow" is a stand-alone
-application which makes calls to the "PHISH library"_Library.html to
-exchange data with other PHISH minnows.
+Slowdown is a PHISH minnow that can be used in a PHISH program.  In
+PHISH lingo, a "minnow" is a stand-alone application which makes calls
+to the "PHISH library"_Library.html to exchange data with other PHISH
+minnows.
 
+The slowdown minnow sends datums as it receives them, but insures
+successive datums are sent no more often than every {delta} seconds.
+This can be useful for debugging PHISH nets that process
+data quickly.
 
-read datum and emit it with slowdown delay
+[Ports:]
 
-syntax: slowdown delta
-delta = time to delay (in seconds)
+The shutdown minnow uses one input port 0 to receive datums and one
+output port 0 to send datums.
 
-read each datum and insure delay seconds have passed
-before writing it downstream
+[Operation:]
 
-for each datum:
-  query time since last datum was processed and invoke usleep() if needed
-  send entire datum downstream
+When it starts, the shutdown minnow calls the
+"phish_loop"_phish_recv.html function.  Each time a datum is received
+on input port 0, the phish_timer function is called and the elapsed
+time since the last datum was sent is calculated.  If it is less
+than {delta} seconds, the minnow "sleeps" until {delta} seconds have
+passed.  It then sends the datum to its output port 0 and records
+the time at which the send occurred.
 
+The count minnow shuts down when its input port is closed by receiving
+a sufficient number of "done" messages.
 
+[Data:]
 
+The shutdown minnow does not care what kinds of datums it receives and
+re-sends.
 
-[Restrictions:]
+[Restrictions:] none
 
-Note: set command may be required to boost buffer size
-
-[Related commands:]
-
-"pong"_pong.html
+[Related minnows:] none

@@ -6,38 +6,63 @@
 
 :line
 
-reverse application :h3
+reverse program :h3
 
 [Syntax:]
 
-ping N M :pre
+reverse :pre
 
-N = # of datums to ping/pong with partner minnow
-M = # of bytes in each datum :ul
+this program takes no arguments :ul
 
 [Examples:]
 
-ping 1000 0
-ping 100 100000 :pre
+wrapsink "reverse"
+wrapss "reverse" :pre
 
 [Description:]
 
-Echo is a stand-alone program.  Unlike other PHISH minnows in the
-minnows directory of the PHISH distribution, it is not a program that
-needs to be linked with the PHISH library.  It is provided for
-illustration purposed, because it can be wrapped with the
-"wrapss"_wrapss.html minnow so that can it be used as one of a school
-of minnows in a PHISH program.  In PHISH lingo, a "minnow" is a
-stand-alone application which makes calls to the "PHISH
+Reverse is a stand-along non-PHISH program that can be wrapped with a
+PHISH minnow so it can be used in a PHISH program.  In PHISH lingo, a
+"minnow" is a stand-alone application which makes calls to the "PHISH
 library"_Library.html to exchange data with other PHISH minnows.
 
+The reverse program simply reads lines from stdin, reverses the order
+of the characters, and writes the resulting string to stdout.  PHISH
+minnows that can wrap the reverse program include the
+"wrapsink"_wrapsink.html and "wrapss"_wrapss.html, which convert
+stdin/stdout into the receiving and sending of datums.
 
-reverse characters in lines from stdin and write to stdout
+[Ports:]
 
+The reverse program does not call the PHISH library and thus does not
+use PHISH ports directly.  But if it is wrapped with the
+"wrapsink"_wrapsink.html or "wrapss"_wrapss.html minnows then they use
+one input port 0 to receive datums which are then read by the reverse
+program via stdin.  If it is wrapped with the "wrapss"_wrapss.html
+minnow then it uses one output port 0 to send datums that are written
+to stdout by the reverse program.
+
+[Operation:]
+
+The reverse program simply reads a line of input from stdin, stores it
+as a string, reverse the order of characters in the string, and writes
+it to stdout.  See the doc pages for the "wrapsink"_wrapsink.html or
+"wrapss"_wrapss.html minnows for how they convert datums they receive
+to lines of text that the reverse program can read from stdin, and how
+they convert lines of text that the reverse program writes to stdout
+to datums they send.
+
+[Data:]
+
+The reverse program does not call the PHISH library and thus does not
+deal directly with PHISH data types.
 
 [Restrictions:] none
 
-[Related commands:]
+The C++ version of the reverse program allocates a buffer of size
+MAXLINE = 1024 bytes for reading a line from stdin.  This can be
+changed (by editing minnow/echo.cpp) if longer lines are needed.
+
+[Related programs:]
 
 "echo"_echo.html
-

@@ -6,37 +6,61 @@
 
 :line
 
-echo application :h3
+echo program :h3
 
 [Syntax:]
 
-ping N M :pre
+echo :pre
 
-N = # of datums to ping/pong with partner minnow
-M = # of bytes in each datum :ul
+this program takes no arguments :ul
 
 [Examples:]
 
-ping 1000 0
-ping 100 100000 :pre
+wrapsink "echo"
+wrapss "echo" :pre
 
 [Description:]
 
-Echo is a stand-alone program.  Unlike other PHISH minnows in the
-minnows directory of the PHISH distribution, it is not a program that
-needs to be linked with the PHISH library.  It is provided for
-illustration purposed, because it can be wrapped with the
-"wrapss"_wrapss.html minnow so that can it be used as one of a school
-of minnows in a PHISH program.  In PHISH lingo, a "minnow" is a
-stand-alone application which makes calls to the "PHISH
+Echo is a stand-along non-PHISH program that can be wrapped with a
+PHISH minnow so it can be used in a PHISH program.  In PHISH lingo, a
+"minnow" is a stand-alone application which makes calls to the "PHISH
 library"_Library.html to exchange data with other PHISH minnows.
 
+The echo program simply reads lines from stdin and echoes them to
+stdout.  PHISH minnows that can wrap the echo program include the
+"wrapsink"_wrapsink.html and "wrapss"_wrapss.html, which convert
+stdin/stdout into the receiving and sending of datums.
 
-echo lines from stdin to stdout
+[Ports:]
 
+The echo program does not call the PHISH library and thus does not use
+PHISH ports directly.  But if it is wrapped with the
+"wrapsink"_wrapsink.html or "wrapss"_wrapss.html minnows then they use
+one input port 0 to receive datums which are then read by the echo
+program via stdin.  If it is wrapped with the "wrapss"_wrapss.html
+minnow then it uses one output port 0 to send datums that are written
+to stdout by the echo program.
+
+[Operation:]
+
+The echo program simply reads a line of input from stdin and writes it
+to stdout.  See the doc pages for the "wrapsink"_wrapsink.html or
+"wrapss"_wrapss.html minnows for how they convert datums they receive
+to lines of text that the echo program can read from stdin, and how
+they convert lines of text that the echo program writes to stdout to
+datums they send.
+
+[Data:]
+
+The echo program does not call the PHISH library and thus does not
+deal directly with PHISH data types.
 
 [Restrictions:] none
 
-[Related commands:]
+The C++ version of the echo program allocates a buffer of size MAXLINE
+= 1024 bytes for reading a line from stdin.  This can be changed (by
+editing minnow/echo.cpp) if longer lines are needed.
+
+[Related programs:]
 
 "reverse"_reverse.html

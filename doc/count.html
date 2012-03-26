@@ -13,45 +13,56 @@
 </H3>
 <P><B>Syntax:</B>
 </P>
-<PRE>ping N M 
+<PRE>count 
 </PRE>
-<UL><LI>N = # of datums to ping/pong with partner minnow
-<LI>M = # of bytes in each datum 
+<UL><LI>this minnow takes no arguments 
 </UL>
 <P><B>Examples:</B>
 </P>
-<PRE>ping 1000 0
-ping 100 100000 
+<PRE>count 
 </PRE>
 <P><B>Description:</B>
 </P>
-<P>Ping is a PHISH minnow that can be used as one of a school of minnows
-in a PHISH program.  In PHISH lingo, a "minnow" is a stand-alone
-application which makes calls to the <A HREF = "Library.html">PHISH library</A> to
-exchange data with other PHISH minnows.
+<P>Count is a PHISH minnow that can be used in a PHISH program.  In PHISH
+lingo, a "minnow" is a stand-alone application which makes calls to
+the <A HREF = "Library.html">PHISH library</A> to exchange data with other PHISH
+minnows.
 </P>
-<P>count instances of keyed datums
+<P>The count minnow counts occurrences of strings it receives.  When it
+shuts down it sends unique words and their associated counts.
 </P>
-<P>syntax: no args
+<P><B>Ports:</B>
 </P>
-<P>creates an internal hash, so it can count instances of keys
-hash key = string, hash value = count
-keeps track of largest key it receives
+<P>The count minnow uses one input port 0 to receive datums and one
+output port 0 to send datums.
 </P>
-<P>for each datum:
-  treat buf of nbytes as a string and hash it
-  increment hash value for that string
+<P><B>Operation:</B>
 </P>
-<P>when done:
-  iterate over hash table
-  send all hash entries downstream as count/string
+<P>When it starts, the count minnow calls the
+<A HREF = "phish_recv.html">phish_loop</A> function.  Each time a datum is received
+on input port 0, its first field is a string.  Unique strings are
+stored in an internal table, using the string as a "key".  This is
+done via an STL "map" in the C++ version of count, and via a
+"dictionary" in the Python version of count.  The value associated
+with each key is a count of the number of times the string has been
+received.
 </P>
-<P><B>Restrictions:</B>
+<P>The count minnow shuts down when its input port is closed by receiving
+a sufficient number of "done" messages.  This triggers the count
+minnow to send a series of datums to its ouput port 0, one for each
+unique word it has received.  Each datum contains two fields. The
+first field is the count, the second is the string.
 </P>
-<P>Note: set command may be required to boost buffer size
+<P><B>Data:</B>
 </P>
-<P><B>Related commands:</B>
+<P>The count minnow must receive single field datums of type
+PHISH_STRING.  It send two-field datums of type (PHISH_INT32,
+PHISH_STRING).
 </P>
-<P><A HREF = "pong.html">pong</A>
+<P><B>Restrictions:</B> none
+</P>
+<P><B>Related minnows:</B>
+</P>
+<P><A HREF = "sort.html">sort</A>
 </P>
 </HTML>

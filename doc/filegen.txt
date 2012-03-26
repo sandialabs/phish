@@ -1,7 +1,59 @@
-emit filenames
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
 
-syntax: filengen file1 file2 ...
+:link(pws,http://phish.sandia.gov)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
 
-filenames can also be directories
-directories are opened recursively and their files added to list
-send each file name one by one downsteram
+:line
+
+filegen minnow :h3
+
+[Syntax:]
+
+filegen path1 path2 ... :pre
+
+path1,path2,... = one or more file or directory names :ul
+
+[Examples:]
+
+filegen a1.txt a2.txt
+filegen dir1 dir2 ... dir100 :pre
+
+[Description:]
+
+Filegen is a PHISH minnow that can be used in a PHISH program.  In
+PHISH lingo, a "minnow" is a stand-alone application which makes calls
+to the "PHISH library"_Library.html to exchange data with other PHISH
+minnows via its input and output ports.
+
+The filegen minnow generates a list of filenames from the filenames
+and directory names given to it as arguments.  Each directory
+is opened (recursively) and scanned to generate filenames.
+
+[Ports:]
+
+The ping minnow uses no input ports.  It uses one output port 0 to
+send datums.
+
+[Operation:]
+
+When it starts, the filegen minnow loops over its input arguments.  If
+the argument is a file, it sends the filename to its output port 0.
+If the argument is a directory name, it reads all the filenames in the
+directory and sends each one to its output port 0.  If any entry in
+the directory is itself a directory, then it recurses and generates
+sends additional filenames to its output port 0.
+
+When it has processed all its input arguments, the filegen minnow
+calls the "phish_exit"_phish_exit.html function to shut down.
+
+[Data:]
+
+Each datum the filegen minnow sends has a single field of type
+PHISH_STRING.
+
+[Restrictions:] none
+
+[Related minnows:]
+
+"file2words"_file2words.html

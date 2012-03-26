@@ -13,41 +13,51 @@
 </H3>
 <P><B>Syntax:</B>
 </P>
-<PRE>ping N M 
+<PRE>slowdown delta 
 </PRE>
-<UL><LI>N = # of datums to ping/pong with partner minnow
-<LI>M = # of bytes in each datum 
+<UL><LI>delta = delay in seconds 
 </UL>
 <P><B>Examples:</B>
 </P>
-<PRE>ping 1000 0
-ping 100 100000 
+<PRE>count 
 </PRE>
 <P><B>Description:</B>
 </P>
-<P>Ping is a PHISH minnow that can be used as one of a school of minnows
-in a PHISH program.  In PHISH lingo, a "minnow" is a stand-alone
-application which makes calls to the <A HREF = "Library.html">PHISH library</A> to
-exchange data with other PHISH minnows.
+<P>Slowdown is a PHISH minnow that can be used in a PHISH program.  In
+PHISH lingo, a "minnow" is a stand-alone application which makes calls
+to the <A HREF = "Library.html">PHISH library</A> to exchange data with other PHISH
+minnows.
 </P>
-<P>read datum and emit it with slowdown delay
+<P>The slowdown minnow sends datums as it receives them, but insures
+successive datums are sent no more often than every <I>delta</I> seconds.
+This can be useful for debugging PHISH nets that process
+data quickly.
 </P>
-<P>syntax: slowdown delta
-delta = time to delay (in seconds)
+<P><B>Ports:</B>
 </P>
-<P>read each datum and insure delay seconds have passed
-before writing it downstream
+<P>The shutdown minnow uses one input port 0 to receive datums and one
+output port 0 to send datums.
 </P>
-<P>for each datum:
-  query time since last datum was processed and invoke usleep() if needed
-  send entire datum downstream
+<P><B>Operation:</B>
 </P>
-<P><B>Restrictions:</B>
+<P>When it starts, the shutdown minnow calls the
+<A HREF = "phish_recv.html">phish_loop</A> function.  Each time a datum is received
+on input port 0, the phish_timer function is called and the elapsed
+time since the last datum was sent is calculated.  If it is less
+than <I>delta</I> seconds, the minnow "sleeps" until <I>delta</I> seconds have
+passed.  It then sends the datum to its output port 0 and records
+the time at which the send occurred.
 </P>
-<P>Note: set command may be required to boost buffer size
+<P>The count minnow shuts down when its input port is closed by receiving
+a sufficient number of "done" messages.
 </P>
-<P><B>Related commands:</B>
+<P><B>Data:</B>
 </P>
-<P><A HREF = "pong.html">pong</A>
+<P>The shutdown minnow does not care what kinds of datums it receives and
+re-sends.
+</P>
+<P><B>Restrictions:</B> none
+</P>
+<P><B>Related minnows:</B> none
 </P>
 </HTML>

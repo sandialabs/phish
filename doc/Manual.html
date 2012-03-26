@@ -37,13 +37,17 @@ describe the version you have.
 </UL>
 <P>PHISH stands for Parallel Harness for Informatic Stream Hashing.
 </P>
-<P>The PHISH package has two parts.  The first is a simple, portable
-library that user-written programs can call to send and receive datums
-to and from other programs, running on the same or different machines.
-The second is a setup tool that allows specification of a data-driven
-algorithm as a collection of independent processes with communication
-patterns between them.  Input data to the algorithm can arrive
-continuously in a streaming fashion or be read from files.
+<P>The PHISH package is a set of tools for running a collection of
+independent processes in parallel in a coordinated fashion to perform
+computations on either streaming, archived, or self-generated data.
+It includes a simple, portable library that user-written programs can
+call to exchange data with other programs, which are running on the
+same desktop machine, other processors of a parallel machine, or
+differnt machines across a network.  The data exchanges can be made
+via the MPI message-passing library or ZMQ socket library.  PHISH
+input scripts are used to describe a data-processing algorithm and
+tools in the package convert the script into a form that can be
+launched as a parallel job.
 </P>
 <P>PHISH was developed at Sandia National Laboratories, a US Department
 of Energy facility, with funding from the DOE.  It is an open-source

@@ -13,42 +13,63 @@
 </H3>
 <P><B>Syntax:</B>
 </P>
-<PRE>ping N M 
+<PRE>sort N 
 </PRE>
-<UL><LI>N = # of datums to ping/pong with partner minnow
-<LI>M = # of bytes in each datum 
+<UL><LI>N = keep top N sorted values 
 </UL>
 <P><B>Examples:</B>
 </P>
-<PRE>ping 1000 0
-ping 100 100000 
+<PRE>sort 20 
 </PRE>
 <P><B>Description:</B>
 </P>
-<P>Ping is a PHISH minnow that can be used as one of a school of minnows
-in a PHISH program.  In PHISH lingo, a "minnow" is a stand-alone
-application which makes calls to the <A HREF = "Library.html">PHISH library</A> to
-exchange data with other PHISH minnows.
+<P>Sort is a PHISH minnow that can be used in a PHISH program.  In PHISH
+lingo, a "minnow" is a stand-alone application which makes calls to
+the <A HREF = "Library.html">PHISH library</A> to exchange data with other PHISH
+minnows.
 </P>
-<P>sort datums, emit highest count ones
+<P>The sort minnow receives counts of strings which it stores in a
+list. When it shuts down it sorts the list by count, and sends the top
+<I>N</I> counts and their associated strings.
 </P>
-<P>syntax: sort N
-N = keep top N of sorted list
+<P><B>Ports:</B>
 </P>
-<P>for each datum:
-  assume message is int/string
-  store in/string as STL pair in a vector list
+<P>The sort minnow uses one input port 0 to receive datums and one output
+port 0 to send datums.
 </P>
-<P>when done:
-  sort the list based on integer count
-  send the top N list items downstream as count/string
+<P><B>Operation:</B>
 </P>
-<P><B>Restrictions:</B>
+<P>When it starts, the sort minnow calls the <A HREF = "phish_recv.html">phish_loop</A>
+function.  Each time a datum is received on input port 0, its first
+field is a count and its 2nd a string.  The count/string pairts are
+stored in an internal table.  This is done via an STL "vector" in the
+C++ version of sort, and via a "list" in the Python version of sort.
 </P>
-<P>Note: set command may be required to boost buffer size
+<P>The sort minnow shuts down when its input port is closed by receiving
+a sufficient number of "done" messages.  This triggers the sort minnow
+to sort the list of count/string pairs it has received.  It then sends
+the top <I>N</I> results as datums to its ouput port 0.  Each datum
+contains two fields. The first field is the count, the second is the
+string.
 </P>
-<P><B>Related commands:</B>
+<P>NOTE: would really be OK if received any kind of int?
+Is there some way to check for this, so code doesn't
+have to be too specific?
 </P>
-<P><A HREF = "pong.html">pong</A>
+<P>NOTE: Could type of its 2nd value be ignored?
+      Is a C++ vector issue, might also need way
+      to copy single arbitrary field from recv buffer to input buffer
+</P>
+<P><B>Data:</B>
+</P>
+<P>The sort minnow must receive two-field datums of type (PHSIH_INT32,
+PHISH_STRING).  It also send two-field datums of type (PHISH_INT32,
+PHISH_STRING).
+</P>
+<P><B>Restrictions:</B> none
+</P>
+<P><B>Related minnows:</B>
+</P>
+<P><A HREF = "count.html">count</A>
 </P>
 </HTML>

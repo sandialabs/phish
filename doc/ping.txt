@@ -22,27 +22,44 @@ ping 100 100000 :pre
 
 [Description:]
 
-Ping is a PHISH minnow that can be used as one of a school of minnows
-in a PHISH program.  In PHISH lingo, a "minnow" is a stand-alone
-application which makes calls to the "PHISH library"_Library.html to
-exchange data with other PHISH minnows.
+Ping is a PHISH minnow that can be used in a PHISH program.  In PHISH
+lingo, a "minnow" is a stand-alone application which makes calls to
+the "PHISH library"_Library.html to exchange data with other PHISH
+minnows via its input and output ports.
 
+The ping minnow is designed for use with the "pong"_pong.hmtl
+minnow, to exchange datums back and forth.
 
-reflect messages to a receiver
+[Ports:]
 
-fill M-byte buffer with NULLs
-send it and go into loop
+The ping minnow uses one input port 0 to receive datums and one output
+port 0 to send datums.
 
-for each datum:
-  when recv from partner
-  increment count and send back to partner
-  when count hits M, send done message
+[Operation:]
 
+When it starts, the ping minnow creates a buffer {M} bytes long and
+fills it with NULLs (zeroes).  It sends this buffer to its output port
+0.  It then calls the "phish_loop"_phish_recv.html function.  Each
+time a datum is received on input port 0 (i.e. from the pong minnow),
+it is re-sent to output port 0.
+
+When the ping minnow receives a datum for the {N}th time, it calls the
+"phish_exit"_phish_exit.html function to shut down.  It also prints
+the elapsed time for exchanging an {M}-byte datum {N} times.
+
+[Data:]
+
+The first datum the ping minnow sends has a single field of type
+PHISH_RAW.  It does not care what kinds of datums it receives and
+re-sends.
 
 [Restrictions:]
 
-Note: set command may be required to boost buffer size
+The default buffer size for sending and receiving datums is 1 Kbyte.
+To use an {M} value that exceeds this, use the "set memory" command
+should be used in the PHISH input script so that the PHISH library
+allocates larger buffers.
 
-[Related commands:]
+[Related minnows:]
 
 "pong"_pong.html

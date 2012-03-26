@@ -13,54 +13,81 @@
 </H3>
 <P><B>Syntax:</B>
 </P>
-<PRE>ping N M 
+<PRE>wrapss -f "program" 
 </PRE>
-<UL><LI>N = # of datums to ping/pong with partner minnow
-<LI>M = # of bytes in each datum 
+<UL><LI>program = shell command for launching executable program 
 </UL>
 <P><B>Examples:</B>
 </P>
-<PRE>ping 1000 0
-ping 100 100000 
+<PRE>wrapsource "myexe"
+wrapsource "myexe -n 3 -o outfile < in.script" 
 </PRE>
 <P><B>Description:</B>
 </P>
-<P>Ping is a PHISH minnow that can be used as one of a school of minnows
-in a PHISH program.  In PHISH lingo, a "minnow" is a stand-alone
-application which makes calls to the <A HREF = "Library.html">PHISH library</A> to
-exchange data with other PHISH minnows.
+<P>Wrapss is a PHISH minnow that can be used in a PHISH program.  In
+PHISH lingo, a "minnow" is a stand-alone application which makes calls
+to the <A HREF = "Library.html">PHISH library</A> to exchange data with other PHISH
+minnows.
 </P>
-<P>wrap a child process which both consumes and creates datums via stdin/stdout
-so child is a sink and a source
+<P>The wrapss minnow is used to wrap a stand-alone non-PHISH application
+so that datums can be sent to it from other PHISH minnows as lines it
+reads from stdin, and lines it writes to stdout can be sent as datums
+to other minnows.  It is a mechanism for using non-PHISH applications
+as minnows in a PHISH net.
 </P>
-<P>syntax: wrapss "program"
-"program" can be any string with flags, redirection, etc
-enclose in quotes to prevent shell from processing it
+<P><B>Ports:</B>
 </P>
-<P>open 2 pipes to child via pipe()
-fork() into parent and child processes
-parent calls phish_probe() to query incoming messages and child output
-child hooks its stdin/stdout to 2 pipes via dup2()
-child invokes the "program" via execv()
+<P>The wrapss minnow uses one input port 0 to receive datums and one
+output port 0 to send datums.
 </P>
-<P>datum method:
-  write datum to pipe with appended newline
+<P><B>Operation:</B>
 </P>
-<P>probe method:
-  poll pipe for output from child
-  if output is there, read it and break into lines
-  phish_send() each line downstream as string w/out newline
+<P>When the wrapss minnow starts, the <I>program</I> argument is treated as a
+string that is executed as a command by the shell.  As in the examples
+above <I>program</I> can be any string with flags or redirection operators.
+If the string contains spaces, it should be enclosed in quotes in the
+PHISH input script so that it is treated as a single argument when the
+script is read by the <A HREF = "Section_bait.html">bait.py</A> tool.
 </P>
-<P>close method:
-  close write pipe to child so it will know parent is done
-  wait for all output from child read pipe
-  send DONE message to notify receivers
+<P>After the wrapss minnow launches the <I>program</I> command, it calls the
+<A HREF = "phish_recv.html">phish_probe</A> function.  Each time an input datum is
+received, its single string field is written to the running <I>program</I>
+with a trailing newline, so that the <I>program</I> reads it as a line of
+input from stdin. When no input datum is available, "phish_probe"
+returns control to the wrapss minnow which checks if there is any
+output that the running <I>program</I> has written to stdout.  If there is,
+the wrapss minnow sends it as a string (without the trailing newline)
+to its output port 0.
+</P>
+<P>Note that there is no requirement that the running <I>program</I> produce a
+line of output for every line of input it reads.  It may for example,
+read all of its input, compute for a while, then produce all of its
+output.  Or it may produce output in bursts of lines, after reading
+multiple input lines.
+</P>
+<P>The wrapss minnow shuts down when its input port is closed by
+receiving a sufficient number of "done" messages.  When this occurs,
+it closes the stdin pipe the running <I>program</I> is reading from, which
+should cause it to exit.  The wrapss minnow reads all the final output
+produced by the running program until it exits and converts it into
+datums that it sends to its output port 0.  It then calls
+<A HREF = "phish_exit.html">phish_exit</A>.
+</P>
+<P><B>Data:</B>
+</P>
+<P>The wrapss minnow must receive single field datums of type
+PHISH_STRING.  It also sends single-field datums of type PHISH_STRING.
 </P>
 <P><B>Restrictions:</B>
 </P>
-<P>Note: set command may be required to boost buffer size
+<P>The C++ version of the wrapss minnow allocates a buffer of size
+MAXLINE = 1024 bytes for both converting the PHISH_STRING fields of
+received datums into lines of input read from stdin by the wrapped
+program, and for reading lines of output written to stdout by the
+wrapped program.  This can be changed (by editing minnow/wrapss.cpp)
+if longer lines are needed.
 </P>
-<P><B>Related commands:</B>
+<P><B>Related minnows:</B>
 </P>
 <P><A HREF = "wrapsink.html">wrapsink</A>, <A HREF = "wrapsource.html">wrapsource</A>
 </P>

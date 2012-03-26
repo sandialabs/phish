@@ -10,44 +10,54 @@ count minnow :h3
 
 [Syntax:]
 
-ping N M :pre
+count :pre
 
-N = # of datums to ping/pong with partner minnow
-M = # of bytes in each datum :ul
+this minnow takes no arguments :ul
 
 [Examples:]
 
-ping 1000 0
-ping 100 100000 :pre
+count :pre
 
 [Description:]
 
-Ping is a PHISH minnow that can be used as one of a school of minnows
-in a PHISH program.  In PHISH lingo, a "minnow" is a stand-alone
-application which makes calls to the "PHISH library"_Library.html to
-exchange data with other PHISH minnows.
+Count is a PHISH minnow that can be used in a PHISH program.  In PHISH
+lingo, a "minnow" is a stand-alone application which makes calls to
+the "PHISH library"_Library.html to exchange data with other PHISH
+minnows.
 
-count instances of keyed datums
+The count minnow counts occurrences of strings it receives.  When it
+shuts down it sends unique words and their associated counts.
 
-syntax: no args
+[Ports:]
 
-creates an internal hash, so it can count instances of keys
-hash key = string, hash value = count
-keeps track of largest key it receives
+The count minnow uses one input port 0 to receive datums and one
+output port 0 to send datums.
 
-for each datum:
-  treat buf of nbytes as a string and hash it
-  increment hash value for that string
+[Operation:]
 
-when done:
-  iterate over hash table
-  send all hash entries downstream as count/string
+When it starts, the count minnow calls the
+"phish_loop"_phish_recv.html function.  Each time a datum is received
+on input port 0, its first field is a string.  Unique strings are
+stored in an internal table, using the string as a "key".  This is
+done via an STL "map" in the C++ version of count, and via a
+"dictionary" in the Python version of count.  The value associated
+with each key is a count of the number of times the string has been
+received.
 
+The count minnow shuts down when its input port is closed by receiving
+a sufficient number of "done" messages.  This triggers the count
+minnow to send a series of datums to its ouput port 0, one for each
+unique word it has received.  Each datum contains two fields. The
+first field is the count, the second is the string.
 
-[Restrictions:]
+[Data:]
 
-Note: set command may be required to boost buffer size
+The count minnow must receive single field datums of type
+PHISH_STRING.  It send two-field datums of type (PHISH_INT32,
+PHISH_STRING).
 
-[Related commands:]
+[Restrictions:] none
 
-"pong"_pong.html
+[Related minnows:]
+
+"sort"_sort.html

@@ -10,47 +10,67 @@ wrapsink minnow :h3
 
 [Syntax:]
 
-ping N M :pre
+wrapsink "program" :pre
 
-N = # of datums to ping/pong with partner minnow
-M = # of bytes in each datum :ul
+program = shell command for launching executable program :ul
 
 [Examples:]
 
-ping 1000 0
-ping 100 100000 :pre
+wrapsink "myexe"
+wrapsource "myexe -n 3 -o outfile < in.script" :pre
 
 [Description:]
 
-Ping is a PHISH minnow that can be used as one of a school of minnows
-in a PHISH program.  In PHISH lingo, a "minnow" is a stand-alone
-application which makes calls to the "PHISH library"_Library.html to
-exchange data with other PHISH minnows.
+Wrapsink is a PHISH minnow that can be used in a PHISH program.  In
+PHISH lingo, a "minnow" is a stand-alone application which makes calls
+to the "PHISH library"_Library.html to exchange data with other PHISH
+minnows.
 
+The wrapsink minnow is used to wrap a stand-alone non-PHISH
+application so that datums can be sent to it from other PHISH minnows
+as lines it reads from stdin.  It is a mechanism for using non-PHISH
+applications as minnows in a PHISH net.
 
+[Ports:]
 
+The wrapsink minnow uses one input port 0 and no output ports.
 
-wrap a child process which consumes datums by reading from stdin
+[Operation:]
 
-syntax: wrapsink "program"
-"program" can be any string with flags, redirection, etc
-enclose in quotes to prevent shell from processing it
+When the wrapsink minnow starts, the {program} argument is treated as
+a string that is executed as a command by the shell.  As in the
+examples above {program} can be any string with flags or redirection
+operators.  If the string contains spaces, it should be enclosed in
+quotes in the PHISH input script so that it is treated as a single
+argument when the script is read by the "bait.py"_Section_bait.html
+tool.
 
-write datums to child, one by one, as lines of input
-write done via popen pipe
+After the wrapsink minnow launches the {program} command, it calls the
+"phish_loop"_phish_recv.html function.  Each time an input datum is
+received, its single string field is written to the running {program}
+with a trailing newline, so that the {program} reads it as a line of
+input from stdin.  The {program} may write to the screen or a file as
+often as it chooses, but its output is not captured by the wrapsink
+minnow.
 
-for each datum:
-  write datum to pipe with appended newline
+The wrapsource minnow shuts down when its input port is closed by
+receiving a sufficient number of "done" messages.  When this occurs,
+it closes the stdin pipe the running {program} is reading from, which
+should cause it to exit.
 
-when done:
-  close the pipe
+[Data:]
 
-
+The wrapsink minnow must receive single field datums of type
+PHISH_STRING.
 
 [Restrictions:]
 
-Note: set command may be required to boost buffer size
+The C++ version of the wrapsink minnow allocates a buffer of size
+MAXLINE = 1024 bytes for converting the PHISH_STRING fields of
+received datums into lines of input read from stdin by the wrapped
+program.  This can be changed (by editing minnow/wrapsink.cpp) if
+longer lines are needed.
 
-[Related commands:]
+[Related minnows:]
 
 "wrapsource"_wrapsource.html, "wrapss"_wrapss.html

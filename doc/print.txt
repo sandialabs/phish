@@ -10,41 +10,52 @@ print minnow :h3
 
 [Syntax:]
 
-ping N M :pre
+print -f filename :pre
 
-N = # of datums to ping/pong with partner minnow
-M = # of bytes in each datum :ul
+-f = optional switch for writing to a file
+filename = name of file to write to :ul
 
 [Examples:]
 
-ping 1000 0
-ping 100 100000 :pre
+print
+print -f outfile :pre
 
 [Description:]
 
-Ping is a PHISH minnow that can be used as one of a school of minnows
-in a PHISH program.  In PHISH lingo, a "minnow" is a stand-alone
-application which makes calls to the "PHISH library"_Library.html to
-exchange data with other PHISH minnows.
+Print is a PHISH minnow that can be used in a PHISH program.  In PHISH
+lingo, a "minnow" is a stand-alone application which makes calls to
+the "PHISH library"_Library.html to exchange data with other PHISH
+minnows.
 
+The print minnow prints the datums it receives to stdout or to a file.
 
-print datums to screen or file
+[Ports:]
 
-syntax: print -f filename
--f is optional, if not specified, prints to stdout
+The print minnow uses one input port 0 to receive datums.  It does
+not use any output ports.
 
-for each datum:
-  print string
+[Operation:]
 
-when done:
-  close file
+When it starts, the print minnow opens {outfile} if it has been
+specified.  It then calls the "phish_loop"_phish_recv.html function.
+Each time a datum is received on input port 0, its fields are looped
+over.  Each field is written in the appropriate format with a trailing
+space, either to the screen or to {outfile}.  A trailing newline is
+written after all the fields have been written.
 
+The print minnow shuts down when its input port is closed by receiving
+a sufficient number of "done" messages.  Before shutting
+down it closes {outfile} if it was specified.
 
+[Data:]
 
-[Restrictions:]
+The count minnow can receive datums with any number of fields.
+Any type of field can be printed, except for fields of type
+PHISH_RAW, which are ignored.  Array-type fields are printed
+one value at a time, with trailing spaces.
 
-Note: set command may be required to boost buffer size
+NOTE: print minnow needs some additional logic for
+various added field types
+[Restrictions:] none
 
-[Related commands:]
-
-"pong"_pong.html
+[Related minnows:] none

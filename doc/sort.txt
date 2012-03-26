@@ -10,42 +10,61 @@ sort minnow :h3
 
 [Syntax:]
 
-ping N M :pre
+sort N :pre
 
-N = # of datums to ping/pong with partner minnow
-M = # of bytes in each datum :ul
+N = keep top N sorted values :ul
 
 [Examples:]
 
-ping 1000 0
-ping 100 100000 :pre
+sort 20 :pre
 
 [Description:]
 
-Ping is a PHISH minnow that can be used as one of a school of minnows
-in a PHISH program.  In PHISH lingo, a "minnow" is a stand-alone
-application which makes calls to the "PHISH library"_Library.html to
-exchange data with other PHISH minnows.
+Sort is a PHISH minnow that can be used in a PHISH program.  In PHISH
+lingo, a "minnow" is a stand-alone application which makes calls to
+the "PHISH library"_Library.html to exchange data with other PHISH
+minnows.
 
+The sort minnow receives counts of strings which it stores in a
+list. When it shuts down it sorts the list by count, and sends the top
+{N} counts and their associated strings.
 
-sort datums, emit highest count ones
+[Ports:]
 
-syntax: sort N
-N = keep top N of sorted list
+The sort minnow uses one input port 0 to receive datums and one output
+port 0 to send datums.
 
-for each datum:
-  assume message is int/string
-  store in/string as STL pair in a vector list
+[Operation:]
 
-when done:
-  sort the list based on integer count
-  send the top N list items downstream as count/string
+When it starts, the sort minnow calls the "phish_loop"_phish_recv.html
+function.  Each time a datum is received on input port 0, its first
+field is a count and its 2nd a string.  The count/string pairts are
+stored in an internal table.  This is done via an STL "vector" in the
+C++ version of sort, and via a "list" in the Python version of sort.
 
+The sort minnow shuts down when its input port is closed by receiving
+a sufficient number of "done" messages.  This triggers the sort minnow
+to sort the list of count/string pairs it has received.  It then sends
+the top {N} results as datums to its ouput port 0.  Each datum
+contains two fields. The first field is the count, the second is the
+string.
 
-[Restrictions:]
+NOTE: would really be OK if received any kind of int?
+Is there some way to check for this, so code doesn't
+have to be too specific?
 
-Note: set command may be required to boost buffer size
+NOTE: Could type of its 2nd value be ignored?
+      Is a C++ vector issue, might also need way
+      to copy single arbitrary field from recv buffer to input buffer
 
-[Related commands:]
+[Data:]
 
-"pong"_pong.html
+The sort minnow must receive two-field datums of type (PHSIH_INT32,
+PHISH_STRING).  It also send two-field datums of type (PHISH_INT32,
+PHISH_STRING).
+
+[Restrictions:] none
+
+[Related minnows:]
+
+"count"_count.html

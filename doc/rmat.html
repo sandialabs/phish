@@ -13,31 +13,74 @@
 </H3>
 <P><B>Syntax:</B>
 </P>
-<PRE>ping N M 
+<PRE>rmat N Nlevel a b c d fraction seed 
 </PRE>
-<UL><LI>N = # of datums to ping/pong with partner minnow
-<LI>M = # of bytes in each datum 
+<UL><LI>N = # of matrix elements or edges to generate
+<LI>Nlevel = order of RMAT matrix = 2^Nlevel
+<LI>a,b,c,d = quadrant weighting factors which sum to 1.0
+<LI>fraction = twiddle factor
+<LI>seed = random number generator seed (positive integer) 
 </UL>
 <P><B>Examples:</B>
 </P>
-<PRE>ping 1000 0
-ping 100 100000 
+<PRE>rmat 10000 20 0.25 0.25 0.25 0.25 0.1 12345
+rmat 1000000 30 0.45 0.25 0.25 0.05 0.0 8787843 
 </PRE>
 <P><B>Description:</B>
 </P>
-<P>Ping is a PHISH minnow that can be used as one of a school of minnows
-in a PHISH program.  In PHISH lingo, a "minnow" is a stand-alone
-application which makes calls to the <A HREF = "Library.html">PHISH library</A> to
-exchange data with other PHISH minnows.
+<P>Rmat is a PHISH minnow that can be used in a PHISH program.  In PHISH
+lingo, a "minnow" is a stand-alone application which makes calls to
+the <A HREF = "Library.html">PHISH library</A> to exchange data with other PHISH
+minnows via its input and output ports.
 </P>
-<P>rmat gen minnow
+<P>The rmat minnow generates $N$ elements from an RMAT matrix of order
+2^<I>Nlevel</I> in a random recursive fashion.  An RMAT matrix is a
+randomized sparse matrix whose structure can be tailored by the input
+parameters <I>a</I>, <I>b</I>, <I>c</I>, and <I>d</I>.  The matrix is of order 2^<I>Nlevel</I>
+and an element is represented by the I,J indices of the row and column
+it is in.  The I,J values can also be interpreted as an edge in a
+sparse graph between vertices I and J, where the vertices are numbered
+from 1 to 2^<I>Nlevel</I> inclusive.
 </P>
-<P><B>Restrictions:</B>
+<P>The utility of RMAT matrices for describing graphs of various
+kinds is discussed in <A HREF = "#Smith">(Smith)</A>.
 </P>
-<P>Note: set command may be required to boost buffer size
+<P><B>Ports:</B>
 </P>
-<P><B>Related commands:</B>
+<P>The rmat minnow uses no input ports.  It uses one output port 0 to
+send datums.
 </P>
-<P><A HREF = "pong.html">pong</A>
+<P><B>Operation:</B>
+</P>
+<P>The rmat minnow generates <I>N</I> matrix elements and sends each as a
+datum to its output port 0.  Each datum has 2 fields, which are the I
+and J of the row and column of the matrix element.  I and J are both
+integers from 1 to 2^<I>Nlevel</I> inclusive.
+</P>
+<P>The method of generating I and J is recursive with <I>Nlevel</I> levels.
+At each stage one of 4 quadrants of the "current" matrix is selected
+randomly with relative probablities <I>a</I>, <I>b</I>, <I>c</I>, and <I>d</I>.  At the
+first level, the current matrix is the entire matrix.  After selecting
+a quadrant, that quadrant becomes the current matrix.  Thus as the
+last level, a single I.J element is selected out of the original full
+matrix.  The <I>twiddle</I> factor is used at each recursion level to
+adjust <I>a</I>, <I>b</I>, <I>c</I>, and <I>d</I> by a random fractional amount while
+keeping the sum of the 4 values = 1.0.  This has the effect of further
+randomizing the distribution of generated matrix elements.
+</P>
+<P>NOTE: better def of twiddle and is it 0 to 1?
+</P>
+<P><B>Data:</B>
+</P>
+<P>Each datum the rmat minnow sends has a two fields each of type
+PHISH_UINT64.
+</P>
+<P><B>Restrictions:</B> none
+</P>
+<P><B>Related minnows:</B> none
+</P>
+<HR>
+
+<P>NOTE: give citation for RMAT
 </P>
 </HTML>

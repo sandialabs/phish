@@ -13,40 +13,54 @@
 </H3>
 <P><B>Syntax:</B>
 </P>
-<PRE>ping N M 
+<PRE>print -f filename 
 </PRE>
-<UL><LI>N = # of datums to ping/pong with partner minnow
-<LI>M = # of bytes in each datum 
+<UL><LI>-f = optional switch for writing to a file
+<LI>filename = name of file to write to 
 </UL>
 <P><B>Examples:</B>
 </P>
-<PRE>ping 1000 0
-ping 100 100000 
+<PRE>print
+print -f outfile 
 </PRE>
 <P><B>Description:</B>
 </P>
-<P>Ping is a PHISH minnow that can be used as one of a school of minnows
-in a PHISH program.  In PHISH lingo, a "minnow" is a stand-alone
-application which makes calls to the <A HREF = "Library.html">PHISH library</A> to
-exchange data with other PHISH minnows.
+<P>Print is a PHISH minnow that can be used in a PHISH program.  In PHISH
+lingo, a "minnow" is a stand-alone application which makes calls to
+the <A HREF = "Library.html">PHISH library</A> to exchange data with other PHISH
+minnows.
 </P>
-<P>print datums to screen or file
+<P>The print minnow prints the datums it receives to stdout or to a file.
 </P>
-<P>syntax: print -f filename
--f is optional, if not specified, prints to stdout
+<P><B>Ports:</B>
 </P>
-<P>for each datum:
-  print string
+<P>The print minnow uses one input port 0 to receive datums.  It does
+not use any output ports.
 </P>
-<P>when done:
-  close file
+<P><B>Operation:</B>
 </P>
-<P><B>Restrictions:</B>
+<P>When it starts, the print minnow opens <I>outfile</I> if it has been
+specified.  It then calls the <A HREF = "phish_recv.html">phish_loop</A> function.
+Each time a datum is received on input port 0, its fields are looped
+over.  Each field is written in the appropriate format with a trailing
+space, either to the screen or to <I>outfile</I>.  A trailing newline is
+written after all the fields have been written.
 </P>
-<P>Note: set command may be required to boost buffer size
+<P>The print minnow shuts down when its input port is closed by receiving
+a sufficient number of "done" messages.  Before shutting
+down it closes <I>outfile</I> if it was specified.
 </P>
-<P><B>Related commands:</B>
+<P><B>Data:</B>
 </P>
-<P><A HREF = "pong.html">pong</A>
+<P>The count minnow can receive datums with any number of fields.
+Any type of field can be printed, except for fields of type
+PHISH_RAW, which are ignored.  Array-type fields are printed
+one value at a time, with trailing spaces.
+</P>
+<P>NOTE: print minnow needs some additional logic for
+various added field types
+<B>Restrictions:</B> none
+</P>
+<P><B>Related minnows:</B> none
 </P>
 </HTML>

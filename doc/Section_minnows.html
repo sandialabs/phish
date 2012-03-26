@@ -11,19 +11,19 @@
 <H3>3. PHISH Minnows 
 </H3>
 <P>In PHISH lingo, a "minnow" is a stand-alone program which makes calls
-to the <A HREF = "Library.html">PHISH library</A>.  Often they are small programs
-which perform a single task, e.g. they parse a string into keywords
-and store statistics on those keywords.  But they can also be large
-programs which perform sophisticated computations and make only a few
-calls to the PHISH library.  In which case they should probably be
-called sharks or whales ...
+to the <A HREF = "Library.html">PHISH library</A>.  Minnows are typically small
+programs which perform a single task, e.g. they parse a string
+searcing for keywords and store statistics about those keywords.  But
+they can also be large programs which perform sophisticated
+computations and make only occasional calls to the PHISH library.  In
+which case they should probably be called sharks or whales ...
 </P>
 <P>An individual minnow is part of a school of one or more duplicate
-minnows.  One or more schools make a PHISH net(work) which works
-together to perform a calculation.  Minnows communicate with each
-other to exchange data via calls to the PHISH library.
+minnows.  One or more schools form a PHISH net(work) which works in a
+coordinated fashion to perform a calculation.  Minnows communicate
+with each other to exchange data via calls to the PHISH library.
 </P>
-<P>This doc page covers these topics:
+<P>This doc page covers the following topics:
 </P>
 <UL><LI>3.1 <A HREF = "#minnow_1">List of minnows</A>
 <LI>3.2 <A HREF = "#minnow_2">Code structure of a minnow</A>
@@ -38,23 +38,25 @@ other to exchange data via calls to the PHISH library.
 <A NAME = "minnow_1"></A><H4>3.1 List of minnows 
 </H4>
 <P>This is a list of minnows in the minnow directory of the PHISH
-distribution.  Each has its own doc page.  Some are written in C++,
-some in Python, some in both:
+distribution.  Each has its own doc page.  Some are written in C++
+(*.cpp), some in Python (*.py), some in both.  If provided in both
+languages, their operation is identical, with any exceptions noted in
+the minnow doc page:
+</P>
+<P>NOTE: should we include file2fields in the distro?
 </P>
 <UL><LI><A HREF = "count.html">count</A>
-<LI><A HREF = "file2fields.html">file2fields</A>
 <LI><A HREF = "file2words.html">file2words</A>
 <LI><A HREF = "filegen.html">filegen</A>
 <LI><A HREF = "ping.html">ping</A>
 <LI><A HREF = "pong.html">pong</A>
 <LI><A HREF = "print.html">print</A>
-<LI><A HREF = "readgraph.html">readgraph</A>
 <LI><A HREF = "rmat.html">rmat</A>
 <LI><A HREF = "slowdown.html">slowdown</A>
 <LI><A HREF = "sort.html">sort</A> 
 </UL>
 <P>These are special minnows which can wrap stand-alone non-PHISH
-executables which read from stdin and write to stdout, so that they
+applications which read from stdin and write to stdout, so that they
 can be used as minnows in a PHISH net and communicate with other
 minnows:
 </P>
@@ -63,8 +65,8 @@ minnows:
 <LI><A HREF = "wrapss.html">wrapss</A> 
 </UL>
 <P>These are simple codes which can be compiled into stand-alone
-non-PHISH executables.  They are examples of code that can be wrapped
-by the "wrap" minnows:
+non-PHISH executables.  They are examples of applications that can be
+wrapped by the "wrap" minnows:
 </P>
 <UL><LI><A HREF = "echo.html">echo</A>
 <LI><A HREF = "reverse.html">reverse</A> 
@@ -73,11 +75,12 @@ by the "wrap" minnows:
 
 <A NAME = "minnow_2"></A><H4>3.2 Code structure of a minnow 
 </H4>
-<P>The best way to make sense of how a minnow makes calls to the PHISH
-library, is to examine a few simple ones from the minnow directory.
-Here we list the count.py minnow which is written in Python.  There is
-a also a count.cpp minnow, written in C++, which does the same thing.
-The purpose of this minnow is to ...
+<P>The easiest way to understand how a minnow works with the PHISH
+library, is to examine a few simple cases in the minnow directory.
+Here we list the count.py minnow, which is written in Python.  There
+is a also a count.cpp minnow, written in C++, which does the same
+thing.  The purpose of this minnow is to count occurrences of strings
+that it receives as datums:
 </P>
 <PRE>1   #!/usr/local/bin/python
 2
@@ -111,114 +114,243 @@ The purpose of this minnow is to ...
 30  phish.loop()
 31  phish.exit() 
 </PRE>
-<P>Note that on line 4, the Python minnow imports the phish module, which
-is provided with the PHISH distribution.  Instructions on how to
-build this module, which wraps the PHISH library, and add it to your
-Python are given in "this section" of the documentation.
+<P>On line 4, the Python minnow imports the phish module, which is
+provided with the PHISH distribution.  Instructions on how to build
+this module, which wraps the C-interface to the PHISH library, and add
+it to your Python are given in <A HREF = "Section_python.html">this section</A> of
+the documentation.
 </P>
-<P>The main program begins on line 21.  The call to phish.init() is
-typically the first line of a PHISH minnow.  When the minnow is
-launched, as described in "this section" extra PHISH library
-command-line arguments are used to describe how the minnow will
-communicate with other minnows.  These are stripped off by the
-phish.init() function, and the remaining minnow-specific arguments are
-returned as "args".  The phish.input() and phish.output() calls setup
-the input and output ports used by the minnow.  
+<P>The main program begins on line 21.  The call to the
+<A HREF = "phish_init.html">phish.init</A> is typically the first line of a PHISH
+minnow.  When the minnow is launched, as described in <A HREF = "Section_intro.html#intro_4">this
+section</A>, extra PHISH library command-line
+arguments are used which describe how the minnow will communicate with
+other minnows.  These are stripped off by the
+<A HREF = "phish_init.html">phish.init</A> function, and the remaining
+minnow-specific arguments are returned as "args".  The
+<A HREF = "phish.input.html">phish.input</A> and <A HREF = "phish.output.html">phish.output</A>
+functions setup the input and output ports used by the minnow.  A port
+is a communication channel by which datums arrive from other minnows
+or can be sent to other minnows.  The PHISH input script sets up these
+connections, but from the minnow's perspective, it simply receives
+datums on its input port(s) and writes datums to its output port(s).
+See the <A HREF = "#minnow_3">next section</A> for more discussion of ports.
 </P>
-<P>Is this first place ports are discussed?  Or in next section?
-One call for each input and each output port used by the minnow.
-Callback specified for input port, which is a minnow function that
-will be called when a datum is received on that input port.  Count in
-this case.  A callback function to call when the input port is closed
-can also be specified.  Sort in this case
+<P>There should be one call to <A HREF = "phish.input.html">phish.input</A> for each
+input port the minnow uses.  And one call to
+<A HREF = "phish.output.html">phish.output</A> for each output port it uses. The
+call to the <A HREF = "phish.check.html">phish.check</A> function on line 24 insures
+that the minnow is compatible with the way it is used in the PHISH
+input script, i.e. that the necessary input and output ports have been
+defined with valid <A HREF = "bait_connect.html">connection styles</A>.
 </P>
-<P>After errr checking, initialize hash to empty, and then call
-phish.loop().  This will look for incoming datums, invoking the
-callback count function when each is received.  It will not return
-until all input ports are closed, which will invoke the sort function.
-The minnow finally calls phish.exit() which deallocates memory
-allocated by the library, and closes any output ports of the minnow,
-which sends done messages to downstream minnows.
+<P>The <A HREF = "phish.input.html">phish.input</A> call specifies a callback function
+that the PHISH library will invoke when a datum arrives on that input
+port.  In this case, the count minnow defines a count() callback
+function which stores a received string in a hash table (Python
+dictionary) with an associated count of the number of times it has
+been received.
 </P>
-<P>Discuss count function.
+<P>On line 28, an empty hash table is initialized, and then the
+<A HREF = "phish.loop.html">phish.loop</A> functino is called.  This turns control
+over to the PHISH library, which will wait for datums to be received,
+invoking the appropriate callback function each time one arrives.
 </P>
-<P>Discuss sort function.
+<P>The call to <A HREF = "phish.input.html">phish.input</A> also defines a callback to
+the sort() function which is invoked when input port 0 is closed.
+This occurs when upstream minnows send the requisite number of "done"
+messages to the port.  The sort() function sends the contents of the
+hash table to output port 0, one datum at a time.  Each datum contains
+a unique string and its count.
 </P>
-<P>This structure is typical of many minnows.  A beginnning section with
-calls to phish.init() and input/output ports, and phish.check().
+<P>The <A HREF = "phish.loop.html">phish.loop</A> function returns after invoking
+sort() and when all input ports are closed.  The count minnow then
+calls the <A HREF = "phish.exit.html">phish.exit</A> function which will close its
+output port(s), and send "done" messages to downstream minnows
+connected to those ports.
 </P>
-<P>Then a call to 
-loop vs probe vs recv
-to receive datums.
+<P>This code structure is typical of many minnows.  A beginnning section
+with a call to <A HREF = "phish.init.html">phish.init</A>, definitions of
+input/output ports, and a call to <A HREF = "phish.check.html">phish.check</A>.
+Then a call to <A HREF = "phish.loop.html">phish.loop</A> or
+<A HREF = "phish.probe.html">phish.probe</A> or <A HREF = "phish.recv.html">phish.recv</A> to
+receive datums.  This is unnecessary if the minnow only generates
+datums, i.e. it is a source of data, but not a consumer of data.
 </P>
-<P>The callbacks unpack datums, process them, store state, send
-messsages via phish.pack() and phish.send().
+<P>One or more callback functions unpack datums via the
+<A HREF = "phish.unpack.html">phish.unpack</A> function, process their content,
+store state, and send messsages via <A HREF = "phish.pack.html">phish.pack</A> and
+<A HREF = "phish.send.html">phish.send</A> functions.
 </P>
-<P>After loop, etc exits, the minnow shuts down via a call to
-phish.close()
-or phish.exit(), since it will receive no more datums.
+<P>After <A HREF = "phish.loop.html">phish.loop</A> exits, the minnow shuts down via a
+call to <A HREF = "phish.close.html">phish.close</A> or <A HREF = "phish.exit.html">phish.exit</A>
+and terminates. See <A HREF = "#minnow_4">this section</A> for more discussion of
+shut down procedures.
 </P>
 <HR>
 
 <A NAME = "minnow_3"></A><H4>3.3 Communication via ports 
 </H4>
-<P>NOTE: dropping data versus perfrect answer (pipeline throttles itself)
+<P>As discussed above, ports are communication channels by which a minnow
+receives datums from an upstream minnow or sends datums to a
+downstream minnow.
 </P>
-<P>rules about ports
+<P>Any minnow can define and use up to MAXPORT number of input ports and
+MAXPORT number of output ports.  MAXPORT is a hardwired value in
+src/phish-mpi.cpp which is set to 16.  It can be changed if needed,
+but note that all minnows which use the PHISH library must be re-built
+since they must all use a consistent value of MAXPORT when run
+together in a PHISH net.
 </P>
-<P>Deinfe ports as in connect command
+<P>Note that a PHISH input script may connect a particular minnow to
+other minnows in a variety of ways.  This applies to both the <A HREF = "bait_connect.html">styles
+of connections</A> that are specified and the number of
+minnows on the other end of each connection.  Thus it is possible for
+the user to specify connections in the input script which the minnow
+does not support or even define.  Similarly, the input script may
+cause other minnows to send datums to the minnow which it does not
+expect or is unable to interpret.  This means a minnow should be coded
+to follow these rules:
 </P>
-<P>many connections to one port and vice versa is
-possible
+<UL>It should define each input port it receives datums on as "required"
+or "optional", via the <A HREF = "phish.input.html">phish.input</A> function.  This
+will generate erros if the PHISH input script is incompatible with the
+minnow. 
+<BR>
+It should define each output port it sends datums to, via the
+<A HREF = "phish.output.html">phish.output</A> function.  This will also generate
+errors for incompatible PHISH input scripts, though the use of output
+ports by a script is always optional. 
+<BR>
+The minnow should check the number of fields and data type of each
+field it receives, if it expects to receive datums of a specified
+structure and data type. 
+<BR>
+If possible and feasible, the minnow should be coded in a general
+manner to work with different kinds of datums and data types, so that
+it can be used in a variety of PHISH input scripts 
+<BR>
+Which port a datum arrived on is the only attribute of a received
+datum that a minnow can query (other than the format and content of
+the datum itself); see the <A HREF = "phish.datum.html">phish.datum</A> function.
+It cannot query which minnow sent it via what output port or which
+connection to the input port it arrived by.  These is because these
+are really settings made by the PHISH input script, and the minnow
+should not depend on them.  If such info is really necessary for the
+minnow to know, then it should be encoded as a field in the datum
+itself, so the minnow can extract it. 
+</UL><BR>
+<P>Here are other flexible attributes of input and output ports to note:
 </P>
-<P>port is only think queryable about a message, other
-than content.  Doesn't make sense to query what
-connection it came on or which proc in connection.
-This is b/c the input script is separate from the
-minnow.  Minnow actions shouldn't depend on that
-info.  If it does, then encode it in message.
+<UL>A single input port can receive datums from multiple other schools of
+minnows and multiple output ports. 
+<BR>
+A single output port can send datums to multiple other schools of
+minnows and multiple input ports. This means an individual datum may
+be sent multiple times to different minnows. 
+<BR>
+A minnow can send datums via its output port to its own input
+port. 
+<BR>
+<P>All of these scenarios can be setup by appropriate use of
+<A HREF = "bait.html">connect</A> commands in a PHISH input script.
 </P>
-<P>how general vs specific to write minnow when processing datums
-  note that PHISH input script can send unexpected data to minnow
+<P>An additional issue to consider is whether a communication channel can
+be saturated or drop datums.  Imagine a PHISH net where one minnow
+sends datums at a high rate to a receiving minnow, which cannot
+process them as fast as they are sent.  Over time, the receiving
+minnow is effectively a bottleneck in processing a stream of data.
+The PHISH library attempts to not lose messages in this scenario, with
+the effect that the overall pipeline of processing naturally throttles
+itself to the rate of the bottlenecking minnow.  This is handled by
+the underlying MPI or socket message passing protocols.  In the case
+of MPI, the sending and receiving processes coordinate data
+exchanges. By default this is done via MPI_Send() and MPI_Recv()
+calls.  If you get a run-time MPI error about dropping messages, then
+you should use the "safe" mode of data exchange which can be enabled
+by the <A HREF = "bait_set.html">set safe</A> command in a PHISH input script.  This
+will use MPI_Ssend() calls which enforce extra handshaking between the
+sending and receiving processes to avoid dropping messages.
+</P>
+<P>Note that if the PHISH net is processing real=time data in a
+continuous streaming mode, and one or more PHISH minnows cannot keep
+up with the incoming data rate, then the minnow that ingests the real
+time stream has no choice but to drop data at some point.
+</P>
+<P>TIM: is there a socket analog to this issue?
 </P>
 <HR>
 
 <A NAME = "minnow_4"></A><H4>3.4 Shutting down a minnow 
 </H4>
-<P>regular datum vs done message
+<P>PHISH minnows can be designed to process a finite or infinite stream
+of data.  In the latter case, the PHISH net of minnows is typically
+shut down by the user killing one or more of the processes.  In the
+former case, you often want each minnow in the net to shut down
+cleanly.  The PHISH library sends special "done" messages when the
+minnow closes one of its output ports.  This is triggered by a call to
+the <A HREF = "phish_close.html">phish_close</A> function, which closes a single
+port, or the <A HREF = "phish_exit.html">phish_exit</A> function which closes all
+output ports.  A "done message is sent to each receiving minnow of
+each input port connected to the corresponding output port.  The
+receiving minnow counts these messages as they arrive.  When it has
+received one "done" message from every minnow that connects to one of
+its input ports, it closes the input port and the library calls back
+to the minnow (if a callback function was defined by the
+<A HREF = "phish_input">phish_inpu</A> .htmlt function).  When all its input ports
+have been closed it makes an additional callback to the minnow (if a
+callback function was defined by the
+<A HREF = "phish_callback.html">phish_callback</A> function).
 </P>
-<P>For a PHISH program whose minnows operate in a pipelined
-one-directional fashion (e.g. one or more minnows read input,
-send datums to a 2nd set of minnows, on to a 3rd set, etc), it
-is typically sufficient to trigger an orderly shutdown of
-the entire program 
+<P>This mechanism is often sufficient to trigger an orderly shutdown of
+an entire PHISH net by all its minnows, if the most upstream minnow
+initiates the process by closing its output ports via a call to
+<A HREF = "phish_exit.html">phish_exit</A>.  An exception is when a school of
+minnows exchanges data in a "ring" style of commuication as setup by
+the <A HREF = "bait_connect.html">connect ring</A> command in a PHISH input script.
+In this case, if the first minnow in the ring invokes the phish_exit
+function, it will no longer be receiving datums when the last minnow
+in the ring attempts to send it a "done" message.  In this case, the
+first minnow should instead invoke <A HREF = "phish_close.html">phish_close</A> on
+the output port for the ring, then wait to receive its final "done"
+message before calling <A HREF = "phish_exit.html">phish_exit</A>.
 </P>
-<P>one-way schools, triggered by head
-done messages, per port level
-close ports explicitly or implicitly
-calls to exit, close, etc
-special care for ring or chain connections
-or when school has loops
-Ctrl-C option
-output at end
+<P>NOTE: doc what happens if Ctrl-C out of mpirun
 </P>
-<P>doc how to shutdown a ring, which is tricky
-  if one calls phish exit first, then can't receive its close messgae
-  do it like in ccdummy, where one calls phish close first,
-    then wait in loop for last message to return to it
-</P>
-<P>shutdown in ZMQ is buggy
+<P>NOTE: doc that shutdown in ZMQ is buggy
 </P>
 <HR>
 
 <A NAME = "minnow_5"></A><H4>3.5 Building a minnow 
 </H4>
-<P>makefile
+<P>Minnow are stand-alone programs which simply need to be linked with
+the PHISH library.  New minnows written in C++ can be added to the
+minnows directory of the PHISH distribution and built in the following
+manner; minnows written in Python do not need to be built.
 </P>
-<P>debug a school in stages, since no connection
-to an output ports is required, or could just hook output to
-a print minnow
+<P>All the existing C++ minnows can be built by typing
 </P>
-<P>use of slowdown minnow to throttle
+<PRE>make machine 
+</PRE>
+<P>where machine is the suffix of one of the Makefiles in the directory,
+e.g. linux.  If one of the provided Makefiles does not work for
+your machine, you can create a new one, using an existing files
+as a template.  Only the "compiler/linker settings" section need
+be edited.
+</P>
+<P>NOTE: how to build MPI vs ZMQ versions of minnows via Makefile
+</P>
+<P>If a new minnow is a single file, include the keyword MINNOW (in all
+capital letters) somewhere in the file, e.g. as a comment at the top.
+It will then be built along with all the others by typing
+</P>
+<PRE>make machine 
+</PRE>
+<P>If the new minnow is more complex, you can add a specific rule for how
+to build it to the Makefile.machine you use, e.g. that defines a new
+target with a list of OBJ files that it depends on.  Or you can use
+your own custom Makefile and build it in a separate directory, so long
+as you link to the PHISH library, similar to how the Makefile.machine
+files perform this final build step.
 </P>
 </HTML>
