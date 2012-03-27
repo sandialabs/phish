@@ -152,9 +152,6 @@ def send_key(iport,key):
 def send_direct(iport,receiver):
   lib.phish_send_direct(iport,receiver)
 
-def reset_receiver(iport,receiver):
-  lib.phish_reset_receiver(iport,receiver)
-
 def repack():
   lib.phish_repack()
 
@@ -403,6 +400,10 @@ def nqueue():
 def query(str,flag1,flag2):
   cstr = c_char_p(str)
   return lib.phish_query(cstr,flag1,flag2)
+
+def set(str,flag1,flag2):
+  cstr = c_char_p(str)
+  lib.phish_set(cstr,flag1,flag2)
 
 def error(str):
   lib.phish_error(str)
