@@ -117,7 +117,7 @@ static inline void pack_value(const T& value, uint8_t type)
 }
 
 template<typename T>
-static inline void pack_array(const T* array, uint32_t count, uint8_t type)
+static inline void pack_array(const T* array, int32_t count, uint8_t type)
 {
   pack(type, count, sizeof(T), array);
 }
@@ -833,12 +833,7 @@ void phish_reset_receiver(int, int)
   throw std::runtime_error("Not implemented.");
 }
 
-void phish_pack_datum(char *, uint32_t)
-{
-  throw std::runtime_error("Not implemented.");
-}
-
-void phish_pack_raw(char* data, uint32_t length)
+void phish_pack_raw(char* data, int32_t length)
 {
   pack(PHISH_RAW, length, sizeof(char), data);
 }
@@ -903,62 +898,62 @@ void phish_pack_string(char* value)
   pack(PHISH_STRING, strlen(value) + 1, sizeof(char), value);
 }
 
-void phish_pack_int8_array(int8_t* array, uint32_t count)
+void phish_pack_int8_array(int8_t* array, int32_t count)
 {
   pack_array(array, count, PHISH_INT8_ARRAY);
 }
 
-void phish_pack_int16_array(int16_t* array, uint32_t count)
+void phish_pack_int16_array(int16_t* array, int32_t count)
 {
   pack_array(array, count, PHISH_INT16_ARRAY);
 }
 
-void phish_pack_int32_array(int32_t* array, uint32_t count)
+void phish_pack_int32_array(int32_t* array, int32_t count)
 {
   pack_array(array, count, PHISH_INT32_ARRAY);
 }
 
-void phish_pack_int64_array(int64_t* array, uint32_t count)
+void phish_pack_int64_array(int64_t* array, int32_t count)
 {
   pack_array(array, count, PHISH_INT64_ARRAY);
 }
 
-void phish_pack_uint8_array(uint8_t* array, uint32_t count)
+void phish_pack_uint8_array(uint8_t* array, int32_t count)
 {
   pack_array(array, count, PHISH_UINT8_ARRAY);
 }
 
-void phish_pack_uint16_array(uint16_t* array, uint32_t count)
+void phish_pack_uint16_array(uint16_t* array, int32_t count)
 {
   pack_array(array, count, PHISH_UINT16_ARRAY);
 }
 
-void phish_pack_uint32_array(uint32_t* array, uint32_t count)
+void phish_pack_uint32_array(uint32_t* array, int32_t count)
 {
   pack_array(array, count, PHISH_UINT32_ARRAY);
 }
 
-void phish_pack_uint64_array(uint64_t* array, uint32_t count)
+void phish_pack_uint64_array(uint64_t* array, int32_t count)
 {
   pack_array(array, count, PHISH_UINT64_ARRAY);
 }
 
-void phish_pack_float_array(float* array, uint32_t count)
+void phish_pack_float_array(float* array, int32_t count)
 {
   pack_array(array, count, PHISH_FLOAT_ARRAY);
 }
 
-void phish_pack_double_array(double* array, uint32_t count)
+void phish_pack_double_array(double* array, int32_t count)
 {
   pack_array(array, count, PHISH_DOUBLE_ARRAY);
 }
 
-void phish_pack_pickle(char* data, uint32_t count)
+void phish_pack_pickle(char* data, int32_t count)
 {
   pack(PHISH_PICKLE, count, sizeof(char), data);
 }
 
-int phish_unpack(char** data, uint32_t* count)
+int phish_unpack(char** data, int32_t* count)
 {
   if(g_unpack_index >= g_unpack_count)
     throw std::runtime_error("No data to unpack.");
@@ -975,11 +970,6 @@ int phish_unpack(char** data, uint32_t* count)
 
   g_unpack_index += 1;
   return type;
-}
-
-int phish_datum(char **, uint32_t*)
-{
-  throw std::runtime_error("Not implemented.");
 }
 
 int phish_query(const char* kw, int flag1, int flag2)

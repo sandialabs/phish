@@ -18,7 +18,7 @@ void message_callback(int parts)
       *stream << ", ";
 
     char* buffer;
-    uint32_t length;
+    int32_t length;
     switch(phish::unpack(buffer, length))
     {
       case phish::INT8:

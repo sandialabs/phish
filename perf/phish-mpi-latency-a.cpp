@@ -11,7 +11,7 @@ int received = 0;
 void message_callback(int parts)
 {
   char* message = 0;
-  uint32_t length = 0;
+  int32_t length = 0;
   const int type = phish_unpack(&message, &length);
 
   if(length != size + 1)

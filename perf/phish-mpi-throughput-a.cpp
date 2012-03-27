@@ -15,7 +15,7 @@ void message_callback(int parts)
     start = phish_timer();
 
   char* message = 0;
-  uint32_t length = 0;
+  int32_t length = 0;
   const int type = phish_unpack(&message, &length);
   if(length != size + 1)
     throw std::runtime_error("message size mismatch");

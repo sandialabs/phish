@@ -101,13 +101,13 @@ void pack(double data) { LOG_CALL(); ::phish_pack_double(data); }
 void pack(const char* data) { LOG_CALL(); ::phish_pack_string(const_cast<char*>(data)); }
 void pack(const std::string& data) { LOG_CALL(); ::phish_pack_string(const_cast<char*>(data.c_str())); }
 
-data_type unpack(char*& data, uint32_t& count) { return static_cast<data_type>(::phish_unpack(&data, &count)); }
+data_type unpack(char*& data, int32_t& count) { return static_cast<data_type>(::phish_unpack(&data, &count)); }
 
 template<typename T>
 void unpack(T& data, data_type type)
 {
   char* buffer;
-  uint32_t count;
+  int32_t count;
   if(unpack(buffer, count) != type)
     throw std::runtime_error("Data type mismatch.");
   data = *reinterpret_cast<T*>(buffer);
@@ -128,7 +128,7 @@ void unpack(std::string& data)
 {
   LOG_CALL();
   char* buffer;
-  uint32_t length;
+  int32_t length;
   if(unpack(buffer, length) != STRING)
     throw std::runtime_error("Data type mismatch.");
   data = std::string(buffer, length-1);
