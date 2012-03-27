@@ -5,10 +5,7 @@ int size = 0;
 
 void message_callback(int parts)
 {
-  const std::string message = phish::unpack<std::string>();
-  if(message.size() != size)
-    throw std::runtime_error("message size mismatch");
-  phish::pack(message);
+  phish::repack();
   phish::send();
 }
 

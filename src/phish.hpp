@@ -87,6 +87,7 @@ void loop() { LOG_CALL(); ::phish_loop(); }
 void send(int port = 0) { LOG_CALL(); ::phish_send(port); }
 void send_key(const char* key, int key_length, int port = 0) { LOG_CALL(); ::phish_send_key(port, const_cast<char*>(key), key_length); }
 
+void repack() { LOG_CALL(); ::phish_repack(); }
 void pack(char data) { LOG_CALL(); ::phish_pack_char(data); }
 void pack(int8_t data) { LOG_CALL(); ::phish_pack_int8(data); }
 void pack(int16_t data) { LOG_CALL(); ::phish_pack_int16(data); }

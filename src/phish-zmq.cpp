@@ -833,6 +833,17 @@ void phish_reset_receiver(int, int)
   throw std::runtime_error("Not implemented.");
 }
 
+void phish_repack()
+{
+  for(uint32_t i = 0; i != g_unpack_count; ++i)
+  {
+    zmq::message_t* const source = g_unpack_messages[i];
+    zmq::message_t* const destination = new zmq::message_t(source->size());
+    ::memcpy(destination->data(), source->data(), source->size());
+    g_pack_messages.push_back(destination);
+  }
+}
+
 void phish_pack_raw(char* data, int32_t length)
 {
   pack(PHISH_RAW, length, sizeof(char), data);
