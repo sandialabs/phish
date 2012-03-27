@@ -35,10 +35,6 @@ to understand how data is stored internally in a datum by the PHISH
 library.  This topic is discussed below, in the section entitled
 <A HREF = "#library_3">Format of a datum</A>.
 </P>
-<P>NOTE: Say something about using int32 or uint32 versus just int in
-minnow.  Either here and in datum format section and in phish_pack
-doc page.
-</P>
 <UL><LI>4.1 <A HREF = "#library_1">List of library functions</A>
 <LI>4.2 <A HREF = "#library_2">C vs C++ vs Python interface</A>
 <LI>4.3 <A HREF = "#library_3">Format of a datum</A> 
@@ -202,35 +198,61 @@ A Python program can then invoke a library function as
 <PRE>import phish
 phish.error("My error") 
 </PRE>
+<P>or 
+</P>
+<PRE>from import phish *
+error("My error") 
+</PRE>
 <HR>
 
 <A NAME = "library_3"></A><H4>4.3 Format of a datum 
 </H4>
-<P>Care taken to pack datum with expliclty sized values, since may be
-done on different machines, with different word lengths.  At some
-point, might worry about endian swapping.  Force you to use explicit
-pack functions.  Also the flags are 32-bit ints.  At some point if can
-make float/double portable, will enforce that too.
+<P>The chief function of the PHISH library is to facilitate the exchange
+of data between minnows.  This is done through datums, which contain
+one or more fields of data.  Each field is a fundamental data type
+such as a "32-bit integer" or a "vector of doubles" or a
+NULL-terminated character string.
 </P>
-<P>A datum is a chunk of bytes sent from one PHISH minnow to another.
-This section describes the format of the chunk, which is the same whether
-the datum is sent via MPI or via sockets.
+<P>The PHISH library defines a specific explicit type for each
+fundamental data type it recognizes, such as "int32" for 32-bit signed
+integers or "uint64" for 64-bit unsigned integers, or "double" for a
+double-precision value.  This is so that the format of the datum, at
+the byte level, is identical on different machines, and datums can
+thus be exchanged between minnows running on machines with different
+word lengths or between minnows written in different languages (e.g. C
+vs Fortran vs Python).
 </P>
-<P>NOTE: discuss and use int32_t in what is below
+<P>IMPORTANT NOTE: Different endian ordering of fundamental numeric data
+types on different machines breaks this model.  We may address this at
+some future time within the PHISH library.
 </P>
-<UL><LI># of fields in datum (int)
-<LI>type of 1st field (int)
-<LI>size of 1st field (optional int)
+<P>This is the byte-level format of datums that are sent and received by
+minnows:
+</P>
+<UL><LI># of fields in datum (int32_t)
+<LI>type of 1st field (int32_t)
+<LI>size of 1st field (optional int32_t)
 <LI>data for 1st field (bytes)
-<LI>type of 2nd field (int)
-<LI>size of 2nd field (optional int)
+<LI>type of 2nd field (int32_t)
+<LI>size of 2nd field (optional int32_t)
 <LI>data for 2nd field (bytes)
 <LI>...
-<LI>type of Nth field (int)
-<LI>size of Nth field (optional int)
+<LI>type of Nth field (int32_t)
+<LI>size of Nth field (optional int32_t)
 <LI>data for Nth field (bytes) 
 </UL>
-<P>The "type" values are one of these settings, as defined in src/phish.h:
+<P>Integer flags are interleaved with the fundamental data types and the
+flags are all 32-bit signed integers.  This allows minnows that call
+the <A HREF = "phish_pack.html">phish_pack</A> and <A HREF = "phish_unpack.html">phish_unpack</A>
+functions to use the usual C "int" data type as function arguments,
+instead of the int32_t types defined in the function prototypes.  The
+compiler will only give an error if the native "int" on a machine is
+not a 32-bit integer.  See the doc pages for
+<A HREF = "phish_pack.html">phish_pack</A> and <A HREF = "phish_unpack.html">phish_unpack</A> for
+details.
+</P>
+<P>The "type" values are one of these settings, as defined in
+src/phish.h:
 </P>
 <UL><LI>PHISH_RAW = 0
 <LI>PHISH_CHAR = 1
@@ -257,38 +279,36 @@ the datum is sent via MPI or via sockets.
 <LI>PHISH_DOUBLE_ARRAY = 22
 <LI>PHISH_PICKLE = 23 
 </UL>
-<P>NOTE: add info on all new data types
-</P>
-<P>NOTE: discuss why are picky about int32, etc so can be
-portable across machines
-</P>
 <P>PHISH_RAW is a string of raw bytes, which can be of any length, and
-which the minnow can format in any manner.  PHISH_BYTE, PHISH_INT,
-PHISH_UINT64, and PHISH_DOUBLE are a single byte, int, uint64, and
-double value.  PHISH_INT is a signed int, typically 32-bits in length.
-PHISH_UINT64 is an unsigned 64-bit int.  PHISH_STRING is a standard
-C-style NULL-terminated C-string.  The NULL is included in the field.
-The ARRAYS are contiguous sequences of int, uint64 or double values.
+which the minnow can format in any manner.  PHISH_CHAR, PHISH_INT*,
+PHISH_UINT*, PHISH_FLOAT, and PHISH_DOUBLE are a single character,
+signed integer (of length 8,16,32,64 bits), unsigned integer (of
+length 8,16,32,64 bits), a float (typically 4 bytes), and double
+(typically 8 bytes).  PHISH_STRING is a standard C-style
+NULL-terminated C-string.  The NULL is included in the field.  The
+ARRAYS are contiguous sequences of int*, uint*, float, or double
+values.  PHISH_PICKLE is used by the Python wrapper on the PHISH
+library to encode arbitrary Python objects in pickled form as a string
+of bytes.
 </P>
 <P>The "size" values are only included for PHISH_RAW (# of bytes),
-PHISH_STRING (# of bytes including NULL), and the ARRAY types (# of
-values).
+PHISH_STRING (# of bytes including NULL), the ARRAY types (# of
+values), and PHISH_PICKLE (# of bytes).
 </P>
 <P>The field data is packed into the datum in a contiguous manner.
 This means that no attention is paid to alignment of integer
 or floating point values.
 </P>
-<P>The maximum allowed size of an entire datum (in bytes) is set by
-MAXBUF in src/phish.cpp, which defaults to 1 Mbyte.
+<P>The maximum allowed size of an entire datum (in bytes) is set to a
+default value of 1024 bytes or 1 Kbyte.  This can be overridden via
+the <A HREF = "bait_set.html">set memory</A> command in a PHISH input script.
 </P>
-<P>NOTE: this is now a user-settable parameter
-</P>
-<P>When a datum is sent via the MPI version of the PHISH library, MPI
-flags the message with an MPI "tag".  This tag encodes the receiving
-minnow's input port and also a "done" flag.  Specifically, if the
-datum is not a done message, the tag is the receiver's input port (0
-to Nport-1).  For a done message a value of MAXPORT (defined at the
-top of src/phish.cpp) is added to the tag.
+<P>When a datum is sent to another minnow via the MPI version of the
+PHISH library, MPI flags the message with an MPI "tag".  This tag
+encodes the receiving minnow's input port and also a "done" flag.
+Specifically, if the datum is not a done message, the tag is the
+receiver's input port (0 to Nport-1).  For a done message a value of
+MAXPORT (defined at the top of src/phish.cpp) is added to the tag.
 </P>
 <P>NOTE: MAXPORT is hardwired, could re-compile - this is
 so all minnows use same setting.
