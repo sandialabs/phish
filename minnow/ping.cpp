@@ -48,12 +48,11 @@ int main(int narg, char **args)
 void ping(int nvalues)
 {
   char *buf;
-  uint32_t len;
+  int len;
 
   count++;
   if (count < n) {
-    phish_datum(&buf,&len);
-    phish_pack_datum(buf,len);
+    phish_repack();
     phish_send(0);
   } else phish_close(0);
 }

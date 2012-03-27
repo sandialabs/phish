@@ -37,7 +37,7 @@ int main(int narg, char **args)
 void count(int nvalues)
 {
   char *buf;
-  uint32_t len;
+  int len;
 
   if (nvalues != 1) phish_error("Count processes one-value datums");
 

@@ -27,9 +27,8 @@ int main(int narg, char **args)
 void pong(int nvalues)
 {
   char *buf;
-  uint32_t len;
+  int len;
 
-  phish_datum(&buf,&len);
-  phish_pack_datum(buf,len);
+  phish_repack();
   phish_send(0);
 }

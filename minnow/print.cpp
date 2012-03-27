@@ -41,7 +41,7 @@ int main(int narg, char **args)
 void print(int nvalues)
 {
   char *value;
-  uint32_t len;
+  int len;
 
   for (int i = 0; i < nvalues; i++) {
     int type = phish_unpack(&value,&len);

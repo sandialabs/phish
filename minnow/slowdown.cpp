@@ -43,10 +43,9 @@ void send(int nvalues)
   }
 
   char *buf;
-  uint32_t len;
+  int len;
 
-  phish_datum(&buf,&len);
-  phish_pack_datum(buf,len);
+  phish_repack();
   phish_send(0);
 
   time_previous = phish_timer();

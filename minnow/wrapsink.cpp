@@ -47,7 +47,7 @@ int main(int narg, char **args)
 void sink(int nvalues)
 {
   char *str;
-  uint32_t len;
+  int len;
 
   if (nvalues != 1) phish_error("Warpsink processes one-value datums");
   int type = phish_unpack(&str,&len);

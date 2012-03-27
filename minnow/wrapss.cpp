@@ -120,7 +120,7 @@ int main(int narg, char **args)
 void writepipe(int nvalues)
 {
   char *buf;
-  uint32_t len;
+  int len;
 
   if (nvalues != 1) phish_error("Wrapss processes one-value datums");
   int type = phish_unpack(&buf,&len);
