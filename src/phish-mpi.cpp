@@ -509,7 +509,7 @@ void phish_output(int iport)
   if (checkflag) phish_error("Phish_check has already been called");
 
   if (iport < 0 || iport > MAXPORT)
-    phish_error("Invalid port count in phish_output");
+    phish_error("Invalid port ID in phish_output");
 
   if (outports[iport].status == UNUSED_PORT) return;
   outports[iport].status = OPEN_PORT;
@@ -580,7 +580,7 @@ void phish_close(int iport)
   if (!checkflag) phish_error("Phish_check has not been called");
 
   if (iport < 0 || iport >= MAXPORT)
-    phish_error("Invalid port ID for phish_close");
+    phish_error("Invalid port ID in phish_close");
   OutPort *op = &outports[iport];
   if (op->status != OPEN_PORT) return;
 
@@ -790,7 +790,7 @@ int phish_recv()
 void phish_send(int iport)
 {
   if (iport < 0 || iport >= MAXPORT) 
-    phish_error("Invalid port ID for phish_send");
+    phish_error("Invalid port ID in phish_send");
 
   OutPort *op = &outports[iport];
   if (op->status == UNUSED_PORT) return;
@@ -824,7 +824,7 @@ void phish_send(int iport)
 void phish_send_key(int iport, char *key, int keybytes)
 {
   if (iport < 0 || iport >= MAXPORT)
-    phish_error("Invalid port ID for phish_send_key");
+    phish_error("Invalid port ID in phish_send_key");
 
   OutPort *op = &outports[iport];
   if (op->status == UNUSED_PORT) return;
@@ -876,7 +876,7 @@ void phish_send_key(int iport, char *key, int keybytes)
 void phish_send_direct(int iport, int receiver)
 {
   if (iport < 0 || iport >= MAXPORT) 
-    phish_error("Invalid port ID for phish_send");
+    phish_error("Invalid port ID in phish_send");
 
   OutPort *op = &outports[iport];
   if (op->status == UNUSED_PORT) return;
@@ -981,7 +981,7 @@ void send(OutConnect *oc)
 void phish_reset_receiver(int iport, int receiver)
 {
   if (iport < 0 || iport >= MAXPORT) 
-    phish_error("Invalid port ID for phish_reset_receiver");
+    phish_error("Invalid port ID in phish_reset_receiver");
   OutPort *op = &outports[iport];
   if (op->status == UNUSED_PORT || op->status == CLOSED_PORT) 
     phish_error("Using phish_reset_receiver with unused or closed port");
@@ -997,6 +997,21 @@ void phish_reset_receiver(int iport, int receiver)
 }
 
 /* ----------------------------------------------------------------------
+   copy fields of receive buffer into send buffer
+   do not copy initial nrfields value in rbuf
+------------------------------------------------------------------------- */
+
+void phish_repack()
+{
+  int nbytes = nrbytes - sizeof(int32_t);
+  if (sptr + nbytes - sbuf > maxbuf) phish_error("Send buffer overflow");
+
+  memcpy(sptr,rbuf+sizeof(int32_t),nbytes);
+  sptr += nbytes;
+  npack += nrfields;
+}
+
+/* ----------------------------------------------------------------------
    pack the sbuf with values
    first field = value type
    second field (only for arrays) = # of values
@@ -1005,28 +1020,15 @@ void phish_reset_receiver(int iport, int receiver)
      NOT functions in the PHISH API
 ------------------------------------------------------------------------- */
 
-// NOTE: can we use int32_t instead of uint32 everywhere?
-//       so that users can use "int" in their apps,
-//       unless on a 8-byte int machine
-
-void phish_pack_datum(char *buf, uint32_t len)
+void phish_pack_raw(char *buf, int32_t len)
 {
-  if (len > maxbuf) phish_error("Send buffer overflow");
-
-  memcpy(sbuf,buf,len);
-  sptr = sbuf + len;
-  npack = *(int *) sbuf;
-}
-
-void phish_pack_raw(char *buf, uint32_t len)
-{
-  if (sptr + 2*sizeof(uint32_t) + len - sbuf > maxbuf)
+  if (sptr + 2*sizeof(int32_t) + len - sbuf > maxbuf)
     phish_error("Send buffer overflow");
 
-  *(uint32_t *) sptr = PHISH_RAW;
-  sptr += sizeof(uint32_t);
-  *(uint32_t *) sptr = len;
-  sptr += sizeof(uint32_t);
+  *(int32_t *) sptr = PHISH_RAW;
+  sptr += sizeof(int32_t);
+  *(int32_t *) sptr = len;
+  sptr += sizeof(int32_t);
   memcpy(sptr,buf,len);
   sptr += len;
   npack++;
@@ -1035,11 +1037,11 @@ void phish_pack_raw(char *buf, uint32_t len)
 template<typename T>
 inline void phish_pack_helper(const T& value, int data_type)
 {
-  if (sptr + sizeof(uint32_t) + sizeof(T) - sbuf > maxbuf)
+  if (sptr + sizeof(int32_t) + sizeof(T) - sbuf > maxbuf)
     phish_error("Send buffer overflow");
 
-  *(uint32_t *) sptr = data_type;
-  sptr += sizeof(uint32_t);
+  *(int32_t *) sptr = data_type;
+  sptr += sizeof(int32_t);
   *(T *) sptr = value;
   sptr += sizeof(T);
   npack++;
@@ -1103,80 +1105,80 @@ void phish_pack_double(double value)
 void phish_pack_string(char *str)
 {
   int nbytes = strlen(str) + 1;
-  if (sptr + 2*sizeof(uint32_t) + nbytes - sbuf > maxbuf)
+  if (sptr + 2*sizeof(int32_t) + nbytes - sbuf > maxbuf)
     phish_error("Send buffer overflow");
 
-  *(uint32_t *) sptr = PHISH_STRING;
-  sptr += sizeof(uint32_t);
-  *(uint32_t *) sptr = nbytes;
-  sptr += sizeof(uint32_t);
+  *(int32_t *) sptr = PHISH_STRING;
+  sptr += sizeof(int32_t);
+  *(int32_t *) sptr = nbytes;
+  sptr += sizeof(int32_t);
   memcpy(sptr,str,nbytes);
   sptr += nbytes;
   npack++;
 }
 
 template<typename T>
-inline void phish_pack_array_helper(T *vec, uint32_t n, int data_type)
+inline void phish_pack_array_helper(T *vec, int32_t n, int data_type)
 {
   int nbytes = n*sizeof(T);
-  if (sptr + 2*sizeof(uint32_t) + nbytes - sbuf > maxbuf)
+  if (sptr + 2*sizeof(int32_t) + nbytes - sbuf > maxbuf)
     phish_error("Send buffer overflow");
 
-  *(uint32_t *) sptr = data_type;
-  sptr += sizeof(uint32_t);
-  *(uint32_t *) sptr = n;
-  sptr += sizeof(uint32_t);
+  *(int32_t *) sptr = data_type;
+  sptr += sizeof(int32_t);
+  *(int32_t *) sptr = n;
+  sptr += sizeof(int32_t);
   memcpy(sptr,vec,nbytes);
   sptr += nbytes;
   npack++;
 }
 
-void phish_pack_int8_array(int8_t *vec, uint32_t n)
+void phish_pack_int8_array(int8_t *vec, int32_t n)
 {
   phish_pack_array_helper(vec,n,PHISH_INT8_ARRAY);
 }
 
-void phish_pack_int16_array(int16_t *vec, uint32_t n)
+void phish_pack_int16_array(int16_t *vec, int32_t n)
 {
   phish_pack_array_helper(vec,n,PHISH_INT16_ARRAY);
 }
 
-void phish_pack_int32_array(int32_t *vec, uint32_t n)
+void phish_pack_int32_array(int32_t *vec, int32_t n)
 {
   phish_pack_array_helper(vec,n,PHISH_INT32_ARRAY);
 }
 
-void phish_pack_int64_array(int64_t *vec, uint32_t n)
+void phish_pack_int64_array(int64_t *vec, int32_t n)
 {
   phish_pack_array_helper(vec,n,PHISH_INT64_ARRAY);
 }
 
-void phish_pack_uint8_array(uint8_t *vec, uint32_t n)
+void phish_pack_uint8_array(uint8_t *vec, int32_t n)
 {
   phish_pack_array_helper(vec,n,PHISH_UINT8_ARRAY);
 }
 
-void phish_pack_uint16_array(uint16_t *vec, uint32_t n)
+void phish_pack_uint16_array(uint16_t *vec, int32_t n)
 {
   phish_pack_array_helper(vec,n,PHISH_UINT16_ARRAY);
 }
 
-void phish_pack_uint32_array(uint32_t *vec, uint32_t n)
+void phish_pack_uint32_array(uint32_t *vec, int32_t n)
 {
   phish_pack_array_helper(vec,n,PHISH_UINT32_ARRAY);
 }
 
-void phish_pack_uint64_array(uint64_t *vec, uint32_t n)
+void phish_pack_uint64_array(uint64_t *vec, int32_t n)
 {
   phish_pack_array_helper(vec,n,PHISH_UINT64_ARRAY);
 }
 
-void phish_pack_float_array(float *vec, uint32_t n)
+void phish_pack_float_array(float *vec, int32_t n)
 {
   phish_pack_array_helper(vec,n,PHISH_FLOAT_ARRAY);
 }
 
-void phish_pack_double_array(double *vec, uint32_t n)
+void phish_pack_double_array(double *vec, int32_t n)
 {
   phish_pack_array_helper(vec,n,PHISH_DOUBLE_ARRAY);
 }
@@ -1185,15 +1187,15 @@ void phish_pack_double_array(double *vec, uint32_t n)
    same as phish_pack_raw(), execpt for PHISH_PICKLE flag
 ------------------------------------------------------------------------- */
 
-void phish_pack_pickle(char *buf, uint32_t len)
+void phish_pack_pickle(char *buf, int32_t len)
 {
-  if (sptr + 2*sizeof(uint32_t) + len - sbuf > maxbuf)
+  if (sptr + 2*sizeof(int32_t) + len - sbuf > maxbuf)
     phish_error("Send buffer overflow");
 
-  *(uint32_t *) sptr = PHISH_PICKLE;
-  sptr += sizeof(uint32_t);
-  *(uint32_t *) sptr = len;
-  sptr += sizeof(uint32_t);
+  *(int32_t *) sptr = PHISH_PICKLE;
+  sptr += sizeof(int32_t);
+  *(int32_t *) sptr = len;
+  sptr += sizeof(int32_t);
   memcpy(sptr,buf,len);
   sptr += len;
   npack++;
@@ -1209,18 +1211,18 @@ void phish_pack_pickle(char *buf, uint32_t len)
    PHISH_PICKLE is same as PHISH_RAW
 ------------------------------------------------------------------------- */
 
-int phish_unpack(char **buf, uint32_t *len)
+int phish_unpack(char **buf, int32_t *len)
 {
   if (nunpack == nrfields) phish_error("Recv buffer empty");
 
-  uint32_t type = *(uint32_t *) rptr;
-  rptr += sizeof(uint32_t);
+  int32_t type = *(int32_t *) rptr;
+  rptr += sizeof(int32_t);
 
-  uint32_t nbytes;
+  int32_t nbytes;
   switch (type) {
   case PHISH_RAW:
-    *len = nbytes = *(uint32_t *) rptr;
-    rptr += sizeof(uint32_t);
+    *len = nbytes = *(int32_t *) rptr;
+    rptr += sizeof(int32_t);
     break;
   case PHISH_CHAR:
     *len = 1;
@@ -1267,62 +1269,62 @@ int phish_unpack(char **buf, uint32_t *len)
     nbytes = sizeof(double);
     break;
   case PHISH_STRING:
-    *len = nbytes = *(uint32_t *) rptr;
-    rptr += sizeof(uint32_t);
+    *len = nbytes = *(int32_t *) rptr;
+    rptr += sizeof(int32_t);
     break;
   case PHISH_INT8_ARRAY:
-    *len = *(uint32_t *) rptr;
-    rptr += sizeof(uint32_t);
+    *len = *(int32_t *) rptr;
+    rptr += sizeof(int32_t);
     nbytes = *len * sizeof(int8_t);
     break;
   case PHISH_INT16_ARRAY:
-    *len = *(uint32_t *) rptr;
-    rptr += sizeof(uint32_t);
+    *len = *(int32_t *) rptr;
+    rptr += sizeof(int32_t);
     nbytes = *len * sizeof(int16_t);
     break;
   case PHISH_INT32_ARRAY:
-    *len = *(uint32_t *) rptr;
-    rptr += sizeof(uint32_t);
+    *len = *(int32_t *) rptr;
+    rptr += sizeof(int32_t);
     nbytes = *len * sizeof(int32_t);
     break;
   case PHISH_INT64_ARRAY:
-    *len = *(uint32_t *) rptr;
-    rptr += sizeof(uint32_t);
+    *len = *(int32_t *) rptr;
+    rptr += sizeof(int32_t);
     nbytes = *len * sizeof(int64_t);
     break;
   case PHISH_UINT8_ARRAY:
-    *len = *(uint32_t *) rptr;
-    rptr += sizeof(uint32_t);
+    *len = *(int32_t *) rptr;
+    rptr += sizeof(int32_t);
     nbytes = *len * sizeof(uint8_t);
     break;
   case PHISH_UINT16_ARRAY:
-    *len = *(uint32_t *) rptr;
-    rptr += sizeof(uint32_t);
+    *len = *(int32_t *) rptr;
+    rptr += sizeof(int32_t);
     nbytes = *len * sizeof(uint16_t);
     break;
   case PHISH_UINT32_ARRAY:
-    *len = *(uint32_t *) rptr;
-    rptr += sizeof(uint32_t);
+    *len = *(int32_t *) rptr;
+    rptr += sizeof(int32_t);
     nbytes = *len * sizeof(uint32_t);
     break;
   case PHISH_UINT64_ARRAY:
-    *len = *(uint32_t *) rptr;
-    rptr += sizeof(uint32_t);
+    *len = *(int32_t *) rptr;
+    rptr += sizeof(int32_t);
     nbytes = *len * sizeof(uint64_t);
     break;
   case PHISH_FLOAT_ARRAY:
-    *len = *(uint32_t *) rptr;
-    rptr += sizeof(uint32_t);
+    *len = *(int32_t *) rptr;
+    rptr += sizeof(int32_t);
     nbytes = *len * sizeof(float);
     break;
   case PHISH_DOUBLE_ARRAY:
-    *len = *(uint32_t *) rptr;
-    rptr += sizeof(uint32_t);
+    *len = *(int32_t *) rptr;
+    rptr += sizeof(int32_t);
     nbytes = *len * sizeof(double);
     break;
   case PHISH_PICKLE:
-    *len = nbytes = *(uint32_t *) rptr;
-    rptr += sizeof(uint32_t);
+    *len = nbytes = *(int32_t *) rptr;
+    rptr += sizeof(int32_t);
     break;
   }
 
@@ -1339,11 +1341,12 @@ int phish_unpack(char **buf, uint32_t *len)
    len = total size of received datum
 ------------------------------------------------------------------------- */
 
-int phish_datum(char **buf, uint32_t *len)
+int phish_datum(int flag)
 {
-  *buf = rbuf;
-  *len = nrbytes;
-  return lastport;
+  if (flag == 0) return nrfields;
+  if (flag == 1) return lastport;
+  phish_error("Invalid flag in phish_datum");
+  return 0;
 }
 
 /* ----------------------------------------------------------------------
@@ -1377,7 +1380,7 @@ int phish_queue()
 
 int phish_dequeue(int n)
 {
-  if (n < 0 || n >= nqueue) phish_error("Invalid phish_dequeue");
+  if (n < 0 || n >= nqueue) phish_error("Invalid index in phish_dequeue");
 
  nrbytes = queue[n].nbytes;
  memcpy(rbuf,queue[n].datum,nrbytes);
@@ -1416,45 +1419,52 @@ int phish_query(const char *keyword, int flag1, int flag2)
   else if (strcmp(keyword,"nglobal") == 0) return nglobal;
   else if (strcmp(keyword,"inport/status") == 0) {
     int iport = flag1;
-    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    if (iport < 0 || iport >= MAXPORT) 
+      phish_error("Invalid phish_query flags");
     return inports[iport].status;
   } else if (strcmp(keyword,"inport/connections") == 0) {
     int iport = flag1;
-    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    if (iport < 0 || iport >= MAXPORT) 
+      phish_error("Invalid phish_query flags");
     if (inports[iport].status == UNUSED_PORT) return -1;
     return inports[iport].nconnect;
   } else if (strcmp(keyword,"inport/nminnows") == 0) {
     int iport = flag1;
-    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    if (iport < 0 || iport >= MAXPORT) 
+      phish_error("Invalid phish_query flags");
     if (inports[iport].status == UNUSED_PORT) return -1;
     int iconnect = flag2;
     if (iconnect < 0 || iconnect >= inports[iport].nconnect) return -1;
     return inports[iport].connects[iconnect].nsend;
   } else if (strcmp(keyword,"outport/status") == 0) {
     int iport = flag1;
-    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    if (iport < 0 || iport >= MAXPORT) 
+      phish_error("Invalid phish_query flags");
     return outports[iport].status;
   } else if (strcmp(keyword,"outport/connections") == 0) {
     int iport = flag1;
-    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    if (iport < 0 || iport >= MAXPORT) 
+      phish_error("Invalid phish_query flags");
     if (outports[iport].status == UNUSED_PORT) return -1;
     return outports[iport].nconnect;
   } else if (strcmp(keyword,"outport/nminnows") == 0) {
     int iport = flag1;
-    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    if (iport < 0 || iport >= MAXPORT) 
+      phish_error("Invalid phish_query flags");
     if (outports[iport].status == UNUSED_PORT) return -1;
     int iconnect = flag2;
     if (iconnect < 0 || iconnect >= outports[iport].nconnect) return -1;
     return outports[iport].connects[iconnect].nrecv;
   } else if (strcmp(keyword,"outport/direct") == 0) {
     int iport = flag1;
-    if (iport < 0 || iport >= MAXPORT) phish_error("Invalid phish_query");
+    if (iport < 0 || iport >= MAXPORT) 
+      phish_error("Invalid phish_query flags");
     if (outports[iport].status == UNUSED_PORT) return -1;
     for (int iconnect = 0; iconnect < outports[iport].nconnect; iconnect++)
       if (outports[iport].connects[iconnect].style == DIRECT) 
 	return outports[iport].connects[iconnect].nrecv;
     return -1;
-  } else phish_error("Invalid phish_query");
+  } else phish_error("Invalid phish_query keyword");
 
   return 0;
 }
