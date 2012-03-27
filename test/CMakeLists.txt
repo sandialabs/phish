@@ -1,0 +1,3 @@
+add_executable(type_conversion type_conversion.cpp)
+set_target_properties(type_conversion PROPERTIES COMPILE_FLAGS -Wconversion)
+

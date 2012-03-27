@@ -11,4 +11,4 @@ add_subdirectory(src)
 add_subdirectory(minnow)
 add_subdirectory(minnow2)
 add_subdirectory(perf)
-
+add_subdirectory(test)
