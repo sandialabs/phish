@@ -154,9 +154,9 @@ def send_direct(iport,receiver):
 
 def reset_receiver(iport,receiver):
   lib.phish_reset_receiver(iport,receiver)
-  
-def pack_datum(ptr,len):
-  lib.phish_pack_datum(ptr,len)
+
+def repack():
+  lib.phish_repack()
 
 # cstr will be a char ptr to Python object as it were string
 # but pass user-specified len to pack_raw(), not string length
@@ -165,44 +165,46 @@ def pack_raw(obj,len):
   cstr = c_char_p(obj)
   lib.phish_pack_raw(cstr,len)
 
-def check_range(begin, value, end):
+# error check that value is between begin and end exclusive
+  
+def check_range(begin,value,end):
   if value < begin or value >= end:
     raise Exception("Value must be in range [%s, %s)" % (begin, end))
 
 def pack_char(value):
-  check_range(0, value, 256)
+  check_range(0,value,256)
   lib.phish_pack_char(c_char(value))
 
 def pack_int8(value):
-  check_range(-128, value, 128)
+  check_range(-128,value,128)
   lib.phish_pack_int8(c_int8(value))
 
 def pack_int16(value):
-  check_range(-32768, value, 32768)
+  check_range(-32768,value,32768)
   lib.phish_pack_int16(c_int16(value))
 
 def pack_int32(value):
-  check_range(-2147483648, value, 2147483648)
+  check_range(-2147483648,value,2147483648)
   lib.phish_pack_int32(c_int32(value))
 
 def pack_int64(value):
-  check_range(-9223372036854775808, value, 9223372036854775808)
+  check_range(-9223372036854775808,value,9223372036854775808)
   lib.phish_pack_int64(c_int64(value))
 
 def pack_uint8(value):
-  check_range(0, value, 256)
+  check_range(-1,value,256)
   lib.phish_pack_uint8(c_uint8(value))
 
 def pack_uint16(value):
-  check_range(0, value, 65536)
+  check_range(-1,value,65536)
   lib.phish_pack_uint16(c_uint16(value))
 
 def pack_uint32(value):
-  check_range(0, value, 4294967296)
+  check_range(-1,value,4294967296)
   lib.phish_pack_uint32(c_uint32(value))
 
 def pack_uint64(value):
-  check_range(0, value, 18446744073709551616)
+  check_range(-1,value,18446744073709551616)
   lib.phish_pack_uint64(c_uint64(value))
 
 def pack_float(value):
@@ -283,7 +285,7 @@ def pack_pickle(obj):
 
 def unpack():
   buf = c_char_p()
-  len = c_int()
+  len = c_int32()
   type = lib.phish_unpack(byref(buf),byref(len))
   
   # return raw buf ptr and user-specified len
@@ -386,11 +388,8 @@ def unpack():
     obj = loads(ptr[:len.value])
     return type,obj,len.value
   
-def datum():
-  buf = c_char_p()
-  len = c_int()
-  iport = lib.phish_datum(byref(buf),byref(len))
-  return iport,buf,len.value
+def datum(flag):
+  return lib.phish_datum(flag)
 
 def queue():
   return lib.phish_queue()
