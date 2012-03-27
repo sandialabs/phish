@@ -91,7 +91,7 @@ to see a doc page for each library call.
 <BR>
   <A HREF = "phish_send.html">phish_send_direct()</A> 
 <BR>
-  <A HREF = "phish_pack.html">phish_pack_datum()</A> 
+  <A HREF = "phish_pack.html">phish_repack()</A> 
 <BR>
   <A HREF = "phish_pack.html">phish_pack_raw()</A> 
 <BR>
@@ -151,9 +151,9 @@ to see a doc page for each library call.
 <BR></UL>
 <LI>Miscellaneous library calls 
 
-<UL>  <A HREF = "phish_query.html">phish_query()</A> 
+<UL>  <A HREF = "phish_info.html">phish_query()</A> 
 <BR>
-  <A HREF = "phish_misc.html">phish_reset_receiver()</A> 
+  <A HREF = "phish_info.html">phish_set()</A> 
 <BR>
   <A HREF = "phish_error.html">phish_error()</A> 
 <BR>
@@ -208,10 +208,9 @@ phish.error("My error")
 </H4>
 <P>Care taken to pack datum with expliclty sized values, since may be
 done on different machines, with different word lengths.  At some
-point, might worry about endian swapping.  Force you
-to use explicit pack functions.  Also the flags are 32-bit ints.
-At some point if can make float/double portable, will enforce
-that too.
+point, might worry about endian swapping.  Force you to use explicit
+pack functions.  Also the flags are 32-bit ints.  At some point if can
+make float/double portable, will enforce that too.
 </P>
 <P>A datum is a chunk of bytes sent from one PHISH minnow to another.
 This section describes the format of the chunk, which is the same whether

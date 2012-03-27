@@ -114,7 +114,7 @@ void probefunc() \{ \} :pre
 
 or
 
-def provefunc() :pre
+def probefunc() :pre
 
 in Python,
 

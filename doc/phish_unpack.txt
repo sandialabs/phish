@@ -11,8 +11,8 @@ phish_datum() function :h3
 
 [C syntax:]
 
-int phish_unpack(char **buf, int *len)
-int phish_datum(char **buf, int *len) :pre
+int phish_unpack(char **buf, int32_t *len)
+int phish_datum(int flag) :pre
 
 [C examples:]
 
@@ -20,12 +20,12 @@ int phish_datum(char **buf, int *len) :pre
 char *buf;
 int len;
 int type = phish_unpack(&buf,&len);
-int iport = phish_datum(&buf,&len); :pre
+int iport = phish_datum(1); :pre
 
 [C++ syntax:]
 
-int unpack(char **buf, int *len)
-int datum(char **buf, int *len) :pre
+int unpack(char **buf, int32_t *len)
+int datum(int flag) :pre
 
 [C++ examples:]
 
@@ -33,20 +33,18 @@ int datum(char **buf, int *len) :pre
 char *buf;
 int len;
 int type = PHISH::unpack(&buf,&len);
-int iport = PHISH::datum(&buf,&len); :pre
+int iport = PHISH::datum(1); :pre
 
 [Python syntax:]
 
 def unpack()
-def datum() :pre
+def datum(flag) :pre
 
 [Python examples:]
 
 import phish
 type,value,len = phish.unpack()
-iport,buf,len = phish.datum() :pre
-
-NOTE:  need to doc how Python is different below
+iport = phish.datum(1) :pre
 
 [Description:]
 
@@ -56,17 +54,17 @@ is a stand-alone application which makes calls to the "PHISH
 library"_Library.html.
 
 These functions are used to unpack a datum after it has been received
-from another minnow.
+from another minnow or query other info about the datum.
 
 As discussed in "this section"_Library.html#datum of the "PHISH
 Library"_Library.html doc page, datums sent and recived by the PHISH
 library contain one or more fields.  A field is a fundamental data
-type, such as an "int" or vector of "doubles" or a NULL-terminated
-character string.  These fields are "packed"_phish_pack.html into a
-contiguous byte string when then are sent, using integer flags to
-indicate what type and length of data comes next.  These unpack
-functions allow the minnow to extract data from the datum, one field
-at a time.
+type, such as an "32-bit integer" or "vector of doubles" or a
+NULL-terminated character string.  These fields are
+"packed"_phish_pack.html into a contiguous byte string when then are
+sent, using integer flags to indicate what type and length of data
+comes next.  These unpack functions allow the minnow to extract data
+from the datum, one field at a time.
 
 Note that these functions return pointers to the internal buffer
 holding the datum within the PHISH library.  The buffer will be
@@ -75,15 +73,23 @@ the next datum is received.  Typically this occurs when a callback
 function in the minnow returns.  This means that if you want the data
 to persist within the minnow, you must make a copy.  It is OK to
 unpack several fields from the same datum before making copies of the
-fields.  It is also OK to pack one or more fields for sending and wait
-to send it until after another datum is received.  This is because
-calls to "phish_pack" functions copy data into a send buffer.
+fields.  It is also OK to pack one or more received fields for sending
+and wait to send it until after another datum is received.  This is
+because calls to "phish_pack" functions copy data into a separate send
+buffer.
 
 :line
 
-The phish_unpack() function returns the next field in the latest
-received datum.  The function itself returns an integer flag set to
-one of these values (defined in src/phish.h):
+The phish_unpack() function returns the next field and its length,
+from the most recently received datum.  Note that {len} is typed as a
+pointer to int32_t which is a 32-bit integer.  In C or C++, the minnow
+can simply declare {len} to be a pointer to "int" and the function
+will work as expected.  The only case where this will fail (with a
+compile-time error) is if the native "int" on a machine is not a
+32-bit int.
+
+Phish_unpack returns an integer flag set to one of these values
+(defined in src/phish.h):
 
 PHISH_RAW = 0
 PHISH_CHAR = 1
@@ -112,49 +118,50 @@ PHISH_PICKLE = 23 :ul
 
 PHISH_RAW is a string of raw bytes which can store whatever the
 sending minnow put into its send buffer, e.g. a C data structure
-containing a collection of various C primitive data types.  PHISH_INT
-is a signed int, typically 32-bits in length.  PHISH_UINT64 is an
-unsigned 64-bit int.  PHISH_STRING is a standard C-style
+containing a collection of various C primitive data types.
+PHISH_INT32 is a signed 32-bit integer.  PHISH_UINT64 is an unsigned
+64-bit int.  PHISH_DOUBLE is a double-precision floating point value,
+typically 64-bits in length.  PHISH_STRING is a standard C-style
 NULL-terminated string.  The ARRAY types mean the field is a sequence
-of "int" or "uint64" or "double" values, packed one after the other.
+of "int" or "uint" or "float" or "double" values, packed one after the
+other.
 
-The function also returns {buf} and {len}.  {Buf} is a char pointer to
+Phish_unpack also returns {buf} and {len}.  {Buf} is a char pointer to
 where the field starts.  You will need to cast this to the appropriate
-data type if necessary to access the data.  {Len} is the length of
-the field, with the following meanings:
+data type before accessing the data if it is not a character string.
+{Len} is the length of the field, with the following meanings:
 
 PHISH_RAW: len = # of bytes
-PHISH_BYTE: len = 1
-PHISH_INT: len = 1
-PHISH_UINT64: len = 1
+PHISH_CHAR: len = 1
+PHISH_INT*: len = 1
+PHISH_UINT*: len = 1
+PHISH_FLOAT: len = 1
 PHISH_DOUBLE: len = 1
 PHISH_STRING: len = # of bytes, including the trailing NULL
-PHISH_INT_ARRAY: len = # of int values
-PHISH_UINT64_ARRAY: len = # of uint64 values
-PHISH_DOUBLE_ARRAY: len = # of double values :ul
+PHISH_INT*_ARRAY: len = # of int8 or int16 or int32 or int64 values
+PHISH_UINT*_ARRAY: len = # of uint8 or uint16 or uint32 or uint64 values
+PHISH_FLOAT_ARRAY: len = # of float values
+PHISH_DOUBLE_ARRAY: len = # of double values
+PHISH_PICKLE = len = # of bytes :ul
 
-NOTE: need to exapand to current list
+Note that the PHISH_PICKLE flag is only used by the Python interface
+to the PHISH library to encode Python data types.  It should not
+normally be used in a minnow written in C or C++.
 
 :line
 
-The phish_datum() function returns information about the entire datum.
-The function itself returns the input port it was received on.  See
-the "phish_port"_phish_port.html functions for a discussion of ports.
+The phish_datum() function returns information about the most recently
+received datum.
 
-The function also returns {buf} and {len}.  In this case, unlike
-the phish_unpack() function, {buf} is a char pointer to
-where the entire datum starts, which includes other info
-besides the data itself, e.g. the number of fields and the data type
-flags.  Likewise, {len} is the length in bytes of the entire datum,
-including its data and flags.
+If {flag} is set to 0, phish_datum returns the number of fields in the
+datum.  This value is also passed as an argument to the callback
+function invovked by the "phish_loop"_phish_recv.html and
+"phish_probe"_phish_recv.html functions, so a minnow typically does
+not need to use phish_datum to retrieve this info.
 
-A minnow can parse the entire datum following this function call, to
-extract whatever info it needs; see "this section"_Library.html#datum
-of the "PHISH Library"_Library.html doc page for a description of the
-structure of a datum.  But the more common usage is to follow a
-phish_datum() call with a call to the
-"phish_pack_datum"_phish_pack.html function to pack the entire datum
-as-is for sending to another minnow.
+If {flag} is set to 1, phish_datum returns the input port the datum
+was received on.  See the "phish_port"_phish_port.html functions for a
+discussion of ports.
 
 The phish_datum() function does not conflict with the phish_unpack()
 function.  Phish_datum() can be called before or after or in between a

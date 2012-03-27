@@ -72,7 +72,7 @@ Library calls for sending datums :l
   "phish_send()"_phish_send.html :ulb,b
   "phish_send_key()"_phish_send.html :b
   "phish_send_direct()"_phish_send.html :b
-  "phish_pack_datum()"_phish_pack.html :b
+  "phish_repack()"_phish_pack.html :b
   "phish_pack_raw()"_phish_pack.html :b
   "phish_pack_char()"_phish_pack.html :b
   "phish_pack_int8()"_phish_pack.html :b
@@ -104,8 +104,8 @@ Library calls for queueing datums :l
   "phish_nqueue()"_phish_queue.html :ule,b
 
 Miscellaneous library calls :l
-  "phish_query()"_phish_query.html :ulb,b
-  "phish_reset_receiver()"_phish_misc.html :b
+  "phish_query()"_phish_info.html :ulb,b
+  "phish_set()"_phish_info.html :b
   "phish_error()"_phish_error.html :b
   "phish_warn()"_phish_error.html :b
   "phish_abort()"_phish_error.html :b
@@ -155,10 +155,9 @@ phish.error("My error") :pre
 
 Care taken to pack datum with expliclty sized values, since may be
 done on different machines, with different word lengths.  At some
-point, might worry about endian swapping.  Force you
-to use explicit pack functions.  Also the flags are 32-bit ints.
-At some point if can make float/double portable, will enforce
-that too.
+point, might worry about endian swapping.  Force you to use explicit
+pack functions.  Also the flags are 32-bit ints.  At some point if can
+make float/double portable, will enforce that too.
 
 A datum is a chunk of bytes sent from one PHISH minnow to another.
 This section describes the format of the chunk, which is the same whether
@@ -246,5 +245,3 @@ ports.  See the "shutdown section"_Minnows.html#shutdown of the
 "Minnows"_Minnows.html doc page for a discussion of "done" messages.
 
 TIM: How is this encoding of port and done implemented for sockets?
-
-
