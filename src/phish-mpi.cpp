@@ -973,30 +973,6 @@ void send(OutConnect *oc)
 }
 
 /* ----------------------------------------------------------------------
-   reset the receiver proc that I send to on output port iport
-   only valid for connection style RING
-   used by application to permute the ordering of the ring
-------------------------------------------------------------------------- */
-
-void phish_reset_receiver(int iport, int receiver)
-{
-  if (iport < 0 || iport >= MAXPORT) 
-    phish_error("Invalid port ID in phish_reset_receiver");
-  OutPort *op = &outports[iport];
-  if (op->status == UNUSED_PORT || op->status == CLOSED_PORT) 
-    phish_error("Using phish_reset_receiver with unused or closed port");
-
-  for (int iconnect = 0; iconnect < op->nconnect; iconnect++) {
-    OutConnect *oc = &op->connects[iconnect];
-    if (oc->style == RING) {
-      if (receiver < 0 || receiver >= oc->nrecv)
-	phish_error("Invalid receiver proc in phish_reset_receiver");
-      oc->recvone = oc->recvfirst + receiver;
-    }
-  }
-}
-
-/* ----------------------------------------------------------------------
    copy fields of receive buffer into send buffer
    do not copy initial nrfields value in rbuf
 ------------------------------------------------------------------------- */
@@ -1406,7 +1382,8 @@ int phish_nqueue()
 }
 
 /* ----------------------------------------------------------------------
-   return info about minnow counts and input/output ports
+   return internal PHISH info
+   current keywords are all for minnow counts and input/output ports
 ------------------------------------------------------------------------- */
 
 int phish_query(const char *keyword, int flag1, int flag2)
@@ -1467,6 +1444,40 @@ int phish_query(const char *keyword, int flag1, int flag2)
   } else phish_error("Invalid phish_query keyword");
 
   return 0;
+}
+
+/* ----------------------------------------------------------------------
+   reset internal PHISH info
+   keyword = "ring/receiver"
+     reset the receiver proc that I send to on output port iport
+     only valid for connection style RING
+     used by application to permute the ordering of the ring
+------------------------------------------------------------------------- */
+
+void phish_set(const char *keyword, int flag1, int flag2)
+{
+  if (!initflag) phish_error("Phish_init has not been called");
+
+  if (strcmp(keyword,"ring/receiver") == 0) {
+    int iport = flag1;
+    int receiver = flag2;
+
+    if (iport < 0 || iport >= MAXPORT) 
+      phish_error("Invalid port ID in phish_");
+    OutPort *op = &outports[iport];
+    if (op->status == UNUSED_PORT || op->status == CLOSED_PORT) 
+      phish_error("Unused or closed port in phish_set ring/receiver");
+    
+    for (int iconnect = 0; iconnect < op->nconnect; iconnect++) {
+      OutConnect *oc = &op->connects[iconnect];
+      if (oc->style == RING) {
+	if (receiver < 0 || receiver >= oc->nrecv)
+	  phish_error("Invalid receiver in phish_set ring/receiver");
+	oc->recvone = oc->recvfirst + receiver;
+      }
+    }
+
+  } else phish_error("Invalid phish_set keyword");
 }
 
 /* ---------------------------------------------------------------------- */
