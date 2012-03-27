@@ -217,49 +217,65 @@ def pack_string(str):
 def pack_int8_array(vec):
   n = len(vec)
   ptr = (c_int8*n)()
-  for i in xrange(n): ptr[i] = vec[i]
+  for i in xrange(n):
+    check_range(-128,vec[i],128)
+    ptr[i] = vec[i]
   lib.phish_pack_int8_array(ptr,n)
 
 def pack_int16_array(vec):
   n = len(vec)
   ptr = (c_int16*n)()
-  for i in xrange(n): ptr[i] = vec[i]
+  for i in xrange(n):
+    check_range(-32768,value,32768)
+    ptr[i] = vec[i]
   lib.phish_pack_int16_array(ptr,n)
 
 def pack_int32_array(vec):
   n = len(vec)
   ptr = (c_int32*n)()
-  for i in xrange(n): ptr[i] = vec[i]
+  for i in xrange(n):
+    check_range(-2147483648,value,2147483648)
+    ptr[i] = vec[i]
   lib.phish_pack_int32_array(ptr,n)
 
 def pack_int64_array(vec):
   n = len(vec)
   ptr = (c_int64*n)()
-  for i in xrange(n): ptr[i] = vec[i]
+  for i in xrange(n):
+    check_range(-9223372036854775808,value,9223372036854775808)
+    ptr[i] = vec[i]
   lib.phish_pack_int64_array(ptr,n)
 
 def pack_uint8_array(vec):
   n = len(vec)
   ptr = (c_uint8*n)()
-  for i in xrange(n): ptr[i] = vec[i]
+  for i in xrange(n):
+    check_range(-1,value,256)
+    ptr[i] = vec[i]
   lib.phish_pack_uint8_array(ptr,n)
 
 def pack_uint16_array(vec):
   n = len(vec)
   ptr = (c_uint16*n)()
-  for i in xrange(n): ptr[i] = vec[i]
+  for i in xrange(n):
+    check_range(-1,value,65536)
+    ptr[i] = vec[i]
   lib.phish_pack_uint16_array(ptr,n)
 
 def pack_uint32_array(vec):
   n = len(vec)
   ptr = (c_uint32*n)()
-  for i in xrange(n): ptr[i] = vec[i]
+  for i in xrange(n):
+    check_range(-1,value,4294967296)
+    ptr[i] = vec[i]
   lib.phish_pack_uint32_array(ptr,n)
 
 def pack_uint64_array(vec):
   n = len(vec)
   ptr = (c_uint64*n)()
-  for i in xrange(n): ptr[i] = vec[i]
+  for i in xrange(n):
+    check_range(-1,value,18446744073709551616)
+    ptr[i] = vec[i]
   lib.phish_pack_uint64_array(ptr,n)
 
 def pack_float_array(vec):
