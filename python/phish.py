@@ -114,6 +114,8 @@ def abort_callback(flag):
 def close(iport):
   lib.phish_close(iport)
 
+# loop, probe, recv functions with callbacks
+  
 def loop():
   lib.phish_loop()
 
@@ -139,11 +141,15 @@ def done1_callback():
 
 def recv():
   return lib.phish_recv()
-  
+
+# send functions
+
 def send(iport):
   lib.phish_send(iport)
 
 # pickle the key so can hash any Python object
+# this means Python and non-Python minnows will not send
+# same key (e.g. a string) to the same minnow
   
 def send_key(iport,key):
   cobj = dumps(key,1)
@@ -152,21 +158,23 @@ def send_key(iport,key):
 def send_direct(iport,receiver):
   lib.phish_send_direct(iport,receiver)
 
-def repack():
-  lib.phish_repack()
-
-# cstr will be a char ptr to Python object as it were string
-# but pass user-specified len to pack_raw(), not string length
-
-def pack_raw(obj,len):
-  cstr = c_char_p(obj)
-  lib.phish_pack_raw(cstr,len)
-
-# error check that value is between begin and end exclusive
+# error check that value is between begin (inclusive) and end (exclusive)
   
 def check_range(begin,value,end):
   if value < begin or value >= end:
     raise Exception("Value must be in range [%s, %s)" % (begin, end))
+
+# pack functions with range checking on int and uint values
+
+def repack():
+  lib.phish_repack()
+
+# cstr is a char ptr to Python object as if it were string
+# but user-specified len is passed to pack_raw(), not string length
+
+def pack_raw(obj,len):
+  cstr = c_char_p(obj)
+  lib.phish_pack_raw(cstr,len)
 
 def pack_char(value):
   check_range(0,value,256)
@@ -189,19 +197,19 @@ def pack_int64(value):
   lib.phish_pack_int64(c_int64(value))
 
 def pack_uint8(value):
-  check_range(-1,value,256)
+  check_range(0,value,256)
   lib.phish_pack_uint8(c_uint8(value))
 
 def pack_uint16(value):
-  check_range(-1,value,65536)
+  check_range(0,value,65536)
   lib.phish_pack_uint16(c_uint16(value))
 
 def pack_uint32(value):
-  check_range(-1,value,4294967296)
+  check_range(0,value,4294967296)
   lib.phish_pack_uint32(c_uint32(value))
 
 def pack_uint64(value):
-  check_range(-1,value,18446744073709551616)
+  check_range(0,value,18446744073709551616)
   lib.phish_pack_uint64(c_uint64(value))
 
 def pack_float(value):
@@ -250,7 +258,7 @@ def pack_uint8_array(vec):
   n = len(vec)
   ptr = (c_uint8*n)()
   for i in xrange(n):
-    check_range(-1,value,256)
+    check_range(0,value,256)
     ptr[i] = vec[i]
   lib.phish_pack_uint8_array(ptr,n)
 
@@ -258,7 +266,7 @@ def pack_uint16_array(vec):
   n = len(vec)
   ptr = (c_uint16*n)()
   for i in xrange(n):
-    check_range(-1,value,65536)
+    check_range(0,value,65536)
     ptr[i] = vec[i]
   lib.phish_pack_uint16_array(ptr,n)
 
@@ -266,7 +274,7 @@ def pack_uint32_array(vec):
   n = len(vec)
   ptr = (c_uint32*n)()
   for i in xrange(n):
-    check_range(-1,value,4294967296)
+    check_range(0,value,4294967296)
     ptr[i] = vec[i]
   lib.phish_pack_uint32_array(ptr,n)
 
@@ -274,7 +282,7 @@ def pack_uint64_array(vec):
   n = len(vec)
   ptr = (c_uint64*n)()
   for i in xrange(n):
-    check_range(-1,value,18446744073709551616)
+    check_range(0,value,18446744073709551616)
     ptr[i] = vec[i]
   lib.phish_pack_uint64_array(ptr,n)
 
@@ -290,12 +298,14 @@ def pack_double_array(vec):
   for i in xrange(n): ptr[i] = vec[i]
   lib.phish_pack_double_array(ptr,n)
 
-# pickle the Python object which converts it to a string of bytes
+# pickle an aribitrary Python object, to convert it to a string of bytes
   
 def pack_pickle(obj):
   cobj = dumps(obj,1)
   lib.phish_pack_pickle(cobj,len(cobj))
 
+# unpack based on data type
+  
 def unpack():
   buf = c_char_p()
   len = c_int32()
@@ -404,6 +414,8 @@ def unpack():
 def datum(flag):
   return lib.phish_datum(flag)
 
+# queue functions
+
 def queue():
   return lib.phish_queue()
 
@@ -413,6 +425,8 @@ def dequeue(n):
 def nqueue():
   return lib.phish_nqueue()
 
+# query/set functions
+
 def query(str,flag1,flag2):
   cstr = c_char_p(str)
   return lib.phish_query(cstr,flag1,flag2)
@@ -421,6 +435,8 @@ def set(str,flag1,flag2):
   cstr = c_char_p(str)
   lib.phish_set(cstr,flag1,flag2)
 
+# error functions
+  
 def error(str):
   lib.phish_error(str)
 
@@ -430,6 +446,8 @@ def warn(str):
 def abort():
   lib.phish_abort()
 
+# timer function
+  
 def timer():
   return lib.phish_timer()
 
