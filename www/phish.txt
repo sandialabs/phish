@@ -41,7 +41,9 @@ streaming context or from files.
 "Contribute"_contribute.html,
 "Open source"_open_source.html :tb(c=4,ea=c,a=c)
 
-PHISH stands for Parallel Harness for Informatic Stream Hashing.
+PHISH stands for Parallel Harness for Informatic Stream Hashing.  The
+phishy metaphor is meant to evoke the image of a many small minnows
+(programs) swimming in a stream (of data).
 
 PHISH is a lightweight framework which a set of independent processes
 can use to exchange data as they run on the same desktop machine, on
