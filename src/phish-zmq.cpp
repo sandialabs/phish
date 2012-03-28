@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------
-   PHISH = Parallel Harness for Informatic Stream Hashins
+   PHISH = Parallel Harness for Informatic Stream Hashing
    http://www.sandia.gov/~sjplimp/phish.html
    Steve Plimpton, sjplimp@sandia.gov, Sandia National Laboratories
 
