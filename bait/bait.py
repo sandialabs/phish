@@ -1,9 +1,26 @@
+# ----------------------------------------------------------------------
+#   PHISH library
+#   http://www.sandia.gov/~sjplimp/phish.html
+#   Steve Plimpton, sjplimp@sandia.gov, Sandia National Laboratories
+#
+#   Copyright (2012) Sandia Corporation.  Under the terms of Contract
+#   DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
+#   certain rights in this software.  This software is distributed under 
+#   the modified Berkeley Software Distribution (BSD) License.
+#
+#   See the README file in the top-level PHISH directory.
+# -------------------------------------------------------------------------
+
 #!/usr/local/bin/python
 
 # bait.py tool for PHISH
 # converts a PHISH input script to a MPI or socket launch script
 
 import sys,re,os
+
+# version string
+
+version = "27 Mar 2012"
 
 # print error message and quit
 
@@ -271,6 +288,8 @@ def output_socket():
 
 # ---------------------------------------------------------------------------
 # MAIN program
+
+print "PHISH version:",version
 
 # parse command-line args to override default settings
 
