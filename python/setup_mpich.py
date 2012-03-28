@@ -25,7 +25,7 @@ phish_library = Extension("_phish",
                           )
 
 setup(name = "phish",
-      version = "1Nov11",
+      version = "27Mar12",
       author = "Steve Plimpton",
       author_email = "sjplimp@sandia.gov",
       url = "http://phish.sandia.gov",
