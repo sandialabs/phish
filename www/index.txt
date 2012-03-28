@@ -14,32 +14,22 @@
     <meta name="Author" content="Steve Plimpton" />
 </HEAD>
 
-MapReduce-MPI Library :c,h3
+PHISH Package :c,h3
 
+{So long, and thanks for all the phish.} -- with apologies to Douglas Adams :c
 
-NOTE: so long, and thanks for all the phish (with apologies to Douglas Adams)
-
-NOTE: Remember, a dead phish can float downstream, but it takes a live
-one to swim upstream.  W. C. Fields
-
-NOTE: This WWW site is not about Phish the band, or illicit phishing
-for your personal info, but about PHISH, a software package for
-writing parallel programs that process streaming data.
-
-
-
-{A grain of wisdom is worth an ounce of knowledge, which is worth a ton
-of data.} -- Neil Larson :c
-
-{It is a capital mistake to theorize before one has data.} -- Arthur
-Conan Doyle :c
+{Remember, a dead phish can float downstream, but it takes a live
+one to swim upstream.} --  W. C. Fields :c
 
 :line
 
-This is the home page for the MapReduce-MPI (MR-MPI) library, which is
-an open-source implementation of MapReduce written for
-distributed-memory parallel machines on top of standard MPI message
-passing.
+This is the home page for the PHISH library, which is an open-source
+implementation of MapReduce written for distributed-memory parallel
+machines on top of standard MPI message passing.
+
+Note: This WWW site is not about Phish the band, or illicit phishing
+for your personal info, but about PHISH, a software package for
+writing parallel programs that process streaming data.
 
 "Features"_features.html,
 "Documentation"_doc/Manual.html,
