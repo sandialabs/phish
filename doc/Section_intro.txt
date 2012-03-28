@@ -1,7 +1,7 @@
 "Previous Section"_Manual.html - "PHISH WWW Site"_pws -
 "PHISH Documentation"_pd - "Next Section"_Bait.html :c
 
-:link(pws,http://phish.sandia.gov)
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
 :link(pd,Manual.html)
 
 :line
@@ -409,7 +409,8 @@ through its LDRD program at Sandia National Laboratories.
 
 The following paper describe the basic ideas in PHISH.  If you use
 PHISH in your published work, please cite this paper and include a
-pointer to the PHISH WWW Site (http://phish.sandia.gov):
+pointer to the PHISH WWW Site
+(http://www.sandia.gov/~sjplimp/phish.html):
 
 S. J. Plimpton and T. Shead, PHISH in action, J Parallel and
 Distributed Compuing, submitted (2012).
@@ -426,6 +427,6 @@ License.
 
 Source code for PHISH is freely available for download from the "PHISH
 web site"_pws and is licensed under the modified "Berkeley Software
-Distribution (BSD) License"_bsd.  This basically means they can be
-used by anyone for any purpose.  See the LICENSE file provided with
-the distribution for more details.
+Distribution (BSD) License"_bsd.  This basically means it can be used
+by anyone for any purpose.  See the LICENSE file provided with the
+distribution for more details.

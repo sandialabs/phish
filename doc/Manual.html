@@ -8,7 +8,7 @@
 
 <BODY>
 
-<CENTER><A HREF = "http://phish.sandia.gov">PHISH WWW Site</A> 
+<CENTER><A HREF = "http://www.sandia.gov/~sjplimp/phish.html">PHISH WWW Site</A> 
 </CENTER>
 
 
@@ -16,7 +16,7 @@
 
 <H1></H1>
 
-<H2><CENTER>PHISH Documentation 
+<H2><CENTER>PHISH Library Documentation 
 </CENTER></H2>
 <H4>Version info: 
 </H4>
@@ -25,9 +25,9 @@
 feature, we release it immediately, and post a notice on <A HREF = "bug">this page of
 the WWW site</A>.  Each dated copy of PHISH contains all the features
 and bug-fixes up to and including that version date.  The version date
-is printed to the screen every time you run the bait.py tool on a
-PHISH input script.  It is also in the PHISH directory name created
-when you unpack a tarball.
+is printed to the screen every time you run the
+<A HREF = "Section_bait.html">bait.py</A> tool on a PHISH input script.  It is also
+in the PHISH directory name created when you unpack a tarball.
 </P>
 <UL><LI>If you browse the HTML or PDF doc pages on the PHISH WWW site, they
 always describe the most current version of PHISH. 
@@ -37,17 +37,19 @@ describe the version you have.
 </UL>
 <P>PHISH stands for Parallel Harness for Informatic Stream Hashing.
 </P>
-<P>The PHISH package is a set of tools for running a collection of
-independent processes in parallel in a coordinated fashion to perform
-computations on either streaming, archived, or self-generated data.
-It includes a simple, portable library that user-written programs can
-call to exchange data with other programs, which are running on the
-same desktop machine, other processors of a parallel machine, or
-differnt machines across a network.  The data exchanges can be made
-via the MPI message-passing library or ZMQ socket library.  PHISH
-input scripts are used to describe a data-processing algorithm and
-tools in the package convert the script into a form that can be
-launched as a parallel job.
+<P>PHISH is a lightweight framework which a set of independent processes
+can use to exchange data as they run on the same desktop machine, on
+processors of a parallel machine, or on different machines across a
+network.  This enables them to work in a coordinated parallel fashion
+to perform computations on either streaming, archived, or
+self-generated data.
+</P>
+<P>The PHISH distribution includes a simple, portable library for
+performing data exchanges in useful patterns either via <A HREF = "http://en.wikipedia.org/wiki/Message_Passing_Interface">MPI
+message-passing</A> or <A HREF = "http://www.zeromq.org">ZMQ sockets</A>.  PHISH input scripts are
+used to describe a data-processing algorithm, and additional tools
+provided in the PHISH distribution convert the script into a form that
+can be launched as a parallel job.
 </P>
 <P>PHISH was developed at Sandia National Laboratories, a US Department
 of Energy facility, with funding from the DOE.  It is an open-source
@@ -55,10 +57,14 @@ code, distributed freely under the terms of the <A HREF = "http://en.wikipedia.o
 Distribution (BSD) License</A>.
 </P>
 <P>The authors of PHISH are Steve Plimpton and Tim Shead who can be
-contacted at sjplimp, tshead at sandia.gov.  The <A HREF = "http://phish.sandia.gov">PHISH WWW Site</A>
-at http::/phish.sandia.gov has more information about the code and its
-uses.
+contacted at sjplimp, tshead at sandia.gov.  The <A HREF = "http://www.sandia.gov/~sjplimp/phish.html">PHISH WWW Site</A>
+at http://www.sandia.gov/~sjplimp/phish.html has more information
+about the code and its uses.
 </P>
+
+
+
+
 <HR>
 
 <P>The PHISH documentation is organized into the following sections.  If

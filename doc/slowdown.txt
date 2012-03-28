@@ -1,6 +1,6 @@
 "PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
 
-:link(pws,http://phish.sandia.gov)
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
 :link(pd,Manual.html)
 :link(pc,Bait.html)
 
