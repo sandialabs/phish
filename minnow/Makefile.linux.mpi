@@ -10,7 +10,7 @@ CC =		g++
 CCFLAGS =	-g -O -DMPICH_IGNORE_CXX_SEEK -I../src
 LINK =		g++
 LINKFLAGS =	-g -O 
-LIB =		../src/libphish.a
+LIB =		../src/libphish-mpi.a
 SYSLIB =	-lmpich -lmpl -lpthread
 
 # ---------------------------------------------------------------------

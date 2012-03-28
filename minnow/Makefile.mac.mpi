@@ -10,7 +10,7 @@ CC =		mpic++
 CCFLAGS =	-g -O -DMPICH_IGNORE_CXX_SEEK -I../src
 LINK =		mpic++
 LINKFLAGS =	-g -O 
-LIB =		../src/libphish.a
+LIB =		../src/libphish-mpi.a
 SYSLIB =
 
 # ---------------------------------------------------------------------
