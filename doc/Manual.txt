@@ -34,7 +34,9 @@ always describe the most current version of PHISH. :ulb,l
 If you browse the HTML or PDF doc pages included in your tarball, they
 describe the version you have. :ule,l
 
-PHISH stands for Parallel Harness for Informatic Stream Hashing.
+PHISH stands for Parallel Harness for Informatic Stream Hashing.  The
+phishy metaphor is meant to evoke the image of a many small minnows
+(programs) swimming in a stream (of data).
 
 PHISH is a lightweight framework which a set of independent processes
 can use to exchange data as they run on the same desktop machine, on

@@ -100,7 +100,7 @@ the rest of the documentation:
 <UL><LI>minnow = a (typically small) stand-alone application, run as an individual process
 <LI>school = a set of duplicate minnows, working (swimming) in a coordinated fashion
 <LI>net(work) = a PHISH program, typically consisting of multiple minnow schools, connected together to perform a calculation, as in the diagram below
-<LI>bait = Bait.py = a script for hooking schools of minnows together into a net
+<LI>bait.py = a script for hooking schools of minnows together into a net
 <LI>wrapper = a Python wrapper for the PHISH library, included in the PHISH distribution 
 </UL>
 <HR>
@@ -118,6 +118,8 @@ example, which provides a rich suite of computation methods, both for
 visualization and data processing.  The commercial DataMiner tool from
 IBM uses a similar dataflow model, and is designed for processing
 streaming data at high rates.
+</P>
+<P>NOTE: need to doc,cite the IBM tool and Titan better
 </P>
 <P>These programs include a suite of processing modules and are typically
 designed to run as a single process or in parallel on a shared memory
@@ -207,11 +209,11 @@ data.  This is a mechanism for adding/deleting processes (minnows)
 to/from a calculation on the fly. 
 
 <LI>A handful of programs (minnows) that call the PHISH library are
-provided in the distribution, as are some example PHISH input scripts
+included in the distribution, as are some example PHISH input scripts
 that encode PHISH programs (nets).  Makefiles are also provided to
 assist in creating and building your own new programs (minnows). 
 
-<LI>Programs (minnows) are provided that wrap non-PHISH applications that
+<LI>Programs (minnows) are included that wrap non-PHISH applications that
 read from stdin and/or write to stdout.  This allows those executables
 to be used in a PHISH program (net) and exchange data with other
 programs (minnows). 
