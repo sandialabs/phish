@@ -286,7 +286,7 @@ def output_socket():
 # MAIN program
 
 from version import version
-print "PHISH version:",version
+print "PHISH (%s)" % version
 
 # parse command-line args to override default settings
 
