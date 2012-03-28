@@ -17,10 +17,10 @@ MINNOW = 	$(MINNOWCPP) $(MINNOWC)
 
 help:
 	@echo ''
-	@echo 'make clean	        delete object files'
-	@echo 'make clean-all           delete object and executable files'
+	@echo 'make clean           delete object files'
+	@echo 'make clean-all       delete object and executable files'
 	@echo ''
-	@echo 'make machine             build Minnows where machine is one of:'
+	@echo 'make machine         build minnows where machine is one of:'
 	@echo ''
 	@files="`ls Makefile.*`"; \
 	  for file in $$files; do head -1 $$file; done
