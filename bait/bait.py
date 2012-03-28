@@ -1,3 +1,5 @@
+#!/usr/local/bin/python
+
 # ----------------------------------------------------------------------
 #   PHISH = Parallel Harness for Informatic Stream Hashing
 #   http://www.sandia.gov/~sjplimp/phish.html
@@ -11,16 +13,10 @@
 #   See the README file in the top-level PHISH directory.
 # -------------------------------------------------------------------------
 
-#!/usr/local/bin/python
-
 # bait.py tool for PHISH
 # converts a PHISH input script to a MPI or socket launch script
 
 import sys,re,os
-
-# version string
-
-version = "27 Mar 2012"
 
 # print error message and quit
 
@@ -289,6 +285,7 @@ def output_socket():
 # ---------------------------------------------------------------------------
 # MAIN program
 
+from version import version
 print "PHISH version:",version
 
 # parse command-line args to override default settings
