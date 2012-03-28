@@ -89,8 +89,9 @@ we can improve the PHISH documentation.
   3.5 "Building a minnow"_minnow_5 :ule,b
 "PHISH Library"_Section_library.html :l
   4.1 "List of library functions"_library_1 ulb,b
-  4.2 "C vs C++ vs Python interface"_library_2 b
-  4.3 "Format of a datum"_library_3 :ule,b
+  4.2 "Building the PHISH library"_library_2 b
+  4.3 "C vs C++ vs Python interface"_library_3 b
+  4.4 "Format of a datum"_library_4 :ule,b
 "Examples"_Section_examples.html :l
 "Python Interface to PHISH"_Section_python.html :l
 "Errors"_Section_errors.html :l
@@ -122,6 +123,7 @@ we can improve the PHISH documentation.
 :link(library_1,Section_library.html#library_1)
 :link(library_2,Section_library.html#library_2)
 :link(library_3,Section_library.html#library_3)
+:link(library_4,Section_library.html#library_4)
 
 :link(error_1,Section_errors.html#error_1)
 :link(error_2,Section_errors.html#error_2)

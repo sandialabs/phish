@@ -14,7 +14,7 @@
 PHISH lingo, a "minnow" is a stand-alone application which makes calls
 to the <A HREF = "Library.html">PHISH library</A>.
 </P>
-<P>The API for the MPI and socket verions of the PHISH library are
+<P>The API for the MPI and socket versions of the PHISH library are
 identical.
 </P>
 <P>A general discussion of how and when minnows call PHISH library
@@ -36,8 +36,9 @@ library.  This topic is discussed below, in the section entitled
 <A HREF = "#library_3">Format of a datum</A>.
 </P>
 <UL><LI>4.1 <A HREF = "#library_1">List of library functions</A>
-<LI>4.2 <A HREF = "#library_2">C vs C++ vs Python interface</A>
-<LI>4.3 <A HREF = "#library_3">Format of a datum</A> 
+<LI>4.2 <A HREF = "#library_2">Building the PHISH library</A>
+<LI>4.3 <A HREF = "#library_3">C vs C++ vs Python interface</A>
+<LI>4.4 <A HREF = "#library_4">Format of a datum</A> 
 </UL>
 <HR>
 
@@ -163,7 +164,44 @@ to see a doc page for each library call.
 </OL>
 <HR>
 
-<A NAME = "library_1"></A><H4>4.2 C vs C++ vs Python interface 
+<A NAME = "library_2"></A><H4>4.2 Building the PHISH library 
+</H4>
+<P>There are two different versions of the PHISH library that can be
+built.  One that calls message-passing functions from the MPI library,
+and one that calls socket functions from the ZMQ library.
+</P>
+<P>You can build either version from the src directory
+of the distribution by typing one of these lines:
+</P>
+<PRE>make -f Makefile.machine mpi
+make -f Makefile.machine zmq 
+</PRE>
+<P>where "machine" is the name of one of the Makefiles
+in the directory. 
+</P>
+<P>If none of the provided files work for your machine, then you can use
+of them as a template for creating your own, e.g. Makefile.foo.  Note
+that only the top section for compiler/linker settings need be edited.
+</P>
+<P>This is where you should specify your compiler and any switches it
+uses.  The MPI_INC setting is only needed if you are building the MPI
+version of the library, and the compiler needs to know where to find
+the mpi.h file.  Likewise the ZMQ_INC setting is only needed if you
+are building the ZMQ version of the library, and the compiler needs to
+know where to find the zmq.h file.
+</P>
+<P>If the build is successful, a libphish-mpi.a or libphish-zmq.a file is
+produced.
+</P>
+<P>You can also type 
+</P>
+<PRE>make -f Makefile.machine clean 
+</PRE>
+<P>to remove *.o and lib*.a files from the directory.
+</P>
+<HR>
+
+<A NAME = "library_3"></A><H4>4.3 C vs C++ vs Python interface 
 </H4>
 <P>As noted above, the APIs to the PHISH library for
 C versus C++ versus Python are very simliar.  A C++ program
@@ -205,7 +243,7 @@ error("My error")
 </PRE>
 <HR>
 
-<A NAME = "library_3"></A><H4>4.3 Format of a datum 
+<A NAME = "library_4"></A><H4>4.4 Format of a datum 
 </H4>
 <P>The chief function of the PHISH library is to facilitate the exchange
 of data between minnows.  This is done through datums, which contain

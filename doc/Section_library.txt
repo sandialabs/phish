@@ -12,7 +12,7 @@ This is the API to the PHISH library that PHISH minnows call.  In
 PHISH lingo, a "minnow" is a stand-alone application which makes calls
 to the "PHISH library"_Library.html.
 
-The API for the MPI and socket verions of the PHISH library are
+The API for the MPI and socket versions of the PHISH library are
 identical.
 
 A general discussion of how and when minnows call PHISH library
@@ -34,8 +34,9 @@ library.  This topic is discussed below, in the section entitled
 "Format of a datum"_#library_3.
 
 4.1 "List of library functions"_#library_1
-4.2 "C vs C++ vs Python interface"_#library_2
-4.3 "Format of a datum"_#library_3 :ul
+4.2 "Building the PHISH library"_#library_2
+4.3 "C vs C++ vs Python interface"_#library_3
+4.4 "Format of a datum"_#library_4 :ul
 
 :line
 :line
@@ -110,7 +111,44 @@ Miscellaneous library calls :l
 
 :line
 
-4.2 C vs C++ vs Python interface :link(library_1),h4
+4.2 Building the PHISH library :link(library_2),h4
+
+There are two different versions of the PHISH library that can be
+built.  One that calls message-passing functions from the MPI library,
+and one that calls socket functions from the ZMQ library.
+
+You can build either version from the src directory
+of the distribution by typing one of these lines:
+
+make -f Makefile.machine mpi
+make -f Makefile.machine zmq :pre
+
+where "machine" is the name of one of the Makefiles
+in the directory. 
+
+If none of the provided files work for your machine, then you can use
+of them as a template for creating your own, e.g. Makefile.foo.  Note
+that only the top section for compiler/linker settings need be edited.
+
+This is where you should specify your compiler and any switches it
+uses.  The MPI_INC setting is only needed if you are building the MPI
+version of the library, and the compiler needs to know where to find
+the mpi.h file.  Likewise the ZMQ_INC setting is only needed if you
+are building the ZMQ version of the library, and the compiler needs to
+know where to find the zmq.h file.
+
+If the build is successful, a libphish-mpi.a or libphish-zmq.a file is
+produced.
+
+You can also type 
+
+make -f Makefile.machine clean :pre
+
+to remove *.o and lib*.a files from the directory.
+
+:line
+
+4.3 C vs C++ vs Python interface :link(library_3),h4
 
 As noted above, the APIs to the PHISH library for
 C versus C++ versus Python are very simliar.  A C++ program
@@ -152,7 +190,7 @@ error("My error") :pre
 
 :line
 
-4.3 Format of a datum :link(library_3),h4
+4.4 Format of a datum :link(library_4),h4
 
 The chief function of the PHISH library is to facilitate the exchange
 of data between minnows.  This is done through datums, which contain

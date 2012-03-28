@@ -325,34 +325,56 @@ message before calling <A HREF = "phish_exit.html">phish_exit</A>.
 
 <A NAME = "minnow_5"></A><H4>3.5 Building a minnow 
 </H4>
-<P>Minnow are stand-alone programs which simply need to be linked with
-the PHISH library.  New minnows written in C++ can be added to the
-minnows directory of the PHISH distribution and built in the following
-manner; minnows written in Python do not need to be built.
+<P>Minnows are stand-alone programs which simply need to be linked with
+the PHISH library.  New minnows written in C or C++ can be added to
+the minnow directory of the PHISH distribution and built in the
+following manner; minnows written in Python do not need to be built.
 </P>
-<P>All the existing C++ minnows can be built by typing
-</P>
-<PRE>make machine 
-</PRE>
-<P>where machine is the suffix of one of the Makefiles in the directory,
-e.g. linux.  If one of the provided Makefiles does not work for
-your machine, you can create a new one, using an existing files
-as a template.  Only the "compiler/linker settings" section need
-be edited.
-</P>
-<P>NOTE: how to build MPI vs ZMQ versions of minnows via Makefile
-</P>
-<P>If a new minnow is a single file, include the keyword MINNOW (in all
-capital letters) somewhere in the file, e.g. as a comment at the top.
-It will then be built along with all the others by typing
+<P>Typing the following from the minnow directory will build all C and
+C++ minnows:
 </P>
 <PRE>make machine 
 </PRE>
-<P>If the new minnow is more complex, you can add a specific rule for how
-to build it to the Makefile.machine you use, e.g. that defines a new
-target with a list of OBJ files that it depends on.  Or you can use
-your own custom Makefile and build it in a separate directory, so long
-as you link to the PHISH library, similar to how the Makefile.machine
-files perform this final build step.
+<P>where machine is the suffix of one of the provided Makefiles,
+e.g. linux.mpi or linux.zmq.  Type "make" to see a list of the
+different files and what compiler and MPI options they support.
+</P>
+<P>The ".mpi" or ".zmq" suffix of the make target and associated
+Makefile refer to which version of the PHISH library will
+be linked against, either the MPI or ZMQ version.
+</P>
+<P>The make command also builds non-PHISH C or C++ programs which are
+intended to be wrapped with one of the "wrap" minnows discussed above
+so they can be used as a minnow.  Examples are the <A HREF = "echo.html">echo</A>
+and <A HREF = "reverse.html">reverse</A> programs in the minnow directory.
+</P>
+<P>If none of the provided Makefiles work for your machine, you can use
+one of them as a template and create your own.  Note that only the top
+section for compiler/linker settings need be edited.
+</P>
+<P>This is where you should specify your compiler and linker and any
+switches they use.  For the LIB setting, be sure to use the
+appropriate version of the PHISH library you are linking to,
+i.e. libphish-mpi.a or libphish-zmq.a.
+</P>
+<P>When adding a new minnow that is a single file to the minnow
+directory, you should insure the string "MINNOW" appears somewhere in
+the *.cpp or *.c file.  This is how the top-level minnow/Makefile
+includes it in the build list.  It will then be automatically
+built with the other minnows.
+</P>
+<P>If a new minnow is more complex (e.g. multiple files), you could add a
+specific rule for how to build it to the Makefile.machine you use,
+e.g. that defines a new target with a list of OBJ files that it
+depends on.  Or you can build it in a separate directory with your own
+custom Makefile, so long as you link to the PHISH library, similar to
+how the Makefiles in the minnow directory perform this final build
+step.
+</P>
+<P>Your executable minnow files do not need to be put in the minnow
+directory.  See the <A HREF = "Section_bait.html#bait_3">-path command-line
+switch</A> for the <A HREF = "Section_bait.html">bait.py</A>
+tool for how to access minnows from other directories when running a
+PHISH net.
 </P>
 </HTML>
