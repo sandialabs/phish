@@ -1,4 +1,4 @@
-# Makefile for PHISH library: nebula machine with mpiCC, openmpi
+# Makefile for PHISH library: nebula machine with mpiCC, openmpi, ZMQ
 
 SHELL = /bin/sh
 
@@ -26,25 +26,27 @@ ZMQ_INC =	-I~/zmq
 # targets = 3 versions of PHISH library: MPI, MPI+ZMQ, ZMQ
 # no need to edit this section
 
-LIB =	libphish.a
+LIBM =	libphish-mpi.a
+LIBMZ =	libphish-mpizmq.a
+LIBZ =	libphish-zmq.a
 
 mpi:	
 	$(CC) $(CCFLAGS) $(MPI_INC) -c phish-mpi.cpp
 	$(CC) $(CCFLAGS) -c hash.cpp
-	$(ARCHIVE) $(ARFLAGS) $(LIB) phish-mpi.o hash.o
+	$(ARCHIVE) $(ARFLAGS) $(LIBM) phish-mpi.o hash.o
 
 mpizmq:	
 	$(CC) $(CCFLAGS) $(MPI_INC) $(ZMQ_INC) -DPHISH_MPI_ZMQ -c phish-mpi.cpp
 	$(CC) $(CCFLAGS) -c hash.cpp
-	$(ARCHIVE) $(ARFLAGS) $(LIB) phish-mpi.o hash.o
+	$(ARCHIVE) $(ARFLAGS) $(LIBMZ) phish-mpi.o hash.o
 
 zmq:
 	$(CC) $(CCFLAGS) $(ZMQ_INC) -c phish-zmq.cpp
 	$(CC) $(CCFLAGS) -c hash.cpp
-	$(ARCHIVE) $(ARFLAGS) $(LIB) phish-zmq.o hash.o
+	$(ARCHIVE) $(ARFLAGS) $(LIBZ) phish-zmq.o hash.o
 
 # Clean up
 
 clean:
 	@rm -f *.o
-	@rm -f libphish.a
+	@rm -f lib*.a
