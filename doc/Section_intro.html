@@ -92,10 +92,10 @@ the context of the model described above.
 
 <A NAME = "intro_2"></A><H4>1.2 PHISH lingo 
 </H4>
-<P>The name PHISH was also chosen because it evokes the idea of one or
-more fish swimming in a stream (of data).  This unavoidably gives rise
-to the following PHISH lingo, which we use without apology throughout
-the rest of the documentation:
+<P>The name PHISH was also chosen because it evokes the image of many
+fish (programs) swimming in a stream (of data).  This unavoidably
+gives rise to the following PHISH lingo, which we use without apology
+throughout the rest of the documentation:
 </P>
 <UL><LI>minnow = a (typically small) stand-alone application, run as an individual process
 <LI>school = a set of duplicate minnows, working (swimming) in a coordinated fashion
@@ -115,9 +115,9 @@ provide a GUI framework for building a processing pipeline by
 connecting the outputs of each computational node to the inputs of
 others.  The open source Titan package, built on top of VTK, is one
 example, which provides a rich suite of computation methods, both for
-visualization and data processing.  The commercial DataMiner tool from
-IBM uses a similar dataflow model, and is designed for processing
-streaming data at high rates.
+visualization and data processing.  The commercial DataMiner tool
+(correct name?) from IBM uses a similar dataflow model, and is
+designed for processing streaming data at high rates.
 </P>
 <P>NOTE: need to doc,cite the IBM tool and Titan better
 </P>
@@ -137,6 +137,12 @@ message-passing MPI library or sockets.  This allows PHISH programs to
 be run on a broader range of hardware, and PHISH minnows to be
 developed as independent stand-alone applications, but also incurs a
 higher overhead for moving data from process to process.
+</P>
+<P>NOTE: could also contrast nodes of a pipeline working one at a time as
+data moves as a chunk down the pipeline (could exploit parallellism at
+each node, or one process could run the entire pipeline, one stage at
+a time), versus the PHISH minnows working continuously as data streams
+thru the pipeline continusously
 </P>
 <P>The following list highlights additional PHISH pheatures:
 </P>
