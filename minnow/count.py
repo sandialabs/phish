@@ -14,7 +14,7 @@ def count(nvalues):
 def sort():
   pairs = hash.items()
   for key,value in pairs:
-    phish.pack_int(value)
+    phish.pack_int32(value)
     phish.pack_string(key)
     phish.send(0)
 

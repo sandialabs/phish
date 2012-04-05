@@ -234,7 +234,7 @@ def pack_int16_array(vec):
   n = len(vec)
   ptr = (c_int16*n)()
   for i in xrange(n):
-    check_range(-32768,value,32768)
+    check_range(-32768,vec[i],32768)
     ptr[i] = vec[i]
   lib.phish_pack_int16_array(ptr,n)
 
@@ -242,7 +242,7 @@ def pack_int32_array(vec):
   n = len(vec)
   ptr = (c_int32*n)()
   for i in xrange(n):
-    check_range(-2147483648,value,2147483648)
+    check_range(-2147483648,vec[i],2147483648)
     ptr[i] = vec[i]
   lib.phish_pack_int32_array(ptr,n)
 
@@ -250,7 +250,7 @@ def pack_int64_array(vec):
   n = len(vec)
   ptr = (c_int64*n)()
   for i in xrange(n):
-    check_range(-9223372036854775808,value,9223372036854775808)
+    check_range(-9223372036854775808,vec[i],9223372036854775808)
     ptr[i] = vec[i]
   lib.phish_pack_int64_array(ptr,n)
 
@@ -258,7 +258,7 @@ def pack_uint8_array(vec):
   n = len(vec)
   ptr = (c_uint8*n)()
   for i in xrange(n):
-    check_range(0,value,256)
+    check_range(0,vec[i],256)
     ptr[i] = vec[i]
   lib.phish_pack_uint8_array(ptr,n)
 
@@ -266,7 +266,7 @@ def pack_uint16_array(vec):
   n = len(vec)
   ptr = (c_uint16*n)()
   for i in xrange(n):
-    check_range(0,value,65536)
+    check_range(0,vec[i],65536)
     ptr[i] = vec[i]
   lib.phish_pack_uint16_array(ptr,n)
 
@@ -274,7 +274,7 @@ def pack_uint32_array(vec):
   n = len(vec)
   ptr = (c_uint32*n)()
   for i in xrange(n):
-    check_range(0,value,4294967296)
+    check_range(0,vec[i],4294967296)
     ptr[i] = vec[i]
   lib.phish_pack_uint32_array(ptr,n)
 
@@ -282,7 +282,7 @@ def pack_uint64_array(vec):
   n = len(vec)
   ptr = (c_uint64*n)()
   for i in xrange(n):
-    check_range(0,value,18446744073709551616)
+    check_range(0,vec[i],18446744073709551616)
     ptr[i] = vec[i]
   lib.phish_pack_uint64_array(ptr,n)
 
@@ -428,12 +428,10 @@ def nqueue():
 # query/set functions
 
 def query(str,flag1,flag2):
-  cstr = c_char_p(str)
-  return lib.phish_query(cstr,flag1,flag2)
+  return lib.phish_query(str,flag1,flag2)
 
 def set(str,flag1,flag2):
-  cstr = c_char_p(str)
-  lib.phish_set(cstr,flag1,flag2)
+  lib.phish_set(str,flag1,flag2)
 
 # error functions
   

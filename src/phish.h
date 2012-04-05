@@ -64,7 +64,6 @@ int phish_recv();
 void phish_send(int);
 void phish_send_key(int, char *, int);
 void phish_send_direct(int, int);
-void phish_reset_receiver(int, int);
 
 void phish_repack();
 void phish_pack_raw(char *, int32_t);
@@ -100,6 +99,7 @@ int phish_dequeue(int);
 int phish_nqueue();
 
 int phish_query(const char *, int, int);
+  void phish_set(const char *, int, int);
 void phish_error(const char *);
 void phish_warn(const char *);
 void phish_abort();

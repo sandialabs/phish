@@ -16,10 +16,12 @@
 
 PHISH Library :c,h3
 
-{Remember, a dead phish can float downstream, but it takes a live
+{Remember, a dead fish can float downstream, but it takes a live
 one to swim upstream.} --  W. C. Fields :c
 
 {So long, and thanks for all the phish.} -- with apologies to Douglas Adams :c
+
+Add an image of a school of swimming minnows.
 
 :line
 
@@ -42,7 +44,7 @@ streaming context or from files.
 "Open source"_open_source.html :tb(c=4,ea=c,a=c)
 
 PHISH stands for Parallel Harness for Informatic Stream Hashing.  The
-phishy metaphor is meant to evoke the image of a many small minnows
+phishy metaphor is meant to evoke the image of many small minnows
 (programs) swimming in a stream (of data).
 
 PHISH is a lightweight framework which a set of independent processes

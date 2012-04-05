@@ -383,7 +383,7 @@ void phish_init(int *pnarg, char ***pargs)
 	oc->offset = -1;
 	break;
       case RING:
-	// set nrecv and recvfirst so can invoke reset_receiver()
+	// set nrecv and recvfirst so can invoke set("ring/receiver")
 	// otherwise would set nrecv = 1, recvfirst = -1
 	oc->nrecv = rprocs;
 	oc->recvone = me + 1;

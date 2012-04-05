@@ -8,7 +8,7 @@ def myprint(nvalues):
     type,value,len = phish.unpack()
     if type == phish.RAW:
       pass
-    elif type < phish.INT_ARRAY:
+    elif type < phish.INT8_ARRAY:
       print >>fp,value,
     else:
       for val in value: print >>fp,val,
