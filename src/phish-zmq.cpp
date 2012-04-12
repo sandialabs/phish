@@ -502,11 +502,6 @@ void phish_exit()
   g_context = 0;
 }
 
-void phish_atabort(void(*callback)(int*))
-{
-  g_at_abort = callback;
-}
-
 void phish_abort()
 {
   if(g_at_abort)
@@ -564,9 +559,10 @@ void phish_check()
   }
 }
 
-void phish_callback(void (*done)(), void(*abort)(int*))
+void phish_callback(void (*done)(), void(*at_abort)(int*))
 {
   g_all_input_ports_closed = done;
+  g_at_abort = at_abort;
 }
 
 void phish_close(int port)
