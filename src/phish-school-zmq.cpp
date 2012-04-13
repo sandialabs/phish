@@ -1,6 +1,9 @@
 #include <phish-school.h>
 
+#include <zmq.hpp>
+
 #include <iostream>
+#include <iterator>
 #include <map>
 #include <sstream>
 #include <stdexcept>
@@ -8,6 +11,7 @@
 #include <vector>
 
 #include <unistd.h>
+#include <sys/errno.h>
 
 template<typename T>
 std::string string_cast(const T& value)
@@ -35,60 +39,18 @@ struct connection
   std::vector<int> input_minnows;
 };
 
-struct process
+struct out_connection
 {
-  virtual void wait() = 0;
-  virtual void kill() = 0;
-};
-
-struct local_process :
-  public process
-{
-  local_process(const std::string& name, int local_id, int global_id, const std::vector<std::string>& arguments) :
-    pid(::fork())
-  {
-    if(0 == pid)
-    {
-      std::vector<char*> argv;
-      for(int i = 0; i != arguments.size(); ++i)
-        argv.push_back(const_cast<char*>(arguments[i].c_str()));
-      argv.push_back(0);
-
-      ::execv(arguments[0].c_str(), argv.data());
-    }
-    else
-    {
-    }
-  }
-
-  void wait()
-  {
-    int stat_loc = 0;
-    int options = 0;
-    ::waitpid(pid, &stat_loc, options);
-  }
-
-  void kill()
+  out_connection(const std::string& sp, int ip, const std::vector<std::string>& ia) :
+    send_pattern(sp),
+    input_port(ip),
+    input_addresses(ia)
   {
   }
 
-  const pid_t pid;
-};
-
-struct ssh_process :
-  public process
-{
-  ssh_process(const std::string& name, int local_id, int global_id, const std::vector<std::string>& arguments, const std::string& host)
-  {
-  }
-
-  void wait()
-  {
-  }
-
-  void kill()
-  {
-  }
+  std::string send_pattern;
+  int input_port;
+  std::vector<std::string> input_addresses;
 };
 
 static std::vector<std::string> g_names;
@@ -109,7 +71,7 @@ void phish_school_reset()
   g_connections.clear();
 }
 
-void create_minnows(const char* name, int count, const char** hosts, int argc, const char** argv, int* minnows)
+void phish_school_add_minnows(const char* name, int count, const char** hosts, int argc, const char** argv, int* minnows)
 {
   for(int i = 0; i != count; ++i)
   {
@@ -118,12 +80,12 @@ void create_minnows(const char* name, int count, const char** hosts, int argc, c
     g_names.push_back(name);
     g_local_ids.push_back(i);
     g_local_counts.push_back(count);
-    g_hosts.push_back(hosts[i] ? hosts[i] : "127.0.0.1");
+    g_hosts.push_back(strlen(hosts[i]) ? hosts[i] : "127.0.0.1");
     g_arguments.push_back(std::vector<std::string>(argv, argv + argc));
   }
 }
 
-void all_to_all(int output_count, int* output_minnows, int output_port, const char* send_pattern, int input_port, int input_count, int* input_minnows)
+void phish_school_all_to_all(int output_count, const int* output_minnows, int output_port, const char* send_pattern, int input_port, int input_count, const int* input_minnows)
 {
   for(int i = 0; i != output_count; ++i)
   {
@@ -131,7 +93,7 @@ void all_to_all(int output_count, int* output_minnows, int output_port, const ch
   }
 }
 
-int one_to_one(int output_count, int* output_minnows, int output_port, int input_port, int input_count, int* input_minnows)
+int phish_school_one_to_one(int output_count, const int* output_minnows, int output_port, int input_port, int input_count, const int* input_minnows)
 {
   try
   {
@@ -152,7 +114,7 @@ int one_to_one(int output_count, int* output_minnows, int output_port, int input
   }
 }
 
-int start()
+int phish_school_start()
 {
   try
   {
@@ -165,6 +127,7 @@ int start()
     {
       control_ports_internal.push_back("tcp://*:" + string_cast(next_port));
       control_ports_external.push_back("tcp://" + g_hosts[i] + ":" + string_cast(next_port));
+      ++next_port;
     }
 
     // Assign input port addresses ...
@@ -174,6 +137,7 @@ int start()
     {
       input_ports_internal.push_back("tcp://*:" + string_cast(next_port));
       input_ports_external.push_back("tcp://" + g_hosts[i] + ":" + string_cast(next_port));
+      ++next_port;
     }
 
     // Count input port incoming connections ...
@@ -188,16 +152,20 @@ int start()
     }
 
     // Keep track of output port outgoing connections ...
-/*
-  output_connections = [{} for name in _names]
-  for output_minnow, output_port, send_pattern, input_port, input_minnows in _connections:
-    if output_port not in output_connections[output_minnow]:
-      output_connections[output_minnow][output_port] = []
-    output_connections[output_minnow][output_port].append((send_pattern, input_port, [input_ports_external[input_minnow] for input_minnow in input_minnows]))
-*/
+    std::vector<std::map<int, std::vector<out_connection> > > output_connections(g_names.size(), std::map<int, std::vector<out_connection> >());
+    for(std::vector<connection>::iterator connection = g_connections.begin(); connection != g_connections.end(); ++connection)
+    {
+      std::vector<std::string> input_addresses;
+      for(int i = 0; i != connection->input_minnows.size(); ++i)
+        input_addresses.push_back(input_ports_external[connection->input_minnows[i]]);
 
-    // Create minnows ...
-    std::vector<process*> processes;
+      output_connections[connection->output_minnow].insert(std::make_pair(connection->output_port, std::vector<out_connection>()));
+      output_connections[connection->output_minnow][connection->output_port].push_back(out_connection(connection->send_pattern, connection->input_port, input_addresses));
+    }
+
+    std::vector<pid_t> processes;
+
+    // Create each of the minnow processes ...
     for(int i = 0; i != g_names.size(); ++i)
     {
       const std::string name = g_names[i];
@@ -205,7 +173,6 @@ int start()
       const int global_id = i;
       const std::string host = g_hosts[i];
 
-      // Setup the command-line for the minnow ...
       std::vector<std::string> arguments;
       arguments.insert(arguments.end(), g_arguments[i].begin(), g_arguments[i].end());
       arguments.push_back("--phish-name");
@@ -223,36 +190,88 @@ int start()
       arguments.push_back("--phish-input-port");
       arguments.push_back(input_ports_internal[i]);
 
-/*
-      for port, count in input_connection_counts[i].items():
-        arguments += ["--phish-input-connections", "%s+%s" % (port, count)]
-      for output_port, connections in output_connections[i].items():
-        for send_pattern, input_port, minnows in connections:
-          arguments += ["--phish-output-connection", "%s+%s+%s+%s" % (output_port, send_pattern, input_port, "+".join(minnows))]
-*/
+      for(std::map<int, int>::iterator j = input_connection_counts[i].begin(); j != input_connection_counts[i].end(); ++j)
+      {
+        const int port = j->first;
+        const int count = j->second;
 
-      if(host == "localhost" || host == "127.0.0.1")
-        processes.push_back(new local_process(name, local_id, global_id, arguments));
-      else
-        processes.push_back(new ssh_process(name, local_id, global_id, arguments, host));
+        std::ostringstream buffer;
+        buffer << port << "+" << count;
+
+        arguments.push_back("--phish-input-connections");
+        arguments.push_back(buffer.str());
+      }
+
+      for(std::map<int, std::vector<out_connection> >::iterator j = output_connections[i].begin(); j != output_connections[i].end(); ++j)
+      {
+        const int output_port = j->first;
+        for(std::vector<out_connection>::iterator connection = j->second.begin(); connection != j->second.end(); ++connection)
+        {
+          std::ostringstream buffer;
+          for(int k = 0; k != connection->input_addresses.size(); ++k)
+            buffer << "+" << connection->input_addresses[k];
+
+          arguments.push_back("--phish-output-connection");
+          arguments.push_back(string_cast(output_port) + "+" + connection->send_pattern + "+" + string_cast(connection->input_port) + buffer.str());
+        }
+      }
+
+      if(host != "localhost" && host != "127.0.0.1")
+      {
+        arguments.insert(arguments.begin(), "-x");
+        arguments.insert(arguments.begin(), "ssh");
+      }
+
+      std::copy(arguments.begin(), arguments.end(), std::ostream_iterator<std::string>(std::cerr, " "));
+      std::cerr << std::endl;
+
+      switch(int pid = ::fork())
+      {
+        case -1:
+        {
+          throw std::runtime_error(strerror(errno));
+        }
+        case 0:
+        {
+          std::vector<char*> argv;
+          for(int i = 0; i != arguments.size(); ++i)
+            argv.push_back(const_cast<char*>(arguments[i].c_str()));
+          argv.push_back(0);
+
+          ::execvp(arguments[0].c_str(), argv.data());
+          throw std::runtime_error(strerror(errno)); // Only reached if execvp() fails.
+        }
+        default:
+        {
+          processes.push_back(pid);
+          continue;
+        }
+      }
     }
-/*
-    # Tell each minnow to start processing ...
-    for control_port in control_ports_external:
-      socket = context.socket(zmq.REQ)
-      socket.connect(control_port)
-      socket.send("start")
-      if socket.recv() != "ok":
-        raise Exception("Minnow failed to start.")
-*/
+
+    // Tell each minnow to begin processing ...
+    zmq::context_t context(2);
+    for(int i = 0; i != processes.size(); ++i)
+    {
+      zmq::socket_t socket(context, ZMQ_REQ);
+      socket.connect(control_ports_external[i].c_str());
+      zmq::message_t request_message(const_cast<char*>("start"), strlen("start"), 0);
+      socket.send(request_message, 0);
+
+      zmq::message_t response_message;
+      socket.recv(&response_message, 0);
+      const std::string response(reinterpret_cast<char*>(response_message.data()), response_message.size());
+      if(response != "ok")
+        throw std::runtime_error("Minnow failed to start.");
+    }
 
     // Wait for processes to terminate ...
     for(int i = 0; i != processes.size(); ++i)
-      processes[i]->wait();
-
-
-    for(int i = 0; i != processes.size(); ++i)
-      delete processes[i];
+    {
+      int status = 0;
+      int options = 0;
+      ::waitpid(processes[i], &status, options);
+    }
   }
   catch(std::exception& e)
   {

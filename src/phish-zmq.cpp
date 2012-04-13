@@ -25,6 +25,8 @@
 
 #include <sys/time.h>
 
+#define phish_return_error(message, code) { phish_error(message); return code; }
+
 ///////////////////////////////////////////////////////////////////////////////////
 // Internal state
 
@@ -528,7 +530,7 @@ void phish_output(int port)
   g_defined_output_ports.insert(port);
 }
 
-void phish_check()
+int phish_check()
 {
   for(std::map<int, int>::iterator port = g_input_port_connection_count.begin(); port != g_input_port_connection_count.end(); ++port)
   {
@@ -536,7 +538,7 @@ void phish_check()
     {
       std::ostringstream message;
       message << g_name << ": unexpected connection to undefined input port " << port->first;
-      throw std::runtime_error(message.str());
+      phish_return_error(message.str().c_str(), -1);
     }
   }
   for(std::map<int, void(*)(int)>::iterator port = g_input_port_message_callback.begin(); port != g_input_port_message_callback.end(); ++port)
@@ -545,7 +547,7 @@ void phish_check()
     {
       std::ostringstream message;
       message << g_name << ": required input port " << port->first << " does not have a connection.";
-      throw std::runtime_error(message.str());
+      phish_return_error(message.str().c_str(), -1);
     }
   }
   for(std::map<int, std::vector<output_connection*> >::iterator port = g_output_connections.begin(); port != g_output_connections.end(); ++port)
@@ -554,9 +556,11 @@ void phish_check()
     {
       std::ostringstream message;
       message << g_name << ": unexpected connection from undefined output port " << port->first;
-      throw std::runtime_error(message.str());
+      phish_return_error(message.str().c_str(), -1);
     }
   }
+
+  return 0;
 }
 
 void phish_callback(void (*done)(), void(*at_abort)(int*))
@@ -992,8 +996,6 @@ int phish_unpack(char** data, int32_t* count)
   return type;
 }
 
-#define phish_return_error(message, code) { phish_error(message); return code; }
-
 int phish_query(const char* kw, int flag1, int flag2)
 {
   const std::string keyword(kw);
@@ -1012,13 +1014,13 @@ int phish_query(const char* kw, int flag1, int flag2)
 
 void phish_error(const char* message)
 {
-  std::cerr << "PHISH ZMQ ERROR: Minnow " << g_name << " ID " << g_local_id << " # " << g_global_id << ": " << message << std::endl;
+  std::cerr << "PHISH ERROR: Minnow " << g_name << " ID " << g_local_id << " # " << g_global_id << ": " << message << std::endl;
   phish_abort();
 }
 
 void phish_warn(const char* message)
 {
-  std::cerr << "PHISH ZMQ WARNING: Minnow " << g_name << " ID " << g_local_id << " # " << g_global_id << ": " << message << std::endl;
+  std::cerr << "PHISH WARNING: Minnow " << g_name << " ID " << g_local_id << " # " << g_global_id << ": " << message << std::endl;
 }
 
 double phish_timer()

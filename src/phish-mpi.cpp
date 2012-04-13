@@ -27,6 +27,9 @@
 #include "zmq.h"
 #endif
 
+#define phish_return_error(message, code) { phish_error(message); return code; }
+#define phish_assert_initialized() { if (!initflag) phish_return_error("phish_init() has not been called.", -2); }
+
 /* ---------------------------------------------------------------------- */
 // definitions
 
@@ -519,9 +522,9 @@ void phish_output(int iport)
    check consistency of input args with ports setup by phish input/output
 ------------------------------------------------------------------------- */
 
-void phish_check()
+int phish_check()
 {
-  if (!initflag) phish_error("Phish_init has not been called");
+  phish_assert_initialized();
   if (checkflag) phish_error("Phish_check has already been called");
   checkflag = 1;
 
@@ -535,7 +538,7 @@ void phish_check()
   ninports = 0;
   for (int i = 0; i < MAXPORT; i++) {
     if (inports[i].status == CLOSED_PORT)
-      phish_error("Input script uses an undefined input port");
+      phish_return_error("Input script uses an undefined input port", -1);
     if (inports[i].status == OPEN_PORT) ninports++;
   }
   donecount = 0;
@@ -549,13 +552,15 @@ void phish_check()
   noutports = 0;
   for (int i = 0; i < MAXPORT; i++) {
     if (outports[i].status == CLOSED_PORT)
-      phish_error("Input script uses an undefined output port");
+      phish_return_error("Input script uses an undefined output port", -1);
     if (outports[i].status == OPEN_PORT) noutports++;
   }
 
   // stats
 
   rcount = scount = 0;
+
+  return 0;
 }
 
 /* ----------------------------------------------------------------------
@@ -1385,9 +1390,6 @@ int phish_nqueue()
    return internal PHISH info
    current keywords are all for minnow counts and input/output ports
 ------------------------------------------------------------------------- */
-
-#define phish_return_error(message, code) { phish_error(message); return code; }
-#define phish_assert_initialized() { if (!initflag) phish_return_error("phish_init() has not been called.", -2); }
 
 int phish_query(const char *keyword, int flag1, int flag2)
 {

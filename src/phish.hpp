@@ -38,8 +38,8 @@ enum data_type
   PICKLE = PHISH_PICKLE,
 };
 
-//#define LOG_CALL() { ::phish_warn(__PRETTY_FUNCTION__); }
-#define LOG_CALL() {}
+#define LOG_CALL() { ::phish_warn(__PRETTY_FUNCTION__); }
+//#define LOG_CALL() {}
 
 class exception :
   public std::exception
@@ -94,7 +94,7 @@ void output(int port) { LOG_CALL(); ::phish_output(port); }
 /// Compares the set of connections to-and-from this minnow to its configured
 /// input and output ports to detect setup errors.  Throws std::runtime_error
 /// if there are any problems.
-void check() { LOG_CALL(); ::phish_check(); }
+void check() { LOG_CALL(); exception::test(::phish_check()); }
 /// Specifies a callback to be called exactly once when every input port has
 /// been closed.  Note: this callback will never be called for minnows that
 /// have no input ports.
