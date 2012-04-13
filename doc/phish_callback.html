@@ -13,7 +13,7 @@
 </H3>
 <P><B>C syntax:</B>
 </P>
-<PRE>void phish_callback(void (*alldonefunc)(), void (*abortfunc)()) 
+<PRE>void phish_callback(void (*alldonefunc)(), void (*abortfunc)(int*)) 
 </PRE>
 <P><B>C examples:</B>
 </P>
@@ -24,18 +24,18 @@ phish_callback(mydone,myabort);
 </PRE>
 <P><B>C++ syntax:</B>
 </P>
-<PRE>void callback(void (*alldonefunc)(), void (*abortfunc)()) 
+<PRE>void callback(void (*alldonefunc)(), void (*abortfunc)(int*)) 
 </PRE>
 <P><B>C++ examples:</B>
 </P>
 <PRE>#include "phish.hpp"
-PHISH::callback(mydone,NULL);
-PHISH::callback(NULL,myabort);
-PHISH::callback(mydone,myabort); 
+phish::callback(mydone,NULL);
+phish::callback(NULL,myabort);
+phish::callback(mydone,myabort); 
 </PRE>
 <P><B>Python syntax:</B>
 </P>
-<PRE>def callback(alldonefunc,abortfunc) 
+<PRE>def callback(alldonefunc, abortfunc) 
 </PRE>
 <P><B>Python examples:</B>
 </P>
@@ -86,11 +86,11 @@ called, either by the minnow, or internally by the PHISH library.
 </P>
 <P>The callback function should have the following form in C or C++:
 </P>
-<PRE>void abortfunc(int flag) { } 
+<PRE>void abortfunc(int* cancel) { } 
 </PRE>
 <P>or
 </P>
-<PRE>def abortfunc(flag) 
+<PRE>def abortfunc(cancel) 
 </PRE>
 <P>in Python,
 </P>
@@ -105,7 +105,8 @@ otherwise clean-up.  The function should not make additional calls to
 the PHISH library, as it may be in an invalid state, depending on the
 error condition.
 </P>
-<P>TIM: what is the flag?
+<P>The callback function may optionally set the "cancel" flag to a
+nonzero value to prevent the PHISH library from aborting the process.
 </P>
 <HR>
 
