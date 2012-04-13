@@ -992,6 +992,8 @@ int phish_unpack(char** data, int32_t* count)
   return type;
 }
 
+#define phish_return_error(message, code) { phish_error(message); return code; }
+
 int phish_query(const char* kw, int flag1, int flag2)
 {
   const std::string keyword(kw);
@@ -1005,7 +1007,7 @@ int phish_query(const char* kw, int flag1, int flag2)
   else if(keyword == "nglobal")
     return g_global_count;
   else
-    throw std::runtime_error("Not implemented.");
+    phish_return_error("Invalid phish_query keyword.", -1);
 }
 
 void phish_error(const char* message)

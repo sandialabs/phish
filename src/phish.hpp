@@ -41,6 +41,34 @@ enum data_type
 //#define LOG_CALL() { ::phish_warn(__PRETTY_FUNCTION__); }
 #define LOG_CALL() {}
 
+class exception :
+  public std::exception
+{
+public:
+  exception(int e) :
+    error(e)
+  {
+  }
+
+  const char* what() const throw()
+  {
+    switch(error)
+    {
+    default:
+      return "Unknown error.";
+    }
+  }
+
+  const int error;
+};
+
+int phish_throw(int result)
+{
+  if(result < 0)
+    throw exception(result);
+  return result;
+}
+
 /// Initializes a minnow and prepares for communication with the rest of the
 /// school.  This should be called as soon as possible after minnow startup, and
 /// may modify the supplied argv.  Throws std::runtime_error if there are any problems
@@ -143,6 +171,7 @@ const T unpack()
   return value;
 }
 
+int query(const std::string& key, int flag1=0, int flag2=0) { return phish_throw(::phish_query(key.c_str(), flag1, flag2)); }
 void error(const std::string& message) { ::phish_error(message.c_str()); }
 void warn(const std::string& message) { ::phish_warn(message.c_str()); }
 void debug(const std::string& message) { ::phish_warn(message.c_str()); }

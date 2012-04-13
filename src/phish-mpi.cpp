@@ -46,7 +46,7 @@ enum{UNUSED_PORT,OPEN_PORT,CLOSED_PORT};
 
 typedef void (DatumFunc)(int);         // callback prototypes
 typedef void (DoneFunc)();
-typedef void (AbortFunc)(int);
+typedef void (AbortFunc)(int*);
 
 /* ---------------------------------------------------------------------- */
 // variables local to single PHISH instance
@@ -565,7 +565,7 @@ void phish_check()
    allow this one func to be called before phish_init() is called
 ------------------------------------------------------------------------- */
 
-void phish_callback(void (*func1)(), void (*func2)(int))
+void phish_callback(void (*func1)(), void (*func2)(int*))
 {
   if (func1) alldonefunc = func1;
   if (func2) abortfunc = func2;
@@ -1386,9 +1386,12 @@ int phish_nqueue()
    current keywords are all for minnow counts and input/output ports
 ------------------------------------------------------------------------- */
 
+#define phish_return_error(message, code) { phish_error(message); return code; }
+#define phish_assert_initialized() { if (!initflag) phish_return_error("phish_init() has not been called.", -2); }
+
 int phish_query(const char *keyword, int flag1, int flag2)
 {
-  if (!initflag) phish_error("Phish_init has not been called");
+  phish_assert_initialized();
 
   if (strcmp(keyword,"idlocal") == 0) return idlocal;
   else if (strcmp(keyword,"nlocal") == 0) return nlocal;
@@ -1397,18 +1400,18 @@ int phish_query(const char *keyword, int flag1, int flag2)
   else if (strcmp(keyword,"inport/status") == 0) {
     int iport = flag1;
     if (iport < 0 || iport >= MAXPORT) 
-      phish_error("Invalid phish_query flags");
+      phish_return_error("Invalid phish_query flags", -3);
     return inports[iport].status;
   } else if (strcmp(keyword,"inport/connections") == 0) {
     int iport = flag1;
     if (iport < 0 || iport >= MAXPORT) 
-      phish_error("Invalid phish_query flags");
+      phish_return_error("Invalid phish_query flags", -3);
     if (inports[iport].status == UNUSED_PORT) return -1;
     return inports[iport].nconnect;
   } else if (strcmp(keyword,"inport/nminnows") == 0) {
     int iport = flag1;
     if (iport < 0 || iport >= MAXPORT) 
-      phish_error("Invalid phish_query flags");
+      phish_return_error("Invalid phish_query flags", -3);
     if (inports[iport].status == UNUSED_PORT) return -1;
     int iconnect = flag2;
     if (iconnect < 0 || iconnect >= inports[iport].nconnect) return -1;
@@ -1416,18 +1419,18 @@ int phish_query(const char *keyword, int flag1, int flag2)
   } else if (strcmp(keyword,"outport/status") == 0) {
     int iport = flag1;
     if (iport < 0 || iport >= MAXPORT) 
-      phish_error("Invalid phish_query flags");
+      phish_return_error("Invalid phish_query flags", -3);
     return outports[iport].status;
   } else if (strcmp(keyword,"outport/connections") == 0) {
     int iport = flag1;
     if (iport < 0 || iport >= MAXPORT) 
-      phish_error("Invalid phish_query flags");
+      phish_return_error("Invalid phish_query flags", -3);
     if (outports[iport].status == UNUSED_PORT) return -1;
     return outports[iport].nconnect;
   } else if (strcmp(keyword,"outport/nminnows") == 0) {
     int iport = flag1;
     if (iport < 0 || iport >= MAXPORT) 
-      phish_error("Invalid phish_query flags");
+      phish_return_error("Invalid phish_query flags", -3);
     if (outports[iport].status == UNUSED_PORT) return -1;
     int iconnect = flag2;
     if (iconnect < 0 || iconnect >= outports[iport].nconnect) return -1;
@@ -1435,13 +1438,13 @@ int phish_query(const char *keyword, int flag1, int flag2)
   } else if (strcmp(keyword,"outport/direct") == 0) {
     int iport = flag1;
     if (iport < 0 || iport >= MAXPORT) 
-      phish_error("Invalid phish_query flags");
+      phish_return_error("Invalid phish_query flags", -3);
     if (outports[iport].status == UNUSED_PORT) return -1;
     for (int iconnect = 0; iconnect < outports[iport].nconnect; iconnect++)
       if (outports[iport].connects[iconnect].style == DIRECT) 
 	return outports[iport].connects[iconnect].nrecv;
     return -1;
-  } else phish_error("Invalid phish_query keyword");
+  } else phish_return_error("Invalid phish_query keyword", -1);
 
   return 0;
 }
@@ -1487,12 +1490,14 @@ void phish_error(const char *str)
   fprintf(stderr,"PHISH MPI ERROR: Minnow %s ID %s # %d: %s\n",
 	  exename,idminnow,idglobal,str);
 
-  // NOTE: what is the flag?
-  // NOTE: should we set initflag to 0, so callback function
-  //       cannot call PHISH library?
+  if (abortfunc)
+  {
+    int cancel = false;
+    (*abortfunc)(&cancel);
+    if(cancel)
+      return;
+  }
 
-  int flag = 0;
-  if (abortfunc) (*abortfunc)(flag);
   MPI_Abort(world,1);
 }
 

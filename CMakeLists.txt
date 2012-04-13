@@ -7,6 +7,8 @@ find_path(ZMQ_INCLUDE_DIR zmq.hpp)
 find_library(ZMQ_LIBRARY zmq)
 find_package(MPI)
 
+enable_testing()
+
 add_subdirectory(src)
 add_subdirectory(minnow)
 add_subdirectory(minnow2)
