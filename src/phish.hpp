@@ -38,8 +38,8 @@ enum data_type
   PICKLE = PHISH_PICKLE,
 };
 
-#define LOG_CALL() { ::phish_warn(__PRETTY_FUNCTION__); }
-//#define LOG_CALL() {}
+//#define LOG_CALL() { ::phish_warn(__PRETTY_FUNCTION__); }
+#define LOG_CALL() {}
 
 class exception :
   public std::exception
