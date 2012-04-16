@@ -1,4 +1,5 @@
 import optparse
+import perf
 import subprocess
 import sys
 
@@ -9,8 +10,9 @@ parser.add_option("--size", default="0/5000/500", help="Number of bytes in each 
 (options, arguments) = parser.parse_args()
 
 size_begin, size_end, size_step = options.size.split("/")
+hosts = perf.hosts()
 
-sys.stderr.write("Testing Python / ZMQ latency ...\n")
+sys.stderr.write("Testing Python / ZMQ latency on %s and %s ...\n" % (hosts[0], hosts[1]))
 sys.stderr.flush()
 sys.stdout.write("py-zmq elapsed [s],py-zmq message size [B],py-zmq message count,py-zmq latency [us]\n")
 sys.stdout.flush()
@@ -18,8 +20,12 @@ sys.stdout.flush()
 for size in range(int(size_begin), int(size_end), int(size_step)):
   sys.stderr.write("message size: %s\n" % (size))
   sys.stderr.flush()
-  a = subprocess.Popen(["python", "${CMAKE_CURRENT_SOURCE_DIR}/zmq-latency-a.py", "--address", options.address, "--count", str(options.count), "--size", str(size)])
-  b = subprocess.Popen(["python", "${CMAKE_CURRENT_SOURCE_DIR}/zmq-latency-b.py", "--address", options.address, "--count", str(options.count), "--size", str(size)])
+  arguments = perf.arguments(
+    ["python", "${CMAKE_CURRENT_SOURCE_DIR}/zmq-latency-a.py", "--address", options.address, "--count", str(options.count), "--size", str(size)],
+    ["python", "${CMAKE_CURRENT_SOURCE_DIR}/zmq-latency-b.py", "--address", options.address, "--count", str(options.count), "--size", str(size)]
+    )
+  a = subprocess.Popen(arguments[0])
+  b = subprocess.Popen(arguments[1])
   a.wait()
   b.wait()
 
