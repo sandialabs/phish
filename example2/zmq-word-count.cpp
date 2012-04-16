@@ -25,9 +25,9 @@ int main(int argc, char* argv[])
   std::vector<std::string> print_arguments(1, "zmq-print");
   std::vector<int> print_minnows = phish::school::add_minnows("print", print_hosts, print_arguments);
 
-  phish::school::all_to_all(filegen_minnows, 0, "round-robin", 0, file2words_minnows);
-  phish::school::all_to_all(file2words_minnows, 0, "hashed", 0, count_minnows);
-  phish::school::all_to_all(count_minnows, 0, "broadcast", 0, sort_minnows);
+  phish::school::all_to_all(filegen_minnows, 0, PHISH_SCHOOL_ROUND_ROBIN, 0, file2words_minnows);
+  phish::school::all_to_all(file2words_minnows, 0, PHISH_SCHOOL_HASHED, 0, count_minnows);
+  phish::school::all_to_all(count_minnows, 0, PHISH_SCHOOL_BROADCAST, 0, sort_minnows);
   phish::school::one_to_one(sort_minnows, 0, 0, print_minnows);
 
   phish::school::start();
