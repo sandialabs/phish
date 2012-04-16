@@ -2,7 +2,7 @@ import subprocess
 
 def hosts():
   try:
-    slurm_nodes = subprocess.check_output(["scontrol", "show", "hostnames"]).split()
+    slurm_nodes = subprocess.check_output(["scontrol", "show", "hostnames"], stderr=subprocess.PIPE).split()
     return [slurm_nodes[0], slurm_nodes[1]]
   except:
     return ["localhost", "localhost"]
