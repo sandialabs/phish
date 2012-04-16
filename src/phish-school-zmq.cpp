@@ -12,6 +12,7 @@
 
 #include <unistd.h>
 #include <sys/errno.h>
+#include <sys/wait.h>
 
 template<typename T>
 std::string string_cast(const T& value)
