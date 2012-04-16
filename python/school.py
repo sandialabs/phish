@@ -1,7 +1,18 @@
 import ctypes
 import ctypes.util
 
-_library = ctypes.CDLL(ctypes.util.find_library("phish-school-zmq"))
+_library = None
+if _library is None:
+  if ctypes.util.find_library("phish-school-zmq"):
+    _library = ctypes.CDLL(ctypes.util.find_library("phish-school-zmq"))
+if _library is None:
+  _library = ctypes.CDLL("libphish-school-zmq.so")
+if _library is None:
+  _library = ctypes.CDLL("libphish-school-zmq.dylib")
+if _library is None:
+  _library = ctypes.CDLL("libphish-school-zmq.dll")
+if _library is None:
+  raise Exception("Unable to locate PHISH SCHOOL library.")
 
 ROUND_ROBIN = "round-robin"
 HASHED = "hashed"
