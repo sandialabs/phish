@@ -73,6 +73,18 @@ void phish_school_reset()
 
 void phish_school_add_minnows(const char* name, int count, const char** hosts, int argc, const char** argv, int* minnows)
 {
+/*
+  std::cerr << name << std::endl;
+  std::cerr << "  " << count << std::endl;
+  for(int i = 0; i != count; ++i)
+    std::cerr << "  " << hosts[i] << std::endl;
+  std::cerr << "  " << argc << std::endl;
+  for(int i = 0; i != argc; ++i)
+    std::cerr << "  " << argv[i] << std::endl;
+  for(int i = 0; i != count; ++i)
+    std::cerr << "  " << minnows[i] << std::endl;
+*/
+
   for(int i = 0; i != count; ++i)
   {
     minnows[i] = g_names.size();

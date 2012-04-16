@@ -1,13 +1,11 @@
 import optparse
-import phish2.school as school
+import school
 import sys
 
 parser = optparse.OptionParser()
 parser.add_option("--count", type="int", default=100000, help="Number of messages.  Default: %default.")
 parser.add_option("--size", default="0/5000/500", help="Number of bytes in each message <begin/end/step>.  Default: %default.")
 (options, arguments) = parser.parse_args()
-
-school.debug(True)
 
 size_begin, size_end, size_step = options.size.split("/")
 
@@ -18,8 +16,8 @@ sys.stdout.flush()
 for size in range(int(size_begin), int(size_end), int(size_step)):
   sys.stderr.write("message size: %s\n" % (size))
   sys.stderr.flush()
-  a = school.create_minnows("a", ["${CMAKE_CURRENT_BINARY_DIR}/phish-zmq-latency-a", str(size), str(options.count)])
-  b = school.create_minnows("b", ["${CMAKE_CURRENT_BINARY_DIR}/phish-zmq-latency-b", str(size), str(options.count)])
+  a = school.add_minnows("a", ["localhost"], ["${CMAKE_CURRENT_BINARY_DIR}/phish-zmq-latency-a", str(size), str(options.count)])
+  b = school.add_minnows("b", ["localhost"], ["${CMAKE_CURRENT_BINARY_DIR}/phish-zmq-latency-b", str(size), str(options.count)])
   school.one_to_one(a, 0, 0, b)
   school.one_to_one(b, 0, 0, a)
   school.start()
