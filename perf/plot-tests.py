@@ -1,10 +1,13 @@
 import csv
 import matplotlib.pyplot
+import os
 
 matplotlib.pyplot.rcParams.update({"legend.fontsize" : 10})
 
 
 def plot_latency(path, label):
+  if not os.path.exists(path):
+    return
   reader = csv.reader(open(path, "r"))
   rows = [row for row in reader]
   columns = zip(*rows)
@@ -13,6 +16,8 @@ def plot_latency(path, label):
   matplotlib.pyplot.ylabel("Latency ($\mu\mathrm{S}$)")
 
 def plot_throughput(path, label):
+  if not os.path.exists(path):
+    return
   reader = csv.reader(open(path, "r"))
   rows = [row for row in reader]
   columns = zip(*rows)
@@ -21,6 +26,8 @@ def plot_throughput(path, label):
   matplotlib.pyplot.ylabel("Throughput (Mb/S)")
 
 def plot_rate(path, label):
+  if not os.path.exists(path):
+    return
   reader = csv.reader(open(path, "r"))
   rows = [row for row in reader]
   columns = zip(*rows)
@@ -34,8 +41,6 @@ plot_latency("py-zmq-latency-tcp.csv", "Python / ZMQ")
 plot_latency("cpp-phish-zmq-latency-tcp.csv", "C++ / Phish / ZMQ")
 plot_latency("cpp-phish-mpi-latency-tcp.csv", "C++ / Phish / MPI / TCP")
 plot_latency("cpp-phish-mpi-latency-sm.csv", "C++ / Phish / MPI / SM")
-#handles, labels = matplotlib.pyplot.gca().get_legend_handles_labels()
-#matplotlib.pyplot.figlegend(handles, labels, "center right")
 matplotlib.pyplot.legend(loc="upper left")
 matplotlib.pyplot.ylim(ymin=0)
 
@@ -45,9 +50,7 @@ plot_throughput("cpp-zmq-throughput-tcp.csv", "C++ / ZMQ")
 plot_throughput("py-zmq-throughput-tcp.csv", "Python / ZMQ")
 plot_throughput("cpp-phish-zmq-throughput-tcp.csv", "C++ / Phish / ZMQ")
 plot_throughput("cpp-phish-mpi-throughput-tcp.csv", "C++ / Phish / MPI / TCP")
-#plot_throughput("cpp-phish-mpi-throughput-sm.csv", "C++ / Phish / MPI / TCP")
-#handles, labels = matplotlib.pyplot.gca().get_legend_handles_labels()
-#matplotlib.pyplot.figlegend(handles, labels, "center right")
+plot_throughput("cpp-phish-mpi-throughput-sm.csv", "C++ / Phish / MPI / TCP")
 matplotlib.pyplot.legend(loc="lower right")
 matplotlib.pyplot.ylim(ymin=0)
 
@@ -56,9 +59,7 @@ plot_rate("cpp-zmq-throughput-tcp.csv", "C++ / ZMQ")
 plot_rate("py-zmq-throughput-tcp.csv", "Python / ZMQ")
 plot_rate("cpp-phish-zmq-throughput-tcp.csv", "C++ / Phish / ZMQ")
 plot_rate("cpp-phish-mpi-throughput-tcp.csv", "C++ / Phish / MPI / TCP")
-#plot_rate("cpp-phish-mpi-throughput-sm.csv", "C++ / Phish / MPI / TCP")
-#handles, labels = matplotlib.pyplot.gca().get_legend_handles_labels()
-#matplotlib.pyplot.figlegend(handles, labels, "center right")
+plot_rate("cpp-phish-mpi-throughput-sm.csv", "C++ / Phish / MPI / TCP")
 matplotlib.pyplot.legend(loc="upper right")
 matplotlib.pyplot.ylim(ymin=0)
 
