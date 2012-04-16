@@ -231,6 +231,7 @@ int phish_school_start()
 
       if(host != "localhost" && host != "127.0.0.1")
       {
+        arguments.insert(arguments.begin(), host);
         arguments.insert(arguments.begin(), "-x");
         arguments.insert(arguments.begin(), "ssh");
       }
