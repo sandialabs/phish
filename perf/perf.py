@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 def hosts():
@@ -8,9 +9,11 @@ def hosts():
     return ["localhost", "localhost"]
 
 def arguments(a_arguments, b_arguments):
+  def full_arguments(host, arguments):
+    if host == "localhost" or host == "127.0.0.1":
+      return arguments
+    else:
+      return ["ssh", "-x", host, "env", "PATH=%s" % os.environ["PATH"], "PYTHONPATH=%s" % os.environ["PYTHONPATH"], "LD_LIBRARY_PATH=%s" % os.environ["LD_LIBRARY_PATH"]] + arguments
+
   temp_hosts = hosts()
-  if temp_hosts[0] != "localhost" and temp_hosts[0] != "127.0.0.1":
-    a_arguments = ["ssh", "-x", temp_hosts[0]] + a_arguments
-  if temp_hosts[1] != "localhost" and temp_hosts[1] != "127.0.0.1":
-    b_arguments = ["ssh", "-x", temp_hosts[1]] + b_arguments
-  return a_arguments, b_arguments
+  return full_arguments(temp_hosts[0], a_arguments), full_arguments(temp_hosts[1], b_arguments)
