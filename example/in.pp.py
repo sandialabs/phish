@@ -6,7 +6,7 @@ variable n 1000000
 variable m 0
 
 minnow 1 ping.py $n $m
-minnow 2 pong
+minnow 2 pong.py
 
 connect 1 single 2
 connect 2 single 1
