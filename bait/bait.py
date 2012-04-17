@@ -60,7 +60,8 @@ def next_command(lines):
     if vname not in variables:
       error("Variable %s does not exist" % vname)
     index = line.index(match)
-    line = line[:index] + " ".join(variables[vname]) + line[index+len(match):]
+    line = line[:index] + " ".join(variables[vname][1]) + \
+        line[index+len(match):]
 
   words = line.split()
   return words[0],words[1:]
@@ -87,11 +88,14 @@ def set2param():
   return str
 
 # create a variable via variable command in input script
+# these variables are flagged with a 1, command-line vars with 0
 
 def variable(args):
   if len(args) < 2: error("Illegal variable command");
-  if args[0] in variables: error("Variable %s already in use" % args[0]);
-  variables[args[0]] = args[1:]
+  if args[0] in variables:
+    if variables[args[0]][0] == 0: return
+    else: error("Variable %s already in use" % args[0]);
+  variables[args[0]] = (1,args[1:])
 
 # MINNOW class instantiated by minnow command in input script
 
@@ -289,6 +293,7 @@ from version import version
 print "PHISH (%s)" % version
 
 # parse command-line args to override default settings
+# command-line variables are flagged with a 0, input script vars with 1
 
 narg = len(sys.argv)
 args = sys.argv
@@ -304,7 +309,7 @@ while iarg < narg:
     if iarg+3 > narg: error("Invalid command line args")
     start = stop = iarg+2
     while stop < narg and args[stop][0] != '-': stop += 1
-    variables[args[iarg+1]] = args[start:stop]
+    variables[args[iarg+1]] = (0,args[start:stop])
     iarg += 2+stop-start
   elif args[iarg] == "-out" or args[iarg] == "-o":
     if iarg+2 > narg: error("Invalid command line args")
