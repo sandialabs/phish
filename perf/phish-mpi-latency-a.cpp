@@ -13,12 +13,8 @@ void message_callback(int parts)
   char* message = 0;
   int32_t length = 0;
   const int type = phish_unpack(&message, &length);
-
   if(length != size + 1)
-  {
-    std::cerr << length << " <> " << size << std::endl;
     throw std::runtime_error("message size mismatch");
-  }
 
   if(++received < count)
   {
