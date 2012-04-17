@@ -1,4 +1,5 @@
 import optparse
+import perf
 import subprocess
 import sys
 
@@ -9,8 +10,9 @@ parser.add_option("--size", default="0/5000/500", help="Number of bytes in each 
 (options, arguments) = parser.parse_args()
 
 size_begin, size_end, size_step = options.size.split("/")
+hosts = perf.hosts()
 
-sys.stderr.write("Testing C++ / Phish / MPI latency ...\n")
+sys.stderr.write("Testing C++ / Phish / MPI latency on %s and %s ...\n" % (hosts[0], hosts[1]))
 sys.stderr.flush()
 sys.stdout.write("cpp-phish-mpi elapsed [s],cpp-phish-mpi message size [B],cpp-phish-mpi message count,cpp-phish-mpi latency [us]\n")
 sys.stdout.flush()
