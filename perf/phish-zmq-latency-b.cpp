@@ -18,10 +18,11 @@ int main(int argc, char* argv[])
   size = ::atoi(argv[1]);
   const int count = ::atoi(argv[2]);
 
-  phish::input(0, message_callback, phish::exit);
+  phish::input(0, message_callback, 0, true);
   phish::output(0);
   phish::check();
   phish::loop();
+  phish::exit();
 
   return 0;
 }

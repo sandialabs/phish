@@ -14,14 +14,14 @@ void message_callback(int parts)
   if(message.size() != size)
     throw std::runtime_error("message size mismatch");
 
-  if(++received >= count)
+  if(++received < count)
   {
-    phish::exit();
+    phish::pack(message);
+    phish::send();
     return;
   }
 
-  phish::pack(message);
-  phish::send();
+  phish::close();
 }
 
 int main(int argc, char* argv[])
@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
   size = ::atoi(argv[1]);
   count = ::atoi(argv[2]);
 
-  phish::input(0, message_callback, phish::exit);
+  phish::input(0, message_callback, 0, true);
   phish::output(0);
   phish::check();
 
