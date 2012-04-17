@@ -100,7 +100,7 @@ void check() { LOG_CALL(); exception::test(::phish_check()); }
 /// have no input ports.
 void callback(void (*done)(), void(*abort)(int*) ) { LOG_CALL(); ::phish_callback(done, abort); }
 /// Notifies downstream minnows that the given output port has been closed.
-void close(int port) { LOG_CALL(); ::phish_close(port); }
+void close(int port = 0) { LOG_CALL(); ::phish_close(port); }
 
 
 /// Called to begin an event loop that will receive messages and invoke
