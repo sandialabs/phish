@@ -602,7 +602,7 @@ void phish_loop()
         if(g_input_port_connection_count[port] == 0)
         {
           g_input_port_connection_count.erase(port);
-          if(g_input_port_closed_callback.count(port))
+          if(g_input_port_closed_callback.count(port) && g_input_port_closed_callback[port])
           {
             g_input_port_closed_callback[port]();
           }
