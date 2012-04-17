@@ -26,11 +26,19 @@ variable N 100
 is recognized by the <A HREF = "Bait.html">bait.py</A> setup program.  It creates a
 variable with name <I>ID</I> which contains a list of one or more strings.
 The variable can be used elsewhere in the input script.  The
-substitution rules for variables is described by the
+substitution rules for variables are described by the
 <A HREF = "Bait.html">bait.py</A> doc page.
 </P>
 <P>The <I>ID</I> of the variable can only contain alphanumeric characters and
 underscores.  The strings can contain any printable character.
+</P>
+<P>A variable can only be defined once, i.e. IDs must be unique.  The one
+exception is for variables defined as <A HREF = "Section_bait.html#bait_3">command-line
+arguments</A> to the <A HREF = "Section_bait.html">bait.py</A>
+command.  In this case, a variable command in the input script is
+ignored if the variable was already set in the command line.
+This allows an input script to set default values for variables
+that can be overridded by command-line settings.
 </P>
 <P><B>Restrictions:</B> none
 </P>
