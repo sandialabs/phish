@@ -4,7 +4,7 @@ import subprocess
 import sys
 
 parser = optparse.OptionParser()
-parser.add_option("--count", type="int", default=100000, help="Number of messages.  Default: %default.")
+parser.add_option("--count", type="int", default=10000000, help="Number of messages.  Default: %default.")
 parser.add_option("--mpi-extra", default="", help="Extra options to pass to mpiexec.  Default: %default.")
 parser.add_option("--size", default="0/5000/500", help="Number of bytes in each message <begin/end/step>.  Default: %default.")
 (options, arguments) = parser.parse_args()
