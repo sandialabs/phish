@@ -500,7 +500,7 @@ void phish_exit()
 /* Don't try to shutdown zmq, see https://zeromq.jira.com/browse/LIBZMQ-229
   delete g_context;
 */
-  ::sleep(10);
+  ::sleep(5);
   g_context = 0;
 }
 
@@ -1014,13 +1014,13 @@ int phish_query(const char* kw, int flag1, int flag2)
 
 void phish_error(const char* message)
 {
-  std::cerr << "PHISH ERROR: Minnow " << g_name << " ID " << g_local_id << " # " << g_global_id << ": " << message << std::endl;
+  std::cerr << "PHISH ZMQ ERROR: Minnow " << g_name << " ID " << g_local_id << " # " << g_global_id << ": " << message << std::endl;
   phish_abort();
 }
 
 void phish_warn(const char* message)
 {
-  std::cerr << "PHISH WARNING: Minnow " << g_name << " ID " << g_local_id << " # " << g_global_id << ": " << message << std::endl;
+  std::cerr << "PHISH ZMQ WARNING: Minnow " << g_name << " ID " << g_local_id << " # " << g_global_id << ": " << message << std::endl;
 }
 
 double phish_timer()
