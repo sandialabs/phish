@@ -86,6 +86,11 @@ void one_to_one(const std::vector<int>& output_minnows, int output_port, int inp
   exception::test(::phish_school_one_to_one(output_minnows.size(), output_minnows.data(), output_port, input_port, input_minnows.size(), input_minnows.data()));
 }
 
+void loop(const std::vector<int>& output_minnows, int output_port, int input_port, const std::vector<int>& input_minnows)
+{
+  exception::test(::phish_school_loop(output_minnows.size(), output_minnows.data(), output_port, input_port, input_minnows.size(), input_minnows.data()));
+}
+
 void start()
 {
   exception::test(::phish_school_start());

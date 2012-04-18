@@ -61,5 +61,19 @@ def one_to_one(output_minnows, output_port, input_port, input_minnows):
     ctypes.byref((ctypes.c_int * input_count)(*input_minnows))
     )
 
+def loop(output_minnows, output_port, input_port, input_minnows=None):
+  if input_minnows is None:
+    input_minnows = output_minnows
+  output_count = len(output_minnows)
+  input_count = len(input_minnows)
+  _library.phish_school_loop(
+    ctypes.c_int(output_count),
+    ctypes.byref((ctypes.c_int * output_count)(*output_minnows)),
+    ctypes.c_int(output_port),
+    ctypes.c_int(input_port),
+    ctypes.c_int(input_count),
+    ctypes.byref((ctypes.c_int * input_count)(*input_minnows))
+    )
+
 def start():
   _library.phish_school_start()

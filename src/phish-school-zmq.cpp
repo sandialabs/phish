@@ -127,6 +127,27 @@ int phish_school_one_to_one(int output_count, const int* output_minnows, int out
   }
 }
 
+int phish_school_loop(int output_count, const int* output_minnows, int output_port, int input_port, int input_count, const int* input_minnows)
+{
+  try
+  {
+    if(output_count != input_count)
+      throw std::runtime_error("Input and output minnow counts must match.");
+
+    for(int i = 0; i != output_count; ++i)
+    {
+      g_connections.push_back(connection(output_minnows[i], output_port, "broadcast", input_port, std::vector<int>(1, input_minnows[(i + 1) % output_count])));
+    }
+
+    return 0;
+  }
+  catch(std::exception& e)
+  {
+    std::cerr << "PHISH SCHOOL ERROR: " << e.what() << std::endl;
+    return -1;
+  }
+}
+
 int phish_school_start()
 {
   try

@@ -29,6 +29,7 @@ void phish_school_reset();
 void phish_school_add_minnows(const char* name, int count, const char** hosts, int argc, const char** argv, int* minnows);
 void phish_school_all_to_all(int output_count, const int* output_minnows, int output_port, const char* send_pattern, int input_port, int input_count, const int* input_minnows);
 int phish_school_one_to_one(int output_count, const int* output_minnows, int output_port, int input_port, int input_count, const int* input_minnows);
+int phish_school_loop(int output_count, const int* output_minnows, int output_port, int input_port, int input_count, const int* input_minnows);
 int phish_school_start();
 
 #ifdef __cplusplus
