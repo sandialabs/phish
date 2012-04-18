@@ -1,12 +1,12 @@
 import os
 import subprocess
 
-def hosts():
+def hosts(count = 2):
   try:
     slurm_nodes = subprocess.check_output(["scontrol", "show", "hostnames"], stderr=subprocess.PIPE).split()
-    return [slurm_nodes[0], slurm_nodes[1]]
+    return slurm_nodes[:count]
   except:
-    return ["localhost", "localhost"]
+    return ["localhost"] * count
 
 def arguments(a_arguments, b_arguments):
   def full_arguments(host, arguments):

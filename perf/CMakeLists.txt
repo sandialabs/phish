@@ -6,19 +6,19 @@ if(BUILD_MPI_BACKEND)
 
   add_executable(phish-mpi-latency-a phish-latency-a.cpp)
   target_link_libraries(phish-mpi-latency-a phish-mpi ${MPI_EXTRA_LIBRARY} ${MPI_LIBRARY})
-
   add_executable(phish-mpi-latency-b phish-latency-b.cpp)
   target_link_libraries(phish-mpi-latency-b phish-mpi ${MPI_EXTRA_LIBRARY} ${MPI_LIBRARY})
-
   configure_file(run-cpp-phish-mpi-latency.py run-cpp-phish-mpi-latency.py)
 
   add_executable(phish-mpi-throughput-a phish-throughput-a.cpp)
   target_link_libraries(phish-mpi-throughput-a phish-mpi ${MPI_EXTRA_LIBRARY} ${MPI_LIBRARY})
-
   add_executable(phish-mpi-throughput-b phish-throughput-b.cpp)
   target_link_libraries(phish-mpi-throughput-b phish-mpi ${MPI_EXTRA_LIBRARY} ${MPI_LIBRARY})
-
   configure_file(run-cpp-phish-mpi-throughput.py run-cpp-phish-mpi-throughput.py)
+
+  add_executable(phish-mpi-loop phish-loop.cpp)
+  target_link_libraries(phish-mpi-loop phish-mpi)
+  configure_file(run-cpp-phish-mpi-loop.py run-cpp-phish-mpi-loop.py)
 
 endif(BUILD_MPI_BACKEND)
 
@@ -31,35 +31,32 @@ if(BUILD_ZMQ_BACKEND)
 
   add_executable(zmq-latency-a zmq-latency-a.cpp)
   target_link_libraries(zmq-latency-a ${ZMQ_LIBRARY} phish-zmq)
-
   add_executable(zmq-latency-b zmq-latency-b.cpp)
   target_link_libraries(zmq-latency-b ${ZMQ_LIBRARY})
-
   configure_file(run-cpp-zmq-latency.py run-cpp-zmq-latency.py)
 
   add_executable(zmq-throughput-a zmq-throughput-a.cpp)
   target_link_libraries(zmq-throughput-a ${ZMQ_LIBRARY} phish-zmq)
-
   add_executable(zmq-throughput-b zmq-throughput-b.cpp)
   target_link_libraries(zmq-throughput-b ${ZMQ_LIBRARY})
-
   configure_file(run-cpp-zmq-throughput.py run-cpp-zmq-throughput.py)
 
   add_executable(phish-zmq-latency-a phish-latency-a.cpp)
   target_link_libraries(phish-zmq-latency-a phish-zmq)
-
   add_executable(phish-zmq-latency-b phish-latency-b.cpp)
   target_link_libraries(phish-zmq-latency-b phish-zmq)
-
   configure_file(run-cpp-phish-zmq-latency.py run-cpp-phish-zmq-latency.py)
 
   add_executable(phish-zmq-throughput-a phish-throughput-a.cpp)
   target_link_libraries(phish-zmq-throughput-a phish-zmq)
-
   add_executable(phish-zmq-throughput-b phish-throughput-b.cpp)
   target_link_libraries(phish-zmq-throughput-b phish-zmq)
-
   configure_file(run-cpp-phish-zmq-throughput.py run-cpp-phish-zmq-throughput.py)
+
+  add_executable(phish-zmq-loop phish-loop.cpp)
+  target_link_libraries(phish-zmq-loop phish-zmq)
+  configure_file(run-cpp-phish-zmq-loop.py run-cpp-phish-zmq-loop.py)
+
 
 endif(BUILD_ZMQ_BACKEND)
 
