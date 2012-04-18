@@ -1,4 +1,5 @@
 #include <stdexcept>
+
 #include <phish.hpp>
 
 int main(int argc, char* argv[])

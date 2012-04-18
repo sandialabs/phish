@@ -12,10 +12,10 @@ if(BUILD_MPI_BACKEND)
 
   configure_file(run-cpp-phish-mpi-latency.py run-cpp-phish-mpi-latency.py)
 
-  add_executable(phish-mpi-throughput-a phish-mpi-throughput-a.cpp)
+  add_executable(phish-mpi-throughput-a phish-throughput-a.cpp)
   target_link_libraries(phish-mpi-throughput-a phish-mpi ${MPI_EXTRA_LIBRARY} ${MPI_LIBRARY})
 
-  add_executable(phish-mpi-throughput-b phish-mpi-throughput-b.cpp)
+  add_executable(phish-mpi-throughput-b phish-throughput-b.cpp)
   target_link_libraries(phish-mpi-throughput-b phish-mpi ${MPI_EXTRA_LIBRARY} ${MPI_LIBRARY})
 
   configure_file(run-cpp-phish-mpi-throughput.py run-cpp-phish-mpi-throughput.py)
@@ -53,10 +53,10 @@ if(BUILD_ZMQ_BACKEND)
 
   configure_file(run-cpp-phish-zmq-latency.py run-cpp-phish-zmq-latency.py)
 
-  add_executable(phish-zmq-throughput-a phish-zmq-throughput-a.cpp)
+  add_executable(phish-zmq-throughput-a phish-throughput-a.cpp)
   target_link_libraries(phish-zmq-throughput-a phish-zmq)
 
-  add_executable(phish-zmq-throughput-b phish-zmq-throughput-b.cpp)
+  add_executable(phish-zmq-throughput-b phish-throughput-b.cpp)
   target_link_libraries(phish-zmq-throughput-b phish-zmq)
 
   configure_file(run-cpp-phish-zmq-throughput.py run-cpp-phish-zmq-throughput.py)

@@ -1,42 +1,37 @@
-#include <phish.h>
-
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
 
+#include <phish.hpp>
+
 double start = -1;
 int size = 0;
 int count = 0;
-int received = 0;
 
 void message_callback(int parts)
 {
   if(start == -1)
-    start = phish_timer();
+    start = phish::timer();
 
-  char* message = 0;
-  int32_t length = 0;
-  const int type = phish_unpack(&message, &length);
-  if(length != size + 1)
+  const std::string message = phish::unpack<std::string>();
+  if(message.size() != size)
     throw std::runtime_error("message size mismatch");
-  received += 1;
-  //std::cerr << received << std::endl;
 }
 
 int main(int argc, char* argv[])
 {
-  phish_init(&argc, &argv);
+  phish::init(argc, argv);
 
-  if(argc != 2)
+  if(argc != 3)
     throw std::runtime_error("Usage: <size> <count>");
-  size = ::atoi(argv[0]);
-  count = ::atoi(argv[1]);
+  size = ::atoi(argv[1]);
+  count = ::atoi(argv[2]);
 
-  phish_input(0, message_callback, phish_exit, 0);
-  phish_check();
-  phish_loop();
+  phish::input(0, message_callback, phish::exit);
+  phish::check();
+  phish::loop();
 
-  const double elapsed = phish_timer() - start;
+  const double elapsed = phish::timer() - start;
   const double throughput = count / elapsed;
   const double megabits = (throughput * size * 8.0) / 1000000.0;
 
