@@ -97,11 +97,12 @@ fish (programs) swimming in a stream (of data).  This unavoidably
 gives rise to the following PHISH lingo, which we use without apology
 throughout the rest of the documentation:
 </P>
-<UL><LI>minnow = a (typically small) stand-alone application, run as an individual process
-<LI>school = a set of duplicate minnows, working (swimming) in a coordinated fashion
-<LI>net(work) = a PHISH program, typically consisting of multiple minnow schools, connected together to perform a calculation, as in the diagram below
+<UL><LI>minnows = (typically small) stand-alone applications, run as individual processes
+<LI>school = a set of duplicate minnows, swimming together in a coordinated fashion
+<LI>net(work) = a PHISH program, consisting of one or more schools, connected together to perform a calculation, as in the diagram below
 <LI>bait.py = a script for hooking schools of minnows together into a net
-<LI>wrapper = a Python wrapper for the PHISH library, included in the PHISH distribution 
+<LI>wrapper = a <A HREF = "Section_python.html">Python wrapper</A> for the PHISH library, included in the PHISH distribution
+<LI>tales = the <A HREF = "Manual.html">PHISH manual</A> 
 </UL>
 <HR>
 
@@ -115,11 +116,12 @@ provide a GUI framework for building a processing pipeline by
 connecting the outputs of each computational node to the inputs of
 others.  The open source Titan package, built on top of VTK, is one
 example, which provides a rich suite of computation methods, both for
-visualization and data processing.  The commercial DataMiner tool
-(correct name?) from IBM uses a similar dataflow model, and is
-designed for processing streaming data at high rates.
+visualization and data processing.  The commercial InfoSpheres tool
+from IBM uses a similar dataflow model, and is designed for processing
+streaming data at high rates.  New Twitter Storm open-source package
+...
 </P>
-<P>NOTE: need to doc,cite the IBM tool and Titan better
+<P>NOTE: need to doc,cite the IBM tool, Storm, and Titan better
 </P>
 <P>These programs include a suite of processing modules and are typically
 designed to run as a single process or in parallel on a shared memory

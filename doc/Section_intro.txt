@@ -94,11 +94,12 @@ fish (programs) swimming in a stream (of data).  This unavoidably
 gives rise to the following PHISH lingo, which we use without apology
 throughout the rest of the documentation:
 
-minnow = a (typically small) stand-alone application, run as an individual process
-school = a set of duplicate minnows, working (swimming) in a coordinated fashion
-net(work) = a PHISH program, typically consisting of multiple minnow schools, connected together to perform a calculation, as in the diagram below
+minnows = (typically small) stand-alone applications, run as individual processes
+school = a set of duplicate minnows, swimming together in a coordinated fashion
+net(work) = a PHISH program, consisting of one or more schools, connected together to perform a calculation, as in the diagram below
 bait.py = a script for hooking schools of minnows together into a net
-wrapper = a Python wrapper for the PHISH library, included in the PHISH distribution :ul
+wrapper = a "Python wrapper"_Section_python.html for the PHISH library, included in the PHISH distribution
+tales = the "PHISH manual"_Manual.html :ul
 
 :line
 
@@ -112,11 +113,12 @@ provide a GUI framework for building a processing pipeline by
 connecting the outputs of each computational node to the inputs of
 others.  The open source Titan package, built on top of VTK, is one
 example, which provides a rich suite of computation methods, both for
-visualization and data processing.  The commercial DataMiner tool
-(correct name?) from IBM uses a similar dataflow model, and is
-designed for processing streaming data at high rates.
+visualization and data processing.  The commercial InfoSpheres tool
+from IBM uses a similar dataflow model, and is designed for processing
+streaming data at high rates.  New Twitter Storm open-source package
+...
 
-NOTE: need to doc,cite the IBM tool and Titan better
+NOTE: need to doc,cite the IBM tool, Storm, and Titan better
 
 These programs include a suite of processing modules and are typically
 designed to run as a single process or in parallel on a shared memory
