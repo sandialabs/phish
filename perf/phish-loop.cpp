@@ -2,7 +2,6 @@
 #include <iostream>
 
 int n,count,tail;
-char *buf;
 
 void loop(int nvalues)
 {
@@ -59,7 +58,6 @@ int main(int argc, char **argv)
 
   } else phish::loop();
 
-  delete [] buf;
   phish::exit();
 }
 
