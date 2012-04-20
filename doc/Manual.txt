@@ -16,7 +16,7 @@
 <H1></H1>
 
 PHISH Tales :h2,c
-(documentation for the PHISH library :h2,c
+(documentation for the PHISH library) :h2,c
 
 Version info: :h4
 
