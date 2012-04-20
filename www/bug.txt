@@ -34,7 +34,8 @@ describe the version you have. :ule,l
 :line
 :line
 
-[27 Mar 2012]
+[1 Jun 2012]
 
-Initial public release of PHISH.  NNNN lines of code in src dir.  This
+This is our target date for the initial public release of PHISH, once
+we get permission from DOE.  NNNN lines of code in src dir.  This
 version supercedes earlier distributed beta versions.

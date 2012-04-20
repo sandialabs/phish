@@ -88,5 +88,6 @@ minnow = a (typically small) stand-alone application, run as an individual proce
 school = a set of duplicate minnows, working (swimming) in a coordinated fashion
 net(work) = a PHISH program, typically consisting of multiple minnow schools, connected together to perform a calculation, as in the diagram below
 bait.py = a script for hooking schools of minnows together into a net
-wrapper = a Python wrapper for the PHISH library, included in the PHISH distribution :ul
+wrapper = a Python wrapper for the PHISH library, included in the PHISH distribution 
+tales = the "PHISH manual"_doc/Manual.html :ul
 

@@ -9,13 +9,10 @@ If you use the PHISH library in one of your publications, please cite
 the following paper and also list the URL of the "PHISH WWW site"_pws,
 namely http://www.sandia.gov/~sjplimp/phish.html.
 
-This paper describes the PHISH library and how it can be used for
-streaming algorithms and informatics data-processing problems
-generally:
-
-[Streaming data processing using the PHISH library], S. J. Plimpton
-and T. Shead, in preparation (June 2012).  Until a full citation is
-posted here, please just cite the PHISH WWW site.
+A paper is in preparation which describes the PHISH library and how it
+can be used for streaming algorithms and informatics data-processing
+problems generally.  Until a full citation is posted here, please just
+cite the PHISH WWW site.
 
 :line
 
