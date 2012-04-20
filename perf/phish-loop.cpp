@@ -1,59 +1,68 @@
-#include <phish.hpp>
+// MINNOW loop
+// send messages around a ring
+
+#include "phish.h"
 #include <iostream>
+
+int n,count,tail;
+char *buf;
+
+void loop(int);
+
+/* ---------------------------------------------------------------------- */
+
+int main(int narg, char **args)
+{
+  phish_init(&narg,&args);
+  phish_input(0,loop,NULL,1);
+  phish_output(0);
+  phish_check();
+
+  if (narg != 3) phish_error("Loop syntax: loop N M");
+  n = atoi(args[1]);
+  int m = atoi(args[2]);
+
+  if (n == 0) phish_error("N > 0 is required");
+
+  const std::string message(m, '*');
+  count = 0;
+
+  int idlocal = phish_query("idlocal",0,0);
+  int nlocal = phish_query("nlocal",0,0);
+  int head = 0;
+  tail = 0;
+  if (idlocal == 0) head = 1;
+  if (idlocal == nlocal-1) tail = 1;
+
+  if (head) {
+    double time_start = phish_timer();
+    for (int i = 0; i < n; i++) {
+      phish_pack_raw(const_cast<char*>(message.data()),message.size());
+      phish_send(0);
+    }
+    phish_loop();
+    const double elapsed = phish_timer() - time_start;
+    const double throughput = n / elapsed;
+    const double megabits = (throughput * m * 8.0) / 1000000.0;
+
+    std::cout << elapsed << "," << m << "," << n << "," << throughput << "," << megabits << "," << nlocal << "\n";
+
+  } else phish_loop();
+
+  delete [] buf;
+  phish_exit();
+}
+
+/* ---------------------------------------------------------------------- */
 
 void loop(int nvalues)
 {
-  // Not the head of the loop ...
-  if(0 != phish::query("idlocal"))
-  {
-    phish::repack();
-    phish::send();
+  if (!tail) {
+    phish_repack();
+    phish_send(0);
+    return;
   }
+  count++;
+  if (count < n) return;
+  phish_close(0);
 }
-
-int main(int argc, char* argv[])
-{
-  phish::init(argc, argv);
-
-  if(argc != 3)
-    phish::error("Usage: <message size> <message count>");
-
-  const int size = atoi(argv[1]);
-  const int count = atoi(argv[2]);
-
-  if(count == 0)
-    phish::error("message count > 0 is required");
-
-  phish::input(0, loop, 0, false);
-  phish::output(0);
-  phish::check();
-
-  // Head of the loop ...
-  if(0 == phish::query("idlocal"))
-  {
-    const double start = phish::timer();
-    const std::string message(size, '*');
-    for(int i = 0; i != count; ++i)
-    {
-      phish::pack(message);
-      phish::send();
-    }
-    phish::close();
-    phish::loop();
-    const double elapsed = phish::timer() - start;
-    const double throughput = count / elapsed;
-    const double megabits = (throughput * size * 8.0) / 1000000.0;
-
-    std::cout << elapsed << "," << size << "," << count << "," << throughput << "," << megabits << "," << phish::query("nlocal") << "\n";
-  }
-  // Not the head of the loop ...
-  else
-  {
-    phish::loop();
-  }
-
-  phish::exit();
-
-  return 0;
-}
-
