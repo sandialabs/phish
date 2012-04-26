@@ -66,9 +66,9 @@ void set(char *keyword, int flag1, int flag2) :pre
 [C++ examples:]
 
 #include "phish.hpp"
-int nlocal = PHISH::query("nlocal",0,0);
-int nrecv = PHISH::query("outport/direct",2,0);
-PHISH::set("ring/receiver",0,3); :pre
+int nlocal = phish::query("nlocal",0,0);
+int nrecv = phish::query("outport/direct",2,0);
+phish::set("ring/receiver",0,3); :pre
 
 [Python syntax:]
 

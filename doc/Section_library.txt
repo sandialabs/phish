@@ -167,7 +167,7 @@ The C++ interface in src/phish.hpp encloses the PHISH API in the
 namespace "PHISH", so functions can be invoked as
 
 #include "phish.hpp"
-PHISH::error("My error"); :pre
+phish::error("My error"); :pre
 
 or as
 

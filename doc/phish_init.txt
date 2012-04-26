@@ -18,11 +18,11 @@ phish_init(&argc,&argv); :pre
 
 [C++ syntax:]
 
-void init(int *narg, char ***args) :pre
+void init(int& narg, char*& args) :pre
 
 [C++ examples:]
 
-PHISH::init(&argc,&argv); :pre
+phish::init(argc, argv); :pre
 
 [Python syntax:]
 

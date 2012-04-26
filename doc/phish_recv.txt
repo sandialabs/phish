@@ -32,9 +32,9 @@ int recv() :pre
 [C++ examples:]
 
 #include "phish.hpp"
-PHISH::loop();
-PHISH::probe(count);
-int n = PHISH::recv(); :pre
+phish::loop();
+phish::probe(count);
+int n = phish::recv(); :pre
 
 [Python syntax:]
 

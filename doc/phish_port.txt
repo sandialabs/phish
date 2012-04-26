@@ -29,9 +29,9 @@ void output(int iport) :pre
 [C++ examples:]
 
 #include "phish.h.pp"
-PHISH::input(0,count,NULL,1);
-PHISH::input(1,count,mydone,0);
-PHISH::output(0); :pre
+phish::input(0,count,NULL,1);
+phish::input(1,count,mydone,0);
+phish::output(0); :pre
 
 [Python syntax:]
 

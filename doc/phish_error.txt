@@ -32,9 +32,9 @@ void abort() :pre
 [C++ examples:]
 
 #include "phish.hpp"
-PHISH::error("Bad datum received");
-PHISH::warn("May overflow internal buffer");
-PHISH::abort();
+phish::error("Bad datum received");
+phish::warn("May overflow internal buffer");
+phish::abort();
 
 [Python syntax:]
 

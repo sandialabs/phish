@@ -32,8 +32,8 @@ int datum(int flag) :pre
 #include "phish.hpp"
 char *buf;
 int len;
-int type = PHISH::unpack(&buf,&len);
-int iport = PHISH::datum(1); :pre
+int type = phish::unpack(&buf,&len);
+int iport = phish::datum(1); :pre
 
 [Python syntax:]
 

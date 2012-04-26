@@ -22,7 +22,7 @@ void check() :pre
 
 [C++ examples:]
 
-PHISH::check(); :pre
+phish::check(); :pre
 
 [Python syntax:]
 

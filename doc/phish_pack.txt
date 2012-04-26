@@ -105,12 +105,12 @@ void pack_pickle(char *buf, int32_t n); :pre
 #include "phish.hpp"
 int n;
 uint64_t nlarge;
-PHISH::repack();
-PHISH::pack_char('a');
-PHISH::pack_int32(n);
-PHISH::pack_uint64(nlarge);
-PHISH::pack_string("this is my data");
-PHISH::pack_double_array(vec,n); :pre
+phish::repack();
+phish::pack_char('a');
+phish::pack_int32(n);
+phish::pack_uint64(nlarge);
+phish::pack_string("this is my data");
+phish::pack_double_array(vec,n); :pre
 
 [Python syntax:]
 
