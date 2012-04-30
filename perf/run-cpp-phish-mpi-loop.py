@@ -13,7 +13,7 @@ parser.add_option("--processes", default="2/32", help="Number of processes in th
 size_begin, size_end, size_step = options.size.split("/")
 process_begin, process_end = options.processes.split("/")
 
-sys.stderr.write("Testing C++ / Phish / ZMQ loops ...\n")
+sys.stderr.write("Testing C++ / Phish / MPI loops ...\n")
 sys.stderr.flush()
 sys.stdout.write("cpp-phish-zmq elapsed [s],cpp-phish-zmq message size [B],cpp-phish-zmq message count,cpp-phish-zmq rate [msg/s],cpp-phish-zmq throughput [Mb/s],process count\n")
 sys.stdout.flush()
