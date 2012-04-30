@@ -4,9 +4,9 @@ import school
 import sys
 
 parser = optparse.OptionParser()
-parser.add_option("--count", type="int", default=1000000, help="Number of messages.  Default: %default.")
-parser.add_option("--size", default="0/20000/10000", help="Number of bytes in each message <begin/end/step>.  Default: %default.")
-parser.add_option("--processes", default="2/128", help="Number of processes in the loop <begin/end/step>.  Default: %default.")
+parser.add_option("--count", type="int", default=10000000, help="Number of messages.  Default: %default.")
+parser.add_option("--size", default="0/10000/10000", help="Number of bytes in each message <begin/end/step>.  Default: %default.")
+parser.add_option("--processes", default="2/64", help="Number of processes in the loop <begin/end/step>.  Default: %default.")
 (options, arguments) = parser.parse_args()
 
 size_begin, size_end, size_step = options.size.split("/")
@@ -28,7 +28,7 @@ for size in range(int(size_begin), int(size_end), int(size_step)):
     source = school.add_minnows("source", hosts[:process_count / 2], ["${CMAKE_CURRENT_BINARY_DIR}/phish-zmq-source", str(options.count), str(size)])
     map = school.add_minnows("map", hosts[process_count / 2:], ["${CMAKE_CURRENT_BINARY_DIR}/phish-zmq-map"])
     school.all_to_all(source, 0, school.HASHED, 0, map)
-    #school.one_to_one(map, 0, 0, source)
+    school.one_to_one(map, 0, 0, source)
     school.start()
     school.reset()
 

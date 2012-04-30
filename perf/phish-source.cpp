@@ -11,7 +11,7 @@
 int main(int argc, char **argv)
 {
   phish_init(&argc,&argv);
-  phish_input(0,NULL,NULL,1);
+  phish_input(0,NULL,NULL,0);
   phish_output(0);
   phish_check();
 
@@ -39,8 +39,8 @@ int main(int argc, char **argv)
     phish_send_key(0,(char *) &rn,sizeof(double));
   }
 
-  //phish_close(0);
-  //phish_loop();
+  phish_close(0);
+  phish_loop();
 
   const double elapsed = phish_timer() - time_start;
   const double throughput = n / elapsed;

@@ -4,16 +4,16 @@ import subprocess
 import sys
 
 parser = optparse.OptionParser()
-parser.add_option("--count", type="int", default=100000, help="Number of messages.  Default: %default.")
-parser.add_option("--size", default="0/20000/10000", help="Number of bytes in each message <begin/end/step>.  Default: %default.")
+parser.add_option("--count", type="int", default=10000000, help="Number of messages.  Default: %default.")
+parser.add_option("--size", default="0/10000/10000", help="Number of bytes in each message <begin/end/step>.  Default: %default.")
 parser.add_option("--mpi-extra", default="", help="Extra options to pass to mpiexec.  Default: %default.")
-parser.add_option("--processes", default="2/32", help="Number of processes in the loop <begin/end/step>.  Default: %default.")
+parser.add_option("--processes", default="2/64", help="Number of processes in the loop <begin/end/step>.  Default: %default.")
 (options, arguments) = parser.parse_args()
 
 size_begin, size_end, size_step = options.size.split("/")
 process_begin, process_end = options.processes.split("/")
 
-sys.stderr.write("Testing C++ / Phish / ZMQ hashed ...\n")
+sys.stderr.write("Testing C++ / Phish / MPI hashed ...\n")
 sys.stderr.flush()
 sys.stdout.write("cpp-phish-zmq elapsed [s],cpp-phish-zmq message size [B],cpp-phish-zmq message count,cpp-phish-zmq rate [msg/s],cpp-phish-zmq throughput [Mb/s],process count\n")
 sys.stdout.flush()
@@ -32,15 +32,15 @@ for size in range(int(size_begin), int(size_end), int(size_step)):
 set memory 100
 set safe
 
-minnow 1 phish-mpi-source %s %s
-minnow 2 phish-mpi-map
+minnow 1 phish-mpi-source phish-mpi-source %s %s
+minnow 2 phish-mpi-map phish-mpi-map
 
 connect 1 hashed 2
 connect 2 direct 1
 
 layout 1 %s
 layout 2 %s
-""" % (options.count, size, process_count, process_count)
+""" % (options.count, size, process_count / 2, process_count / 2)
 
     bait = subprocess.Popen(["python", "${CMAKE_SOURCE_DIR}/bait/bait.py"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     bait.communicate(input = bait_input)

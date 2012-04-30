@@ -19,9 +19,9 @@ def plot_hashed(path, label, color):
   for size in set(message_size):
     x = [float(loop_size[i]) for i in range(len(loop_size)) if message_size[i] == size]
     y = [float(rate[i]) for i in range(len(rate)) if message_size[i] == size]
-    matplotlib.pyplot.scatter(x, y, label="%s byte %s" % (size, label), marker = "o" if size == "0" else "x")
+    matplotlib.pyplot.scatter(x, y, label="%s byte %s" % (size, label), marker = "o" if size == "0" else "x", color=color)
 
-  matplotlib.pyplot.xlabel("Loop size (minnows)")
+  matplotlib.pyplot.xlabel("Sender / receiver count (minnows)")
   matplotlib.pyplot.ylabel("Rate (messages/S)")
 
 matplotlib.pyplot.figure(1)

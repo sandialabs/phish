@@ -15,6 +15,6 @@
 #python run-cpp-phish-mpi-loop.py --count 1000000 --mpi-extra="--mca btl self,tcp" > cpp-phish-mpi-loop-tcp.csv
 
 python run-cpp-phish-zmq-hashed.py > cpp-phish-zmq-hashed-tcp.csv
-#python run-cpp-phish-mpi-hashed.py > cpp-phish-mpi-hashed-sm.csv
+python run-cpp-phish-mpi-hashed.py > cpp-phish-mpi-hashed-sm.csv
 #python run-cpp-phish-mpi-hashed.py --mpi-extra="--mca btl self,tcp" > cpp-phish-mpi-hashed-tcp.csv
 
