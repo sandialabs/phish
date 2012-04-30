@@ -4,7 +4,7 @@ import subprocess
 def hosts(count = 2):
   try:
     slurm_nodes = subprocess.check_output(["scontrol", "show", "hostnames"], stderr=subprocess.PIPE).split()
-    return slurm_nodes[:count]
+    return (slurm_nodes * count)[:count]
   except:
     return ["localhost"] * count
 
