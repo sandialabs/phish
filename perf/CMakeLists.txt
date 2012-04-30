@@ -20,6 +20,14 @@ if(BUILD_MPI_BACKEND)
   target_link_libraries(phish-mpi-loop phish-mpi)
   configure_file(run-cpp-phish-mpi-loop.py run-cpp-phish-mpi-loop.py)
 
+  add_executable(phish-mpi-source phish-source.cpp)
+  target_link_libraries(phish-mpi-source phish-mpi)
+  add_executable(phish-mpi-map phish-map.cpp)
+  target_link_libraries(phish-mpi-map phish-mpi)
+  #add_executable(phish-mpi-reduce phish-reduce.cpp)
+  #target_link_libraries(phish-mpi-reduce phish-mpi)
+  configure_file(run-cpp-phish-mpi-hashed.py run-cpp-phish-mpi-hashed.py)
+
 endif(BUILD_MPI_BACKEND)
 
 # Setup tests using ZMQ ...
@@ -57,6 +65,13 @@ if(BUILD_ZMQ_BACKEND)
   target_link_libraries(phish-zmq-loop phish-zmq)
   configure_file(run-cpp-phish-zmq-loop.py run-cpp-phish-zmq-loop.py)
 
+  add_executable(phish-zmq-source phish-source.cpp)
+  target_link_libraries(phish-zmq-source phish-zmq)
+  add_executable(phish-zmq-map phish-map.cpp)
+  target_link_libraries(phish-zmq-map phish-zmq)
+  #add_executable(phish-zmq-reduce phish-reduce.cpp)
+  #target_link_libraries(phish-zmq-reduce phish-zmq)
+  configure_file(run-cpp-phish-zmq-hashed.py run-cpp-phish-zmq-hashed.py)
 
 endif(BUILD_ZMQ_BACKEND)
 
