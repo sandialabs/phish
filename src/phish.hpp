@@ -86,7 +86,7 @@ void exit() { LOG_CALL(); ::phish_exit(); }
 /// called when the port is closed (i.e. all connections to the port are closed),
 /// and a flag specifying whether the port is optional (i.e. whether it is an
 /// error condition if there are no connections to this port).
-void input(int port, void (*message)(int), void (*port_closed)(), bool optional=false) { LOG_CALL(); ::phish_input(port, message, port_closed, optional); }
+void input(int port, void (*message)(int), void (*port_closed)(), bool required=true) { LOG_CALL(); ::phish_input(port, message, port_closed, required); }
 /// Specifies an output port to be enabled.  It is an error to attempt
 /// sending a message on a port that hasn't been enabled, or to make a
 /// connection to such a port.

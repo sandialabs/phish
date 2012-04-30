@@ -56,7 +56,7 @@ static std::map<int, void(*)(int)> g_input_port_message_callback;
 // Stores a port-closed callback for each input port ...
 static std::map<int, void(*)()> g_input_port_closed_callback;
 // Stores whether an input port is optional ...
-static std::map<int, bool> g_input_port_optional;
+static std::map<int, bool> g_input_port_required;
 // Stores the number of incoming connections for each input port ...
 static std::map<int, int> g_input_port_connection_count;
 // Stores a callback to be called when the last input port is closed ...
@@ -518,11 +518,11 @@ void phish_abort()
   exit(-1);
 }
 
-void phish_input(int port, void(*message_callback)(int), void(*port_closed_callback)(), int optional)
+void phish_input(int port, void(*message_callback)(int), void(*port_closed_callback)(), int required)
 {
   g_input_port_message_callback[port] = message_callback;
   g_input_port_closed_callback[port] = port_closed_callback;
-  g_input_port_optional[port] = optional;
+  g_input_port_required[port] = required;
 }
 
 void phish_output(int port)
@@ -543,7 +543,7 @@ int phish_check()
   }
   for(std::map<int, void(*)(int)>::iterator port = g_input_port_message_callback.begin(); port != g_input_port_message_callback.end(); ++port)
   {
-    if(!g_input_port_connection_count.count(port->first) && !g_input_port_optional[port->first])
+    if(!g_input_port_connection_count.count(port->first) && g_input_port_required[port->first])
     {
       std::ostringstream message;
       message << g_name << ": required input port " << port->first << " does not have a connection.";
