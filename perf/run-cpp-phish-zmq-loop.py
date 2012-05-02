@@ -4,9 +4,9 @@ import school
 import sys
 
 parser = optparse.OptionParser()
-parser.add_option("--count", type="int", default=100000, help="Number of messages.  Default: %default.")
-parser.add_option("--size", default="0/20000/10000", help="Number of bytes in each message <begin/end/step>.  Default: %default.")
-parser.add_option("--processes", default="2/32", help="Number of processes in the loop <begin/end/step>.  Default: %default.")
+parser.add_option("--count", type="int", default=10000000, help="Number of messages.  Default: %default.")
+parser.add_option("--size", default="0/2048/1024", help="Number of bytes in each message <begin/end/step>.  Default: %default.")
+parser.add_option("--processes", default="2/256", help="Number of processes in the loop <begin/end/step>.  Default: %default.")
 (options, arguments) = parser.parse_args()
 
 size_begin, size_end, size_step = options.size.split("/")

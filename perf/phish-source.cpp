@@ -46,7 +46,7 @@ int main(int argc, char **argv)
   const double throughput = n / elapsed;
   const double megabits = (throughput * m * 8.0) / 1000000.0;
 
-  std::cout << elapsed << "," << m << "," << n << "," << throughput << "," << megabits << "," << nlocal << "\n";
+  std::cout << elapsed << "," << m << "," << n << "," << throughput << "," << megabits << "," << phish_query("nglobal", 0, 0) << "\n";
 
   delete [] buf;
   phish_exit();

@@ -1,9 +1,14 @@
 import csv
 import matplotlib.pyplot
+import optparse
 import os
+import socket
 
 matplotlib.pyplot.rcParams.update({"legend.fontsize" : 10})
 
+parser = optparse.OptionParser()
+parser.add_option("--title", default=socket.gethostname(), help="Figure title.  Default: %default.")
+(options, arguments) = parser.parse_args()
 
 def plot_latency(path, label):
   if not os.path.exists(path):
@@ -36,6 +41,7 @@ def plot_rate(path, label):
   matplotlib.pyplot.ylabel("Rate (messages/S)")
 
 matplotlib.pyplot.figure(1)
+matplotlib.pyplot.title(options.title)
 plot_latency("cpp-zmq-latency-tcp.csv", "C++ / ZMQ")
 plot_latency("py-zmq-latency-tcp.csv", "Python / ZMQ")
 plot_latency("cpp-phish-zmq-latency-tcp.csv", "C++ / Phish / ZMQ")
@@ -46,6 +52,7 @@ matplotlib.pyplot.ylim(ymin=0)
 
 
 matplotlib.pyplot.figure(2)
+matplotlib.pyplot.title(options.title)
 plot_throughput("cpp-zmq-throughput-tcp.csv", "C++ / ZMQ")
 plot_throughput("py-zmq-throughput-tcp.csv", "Python / ZMQ")
 plot_throughput("cpp-phish-zmq-throughput-tcp.csv", "C++ / Phish / ZMQ")
@@ -55,6 +62,7 @@ matplotlib.pyplot.legend(loc="lower right")
 matplotlib.pyplot.ylim(ymin=0)
 
 matplotlib.pyplot.figure(3)
+matplotlib.pyplot.title(options.title)
 plot_rate("cpp-zmq-throughput-tcp.csv", "C++ / ZMQ")
 plot_rate("py-zmq-throughput-tcp.csv", "Python / ZMQ")
 plot_rate("cpp-phish-zmq-throughput-tcp.csv", "C++ / Phish / ZMQ")

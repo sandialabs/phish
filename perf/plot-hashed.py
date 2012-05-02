@@ -1,9 +1,17 @@
 import csv
 import math
 import matplotlib.pyplot
+import optparse
 import os
+import socket
 
 matplotlib.pyplot.rcParams.update({"legend.fontsize" : 10})
+
+parser = optparse.OptionParser()
+parser.add_option("--title", default="Hashed Test on %s" % socket.gethostname(), help="Figure title.  Default: %default.")
+(options, arguments) = parser.parse_args()
+
+message_count = 0
 
 def plot_hashed(path, label, color):
   if not os.path.exists(path):
@@ -12,23 +20,39 @@ def plot_hashed(path, label, color):
   rows = [row for row in reader]
   columns = zip(*rows)
 
-  message_size = columns[1][1:]
-  loop_size = columns[5][1:]
-  rate = columns[3][1:]
+  message_count = int(columns[2][1])
 
-  for size in set(message_size):
-    x = [float(loop_size[i]) for i in range(len(loop_size)) if message_size[i] == size]
-    y = [float(rate[i]) for i in range(len(rate)) if message_size[i] == size]
-    matplotlib.pyplot.scatter(x, y, label="%s byte %s" % (size, label), marker = "o" if size == "0" else "x", color=color)
+  message_sizes = [int(value) for value in columns[1][1:]]
+  loop_sizes = [int(value) for value in columns[5][1:]]
+  rates = [float(value) for value in columns[3][1:]]
 
-  matplotlib.pyplot.xlabel("Sender / receiver count (minnows)")
+  grouped = {}
+  for i in range(len(message_sizes)):
+    message_size = message_sizes[i]
+    loop_size = loop_sizes[i]
+    rate = rates[i]
+
+    if message_size not in grouped:
+      grouped[message_size] = {}
+    if loop_size not in grouped[message_size]:
+      grouped[message_size][loop_size] = []
+    grouped[message_size][loop_size].append(rate)
+
+  for message_size in sorted(grouped.keys()):
+    x = [loop_size for loop_size in sorted(grouped[message_size].keys())]
+    y = [sum(grouped[message_size][loop_size]) / len(grouped[message_size][loop_size]) for loop_size in sorted(grouped[message_size].keys())]
+    matplotlib.pyplot.plot(x, y, label="%s byte %s" % (message_size, label), color=color, linewidth=message_size / 1024 + 1)
+
+  matplotlib.pyplot.xlabel("Process count (1/2 senders, 1/2 receivers)")
   matplotlib.pyplot.ylabel("Rate (messages/S)")
 
 matplotlib.pyplot.figure(1)
+matplotlib.pyplot.title(options.title)
+matplotlib.pyplot.text(0.5, 0.5, "%s" % message_count, horizontalalignment="center", verticalalignment="top")
 plot_hashed("cpp-phish-zmq-hashed-tcp.csv", "C++ / Phish / ZMQ", "red")
 plot_hashed("cpp-phish-mpi-hashed-tcp.csv", "C++ / Phish / MPI / TCP", "green")
 plot_hashed("cpp-phish-mpi-hashed-sm.csv", "C++ / Phish / MPI / Fastest", "blue")
-matplotlib.pyplot.legend(loc="upper right")
+matplotlib.pyplot.legend(loc="upper left")
 #matplotlib.pyplot.yscale("log")
 
 matplotlib.pyplot.show()
