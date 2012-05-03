@@ -798,7 +798,11 @@ void phish_send(int iport)
     phish_error("Invalid port ID in phish_send");
 
   OutPort *op = &outports[iport];
-  if (op->status == UNUSED_PORT) return;
+  if (op->status == UNUSED_PORT) {
+    sptr = sbuf + sizeof(int);
+    npack = 0;
+    return;
+  }
   if (op->status == CLOSED_PORT) 
     phish_error("Using phish_send with closed port");
 
@@ -832,7 +836,11 @@ void phish_send_key(int iport, char *key, int keybytes)
     phish_error("Invalid port ID in phish_send_key");
 
   OutPort *op = &outports[iport];
-  if (op->status == UNUSED_PORT) return;
+  if (op->status == UNUSED_PORT) {
+    sptr = sbuf + sizeof(int);
+    npack = 0;
+    return;
+  }
   if (op->status == CLOSED_PORT) 
     phish_error("Using phish_send_key with closed port");
 
@@ -884,7 +892,11 @@ void phish_send_direct(int iport, int receiver)
     phish_error("Invalid port ID in phish_send");
 
   OutPort *op = &outports[iport];
-  if (op->status == UNUSED_PORT) return;
+  if (op->status == UNUSED_PORT) {
+    sptr = sbuf + sizeof(int);
+    npack = 0;
+    return;
+  }
   if (op->status == CLOSED_PORT) 
     phish_error("Using phish_send with closed port");
 
