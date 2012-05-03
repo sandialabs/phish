@@ -5,7 +5,7 @@ import sys
 
 parser = optparse.OptionParser()
 parser.add_option("--count", type="int", default=100000, help="Number of messages.  Default: %default.")
-parser.add_option("--size", default="0/5000/500", help="Number of bytes in each message <begin/end/step>.  Default: %default.")
+parser.add_option("--size", default="0/4608/512", help="Number of bytes in each message <begin/end/step>.  Default: %default.")
 (options, arguments) = parser.parse_args()
 
 size_begin, size_end, size_step = options.size.split("/")

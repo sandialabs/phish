@@ -6,7 +6,7 @@ import sys
 parser = optparse.OptionParser()
 parser.add_option("--count", type="int", default=100000, help="Number of messages.  Default: %default.")
 parser.add_option("--mpi-extra", default="", help="Extra options to pass to mpiexec.  Default: %default.")
-parser.add_option("--size", default="0/5000/500", help="Number of bytes in each message <begin/end/step>.  Default: %default.")
+parser.add_option("--size", default="0/4608/512", help="Number of bytes in each message <begin/end/step>.  Default: %default.")
 (options, arguments) = parser.parse_args()
 
 size_begin, size_end, size_step = options.size.split("/")
@@ -22,6 +22,7 @@ for size in range(int(size_begin), int(size_end), int(size_step)):
 
   bait_input = """
 set memory 100
+set safe
 
 minnow 1 phish-mpi-latency-a phish-mpi-latency-a %s %s
 minnow 2 phish-mpi-latency-b phish-mpi-latency-b %s %s
