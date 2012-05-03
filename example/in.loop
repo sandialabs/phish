@@ -1,6 +1,6 @@
 # loop test for P-processor ring
 
-#set safe
+set safe 10000
 
 variable p 10
 variable n 1000000

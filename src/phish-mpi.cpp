@@ -69,7 +69,7 @@ int nglobal;              // # of total minnows in global school
 
 int maxbuf;               // max allowed datum size in bytes
 int memchunk;             // max allowed datum size in Kbytes
-int safe;                 // 1 for safe MPI send, 0 for normal
+int safe;                 // do safe MPI sends every this many sends (0 = never)
 
 DoneFunc *alldonefunc;    // callback when all input ports closed
 AbortFunc *abortfunc;     // callback before aborting
@@ -224,8 +224,12 @@ void phish_init(int *pnarg, char ***pargs)
       iarg += 2;
 
     } else if (strcmp(args[iarg],"-safe") == 0) {
-      safe = 1;
-      iarg += 1;
+      if (iarg+2 > narg)
+	phish_error("Invalid command-line args in phish_init");
+      safe = atoi(args[iarg+1]);
+      if (safe < 0)
+	phish_error("Invalid command-line args in phish_init");
+      iarg += 2;
 
     } else if (strcmp(args[iarg],"-in") == 0) {
       if (iarg+8 > narg)
@@ -601,7 +605,8 @@ void phish_close(int iport)
     case SINGLE:
     case PAIRED:
     case RING:
-      if (safe) MPI_Ssend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
+      if (safe && scount % safe == 0) 
+	MPI_Ssend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
       else MPI_Send(NULL,0,MPI_BYTE,oc->recvone,tag,world);
       break;
 
@@ -610,13 +615,15 @@ void phish_close(int iport)
     case DIRECT:
     case BCAST:
       for (int i = 0; i < oc->nrecv; i++)
-        if (safe) MPI_Ssend(NULL,0,MPI_BYTE,oc->recvfirst+i,tag,world);
+        if (safe && scount % safe == 0)
+	  MPI_Ssend(NULL,0,MPI_BYTE,oc->recvfirst+i,tag,world);
         else MPI_Send(NULL,0,MPI_BYTE,oc->recvfirst+i,tag,world);
       break;
 
     case CHAIN:
       if (oc->nrecv) {
-	if (safe) MPI_Ssend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
+	if (safe && scount % safe == 0) 
+	  MPI_Ssend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
 	else MPI_Send(NULL,0,MPI_BYTE,oc->recvone,tag,world);
       }
       break;
@@ -864,7 +871,7 @@ void phish_send_key(int iport, char *key, int keybytes)
       {
 	int tag = oc->recvport;
 	int offset = hashlittle(key,keybytes,oc->nrecv) % oc->nrecv;
-	if (safe) 
+	if (safe && scount % safe == 0) 
 	  MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+offset,tag,world);
 	else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+offset,tag,world);
       }
@@ -921,7 +928,7 @@ void phish_send_direct(int iport, int receiver)
 	int tag = oc->recvport;
 	if (receiver < 0 || receiver >= oc->nrecv)
 	  phish_error("Invalid receiver for phish_send_direct");
-	if (safe)
+	if (safe && scount % safe == 0)
 	  MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+receiver,tag,world);
 	else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+receiver,tag,world);
       }
@@ -953,12 +960,13 @@ void send(OutConnect *oc)
   case SINGLE:
   case PAIRED:
   case RING:
-    if (safe) MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
+    if (safe && scount % safe == 0) 
+      MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
     else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
     break;
 
   case ROUNDROBIN:
-    if (safe) 
+    if (safe && scount % safe == 0) 
       MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+oc->offset,tag,world);
     else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+oc->offset,tag,world);
     oc->offset++;
@@ -967,14 +975,16 @@ void send(OutConnect *oc)
 
   case CHAIN:
     if (oc->nrecv) {
-      if (safe) MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
+      if (safe && scount % safe == 0)
+	MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
       else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
     }
     break;
 
   case BCAST:
     for (int i = 0; i < oc->nrecv; i++)
-      if (safe) MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+i,tag,world);
+      if (safe && scount % safe == 0)
+	MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+i,tag,world);
       else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+i,tag,world);
     break;
 

@@ -75,8 +75,9 @@ def set(args):
     memchunk = int(args[1])
     if memchunk < 0: error("Illegal set command");
   elif args[0] == "safe":
-    if len(args) != 1: error("Illegal set command");
-    safe = 1
+    if len(args) != 2: error("Illegal set command");
+    safe = int(args[1])
+    if safe < 0: error("Illegal set command");
   else: error("Unrecognized set parameter %s" % arg[0])
 
 # convert non-default global settings to a minnow param string
@@ -84,7 +85,7 @@ def set(args):
 def set2param():
   str = ""
   if memchunk != MEMCHUNK: str += " -memory %d" % memchunk
-  if safe != SAFE: str += " -safe"
+  if safe != SAFE: str += " -safe %d" % safe
   return str
 
 # create a variable via variable command in input script

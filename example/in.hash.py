@@ -4,10 +4,10 @@
 
 #set safe
 
-variable n 100
+variable n 10000000
 variable len 0
 variable s 1
-variable r 2
+variable r 1
 
 minnow 1 source.py $n ${len}
 minnow 2 reduce.py
