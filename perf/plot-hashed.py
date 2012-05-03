@@ -41,7 +41,7 @@ def plot_hashed(path, label, color):
   for message_size in sorted(grouped.keys()):
     x = [loop_size for loop_size in sorted(grouped[message_size].keys())]
     y = [sum(grouped[message_size][loop_size]) / len(grouped[message_size][loop_size]) for loop_size in sorted(grouped[message_size].keys())]
-    matplotlib.pyplot.plot(x, y, label="%s byte %s" % (message_size, label), color=color, linewidth=message_size / 1024 + 1)
+    matplotlib.pyplot.plot(x, y, label="%s byte %s" % (message_size, label), color=color, linewidth=message_size / 4096 + 1)
 
   matplotlib.pyplot.xlabel("Process count (1/2 senders, 1/2 receivers)")
   matplotlib.pyplot.ylabel("Rate (messages/S)")
@@ -51,7 +51,7 @@ matplotlib.pyplot.title(options.title)
 matplotlib.pyplot.text(0.5, 0.5, "%s" % message_count, horizontalalignment="center", verticalalignment="top")
 plot_hashed("cpp-phish-zmq-hashed-tcp.csv", "C++ / Phish / ZMQ", "red")
 plot_hashed("cpp-phish-mpi-hashed-tcp.csv", "C++ / Phish / MPI / TCP", "green")
-plot_hashed("cpp-phish-mpi-hashed-sm.csv", "C++ / Phish / MPI / Fastest", "blue")
+plot_hashed("cpp-phish-mpi-hashed-fastest.csv", "C++ / Phish / MPI / Fastest", "blue")
 matplotlib.pyplot.legend(loc="upper left")
 #matplotlib.pyplot.yscale("log")
 
