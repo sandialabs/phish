@@ -19,7 +19,8 @@
 
 <PRE>  <I>memory</I> value = N
     N = max size of datum in Kbytes
-  <I>safe</I> value = none 
+  <I>safe</I> value = M
+    M = send a datum "safely" every this many sends 
 </PRE>
 
 </UL>
@@ -46,22 +47,28 @@ library.
 1048576 is 1 Gbyte.  The default is <I>N</I> = 1, since typical PHISH
 minnows send and receive small datums.
 </P>
-<P>The <I>safe</I> keyword is only relevant the MPI version of the PHISH
-library.  It forces the library to use MPI_Ssend() calls which are a
-safer version than the normal MPI_Send() function.  Safe in this
-context refers to messages being dropped if the receiving process is
-backed up.  This can happen if a minnow in a PHISH school of minnows
-is significantly slower to process datums than all the others, and a
-large number of datums are being continually sent to it.  With the
-safe mode of MPI calls, the slow minnow should effectively throttle
-the incoming messages so an overflow does not occur.  This requires
-extra handshaking between the MPI processes and slows down the rate at
-which small messages are exchanged, so this safe mode is "off" by
-default.  Many PHISH programs do not seem to need it, as MPI is
-robust enough to insure no messages are dropped.
+<P>The <I>safe</I> keyword is only relevant for the MPI version of the PHISH
+library.  It causes the library to use a "safe" MPI_Ssend() call every
+Mth time it sends a datum, rather than the normal MPI_Send() function.
+If M = 0, "safe" sends are never performed.
 </P>
-<P>Note that the <I>safe</I> keyword takes no value.  If it is not specified,
-the default is for the PHISH library to use normal MPI_Send() calls.
+<P>Safe in this context refers to messages being dropped if the receiving
+process is backed up.  This can happen if a minnow in a PHISH school
+of minnows is significantly slower to process datums than all the
+others, and a large number of datums are being continually sent to it.
+When a safe send is done, an extra handshake is performed between the
+sender and receiver to insure the receiver is ready for the datum.
+Doing this often enough should effectively throttle the incoming
+messages to a slow minnow, so an overflow does not occur.  Note that
+the extra handshaking between the MPI processes slows down the rate at
+which small messages are exchanged, so you should not normally use
+this setting unless MPI errors arise, e.g. due to "too many unexpected
+messages".  A good setting for M depends on how many minnows are
+sending to the overflowing minnow.  Typical MPI implementations allow
+tens of thousands of small incoming messages to be queued, so M = 1000
+or 10000 is fine if a single minnow is sending to the minnow.  If 10
+minnows are sending to the overflowing minnow, then M should be
+reduced by a factor of 10.
 </P>
 <P><B>Restrictions:</B> none
 </P>
@@ -72,6 +79,6 @@ the default is for the PHISH library to use normal MPI_Send() calls.
 </P>
 <P><B>Default:</B>
 </P>
-<P>The default settings are memory = 1 (1 Kbyte), safe is not set.
+<P>The default settings are memory = 1 (1 Kbyte), safe = 0.
 </P>
 </HTML>
