@@ -30,7 +30,7 @@ for size in range(int(size_begin), int(size_end), int(size_step)):
 
     bait_input = """
 set memory 100
-set safe
+set safe 10000
 
 minnow 1 phish-mpi-loop phish-mpi-loop %s %s
 
