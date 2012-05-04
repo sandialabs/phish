@@ -33,7 +33,7 @@ def plot_loops(path, label, color):
 matplotlib.pyplot.figure(1)
 matplotlib.pyplot.title(options.title)
 plot_loops("cpp-phish-zmq-loop-tcp.csv", "C++ / Phish / ZMQ", "red")
-plot_loops("cpp-phish-mpi-loop-tcp.csv", "C++ / Phish / MPI / TCP", "green")
+#plot_loops("cpp-phish-mpi-loop-tcp.csv", "C++ / Phish / MPI / TCP", "purple")
 plot_loops("cpp-phish-mpi-loop-fastest.csv", "C++ / Phish / MPI / Fastest", "blue")
 matplotlib.pyplot.legend(loc="upper right")
 #matplotlib.pyplot.yscale("log")

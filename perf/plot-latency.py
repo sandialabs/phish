@@ -22,13 +22,15 @@ def plot_latency(path, label, color):
 
 matplotlib.pyplot.figure(1)
 matplotlib.pyplot.title(options.title)
-plot_latency("cpp-zmq-latency-tcp.csv", "C++ / ZMQ", color="black")
-plot_latency("py-zmq-latency-tcp.csv", "Python / ZMQ", color="grey")
+plot_latency("cpp-zmq-latency-tcp.csv", "C++ / ZMQ", color="orange")
+plot_latency("cpp-mpi-latency-fastest.csv", "C++ / MPI", color="green")
+#plot_latency("py-zmq-latency-tcp.csv", "Python / ZMQ", color="grey")
 plot_latency("cpp-phish-zmq-latency-tcp.csv", "C++ / Phish / ZMQ", color="red")
-plot_latency("cpp-phish-mpi-latency-tcp.csv", "C++ / Phish / MPI / TCP", color="green")
+#plot_latency("cpp-phish-mpi-latency-tcp.csv", "C++ / Phish / MPI / TCP", color="purple")
 plot_latency("cpp-phish-mpi-latency-fastest.csv", "C++ / Phish / MPI / Fastest", color="blue")
-matplotlib.pyplot.legend(loc="upper left")
+matplotlib.pyplot.legend(loc="lower right")
 matplotlib.pyplot.ylim(ymin=0)
+matplotlib.pyplot.yscale("log")
 
 
 matplotlib.pyplot.show()

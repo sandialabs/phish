@@ -14,6 +14,10 @@ if(BUILD_MPI_BACKEND)
   target_link_libraries(phish-mpi-latency-b phish-mpi ${MPI_EXTRA_LIBRARY} ${MPI_LIBRARY})
   configure_file(run-cpp-phish-mpi-latency.py run-cpp-phish-mpi-latency.py)
 
+  add_executable(mpi-throughput mpi-throughput.cpp)
+  target_link_libraries(mpi-throughput ${MPI_EXTRA_LIBRARY} ${MPI_LIBRARY})
+  configure_file(run-cpp-mpi-throughput.py run-cpp-mpi-throughput.py)
+
   add_executable(phish-mpi-throughput-a phish-throughput-a.cpp)
   target_link_libraries(phish-mpi-throughput-a phish-mpi ${MPI_EXTRA_LIBRARY} ${MPI_LIBRARY})
   add_executable(phish-mpi-throughput-b phish-throughput-b.cpp)
