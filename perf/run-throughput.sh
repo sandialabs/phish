@@ -1,3 +1,5 @@
+#!/bin/sh
+
 python run-cpp-zmq-throughput.py > cpp-zmq-throughput-tcp.csv
 python run-cpp-mpi-throughput.py > cpp-mpi-throughput-fastest.csv
 python run-cpp-phish-zmq-throughput.py > cpp-phish-zmq-throughput-tcp.csv

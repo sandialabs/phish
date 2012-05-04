@@ -1,3 +1,5 @@
+#!/bin/sh
+
 python run-cpp-zmq-latency.py > cpp-zmq-latency-tcp.csv
 python run-cpp-mpi-latency.py > cpp-mpi-latency-fastest.csv
 python run-cpp-phish-zmq-latency.py > cpp-phish-zmq-latency-tcp.csv
