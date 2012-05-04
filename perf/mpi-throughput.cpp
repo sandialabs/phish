@@ -7,6 +7,7 @@
 #include "mpi.h"
 #include "stdlib.h"
 #include "stdio.h"
+#include <iostream>
 
 /* ---------------------------------------------------------------------- */
 
@@ -57,9 +58,10 @@ int main(int narg, char **args)
 
     MPI_Recv(buf,0,MPI_BYTE,1,0,MPI_COMM_WORLD,&status);
 
-    double time_stop = MPI_Wtime();
-    printf("Elapsed time for %d oneway messages of %d bytes = %g secs\n",
-	   n,m,time_stop-time_start);
+    const double elapsed = MPI_Wtime() - time_start;
+    const double throughput = n / elapsed;
+    const double megabits = (throughput * m * 8.0) / 1000000.0;
+    std::cout << elapsed << "," << m << "," << n << "," << throughput << "," << megabits << "\n";
 
   // receiving processor
   // receives N messages

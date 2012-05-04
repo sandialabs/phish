@@ -18,7 +18,7 @@ sys.stdout.flush()
 for size in range(int(size_begin), int(size_end), int(size_step)):
   sys.stderr.write("message size: %s\n" % (size))
   sys.stderr.flush()
-  arguments = ["mpiexec", "-np", "2", "${CMAKE_CURRENT_BINARY_DIR}/zmq-throughput", options.count, str(size)]
+  arguments = ["mpiexec", "-np", "2", "${CMAKE_CURRENT_BINARY_DIR}/mpi-throughput", options.count, str(size), "10000"]
   a = subprocess.Popen(arguments)
   a.wait()
 

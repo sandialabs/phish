@@ -23,7 +23,7 @@ def plot_latency(path, label, color):
 matplotlib.pyplot.figure(1)
 matplotlib.pyplot.title(options.title)
 plot_latency("cpp-zmq-latency-tcp.csv", "C++ / ZMQ", color="orange")
-plot_latency("cpp-mpi-latency-fastest.csv", "C++ / MPI", color="green")
+plot_latency("cpp-mpi-latency-fastest.csv", "C++ / MPI / Fastest", color="green")
 #plot_latency("py-zmq-latency-tcp.csv", "Python / ZMQ", color="grey")
 plot_latency("cpp-phish-zmq-latency-tcp.csv", "C++ / Phish / ZMQ", color="red")
 #plot_latency("cpp-phish-mpi-latency-tcp.csv", "C++ / Phish / MPI / TCP", color="purple")
