@@ -1,8 +1,12 @@
 include_directories(${CMAKE_SOURCE_DIR}/src)
-include_directories(${ZMQ_INCLUDE_DIR})
 
 # Setup tests using MPI ...
 if(BUILD_MPI_BACKEND)
+  include_directories(${MPI_C_INCLUDE_PATH})
+
+  add_executable(mpi-latency mpi-latency.cpp)
+  target_link_libraries(mpi-latency ${MPI_EXTRA_LIBRARY} ${MPI_LIBRARY})
+  configure_file(run-cpp-mpi-latency.py run-cpp-mpi-latency.py)
 
   add_executable(phish-mpi-latency-a phish-latency-a.cpp)
   target_link_libraries(phish-mpi-latency-a phish-mpi ${MPI_EXTRA_LIBRARY} ${MPI_LIBRARY})
@@ -32,6 +36,7 @@ endif(BUILD_MPI_BACKEND)
 
 # Setup tests using ZMQ ...
 if(BUILD_ZMQ_BACKEND)
+  include_directories(${ZMQ_INCLUDE_DIR})
 
   configure_file(run-py-zmq-latency.py run-py-zmq-latency.py)
 
