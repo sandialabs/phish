@@ -14,7 +14,7 @@ process_begin, process_end = options.processes.split("/")
 
 sys.stderr.write("Testing C++ / Phish / ZMQ loops ...\n")
 sys.stderr.flush()
-sys.stdout.write("cpp-phish-zmq elapsed [s],cpp-phish-zmq message size [B],cpp-phish-zmq message count,cpp-phish-zmq rate [msg/s],cpp-phish-zmq throughput [Mb/s],process count\n")
+sys.stdout.write("elapsed [s],message size [B],message count,rate [msg/s],throughput [Mb/s],process count,host\n")
 sys.stdout.flush()
 for size in range(int(size_begin), int(size_end), int(size_step)):
   sys.stderr.write("message size: %s\n" % (size))

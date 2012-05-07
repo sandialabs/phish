@@ -54,7 +54,7 @@ int main(int argc, char **argv)
     const double throughput = n / elapsed;
     const double megabits = (throughput * m * 8.0) / 1000000.0;
 
-    std::cout << elapsed << "," << m << "," << n << "," << throughput << "," << megabits << "," << nlocal << "\n";
+    std::cout << elapsed << "," << m << "," << n << "," << throughput << "," << megabits << "," << nlocal << "," << phish::host() << "\n";
 
   } else phish::loop();
 
