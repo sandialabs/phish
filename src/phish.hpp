@@ -172,6 +172,7 @@ const T unpack()
 }
 
 int query(const std::string& key, int flag1=0, int flag2=0) { return exception::test(::phish_query(key.c_str(), flag1, flag2)); }
+const std::string host() { return std::string(::phish_host()); }
 void error(const std::string& message) { ::phish_error(message.c_str()); }
 void warn(const std::string& message) { ::phish_warn(message.c_str()); }
 void debug(const std::string& message) { ::phish_warn(message.c_str()); }

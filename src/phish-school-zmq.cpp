@@ -209,6 +209,8 @@ int phish_school_start()
 
       std::vector<std::string> arguments;
       arguments.insert(arguments.end(), g_arguments[i].begin(), g_arguments[i].end());
+      arguments.push_back("--phish-host");
+      arguments.push_back(host);
       arguments.push_back("--phish-name");
       arguments.push_back(name);
       arguments.push_back("--phish-local-id");

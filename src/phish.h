@@ -99,6 +99,7 @@ int phish_dequeue(int);
 int phish_nqueue();
 
 int phish_query(const char *, int, int);
+const char* phish_host();
   void phish_set(const char *, int, int);
 void phish_error(const char *);
 void phish_warn(const char *);

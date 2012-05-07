@@ -1473,6 +1473,16 @@ int phish_query(const char *keyword, int flag1, int flag2)
   return 0;
 }
 
+char host_buffer[MPI_MAX_PROCESSOR_NAME];
+const char* phish_host()
+{
+  if (!initflag) phish_error("Phish_init has not been called");
+
+  int length = 0;
+  MPI_Get_processor_name(host_buffer, &length);
+  return host_buffer;
+}
+
 /* ----------------------------------------------------------------------
    reset internal PHISH info
    keyword = "ring/receiver"

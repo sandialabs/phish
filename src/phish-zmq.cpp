@@ -30,6 +30,8 @@
 ///////////////////////////////////////////////////////////////////////////////////
 // Internal state
 
+// Host for this minnow ...
+static std::string g_host = std::string();
 // Human-readable name for this minnow ...
 static std::string g_name = std::string();
 // This minnow's ID within the local group ...
@@ -333,7 +335,11 @@ void phish_init(int* argc, char*** argv)
   while(arguments.size())
   {
     const std::string argument = pop_argument(arguments);
-    if(argument == "--phish-name")
+    if(argument == "--phish-host")
+    {
+      g_host = pop_argument(arguments);
+    }
+    else if(argument == "--phish-name")
     {
       g_name = pop_argument(arguments);
     }
@@ -1010,6 +1016,11 @@ int phish_query(const char* kw, int flag1, int flag2)
     return g_global_count;
   else
     phish_return_error("Invalid phish_query keyword.", -1);
+}
+
+const char* phish_host()
+{
+  return g_host.data();
 }
 
 void phish_error(const char* message)
