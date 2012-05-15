@@ -96,14 +96,14 @@ we can improve the PHISH documentation.
   3.4 "Shutting down a minnow"_minnow_4 :b
   3.5 "Building a minnow"_minnow_5 :ule,b
 "PHISH Library"_Section_library.html :l
-  4.1 "List of library functions"_library_1 ulb,b
-  4.2 "Building the PHISH library"_library_2 b
-  4.3 "C vs C++ vs Python interface"_library_3 b
+  4.1 "List of library functions"_library_1 :ulb,b
+  4.2 "Building the PHISH library"_library_2 :b
+  4.3 "C vs C++ vs Python interface"_library_3 :b
   4.4 "Format of a datum"_library_4 :ule,b
 "Examples"_Section_examples.html :l
 "Python Interface to PHISH"_Section_python.html :l
 "Errors"_Section_errors.html :l
-  7.1 "Debugguing PHISH nets"_error_1 ulb,b
+  7.1 "Debugguing PHISH nets"_error_1 :ulb,b
   7.2 "Error and warning messages from the PHISH library"_error_2 :b
   7.3 "Error messages from bait.py"_error_3 :b
   7.4 "Error messages from launch.py"_error_4 :ule,b

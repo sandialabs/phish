@@ -1,4 +1,4 @@
-"Previous Section"_Python.html - "PHISH WWW Site"_pws -
+"Previous Section"_Section_python.html - "PHISH WWW Site"_pws -
 "PHISH Documentation"_pd - "Next Section"_Manual.html :c
 
 :link(pws,http://www.sandia.gov/~sjplimp/phish.html)

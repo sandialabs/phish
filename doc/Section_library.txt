@@ -1,5 +1,5 @@
-"Previous Section"_Minnows.html - "PHISH WWW Site"_pws -
-"PHISH, Documentation"_pd - "Next Section"_Examples.html :c
+"Previous Section"_Section_minnows.html - "PHISH WWW Site"_pws -
+"PHISH, Documentation"_pd - "Next Section"_Section_examples.html :c
 
 :link(pws,http://www.sandia.gov/~sjplimp/phish.html)
 :link(pd,Manual.html)
