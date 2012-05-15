@@ -112,13 +112,13 @@ class minnow:
     ids = [minnow.id for minnow in minnows]
     if self.id in ids: error("Minnow ID %s already defined" % self.id)
 
-# CONNECT class instantiated by connect command in input script
+# HOOK class instantiated by hook command in input script
 # special case handling of first/last arg for publish/subscribe styles
     
-class connect:
+class hook:
   def __init__(self,args):
     narg = len(args)
-    if narg < 3: error("Invalid connect command")
+    if narg < 3: error("Invalid hook command")
     self.sender = args[0]
     if ':' in self.sender and args[1] != "subscribe":
       self.sender,self.sendport = self.sender.split(':',1)
@@ -142,34 +142,34 @@ class connect:
       
     ids = [minnow.id for minnow in minnows]
     if self.sender and self.sender not in ids:
-      error("Unrecognized connect ID %s" % self.sender)
+      error("Unrecognized hook ID %s" % self.sender)
     if self.receiver and self.receiver not in ids:
-      error("Unrecognized connect ID %s" % self.receiver)
+      error("Unrecognized hook ID %s" % self.receiver)
     
-# LAYOUT class instantiated by layout command in input script
+# SCHOOL class instantiated by school command in input script
 
-class layout:
+class school:
   def __init__(self,args):
     narg = len(args)
-    if narg < 2: error("Invalid layout command")
+    if narg < 2: error("Invalid school command")
     self.id = args[0]
     self.nprocs = int(args[1])
-    ids = [layout.id for layout in layouts]
-    if self.id in ids: error("Layout ID %s already defined" % self.id)
+    ids = [school.id for school in schools]
+    if self.id in ids: error("School ID %s already defined" % self.id)
     
     self.invoke = None
     self.host = None
     iarg = 2
     while iarg < narg:
       if args[iarg] == "invoke":
-        if iarg+2 > narg: error("Invalid layout command")
+        if iarg+2 > narg: error("Invalid school command")
         self.invoke = args[iarg+1]
         iarg += 2
       elif args[iarg] == "host":
-        if iarg+2 > narg: error("Invalid layout command")
+        if iarg+2 > narg: error("Invalid school command")
         self.host = args[iarg+1]
         iarg += 2
-      else: error("Invalid layout command")
+      else: error("Invalid school command")
         
 # mode-dependent output
 # sendport and recvport are strings which can encode more info than an int
@@ -198,12 +198,12 @@ def output_mpich():
         nprocs_recv = minnows[recv[2]].nprocs
         procstart_recv = minnows[recv[2]].procstart
       else: nprocs_recv = procstart_recv = -1
-      style = connects[recv[1]].style
-      if style == "subscribe": style += "/" + connects[recv[1]].socket
+      style = hooks[recv[1]].style
+      if style == "subscribe": style += "/" + hooks[recv[1]].socket
       instr += " -in %d %d %d %s %d %d %d" % \
-          (nprocs_send,procstart_send,connects[recv[1]].sendport,
+          (nprocs_send,procstart_send,hooks[recv[1]].sendport,
            style,
-           nprocs_recv,procstart_recv,connects[recv[1]].recvport)
+           nprocs_recv,procstart_recv,hooks[recv[1]].recvport)
           
     outstr = ""
     for send in minnow.send:
@@ -215,12 +215,12 @@ def output_mpich():
         nprocs_recv = minnows[send[2]].nprocs
         procstart_recv = minnows[send[2]].procstart
       else: nprocs_recv = procstart_recv = -1
-      style = connects[send[1]].style
-      if style == "publish": style += "/" + connects[send[1]].socket
+      style = hooks[send[1]].style
+      if style == "publish": style += "/" + hooks[send[1]].socket
       outstr += " -out %d %d %d %s %d %d %d" % \
-          (nprocs_send,procstart_send,connects[send[1]].sendport,
+          (nprocs_send,procstart_send,hooks[send[1]].sendport,
            style,
-           nprocs_recv,procstart_recv,connects[send[1]].recvport)
+           nprocs_recv,procstart_recv,hooks[send[1]].recvport)
 
     launchstr = procstr + exestr + minnowstr + paramstr + instr + outstr
     if minnow.args: launchstr += " -args " + " ".join(minnow.args)
@@ -253,12 +253,12 @@ def output_openmpi():
         nprocs_recv = minnows[recv[2]].nprocs
         procstart_recv = minnows[recv[2]].procstart,
       else: nprocs_recv = procstart_recv = -1
-      style = connects[recv[1]].style
-      if style == "subscribe": style += "/" + connects[recv[1]].socket
+      style = hooks[recv[1]].style
+      if style == "subscribe": style += "/" + hooks[recv[1]].socket
       instr += " -in %d %d %d %s %d %d %d" % \
-          (nprocs_send,procstart_send,connects[recv[1]].sendport,
+          (nprocs_send,procstart_send,hooks[recv[1]].sendport,
            style,
-           nprocs_recv,procstart_recv,connects[recv[1]].recvport)
+           nprocs_recv,procstart_recv,hooks[recv[1]].recvport)
 
     outstr = ""
     for send in minnow.send:
@@ -270,12 +270,12 @@ def output_openmpi():
         nprocs_recv = minnows[send[2]].nprocs
         procstart_recv = minnows[send[2]].procstart,
       else: nprocs_recv = procstart_recv = -1
-      style = connects[send[1]].style
-      if style == "publish": style += "/" + connects[send[1]].socket
+      style = hooks[send[1]].style
+      if style == "publish": style += "/" + hooks[send[1]].socket
       outstr += " -out %d %d %d %s %d %d %d" % \
-          (nprocs_send,procstart_send,connects[send[1]].sendport,
+          (nprocs_send,procstart_send,hooks[send[1]].sendport,
            style,
-           nprocs_recv,procstart_recv,connects[send[1]].recvport)
+           nprocs_recv,procstart_recv,hooks[send[1]].recvport)
           
     launchstr = procstr + minnowstr + paramstr + instr + outstr
     if minnow.args: launchstr += " -args " + " ".join(minnow.args)
@@ -335,11 +335,11 @@ if mode == "socket": error("Socket mode not yet supported")
 memchunk = MEMCHUNK = 1
 safe = SAFE = 0
 
-# initialize data structures for minnows, connects, layouts
+# initialize data structures for minnows, hooks, schools
 
 minnows = []
-connects = []
-layouts = []
+hooks = []
+schools = []
 
 # read and process the input script
 
@@ -350,36 +350,36 @@ while lines:
   elif command == "set": set(args)
   elif command == "variable": variable(args)
   elif command == "minnow": minnows.append(minnow(args))
-  elif command == "connect": connects.append(connect(args))
-  elif command == "layout": layouts.append(layout(args))
+  elif command == "hook": hooks.append(hook(args))
+  elif command == "school": schools.append(school(args))
   else: error("Unrecognized command %s" % command)
 
-# add fields to each minnow based on layout and connect params
-# check that connections are consistent with layout
+# add fields to each minnow based on school and hook params
+# check that hooks are consistent with school
   
 minnowids = [minnow.id for minnow in minnows]
-layoutids = [layout.id for layout in layouts]
+schoolids = [school.id for school in schools]
 
 nprocs = 0
 for minnow in minnows:
-  if minnow.id not in layoutids: minnow.nprocs = 1
+  if minnow.id not in schoolids: minnow.nprocs = 1
   else:
-    index = layoutids.index(minnow.id)
-    minnow.nprocs = layouts[index].nprocs
-    minnow.invoke = layouts[index].invoke
+    index = schoolids.index(minnow.id)
+    minnow.nprocs = schools[index].nprocs
+    minnow.invoke = schools[index].invoke
   minnow.procstart = nprocs
   nprocs += minnow.nprocs
   
-for iconnect,connect in enumerate(connects):
-  if connect.sender: sendindex = minnowids.index(connect.sender)
+for ihook,hook in enumerate(hooks):
+  if hook.sender: sendindex = minnowids.index(hook.sender)
   else: sendindex = -1
-  if connect.receiver: recvindex = minnowids.index(connect.receiver)
+  if hook.receiver: recvindex = minnowids.index(hook.receiver)
   else: recvindex = -1
 
   if sendindex >= 0:
-    minnows[sendindex].send.append([sendindex,iconnect,recvindex])
+    minnows[sendindex].send.append([sendindex,ihook,recvindex])
   if recvindex >= 0:
-    minnows[recvindex].recv.append([sendindex,iconnect,recvindex])
+    minnows[recvindex].recv.append([sendindex,ihook,recvindex])
 
   if sendindex >= 0:
     npsend = minnows[sendindex].nprocs
@@ -388,32 +388,32 @@ for iconnect,connect in enumerate(connects):
     nprecv = minnows[recvindex].nprocs
     rid = minnows[recvindex].id
   
-  if connect.style == "single":
+  if hook.style == "single":
     if nprecv != 1:
-      error("Invalid connection between %s and %s" % (sid,rid));
-  elif connect.style == "paired":
+      error("Invalid hook between %s and %s" % (sid,rid));
+  elif hook.style == "paired":
     if npsend != nprecv:
-      error("Invalid connection between %s and %s" % (sid,rid));
-  elif connect.style == "hashed":
+      error("Invalid hook between %s and %s" % (sid,rid));
+  elif hook.style == "hashed":
     continue
-  elif connect.style == "roundrobin":
+  elif hook.style == "roundrobin":
     continue
-  elif connect.style == "direct":
+  elif hook.style == "direct":
     continue
-  elif connect.style == "bcast":
+  elif hook.style == "bcast":
     continue
-  elif connect.style == "chain":
+  elif hook.style == "chain":
     if sid != rid or npsend == 1:
-      error("Invalid connection between %s and %s" % (sid,rid));
-  elif connect.style == "ring":
+      error("Invalid hook between %s and %s" % (sid,rid));
+  elif hook.style == "ring":
     if sid != rid or npsend == 1:
-      error("Invalid connection between %s and %s" % (sid,rid));
-  elif connect.style == "publish":
+      error("Invalid hook between %s and %s" % (sid,rid));
+  elif hook.style == "publish":
     continue
-  elif connect.style == "subscribe":
+  elif hook.style == "subscribe":
     continue
   else:
-    error("Unrecognized connect style %s" % connect.style);
+    error("Unrecognized hook style %s" % hook.style);
 
 # generate full executable names using list of paths
 
