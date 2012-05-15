@@ -8,8 +8,8 @@ variable m 0
 minnow 1 ping.py $n $m
 minnow 2 pong
 
-connect 1 single 2
-connect 2 single 1
+hook 1 single 2
+hook 2 single 1
 
-layout 1 1
-layout 2 1
+school 1 1
+school 2 1

@@ -12,8 +12,8 @@ variable r 1
 minnow 1 source.py $n ${len}
 minnow 2 reduce.py
 
-connect 1 hashed 2
-connect 2 direct 1
+hook 1 hashed 2
+hook 2 direct 1
 
-layout 1 $s
-layout 2 $r
+school 1 $s
+school 2 $r

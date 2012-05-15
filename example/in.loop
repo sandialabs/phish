@@ -8,6 +8,6 @@ variable m 0
 
 minnow 1 loop $n $m
 
-connect 1 ring 1
+hook 1 ring 1
 
-layout 1 $p
+school 1 $p

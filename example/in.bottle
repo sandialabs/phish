@@ -13,9 +13,9 @@ minnow 2 slowdown 0.0
 
 minnow 3 print
 
-connect 1 single 2
-connect 2 single 3
+hook 1 single 2
+hook 2 single 3
 
-layout 1 40
-layout 2 1
-layout 3 1
+school 1 40
+school 2 1
+school 3 1

@@ -14,10 +14,10 @@ minnow 1 source.py $n ${len}
 minnow 2 map.py
 minnow 3 reduce.py
 
-connect 1 hashed 2
-connect 2 hashed 3
-connect 3 direct 1
+hook 1 hashed 2
+hook 2 hashed 3
+hook 3 direct 1
 
-layout 1 $s
-layout 2 $m
-layout 3 $r
+school 1 $s
+school 2 $m
+school 3 $r
