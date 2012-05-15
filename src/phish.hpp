@@ -12,7 +12,6 @@ namespace phish
 
 enum data_type
 {
-  RAW = PHISH_RAW,
   CHAR = PHISH_CHAR,
   INT8 = PHISH_INT8,
   INT16 = PHISH_INT16,
@@ -24,6 +23,7 @@ enum data_type
   UINT64 = PHISH_UINT64,
   FLOAT = PHISH_FLOAT,
   DOUBLE = PHISH_DOUBLE,
+  RAW = PHISH_RAW,
   STRING = PHISH_STRING,
   INT8_ARRAY = PHISH_INT8_ARRAY,
   INT16_ARRAY = PHISH_INT16_ARRAY,
@@ -116,6 +116,7 @@ void send(int port = 0) { LOG_CALL(); ::phish_send(port); }
 void send_key(const char* key, int key_length, int port = 0) { LOG_CALL(); ::phish_send_key(port, const_cast<char*>(key), key_length); }
 
 void repack() { LOG_CALL(); ::phish_repack(); }
+
 void pack(char data) { LOG_CALL(); ::phish_pack_char(data); }
 void pack(int8_t data) { LOG_CALL(); ::phish_pack_int8(data); }
 void pack(int16_t data) { LOG_CALL(); ::phish_pack_int16(data); }

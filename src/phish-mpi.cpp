@@ -430,15 +430,9 @@ void phish_init(int *pnarg, char ***pargs)
   *pargs = &args[argstart-1];
   args[argstart-1] = args[0];
 
-  // strip off PHISH args, leaving app args for app to use
-
-  //*pnarg = narg-argstart;
-  //if (*pnarg > 0) *pargs = &args[argstart];
-  //else *pargs = NULL;
-
   // set send buffer ptr for initial datum
 
-  sptr = sbuf + sizeof(int);
+  sptr = sbuf + sizeof(int32_t);
   npack = 0;
 }
 
@@ -683,8 +677,8 @@ void phish_loop()
       rcount++;
       if (ip->datumfunc) {
 	MPI_Get_count(&status,MPI_BYTE,&nrbytes);
-	nrfields = *(int *) rbuf;
-	rptr = rbuf + sizeof(int);
+	nrfields = (int) (*(int32_t *) rbuf);
+	rptr = rbuf + sizeof(int32_t);
 	nunpack = 0;
 	(*ip->datumfunc)(nrfields);
       }
@@ -739,8 +733,8 @@ void phish_probe(void (*probefunc)())
 	rcount++;
 	if (ip->datumfunc) {
 	  MPI_Get_count(&status,MPI_BYTE,&nrbytes);
-	  nrfields = *(int *) rbuf;
-	  rptr = rbuf + sizeof(int);
+	  nrfields = (int) (*(int *) rbuf);
+	  rptr = rbuf + sizeof(int32_t);
 	  nunpack = 0;
 	  (*ip->datumfunc)(nrfields);
 	}
@@ -796,8 +790,8 @@ int phish_recv()
 
   rcount++;
   MPI_Get_count(&status,MPI_BYTE,&nrbytes);
-  nrfields = *(int *) rbuf;
-  rptr = rbuf + sizeof(int);
+  nrfields = (int) (*(int *) rbuf);
+  rptr = rbuf + sizeof(int32_t);
   nunpack = 0;
   return nrfields;
 }
@@ -813,7 +807,7 @@ void phish_send(int iport)
 
   OutPort *op = &outports[iport];
   if (op->status == UNUSED_PORT) {
-    sptr = sbuf + sizeof(int);
+    sptr = sbuf + sizeof(int32_t);
     npack = 0;
     return;
   }
@@ -824,7 +818,7 @@ void phish_send(int iport)
 
   // setup send buffer
 
-  *(int *) sbuf = npack;
+  *(int32_t *) sbuf = npack;
   nsbytes = sptr - sbuf;
 
   // loop over connections
@@ -835,7 +829,7 @@ void phish_send(int iport)
 
   // reset send buffer
 
-  sptr = sbuf + sizeof(int);
+  sptr = sbuf + sizeof(int32_t);
   npack = 0;
 }
 
@@ -851,7 +845,7 @@ void phish_send_key(int iport, char *key, int keybytes)
 
   OutPort *op = &outports[iport];
   if (op->status == UNUSED_PORT) {
-    sptr = sbuf + sizeof(int);
+    sptr = sbuf + sizeof(int32_t);
     npack = 0;
     return;
   }
@@ -862,7 +856,7 @@ void phish_send_key(int iport, char *key, int keybytes)
 
   // setup send buffer
 
-  *(int *) sbuf = npack;
+  *(int32_t *) sbuf = npack;
   nsbytes = sptr - sbuf;
 
   // loop over connections
@@ -891,7 +885,7 @@ void phish_send_key(int iport, char *key, int keybytes)
 
   // reset send buffer
 
-  sptr = sbuf + sizeof(int);
+  sptr = sbuf + sizeof(int32_t);
   npack = 0;
 }
 
@@ -907,7 +901,7 @@ void phish_send_direct(int iport, int receiver)
 
   OutPort *op = &outports[iport];
   if (op->status == UNUSED_PORT) {
-    sptr = sbuf + sizeof(int);
+    sptr = sbuf + sizeof(int32_t);
     npack = 0;
     return;
   }
@@ -918,7 +912,7 @@ void phish_send_direct(int iport, int receiver)
 
   // setup send buffer
 
-  *(int *) sbuf = npack;
+  *(int32_t *) sbuf = npack;
   nsbytes = sptr - sbuf;
 
   // loop over connections
@@ -948,7 +942,7 @@ void phish_send_direct(int iport, int receiver)
 
   // reset send buffer
 
-  sptr = sbuf + sizeof(int);
+  sptr = sbuf + sizeof(int32_t);
   npack = 0;
 }
 
@@ -1008,7 +1002,6 @@ void send(OutConnect *oc)
 
 /* ----------------------------------------------------------------------
    copy fields of receive buffer into send buffer
-   do not copy initial nrfields value in rbuf
 ------------------------------------------------------------------------- */
 
 void phish_repack()
@@ -1395,8 +1388,8 @@ int phish_dequeue(int n)
  nrbytes = queue[n].nbytes;
  memcpy(rbuf,queue[n].datum,nrbytes);
  delete [] queue[n].datum;
- nrfields = *(int *) rbuf;
- rptr = rbuf + sizeof(int);
+ nrfields = (int) (*(int32_t *) rbuf);
+ rptr = rbuf + sizeof(int32_t);
  nunpack = 0;
  lastport = queue[n].iport;
 
