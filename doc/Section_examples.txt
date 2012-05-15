@@ -55,7 +55,7 @@ diagramed in "this section"_Section_intro.html#intro_5 of the
 
 The scripts can perfrom the operation in parallel by changing the size
 of the school of "readfile"_readfile.html and "count"_count.html
-minnows in the "layout"_bait_layout.html commands within the input
+minnows in the "school"_bait_school.html commands within the input
 script.  They can process a large corpus of files by specifying one or
 more directory names as arguments to the "filegen"_filegen.html
 minnow.
@@ -80,13 +80,13 @@ In this case the "reverse" program in the minnows directory is wrapped
 and it reverses each filename in a list of input filenames.  Multiple
 copies of "reverse"_reverse.html can be launched by changing the size
 of the school of "wrapsink"_wrapsink.html minnows in the
-"layout"_bait_layout.html commands within the input script.
+"school"_bait_school.html commands within the input script.
 
 Here is an example of how to process the script with bait.py:
 
 ../bait/bait.py -v files in.* -p ../minnow < in.wrapsink :pre
 
-make layout arg a variable
+make school arg a variable
 
 :line
 
@@ -102,13 +102,13 @@ it writes to stdout as messages to downstream minnows, in this case
 the "print"_print.html minnow.  As before, multiple copies of
 "reverse"_reverse.html can be launched by changing the size of the
 school of "wrapss"_wrapss.html minnows in the
-"layout"_bait_layout.html commands within the input script.
+"school"_bait_school.html commands within the input script.
 
 Here is an example of how to process the script with bait.py:
 
 ../bait/bait.py -v files in.* -p ../minnow < in.wrapss :pre
 
-make layout arg(s) a variable
+make school arg(s) a variable
 
 :line
 

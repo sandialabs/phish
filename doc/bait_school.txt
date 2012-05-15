@@ -6,11 +6,11 @@
 
 :line
 
-layout command :h3
+school command :h3
 
 [Syntax:]
 
-layout minnow-ID Np keyword value ... :pre
+school minnow-ID Np keyword value ... :pre
 
 minnow-ID = ID of minnow :ulb,l
 Np = # of duplicate processes to launch for this minnow :l
@@ -25,14 +25,14 @@ possible keywords = {host} or {invoke}
 
 [Examples:]
 
-layout 3 10
-layout countapp 1
-layout countapp 1 host foo.locallan.gov
-layout myApp 5 invoke python :pre
+school 3 10
+school countapp 1
+school countapp 1 host foo.locallan.gov
+school myApp 5 invoke python :pre
 
 [Description:]
 
-Layout is a command that can be used in a PHISH input script which is
+School is a command that can be used in a PHISH input script which is
 recognized by the "bait.py"_Bait.html setup program.  It determines
 how a minnow application will be launched when the PHISH program is
 run.  In "PHISH lingo"_Section_intro.html#intro_2, a "minnow" is a
@@ -72,5 +72,5 @@ foo.py ... :pre
 
 [Default:]
 
-If a layout command is not specified, then Np is assumed to be 1, so
+If a school command is not specified, then Np is assumed to be 1, so
 that one process is launched when the PHISH program is run.

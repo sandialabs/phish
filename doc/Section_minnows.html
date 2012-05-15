@@ -144,7 +144,7 @@ input port the minnow uses.  And one call to
 call to the <A HREF = "phish.check.html">phish.check</A> function on line 24 insures
 that the minnow is compatible with the way it is used in the PHISH
 input script, i.e. that the necessary input and output ports have been
-defined with valid <A HREF = "bait_connect.html">connection styles</A>.
+defined with valid <A HREF = "bait_hook.html">hook styles</A>.
 </P>
 <P>The <A HREF = "phish.input.html">phish.input</A> call specifies a callback function
 that the PHISH library will invoke when a datum arrives on that input
@@ -205,10 +205,10 @@ since they must all use a consistent value of MAXPORT when run
 together in a PHISH net.
 </P>
 <P>Note that a PHISH input script may connect a particular minnow to
-other minnows in a variety of ways.  This applies to both the <A HREF = "bait_connect.html">styles
-of connections</A> that are specified and the number of
-minnows on the other end of each connection.  Thus it is possible for
-the user to specify connections in the input script which the minnow
+other minnows in a variety of ways.  This applies to both the <A HREF = "bait_hook.html">styles
+of hooks</A> that are specified and the number of
+minnows on the other end of each hook.  Thus it is possible for
+the user to specify hooks in the input script which the minnow
 does not support or even define.  Similarly, the input script may
 cause other minnows to send datums to the minnow which it does not
 expect or is unable to interpret.  This means a minnow should be coded
@@ -255,7 +255,7 @@ A minnow can send datums via its output port to its own input
 port. 
 <BR></UL>
 <P>All of these scenarios can be setup by appropriate use of
-<A HREF = "bait.html">connect</A> commands in a PHISH input script.
+<A HREF = "bait.html">hook</A> commands in a PHISH input script.
 </P>
 <P>An additional issue to consider is whether a communication channel can
 be saturated or drop datums.  Imagine a PHISH net where one minnow
@@ -309,7 +309,7 @@ an entire PHISH net by all its minnows, if the most upstream minnow
 initiates the process by closing its output ports via a call to
 <A HREF = "phish_exit.html">phish_exit</A>.  An exception is when a school of
 minnows exchanges data in a "ring" style of commuication as setup by
-the <A HREF = "bait_connect.html">connect ring</A> command in a PHISH input script.
+the <A HREF = "bait_conhookml">hook ring</A> command in a PHISH input script.
 In this case, if the first minnow in the ring invokes the phish_exit
 function, it will no longer be receiving datums when the last minnow
 in the ring attempts to send it a "done" message.  In this case, the

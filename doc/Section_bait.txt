@@ -38,8 +38,8 @@ by bait.py have their own doc pages.
 "variable"_bait_variable.html :ulb,l
 "set"_bait_set.html :l
 "minnow"_bait_minnow.html :l
-"connect"_bait_connect.html :l
-"layout"_bait_layout.html :ule,l
+"hook"_bait_hook.html :l
+"school"_bait_school.html :ule,l
 
 :line
 
@@ -182,29 +182,28 @@ minnow 3 count
 minnow 4 sort 10
 minnow 5 print :pre
 
-connect 1 roundrobin 2
-connect 2 hashed 3
-connect 3 single 4
-connect 4 single 5 :pre
+hook 1 roundrobin 2
+hook 2 hashed 3
+hook 3 single 4
+hook 4 single 5 :pre
 
-layout 1 1
-layout 2 5
-layout 3 3
-layout 4 1
-layout 5 1 :pre
+school 1 1
+school 2 5
+school 3 3
+school 4 1
+school 5 1 :pre
 
 The "minnow"_bait_minnow.html commands list the 5 different minnows
 used.  Note the use of the $\{files\} variable to pass a list
 of filenames or directories to the {FileGen} minnow.
 
-The "connect"_bait_connect.html commands specify the communication
-pattern used bewteen different sets of minnows.  The key pattern for
-this example is the {hashed} style, which allows the {File2Words}
-minnow to pass a "key" (a word) to the PHISH library.  The library
-hashes the word to determine which {Count} minnow to send the datum
-to.
+The "hook"_bait_hook.html commands specify the communication pattern
+used bewteen different schools of minnows.  The key pattern for this
+example is the {hashed} style, which allows the {File2Words} minnow to
+pass a "key" (a word) to the PHISH library.  The library hashes the
+word to determine which {Count} minnow to send the datum to.
 
-The "layout"_bait_layout.html commands specify how many instances of
+The "school"_bait_school.html commands specify how many instances of
 each minnow to launch.  Any number of {File2Words} and {Count} minnows
 could be specified.
 
@@ -226,7 +225,7 @@ N" specifies how many copies of the minnow will be invoked.  The next
 argument is the name of the minnow executable.  Several switches like
 "-minnow", "-in", "-out" follow which are created by bait.py to encode
 the communication patterns between the minnows as represented by the
-diagram above and the "connect"_bait_connect.html commands of the
+diagram above and the "hook"_bait_hook.html commands of the
 input script.  The final "-args" switch is followed by minnow-specfic
 arguments that appeared in the input script.
 

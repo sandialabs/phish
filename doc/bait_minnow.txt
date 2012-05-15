@@ -46,4 +46,4 @@ to the {exefile} program when it is launched.
 
 [Related commands:]
 
-"layout"_bait_layout.html
+"school"_bait_school.html

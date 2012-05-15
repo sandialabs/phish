@@ -118,7 +118,7 @@ for more information on the settings of these switches.
 </P>
 <P>The <I>-in</I> switch appears once for every connection the minnow has with
 other minnows, where it is a receiver of datums.  See the
-<A HREF = "bait_connect.html">connect</A> command in PHISH input scripts processed
+<A HREF = "bait_hook.html">hook</A> command in PHISH input scripts processed
 by the <A HREF = "Bait.html">bait.py</A> tool, for more information.
 </P>
 <P><I>Sprocs</I>, <I>sfirst</I>, and <I>sport</I> refer to the set of minnows sending to
@@ -129,7 +129,7 @@ minnows receivng the datums, i.e. the set of minnows this minnow
 belongs to.  They are respectively, the number of minnows in the set,
 the global ID of the first minnow in the set, and the input port used
 by those minnows.  <I>Style</I> is the connection style, as specified by
-the <A HREF = "bait_connect.html">connect</A> command in the PHISH input script
+the <A HREF = "bait_hook.html">hook</A> command in the PHISH input script
 processed by the <A HREF = "Bait.html">bait.py</A> tool.  E.g. <I>style</I> is a word
 like "single" or "hashed".  If it is "subscribe", then extra info
 about the external host and its TCP port is appended to the <I>style</I>,
@@ -137,7 +137,7 @@ e.g. "subscribe/www.foo.com:25".
 </P>
 <P>The <I>-out</I> switch appears once for every connection the minnow has
 with other minnows, where it is a sender of datums.  See the
-<A HREF = "bait_connect.html">connect</A> command in PHISH input scripts processed
+<A HREF = "bait_hook.html">hook</A> command in PHISH input scripts processed
 by the <A HREF = "Bait.html">bait.py</A> tool, for more information.
 </P>
 <P><I>Sprocs</I>, <I>sfirst</I>, and <I>sport</I> refer to the set of minnows sending
@@ -148,7 +148,7 @@ first minnow in the set, and the output port used by those minnows.
 the datums.  They are respectively, the number of minnows in the set,
 the global ID of the first minnow in the set, and the input port used
 by those minnows.  <I>Style</I> is the connection style, as specified by
-the <A HREF = "bait_connect.html">connect</A> command in the PHISH input script
+the <A HREF = "bait_hook.html">hook</A> command in the PHISH input script
 processed by the <A HREF = "Bait.html">bait.py</A> tool.  E.g. <I>style</I> is a word
 like "single" or "hashed".  If it is "publish", then extra info about
 the TCP port is appended to the <I>style</I>, e.g. "publish/25".
@@ -160,7 +160,7 @@ switch before returning the args to the minnow caller.
 </P>
 <P>The phish_init() function also flags each specified input port and
 output port with a CLOSED status, instead of UNUSED.  See the
-<A HREF = "bait_connect.html">connect</A> command for the <A HREF = "Bait.html">bait.py</A> tool
+<A HREF = "bait_hook.html">hook</A> command for the <A HREF = "Bait.html">bait.py</A> tool
 for more info about communication ports.  See the
 <A HREF = "phish_input.html">phish_input</A> and <A HREF = "phish_output.html">phish_output</A>
 functions for more info about port status.

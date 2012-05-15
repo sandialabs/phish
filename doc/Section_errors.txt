@@ -29,8 +29,8 @@ that may be helpful in finding the bug if something goes wrong:
 
 As with any parallel program, running it on as few processors as
 possible (that still exhibit the bug) simplifies debugging.  For a
-PHISH net, each minnow is a process, but you may be able to reduce the
-minnow count via the "layout"_bait_layout.html command in the PHISH
+PHISH net, each minnow is a rocess, but you may be able to reduce the
+minnow count via the "school"_bait_school.html command in the PHISH
 input script. :ulb,b
 
 In principle, a PHISH net should behave similarly whether it is run
@@ -43,7 +43,7 @@ down the rate at which datums are processed. :b
 
 The "print"_print.html minnow can receive the output of any minnow and
 print it to the screen.  This is done by using the
-"connect"_bait_connect.html command in a PHISH input script.  The
+"hook"_bait_hook.html command in a PHISH input script.  The
 output of a minnow can be connected to a print minnow in addition to
 other minnows.  Also note that use of a minnow's output port by an
 input script is optional, as discussed in "this

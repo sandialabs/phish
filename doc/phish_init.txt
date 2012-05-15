@@ -115,7 +115,7 @@ for more information on the settings of these switches.
 
 The {-in} switch appears once for every connection the minnow has with
 other minnows, where it is a receiver of datums.  See the
-"connect"_bait_connect.html command in PHISH input scripts processed
+"hook"_bait_hook.html command in PHISH input scripts processed
 by the "bait.py"_Bait.html tool, for more information.
 
 {Sprocs}, {sfirst}, and {sport} refer to the set of minnows sending to
@@ -126,7 +126,7 @@ minnows receivng the datums, i.e. the set of minnows this minnow
 belongs to.  They are respectively, the number of minnows in the set,
 the global ID of the first minnow in the set, and the input port used
 by those minnows.  {Style} is the connection style, as specified by
-the "connect"_bait_connect.html command in the PHISH input script
+the "hook"_bait_hook.html command in the PHISH input script
 processed by the "bait.py"_Bait.html tool.  E.g. {style} is a word
 like "single" or "hashed".  If it is "subscribe", then extra info
 about the external host and its TCP port is appended to the {style},
@@ -134,7 +134,7 @@ e.g. "subscribe/www.foo.com:25".
 
 The {-out} switch appears once for every connection the minnow has
 with other minnows, where it is a sender of datums.  See the
-"connect"_bait_connect.html command in PHISH input scripts processed
+"hook"_bait_hook.html command in PHISH input scripts processed
 by the "bait.py"_Bait.html tool, for more information.
 
 {Sprocs}, {sfirst}, and {sport} refer to the set of minnows sending
@@ -145,7 +145,7 @@ first minnow in the set, and the output port used by those minnows.
 the datums.  They are respectively, the number of minnows in the set,
 the global ID of the first minnow in the set, and the input port used
 by those minnows.  {Style} is the connection style, as specified by
-the "connect"_bait_connect.html command in the PHISH input script
+the "hook"_bait_hook.html command in the PHISH input script
 processed by the "bait.py"_Bait.html tool.  E.g. {style} is a word
 like "single" or "hashed".  If it is "publish", then extra info about
 the TCP port is appended to the {style}, e.g. "publish/25".
@@ -157,7 +157,7 @@ switch before returning the args to the minnow caller.
 
 The phish_init() function also flags each specified input port and
 output port with a CLOSED status, instead of UNUSED.  See the
-"connect"_bait_connect.html command for the "bait.py"_Bait.html tool
+"hook"_bait_hook.html command for the "bait.py"_Bait.html tool
 for more info about communication ports.  See the
 "phish_input"_phish_input.html and "phish_output"_phish_output.html
 functions for more info about port status.

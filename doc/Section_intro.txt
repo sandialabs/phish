@@ -178,7 +178,7 @@ PHISH programs (nets) which involve coordinated computation and data
 exchange between many processes (minnows) can be specified in PHISH
 input scripts, which are text files with a simple command syntax. :l
 
-PHISH input scripts use a "connect"_bait_connect.html command which
+PHISH input scripts use a "hook"_bait_hook.html command which
 allows data to be exchanged in various patterns between collections of
 independent processes (minnows).  This enables parallelism in data
 processing to be easily expressed and exploited. :l
@@ -289,7 +289,7 @@ Here is a concrete example of using a PHISH program to count the
 number of times different words appear in a corpus of text files.
 This is effectively a MapReduce operation, where individual minnow
 processes perform the map() and reduce() functions.  This is a diagram
-of how 5 different kinds of minnows can beconnected together to
+of how 5 different kinds of minnows can be connected together to
 perform the computation:
 
 :c,image(JPG/wordcount.jpg)

@@ -57,7 +57,7 @@ ports for the minnow.  An input port is where datums are sent by other
 minnows, so they can be read by this minnow.  An output port is where
 the minnow sends datums to route them to the input ports of other
 minnows.  These inter-minnow connections are setup by the
-"connect"_bait_connect.html command in a PHISH input script, as
+"hook"_bait_hook.html command in a PHISH input script, as
 discussed on the "bait.py"_Bait.html doc page.
 
 A minnnow can define and use multiple input and output ports, to send
@@ -67,7 +67,7 @@ Both input and output ports are numbered from 0 to Pmax-1, where Pmax
 src/phish.cpp.  It is currently set to 16; most minnows use 1 or 2.
 Note that a single port can be used to send or receive datums to many
 other minnows (processors), depending on the connection style.  See
-the "connect"_bait_connect.html command for details.
+the "hook"_bait_hook.html command for details.
 
 :line
 

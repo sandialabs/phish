@@ -130,7 +130,7 @@ See "this section"_Section_minnows.html_#minnow_3 of the "PHISH
 Minnows"_Section_minnows.html doc page for more information about
 input and output ports.
 
-See the "connect"_bait_connect.html command which is processed by the
+See the "hook"_bait_hook.html command which is processed by the
 "bait.py"_Section_bait.html tool in a PHISH input script, to
 establish connections between sets of minnows.
 
@@ -162,7 +162,7 @@ particular phish_query() keyword can be useful.
 For phish_set, the "ring/receiver" keyword changes the minnow that
 this minnow sends messages to.  This keyword can only be used when the
 minnow is part of school of minnows that is exchanging datums via a
-"ring" connection; see the "connect"_bait_connect.html command in
+"ring" connection; see the "hook"_bait_hook.html command in
 PHISH input scripts that defines the ring connection.  This keyword
 can be used to effectively permute the ordering of the minnows in the
 ring.

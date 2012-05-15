@@ -73,7 +73,7 @@ to specify which output port to send thru.
 </P>
 <P>The specific minnow(s) that the datum will be sent to is determined by
 the connection style(s) defined for the output port.  See the PHISH
-input script <A HREF = "bait_connect.html">connect</A> command, as discussed on the
+input script <A HREF = "bait_hook.html">hook</A> command, as discussed on the
 <A HREF = "Bait.html">bait.py</A> tool doc page, for details.  Some connection
 styles require additional information from the minnow to route the
 datum to the desired minnow.  This is the reason for the
@@ -86,7 +86,7 @@ output port.
 </P>
 <P>This generic form of a send can be used for all connection styles
 except the <I>hashed</I> and <I>direct</I> styles.  See the PHISH input script
-<A HREF = "bait_connect.html">connect</A> command for details.  Note that multiple
+<A HREF = "bait_hook.html">hook</A> command for details.  Note that multiple
 sets of receiving minnows, each with their own connection style, can
 be connected to the same output port.
 </P>
@@ -102,7 +102,7 @@ converted into an index for choosing a specific receiving processor to
 send the datum to.
 </P>
 <P>This form of sending must be used for a <I>hashed</I> connection style.  See
-the PHISH input script <A HREF = "bait_connect.html">connect</A> command for
+the PHISH input script <A HREF = "bait_hook.html">hook</A> command for
 details.  If one or more of the connection styles connected to the
 output port is not a <I>hashed</I> style, then the <I>key</I> and <I>nbytes</I>
 arguments are ignored, and the generic phish_send() form is used to
@@ -126,7 +126,7 @@ the receiving processors are connected to output port 0.
 <PRE>int m = phish_query("outport/direct",0,0); 
 </PRE>
 <P>This form of sending must be used for a <I>direct</I> connection style.
-See the PHISH input script <A HREF = "bait_connect.html">connect</A> command for
+See the PHISH input script <A HREF = "bait_hook.html">hook</A> command for
 details.  If one or more of the connection styles connected to the
 output port is not a <I>direct</I> style, then the <I>reciever</I> argument is
 ignored, and the generic phish_send() form is used to send the datum.

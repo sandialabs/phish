@@ -44,9 +44,9 @@ by bait.py have their own doc pages.
 
 <LI><A HREF = "bait_minnow.html">minnow</A> 
 
-<LI><A HREF = "bait_connect.html">connect</A> 
+<LI><A HREF = "bait_hook.html">hook</A> 
 
-<LI><A HREF = "bait_layout.html">layout</A> 
+<LI><A HREF = "bait_school.html">school</A> 
 </UL>
 <HR>
 
@@ -191,29 +191,28 @@ minnow 3 count
 minnow 4 sort 10
 minnow 5 print 
 </PRE>
-<PRE>connect 1 roundrobin 2
-connect 2 hashed 3
-connect 3 single 4
-connect 4 single 5 
+<PRE>hook 1 roundrobin 2
+hook 2 hashed 3
+hook 3 single 4
+hook 4 single 5 
 </PRE>
-<PRE>layout 1 1
-layout 2 5
-layout 3 3
-layout 4 1
-layout 5 1 
+<PRE>school 1 1
+school 2 5
+school 3 3
+school 4 1
+school 5 1 
 </PRE>
 <P>The <A HREF = "bait_minnow.html">minnow</A> commands list the 5 different minnows
 used.  Note the use of the ${files} variable to pass a list
 of filenames or directories to the <I>FileGen</I> minnow.
 </P>
-<P>The <A HREF = "bait_connect.html">connect</A> commands specify the communication
-pattern used bewteen different sets of minnows.  The key pattern for
-this example is the <I>hashed</I> style, which allows the <I>File2Words</I>
-minnow to pass a "key" (a word) to the PHISH library.  The library
-hashes the word to determine which <I>Count</I> minnow to send the datum
-to.
+<P>The <A HREF = "bait_hook.html">hook</A> commands specify the communication pattern
+used bewteen different schools of minnows.  The key pattern for this
+example is the <I>hashed</I> style, which allows the <I>File2Words</I> minnow to
+pass a "key" (a word) to the PHISH library.  The library hashes the
+word to determine which <I>Count</I> minnow to send the datum to.
 </P>
-<P>The <A HREF = "bait_layout.html">layout</A> commands specify how many instances of
+<P>The <A HREF = "bait_school.html">school</A> commands specify how many instances of
 each minnow to launch.  Any number of <I>File2Words</I> and <I>Count</I> minnows
 could be specified.
 </P>
@@ -239,7 +238,7 @@ N" specifies how many copies of the minnow will be invoked.  The next
 argument is the name of the minnow executable.  Several switches like
 "-minnow", "-in", "-out" follow which are created by bait.py to encode
 the communication patterns between the minnows as represented by the
-diagram above and the <A HREF = "bait_connect.html">connect</A> commands of the
+diagram above and the <A HREF = "bait_hook.html">hook</A> commands of the
 input script.  The final "-args" switch is followed by minnow-specfic
 arguments that appeared in the input script.
 </P>
