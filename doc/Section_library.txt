@@ -239,18 +239,18 @@ details.
 The "type" values are one of these settings, as defined in
 src/phish.h:
 
-PHISH_RAW = 0
-PHISH_CHAR = 1
-PHISH_INT8 = 2
-PHISH_INT16 = 3
-PHISH_INT32 = 4
-PHISH_INT64 = 5
-PHISH_UINT8 = 6
-PHISH_UINT16 = 7
-PHISH_UINT32 = 8
-PHISH_UINT64 = 9
-PHISH_FLOAT = 10
-PHISH_DOUBLE = 11
+PHISH_CHAR = 0
+PHISH_INT8 = 1
+PHISH_INT16 = 2
+PHISH_INT32 = 3
+PHISH_INT64 = 4
+PHISH_UINT8 = 5
+PHISH_UINT16 = 6
+PHISH_UINT32 = 7
+PHISH_UINT64 = 8
+PHISH_FLOAT = 9
+PHISH_DOUBLE = 10
+PHISH_RAW = 11
 PHISH_STRING = 12
 PHISH_INT8_ARRAY = 13
 PHISH_INT16_ARRAY = 14
@@ -264,17 +264,21 @@ PHISH_FLOAT_ARRAY = 21
 PHISH_DOUBLE_ARRAY = 22
 PHISH_PICKLE = 23 :ul
 
+PHISH_CHAR, PHISH_INT*, PHISH_UINT*, PHISH_FLOAT, and PHISH_DOUBLE are
+a single character, signed integer (of length 8,16,32,64 bits),
+unsigned integer (of length 8,16,32,64 bits), a float (typically 4
+bytes), and a double (typically 8 bytes).
+
 PHISH_RAW is a string of raw bytes, which can be of any length, and
-which the minnow can format in any manner.  PHISH_CHAR, PHISH_INT*,
-PHISH_UINT*, PHISH_FLOAT, and PHISH_DOUBLE are a single character,
-signed integer (of length 8,16,32,64 bits), unsigned integer (of
-length 8,16,32,64 bits), a float (typically 4 bytes), and double
-(typically 8 bytes).  PHISH_STRING is a standard C-style
-NULL-terminated C-string.  The NULL is included in the field.  The
-ARRAYS are contiguous sequences of int*, uint*, float, or double
-values.  PHISH_PICKLE is used by the Python wrapper on the PHISH
-library to encode arbitrary Python objects in pickled form as a string
-of bytes.
+which the minnow can format in any manner.  PHISH_STRING is a standard
+C-style NULL-terminated C-string.  The NULL is included in the field.
+
+The ARRAYS are contiguous sequences of int*, uint*, float, or double
+values.
+
+PHISH_PICKLE is an option available when using the Python wrapper on
+the PHISH library to encode arbitrary Python objects in pickled form
+as a string of bytes.
 
 The "size" values are only included for PHISH_RAW (# of bytes),
 PHISH_STRING (# of bytes including NULL), the ARRAY types (# of
@@ -294,7 +298,6 @@ encodes the receiving minnow's input port and also a "done" flag.
 Specifically, if the datum is not a done message, the tag is the
 receiver's input port (0 to Nport-1).  For a done message a value of
 MAXPORT (defined at the top of src/phish.cpp) is added to the tag.
-
 
 NOTE: MAXPORT is hardwired, could re-compile - this is
 so all minnows use same setting.

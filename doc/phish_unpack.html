@@ -95,18 +95,18 @@ compile-time error) is if the native "int" on a machine is not a
 <P>Phish_unpack returns an integer flag set to one of these values
 (defined in src/phish.h):
 </P>
-<UL><LI>PHISH_RAW = 0
-<LI>PHISH_CHAR = 1
-<LI>PHISH_INT8 = 2
-<LI>PHISH_INT16 = 3
-<LI>PHISH_INT32 = 4
-<LI>PHISH_INT64 = 5
-<LI>PHISH_UINT8 = 6
-<LI>PHISH_UINT16 = 7
-<LI>PHISH_UINT32 = 8
-<LI>PHISH_UINT64 = 9
-<LI>PHISH_FLOAT = 10
-<LI>PHISH_DOUBLE = 11
+<UL><LI>PHISH_CHAR = 0
+<LI>PHISH_INT8 = 1
+<LI>PHISH_INT16 = 2
+<LI>PHISH_INT32 = 3
+<LI>PHISH_INT64 = 4
+<LI>PHISH_UINT8 = 5
+<LI>PHISH_UINT16 = 6
+<LI>PHISH_UINT32 = 7
+<LI>PHISH_UINT64 = 8
+<LI>PHISH_FLOAT = 9
+<LI>PHISH_DOUBLE = 10
+<LI>PHISH_RAW = 11
 <LI>PHISH_STRING = 12
 <LI>PHISH_INT8_ARRAY = 13
 <LI>PHISH_INT16_ARRAY = 14
@@ -120,27 +120,39 @@ compile-time error) is if the native "int" on a machine is not a
 <LI>PHISH_DOUBLE_ARRAY = 22
 <LI>PHISH_PICKLE = 23 
 </UL>
+<P>PHISH_CHAR, PHISH_INT*, PHISH_UINT*, PHISH_FLOAT, and PHISH_DOUBLE are
+a single character, a signed integer (of length 8,16,32,64 bits), an
+unsigned integer (of length 8,16,32,64 bits), a float (typically 4
+bytes), and a double (typically 8 bytes).
+</P>
 <P>PHISH_RAW is a string of raw bytes which can store whatever the
 sending minnow put into its send buffer, e.g. a C data structure
 containing a collection of various C primitive data types.
-PHISH_INT32 is a signed 32-bit integer.  PHISH_UINT64 is an unsigned
-64-bit int.  PHISH_DOUBLE is a double-precision floating point value,
-typically 64-bits in length.  PHISH_STRING is a standard C-style
-NULL-terminated string.  The ARRAY types mean the field is a sequence
-of "int" or "uint" or "float" or "double" values, packed one after the
-other.
+</P>
+<P>PHISH_RAW is a string of raw bytes which minnows can format in any
+manner, e.g. a C data structure containing a collection of various C
+primitive data types.  PHISH_STRING is a standard C-style
+NULL-terminated C-string.  The NULL is included in the field.
+</P>
+<P>The ARRAY types are contiguous sequences of int*, uint*, float, or
+double values, packed one after the other.
+</P>
+<P>PHISH_PICKLE is an option available when using the Python wrapper on
+the PHISH library to encode arbitrary Python objects in pickled form
+as a string of bytes.  It should not normally be used in a minnow
+written in C or C++.
 </P>
 <P>Phish_unpack also returns <I>buf</I> and <I>len</I>.  <I>Buf</I> is a char pointer to
 where the field starts.  You will need to cast this to the appropriate
 data type before accessing the data if it is not a character string.
 <I>Len</I> is the length of the field, with the following meanings:
 </P>
-<UL><LI>PHISH_RAW: len = # of bytes
-<LI>PHISH_CHAR: len = 1
+<UL><LI>PHISH_CHAR: len = 1
 <LI>PHISH_INT*: len = 1
 <LI>PHISH_UINT*: len = 1
 <LI>PHISH_FLOAT: len = 1
 <LI>PHISH_DOUBLE: len = 1
+<LI>PHISH_RAW: len = # of bytes
 <LI>PHISH_STRING: len = # of bytes, including the trailing NULL
 <LI>PHISH_INT*_ARRAY: len = # of int8 or int16 or int32 or int64 values
 <LI>PHISH_UINT*_ARRAY: len = # of uint8 or uint16 or uint32 or uint64 values
@@ -148,10 +160,6 @@ data type before accessing the data if it is not a character string.
 <LI>PHISH_DOUBLE_ARRAY: len = # of double values
 <LI>PHISH_PICKLE = len = # of bytes 
 </UL>
-<P>Note that the PHISH_PICKLE flag is only used by the Python interface
-to the PHISH library to encode Python data types.  It should not
-normally be used in a minnow written in C or C++.
-</P>
 <HR>
 
 <P>The phish_datum() function returns information about the most recently

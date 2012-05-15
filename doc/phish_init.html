@@ -34,8 +34,7 @@
 <P><B>Python examples:</B>
 </P>
 <PRE>import phish
-args = phish.init(sys.argv)
-first_minnow_arg = args<B>0</B> 
+args = phish.init(sys.argv) 
 </PRE>
 <P><B>Description:</B>
 </P>
@@ -77,7 +76,8 @@ command-line arguments, and a pointer to the arguments themselves as
 an array of strings.  These are passed as pointers, because the PHISH
 library reads and removes the PHISH-specific arguments.  It then
 returns the reamining minnow-specific arguments, which the minnow can
-read and process.
+read and process.  As is standard with C programs, the returned value
+of narg includes args[0] which is the name of the minnow executable.
 </P>
 <P>Note that in the Python version of phish.init(), the full argument
 list is passed as an argument, and the truncated argument list is
@@ -94,7 +94,7 @@ detail, but it may be helpful for understanding how PHISH works.
 <LI>-safe
 <LI>-in sprocs sfirst sport style rprocs rfirst rport
 <LI>-out sprocs sfirst sport style rprocs rfirst rport
-<LI>-args arg1 arg2 ... = args for the minnoq itself 
+<LI>-args arg1 arg2 ... = command-line args for the minnow itself 
 </UL>
 <P>The <I>-minnow</I> switch appears once, as the first argument.  <I>Exefile</I>
 is the name of executable file for this minnow, e.g. count or
@@ -155,8 +155,9 @@ the TCP port is appended to the <I>style</I>, e.g. "publish/25".
 </P>
 <P>The <I>-args</I> switch appears last and lists all the remaining
 minnow-specific arguments.  The PHISH library ignores these, but
-strips of all command-line arguments up to and including the <I>-args</I>
-switch before returning the args to the minnow caller.
+strips all command-line arguments up to and including the <I>-args</I>
+switch before returning the remaining args to the minnow caller, with
+the name of the minnow executable prepended as args[0].
 </P>
 <P>The phish_init() function also flags each specified input port and
 output port with a CLOSED status, instead of UNUSED.  See the

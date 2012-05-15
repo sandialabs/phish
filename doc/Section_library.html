@@ -292,18 +292,18 @@ details.
 <P>The "type" values are one of these settings, as defined in
 src/phish.h:
 </P>
-<UL><LI>PHISH_RAW = 0
-<LI>PHISH_CHAR = 1
-<LI>PHISH_INT8 = 2
-<LI>PHISH_INT16 = 3
-<LI>PHISH_INT32 = 4
-<LI>PHISH_INT64 = 5
-<LI>PHISH_UINT8 = 6
-<LI>PHISH_UINT16 = 7
-<LI>PHISH_UINT32 = 8
-<LI>PHISH_UINT64 = 9
-<LI>PHISH_FLOAT = 10
-<LI>PHISH_DOUBLE = 11
+<UL><LI>PHISH_CHAR = 0
+<LI>PHISH_INT8 = 1
+<LI>PHISH_INT16 = 2
+<LI>PHISH_INT32 = 3
+<LI>PHISH_INT64 = 4
+<LI>PHISH_UINT8 = 5
+<LI>PHISH_UINT16 = 6
+<LI>PHISH_UINT32 = 7
+<LI>PHISH_UINT64 = 8
+<LI>PHISH_FLOAT = 9
+<LI>PHISH_DOUBLE = 10
+<LI>PHISH_RAW = 11
 <LI>PHISH_STRING = 12
 <LI>PHISH_INT8_ARRAY = 13
 <LI>PHISH_INT16_ARRAY = 14
@@ -317,17 +317,21 @@ src/phish.h:
 <LI>PHISH_DOUBLE_ARRAY = 22
 <LI>PHISH_PICKLE = 23 
 </UL>
+<P>PHISH_CHAR, PHISH_INT*, PHISH_UINT*, PHISH_FLOAT, and PHISH_DOUBLE are
+a single character, signed integer (of length 8,16,32,64 bits),
+unsigned integer (of length 8,16,32,64 bits), a float (typically 4
+bytes), and a double (typically 8 bytes).
+</P>
 <P>PHISH_RAW is a string of raw bytes, which can be of any length, and
-which the minnow can format in any manner.  PHISH_CHAR, PHISH_INT*,
-PHISH_UINT*, PHISH_FLOAT, and PHISH_DOUBLE are a single character,
-signed integer (of length 8,16,32,64 bits), unsigned integer (of
-length 8,16,32,64 bits), a float (typically 4 bytes), and double
-(typically 8 bytes).  PHISH_STRING is a standard C-style
-NULL-terminated C-string.  The NULL is included in the field.  The
-ARRAYS are contiguous sequences of int*, uint*, float, or double
-values.  PHISH_PICKLE is used by the Python wrapper on the PHISH
-library to encode arbitrary Python objects in pickled form as a string
-of bytes.
+which the minnow can format in any manner.  PHISH_STRING is a standard
+C-style NULL-terminated C-string.  The NULL is included in the field.
+</P>
+<P>The ARRAYS are contiguous sequences of int*, uint*, float, or double
+values.
+</P>
+<P>PHISH_PICKLE is an option available when using the Python wrapper on
+the PHISH library to encode arbitrary Python objects in pickled form
+as a string of bytes.
 </P>
 <P>The "size" values are only included for PHISH_RAW (# of bytes),
 PHISH_STRING (# of bytes including NULL), the ARRAY types (# of
