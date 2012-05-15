@@ -137,7 +137,7 @@ int nunpack;               // # of fields unpacked thus far from rbuf
 
 struct Queue {             // one queued datum
   char *datum;             // copy of entire datum
-  int nbytes;              // size of datum
+  int nbytes;              // byte size of datum
   int iport;               // port the datum was received on
 };
 
@@ -424,10 +424,17 @@ void phish_init(int *pnarg, char ***pargs)
   if (!sbuf || !rbuf) phish_error("Malloc of datum buffers failed");
 
   // strip off PHISH args, leaving app args for app to use
+  // copy minnow exe name to arg 0 in stripped arg list
 
-  *pnarg = narg-argstart;
-  if (*pnarg > 0) *pargs = &args[argstart];
-  else *pargs = NULL;
+  *pnarg = narg-argstart + 1;
+  *pargs = &args[argstart-1];
+  args[argstart-1] = args[0];
+
+  // strip off PHISH args, leaving app args for app to use
+
+  //*pnarg = narg-argstart;
+  //if (*pnarg > 0) *pargs = &args[argstart];
+  //else *pargs = NULL;
 
   // set send buffer ptr for initial datum
 
@@ -1015,27 +1022,9 @@ void phish_repack()
 }
 
 /* ----------------------------------------------------------------------
-   pack the sbuf with values
-   first field = value type
-   second field (only for arrays) = # of values
-   third field = value(s)
-   phish_pack_helper(), phish_pack_array_helper() are internal functions,
-     NOT functions in the PHISH API
+   templated helper functions for packing data into send buffer
+   NOT functions in the PHISH API
 ------------------------------------------------------------------------- */
-
-void phish_pack_raw(char *buf, int32_t len)
-{
-  if (sptr + 2*sizeof(int32_t) + len - sbuf > maxbuf)
-    phish_error("Send buffer overflow");
-
-  *(int32_t *) sptr = PHISH_RAW;
-  sptr += sizeof(int32_t);
-  *(int32_t *) sptr = len;
-  sptr += sizeof(int32_t);
-  memcpy(sptr,buf,len);
-  sptr += len;
-  npack++;
-}
 
 template<typename T>
 inline void phish_pack_helper(const T& value, int data_type)
@@ -1049,6 +1038,30 @@ inline void phish_pack_helper(const T& value, int data_type)
   sptr += sizeof(T);
   npack++;
 }
+
+template<typename T>
+inline void phish_pack_array_helper(T *vec, int32_t n, int data_type)
+{
+  int nbytes = n*sizeof(T);
+  if (sptr + 2*sizeof(int32_t) + nbytes - sbuf > maxbuf)
+    phish_error("Send buffer overflow");
+
+  *(int32_t *) sptr = data_type;
+  sptr += sizeof(int32_t);
+  *(int32_t *) sptr = n;
+  sptr += sizeof(int32_t);
+  memcpy(sptr,vec,nbytes);
+  sptr += nbytes;
+  npack++;
+}
+
+/* ----------------------------------------------------------------------
+   pack the sbuf with values
+   first field = value type
+   second field = # of values (only for byte-strings and arrays)
+   third field = value(s)
+   pack_pickle() is same as pack_raw()
+------------------------------------------------------------------------- */
 
 void phish_pack_char(char value)
 {
@@ -1105,6 +1118,20 @@ void phish_pack_double(double value)
   phish_pack_helper(value,PHISH_DOUBLE);
 }
 
+void phish_pack_raw(char *buf, int32_t len)
+{
+  if (sptr + 2*sizeof(int32_t) + len - sbuf > maxbuf)
+    phish_error("Send buffer overflow");
+
+  *(int32_t *) sptr = PHISH_RAW;
+  sptr += sizeof(int32_t);
+  *(int32_t *) sptr = len;
+  sptr += sizeof(int32_t);
+  memcpy(sptr,buf,len);
+  sptr += len;
+  npack++;
+}
+
 void phish_pack_string(char *str)
 {
   int nbytes = strlen(str) + 1;
@@ -1116,22 +1143,6 @@ void phish_pack_string(char *str)
   *(int32_t *) sptr = nbytes;
   sptr += sizeof(int32_t);
   memcpy(sptr,str,nbytes);
-  sptr += nbytes;
-  npack++;
-}
-
-template<typename T>
-inline void phish_pack_array_helper(T *vec, int32_t n, int data_type)
-{
-  int nbytes = n*sizeof(T);
-  if (sptr + 2*sizeof(int32_t) + nbytes - sbuf > maxbuf)
-    phish_error("Send buffer overflow");
-
-  *(int32_t *) sptr = data_type;
-  sptr += sizeof(int32_t);
-  *(int32_t *) sptr = n;
-  sptr += sizeof(int32_t);
-  memcpy(sptr,vec,nbytes);
   sptr += nbytes;
   npack++;
 }
@@ -1186,10 +1197,6 @@ void phish_pack_double_array(double *vec, int32_t n)
   phish_pack_array_helper(vec,n,PHISH_DOUBLE_ARRAY);
 }
 
-/* ----------------------------------------------------------------------
-   same as phish_pack_raw(), execpt for PHISH_PICKLE flag
-------------------------------------------------------------------------- */
-
 void phish_pack_pickle(char *buf, int32_t len)
 {
   if (sptr + 2*sizeof(int32_t) + len - sbuf > maxbuf)
@@ -1208,8 +1215,8 @@ void phish_pack_pickle(char *buf, int32_t len)
    process field rbuf, one field at a time
    return field type
    buf = ptr to field
-   len = byte count for RAW and STRING (including NULL)
    len = 1 for BYTE, INT, UINT64, DOUBLE
+   len = byte count for RAW and STRING (including NULL)
    len = # of array values for ARRAY types
    PHISH_PICKLE is same as PHISH_RAW
 ------------------------------------------------------------------------- */
@@ -1223,10 +1230,6 @@ int phish_unpack(char **buf, int32_t *len)
 
   int32_t nbytes;
   switch (type) {
-  case PHISH_RAW:
-    *len = nbytes = *(int32_t *) rptr;
-    rptr += sizeof(int32_t);
-    break;
   case PHISH_CHAR:
     *len = 1;
     nbytes = sizeof(char);
@@ -1270,6 +1273,10 @@ int phish_unpack(char **buf, int32_t *len)
   case PHISH_DOUBLE:
     *len = 1;
     nbytes = sizeof(double);
+    break;
+  case PHISH_RAW:
+    *len = nbytes = *(int32_t *) rptr;
+    rptr += sizeof(int32_t);
     break;
   case PHISH_STRING:
     *len = nbytes = *(int32_t *) rptr;

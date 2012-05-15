@@ -18,18 +18,18 @@
 
 #include "stdint.h"
 
-#define PHISH_RAW 0
-#define PHISH_CHAR 1
-#define PHISH_INT8 2
-#define PHISH_INT16 3
-#define PHISH_INT32 4
-#define PHISH_INT64 5
-#define PHISH_UINT8 6
-#define PHISH_UINT16 7
-#define PHISH_UINT32 8
-#define PHISH_UINT64 9
-#define PHISH_FLOAT 10
-#define PHISH_DOUBLE 11
+#define PHISH_CHAR 0
+#define PHISH_INT8 1
+#define PHISH_INT16 2
+#define PHISH_INT32 3
+#define PHISH_INT64 4
+#define PHISH_UINT8 5
+#define PHISH_UINT16 6
+#define PHISH_UINT32 7
+#define PHISH_UINT64 8
+#define PHISH_FLOAT 9
+#define PHISH_DOUBLE 10
+#define PHISH_RAW 11
 #define PHISH_STRING 12
 #define PHISH_INT8_ARRAY 13
 #define PHISH_INT16_ARRAY 14
@@ -66,7 +66,7 @@ void phish_send_key(int, char *, int);
 void phish_send_direct(int, int);
 
 void phish_repack();
-void phish_pack_raw(char *, int32_t);
+
 void phish_pack_char(char);
 void phish_pack_int8(int8_t);
 void phish_pack_int16(int16_t);
@@ -78,6 +78,7 @@ void phish_pack_uint32(uint32_t);
 void phish_pack_uint64(uint64_t);
 void phish_pack_float(float);
 void phish_pack_double(double);
+void phish_pack_raw(char *, int32_t);
 void phish_pack_string(char *);
 void phish_pack_int8_array(int8_t *, int32_t);
 void phish_pack_int16_array(int16_t *, int32_t);
