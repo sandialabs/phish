@@ -1,6 +1,6 @@
 import optparse
 import perf
-import school
+import bait
 import sys
 
 parser = optparse.OptionParser()
@@ -25,9 +25,9 @@ for size in range(int(size_begin), int(size_end), int(size_step)):
       break
     hosts = perf.hosts(process_count)
     sys.stderr.write("  process count: %s on %s\n" % (process_count, hosts))
-    a = school.add_minnows("loop", hosts, ["${CMAKE_CURRENT_BINARY_DIR}/phish-zmq-loop", str(options.count), str(size)])
-    school.loop(a, 0, 0)
-    school.start()
-    school.reset()
+    a = bait.add_minnows("loop", hosts, ["${CMAKE_CURRENT_BINARY_DIR}/phish-zmq-loop", str(options.count), str(size)])
+    bait.loop(a, 0, 0)
+    bait.start()
+    bait.reset()
 
     process_count *= 2

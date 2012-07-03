@@ -1,4 +1,4 @@
-#include <phish-school.h>
+#include <phish-bait.h>
 
 #include <zmq.hpp>
 
@@ -62,7 +62,7 @@ static std::vector<std::vector<std::string> > g_arguments;
 
 static std::vector<connection> g_connections;
 
-void phish_school_reset()
+void phish_bait_reset()
 {
   g_names.clear();
   g_local_ids.clear();
@@ -72,7 +72,7 @@ void phish_school_reset()
   g_connections.clear();
 }
 
-void phish_school_add_minnows(const char* name, int count, const char** hosts, int argc, const char** argv, int* minnows)
+void phish_bait_add_minnows(const char* name, int count, const char** hosts, int argc, const char** argv, int* minnows)
 {
 /*
   std::cerr << name << std::endl;
@@ -98,7 +98,7 @@ void phish_school_add_minnows(const char* name, int count, const char** hosts, i
   }
 }
 
-void phish_school_all_to_all(int output_count, const int* output_minnows, int output_port, const char* send_pattern, int input_port, int input_count, const int* input_minnows)
+void phish_bait_all_to_all(int output_count, const int* output_minnows, int output_port, const char* send_pattern, int input_port, int input_count, const int* input_minnows)
 {
   for(int i = 0; i != output_count; ++i)
   {
@@ -106,7 +106,7 @@ void phish_school_all_to_all(int output_count, const int* output_minnows, int ou
   }
 }
 
-int phish_school_one_to_one(int output_count, const int* output_minnows, int output_port, int input_port, int input_count, const int* input_minnows)
+int phish_bait_one_to_one(int output_count, const int* output_minnows, int output_port, int input_port, int input_count, const int* input_minnows)
 {
   try
   {
@@ -122,12 +122,12 @@ int phish_school_one_to_one(int output_count, const int* output_minnows, int out
   }
   catch(std::exception& e)
   {
-    std::cerr << "PHISH SCHOOL ERROR: " << e.what() << std::endl;
+    std::cerr << "PHISH BAIT ERROR: " << e.what() << std::endl;
     return -1;
   }
 }
 
-int phish_school_loop(int output_count, const int* output_minnows, int output_port, int input_port, int input_count, const int* input_minnows)
+int phish_bait_loop(int output_count, const int* output_minnows, int output_port, int input_port, int input_count, const int* input_minnows)
 {
   try
   {
@@ -143,12 +143,12 @@ int phish_school_loop(int output_count, const int* output_minnows, int output_po
   }
   catch(std::exception& e)
   {
-    std::cerr << "PHISH SCHOOL ERROR: " << e.what() << std::endl;
+    std::cerr << "PHISH BAIT ERROR: " << e.what() << std::endl;
     return -1;
   }
 }
 
-int phish_school_start()
+int phish_bait_start()
 {
   try
   {
@@ -312,7 +312,7 @@ int phish_school_start()
   }
   catch(std::exception& e)
   {
-    std::cerr << "PHISH SCHOOL ERROR: " << e.what() << std::endl;
+    std::cerr << "PHISH BAIT ERROR: " << e.what() << std::endl;
     return -1;
   }
 }

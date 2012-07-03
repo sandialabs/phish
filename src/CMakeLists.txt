@@ -13,6 +13,6 @@ if(BUILD_ZMQ_BACKEND)
   add_library(phish-zmq SHARED hash.cpp phish-zmq.cpp)
   target_link_libraries(phish-zmq ${ZMQ_LIBRARY})
 
-  add_library(phish-school-zmq SHARED phish-school-zmq.cpp)
-  target_link_libraries(phish-school-zmq ${ZMQ_LIBRARY})
+  add_library(phish-bait-zmq SHARED phish-bait-zmq.cpp)
+  target_link_libraries(phish-bait-zmq ${ZMQ_LIBRARY})
 endif(BUILD_ZMQ_BACKEND)

@@ -1,6 +1,6 @@
 import optparse
 import perf
-import school
+import bait
 import sys
 
 parser = optparse.OptionParser()
@@ -18,10 +18,10 @@ sys.stdout.flush()
 for size in range(int(size_begin), int(size_end), int(size_step)):
   sys.stderr.write("message size: %s\n" % (size))
   sys.stderr.flush()
-  a = school.add_minnows("a", [hosts[0]], ["${CMAKE_CURRENT_BINARY_DIR}/phish-zmq-latency-a", str(size), str(options.count)])
-  b = school.add_minnows("b", [hosts[1]], ["${CMAKE_CURRENT_BINARY_DIR}/phish-zmq-latency-b", str(size), str(options.count)])
-  school.one_to_one(a, 0, 0, b)
-  school.one_to_one(b, 0, 0, a)
-  school.start()
-  school.reset()
+  a = bait.add_minnows("a", [hosts[0]], ["${CMAKE_CURRENT_BINARY_DIR}/phish-zmq-latency-a", str(size), str(options.count)])
+  b = bait.add_minnows("b", [hosts[1]], ["${CMAKE_CURRENT_BINARY_DIR}/phish-zmq-latency-b", str(size), str(options.count)])
+  bait.one_to_one(a, 0, 0, b)
+  bait.one_to_one(b, 0, 0, a)
+  bait.start()
+  bait.reset()
 

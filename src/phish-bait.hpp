@@ -13,18 +13,18 @@
 
 /* PHISH library API */
 
-#ifndef PHISH_SCHOOL_HPP
-#define PHISH_SCHOOL_HPP
+#ifndef PHISH_BAIT_HPP
+#define PHISH_BAIT_HPP
 
 #include <stdexcept>
 #include <vector>
 
-#include <phish-school.h>
+#include <phish-bait.h>
 
 namespace phish
 {
 
-namespace school
+namespace bait
 {
 
 class exception :
@@ -57,7 +57,7 @@ public:
 
 void reset()
 {
-  ::phish_school_reset();
+  ::phish_bait_reset();
 }
 
 std::vector<int> add_minnows(const std::string& name, const std::vector<std::string>& hosts, const std::vector<std::string>& arguments)
@@ -72,32 +72,32 @@ std::vector<int> add_minnows(const std::string& name, const std::vector<std::str
 
   std::vector<int> minnows(hosts.size(), 0);
 
-  ::phish_school_add_minnows(name.c_str(), temp_hosts.size(), temp_hosts.data(), temp_arguments.size(), temp_arguments.data(), minnows.data());
+  ::phish_bait_add_minnows(name.c_str(), temp_hosts.size(), temp_hosts.data(), temp_arguments.size(), temp_arguments.data(), minnows.data());
   return minnows;
 }
 
 void all_to_all(const std::vector<int>& output_minnows, int output_port, const char* send_pattern, int input_port, const std::vector<int>& input_minnows)
 {
-  ::phish_school_all_to_all(output_minnows.size(), output_minnows.data(), output_port, send_pattern, input_port, input_minnows.size(), input_minnows.data());
+  ::phish_bait_all_to_all(output_minnows.size(), output_minnows.data(), output_port, send_pattern, input_port, input_minnows.size(), input_minnows.data());
 }
 
 void one_to_one(const std::vector<int>& output_minnows, int output_port, int input_port, const std::vector<int>& input_minnows)
 {
-  exception::test(::phish_school_one_to_one(output_minnows.size(), output_minnows.data(), output_port, input_port, input_minnows.size(), input_minnows.data()));
+  exception::test(::phish_bait_one_to_one(output_minnows.size(), output_minnows.data(), output_port, input_port, input_minnows.size(), input_minnows.data()));
 }
 
 void loop(const std::vector<int>& output_minnows, int output_port, int input_port, const std::vector<int>& input_minnows)
 {
-  exception::test(::phish_school_loop(output_minnows.size(), output_minnows.data(), output_port, input_port, input_minnows.size(), input_minnows.data()));
+  exception::test(::phish_bait_loop(output_minnows.size(), output_minnows.data(), output_port, input_port, input_minnows.size(), input_minnows.data()));
 }
 
 void start()
 {
-  exception::test(::phish_school_start());
+  exception::test(::phish_bait_start());
 }
 
-} // namespace school
+} // namespace bait
 
 } // namespace phish
 
-#endif // !PHISH_SCHOOL_HPP
+#endif // !PHISH_BAIT_HPP
