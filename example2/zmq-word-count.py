@@ -1,5 +1,5 @@
 import optparse
-importbait 
+import bait
 import sys
 
 parser = optparse.OptionParser()
