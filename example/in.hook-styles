@@ -1,0 +1,35 @@
+# Demonstrates all of the possible hook styles.
+#
+# Process this file with launch.py --graphviz to generate a dotfile
+# that can be processed by graphviz to produce a diagram of the
+# minnow connections.
+
+minnow a a
+minnow b b
+minnow c c
+minnow d d
+minnow e e
+minnow f f
+minnow g g
+minnow h h
+minnow i i
+
+hook a direct b
+hook b single c
+hook c round-robin d
+hook d paired e
+hook e hashed f
+hook f broadcast g
+hook h chain h
+hook i ring i
+
+
+school a 1
+school b 3
+school c 1
+school d 3
+school e 3
+school f 3
+school g 3
+school h 7
+school i 7

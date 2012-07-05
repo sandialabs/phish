@@ -1,19 +1,28 @@
 import optparse
-import pprint
 import re
-import school
 import sys
 
 parser = optparse.OptionParser()
+parser.add_option("--graphviz", default=False, action="store_true", help="Use the graphviz backend.")
+parser.add_option("--mpi", default=False, action="store_true", help="Use the MPI backend.")
 parser.add_option("--variable", "-v", action="append", nargs=2, default=[], help="Verbose output.  Default: %default.")
 parser.add_option("--verbose", default=False, action="store_true", help="Verbose output.  Default: %default.")
+parser.add_option("--zmq", default=False, action="store_true", help="Use the ZMQ backend.")
 options, arguments = parser.parse_args()
+
+if options.graphviz + options.mpi + options.zmq != 1:
+  raise Exception("You must specify a single backend using --graphviz, --mpi, or --zmq.")
+
+if options.graphviz:
+  import bait.graphviz
+if options.mpi:
+  import bait.mpi
+if options.zmq:
+  import bait.zmq
 
 variables = dict([(key, [value]) for key, value in options.variable])
 minnows = {}
 hooks = []
-
-pprint.pprint(variables)
 
 if len(arguments) == 1:
   script = open(arguments[0], "r")
@@ -65,10 +74,10 @@ for line_number, line in enumerate(script):
     minnows[id] = {"arguments" : arguments, "count" : 1, "host" : "localhost"}
 
   elif command == "hook":
-    sender = arguments[0]
-    type = arguments[1]
-    receiver = arguments[2]
-    hooks.append((sender, type, receiver))
+    output = arguments[0].split(":")
+    style = arguments[1]
+    input = arguments[2].split(":")
+    hooks.append((output[0], int(output[1]) if len(output) > 1 else 0, style, int(input[1]) if len(input) > 1 else 0, input[0]))
 
   elif command == "school":
     id = arguments[0]
@@ -85,6 +94,9 @@ for line_number, line in enumerate(script):
     raise Exception("Unknown command '%s' on line %s: %s" % (command, line_number, line))
 
 for id, minnow in minnows.items():
-  minnows[id] = school.add_minnows(id, [minnow["host"]] * minnow["count"], minnow["arguments"])
+  bait.minnows(id, [minnow["host"]] * minnow["count"], minnow["arguments"])
 
-school.start()
+for output_id, output_port, style, input_port, input_id in hooks:
+  bait.hook(output_id, output_port, style, input_port, input_id)
+
+bait.start()
