@@ -39,6 +39,10 @@ int phish_bait_start()
         {
           std::cout << " [style=dashed,color=blue]";
         }
+        else if(c.send_pattern == "direct")
+        {
+          std::cout << " [style=dashed,color=red]";
+        }
         std::cout << std::endl;
       }
     }
