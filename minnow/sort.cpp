@@ -31,8 +31,8 @@ int main(int narg, char **args)
   phish_output(0);
   phish_check();
 
-  if (narg != 1) phish_error("Sort syntax: sort N");
-  ntop = atoi(args[0]);
+  if (narg != 2) phish_error("Sort syntax: sort N");
+  ntop = atoi(args[1]);
 
   phish_loop();
   phish_exit();

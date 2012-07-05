@@ -21,7 +21,7 @@ int main(int narg, char **args)
   phish_input(0,print,close_file,1);
   phish_check();
 
-  int iarg = 0;
+  int iarg = 1;
   while (iarg < narg) {
     if (strcmp(args[iarg],"-f") == 0) {
       if (iarg+1 > narg) phish_error("Print syntax: print -f filename");

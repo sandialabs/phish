@@ -29,12 +29,12 @@ int main(int narg, char **args)
   phish_output(0);
   phish_check();
 
-  if (narg < 1) phish_error("Filegen syntax: filegen file1 file2 ...");
+  if (narg < 2) phish_error("Filegen syntax: filegen file1 file2 ...");
 
   int recurse = 1;
   int readflag = 0;
 
-  for (int i = 0; i < narg; i++)
+  for (int i = 1; i < narg; i++)
     findfiles(args[i],recurse,readflag,nfile,maxfile,files);
 
   for (int i = 0; i < nfile; i++) {
