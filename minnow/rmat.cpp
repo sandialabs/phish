@@ -15,16 +15,16 @@ int main(int narg, char **args)
   phish_output(0);
   phish_check();
 
-  if (narg != 8) phish_error("Rmat syntax: rmat N M a b c d fraction seed");
+  if (narg != 9) phish_error("Rmat syntax: rmat N M a b c d fraction seed");
 
-  uint64_t ngenerate = atol(args[0]); 
-  int nlevels = atoi(args[1]); 
-  double a = atof(args[2]); 
-  double b = atof(args[3]); 
-  double c = atof(args[4]); 
-  double d = atof(args[5]); 
-  double fraction = atof(args[6]); 
-  int seed = atoi(args[7]);
+  uint64_t ngenerate = atol(args[1]); 
+  int nlevels = atoi(args[2]); 
+  double a = atof(args[3]); 
+  double b = atof(args[4]); 
+  double c = atof(args[5]); 
+  double d = atof(args[6]); 
+  double fraction = atof(args[7]); 
+  int seed = atoi(args[8]);
 
   if (a + b + c + d != 1.0) phish_error("Rmat a,b,c,d must sum to 1");
   if (fraction >= 1.0) phish_error("Rmat fraction must be < 1");

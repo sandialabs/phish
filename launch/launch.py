@@ -9,6 +9,7 @@ parser.add_option("--mpi", default=False, action="store_true", help="Use the MPI
 parser.add_option("--variable", "-v", action="append", nargs=2, default=[], help="Verbose output.  Default: %default.")
 parser.add_option("--verbose", default=False, action="store_true", help="Verbose output.  Default: %default.")
 parser.add_option("--zmq", default=False, action="store_true", help="Use the ZMQ backend.")
+parser.add_option("--suffix", default="", help="Add a suffix to minnow command names.")
 options, arguments = parser.parse_args()
 
 if options.graphviz + options.mpi + options.zmq != 1:
@@ -25,6 +26,7 @@ variables = dict([(key, [value]) for key, value in options.variable])
 minnows = {}
 hooks = []
 
+# Parse the input script ...
 if len(arguments) == 1:
   script = open(arguments[0], "r")
 else:
@@ -51,6 +53,8 @@ for line_number, line in enumerate(script):
   for argument in arguments:
     match = re.match("\${?([^}]*)}?", argument)
     if match:
+      if match.group(1) not in variables:
+        raise Exception("Unknown variable '%s'" % match.group(1))
       expanded += variables[match.group(1)]
     else:
       expanded.append(argument)
@@ -94,6 +98,11 @@ for line_number, line in enumerate(script):
   else:
     raise Exception("Unknown command '%s' on line %s: %s" % (command, line_number, line))
 
+# Add suffixes to individual minnow arguments ...
+for minnow in minnows.values():
+  minnow["arguments"][0] = minnow["arguments"][0] + options.suffix
+
+# Pass the parsed data to the bait backend ...
 for id, minnow in minnows.items():
   bait.minnows(id, [minnow["host"]] * minnow["count"], minnow["arguments"])
 
