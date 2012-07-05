@@ -14,6 +14,21 @@ RING = "ring"
 PUBLISH = "publish"
 SUBSCRIBE = "subscribe"
 
+def backend(name):
+  global _library
+  _library = None
+  if _library is None:
+    if ctypes.util.find_library("phish-bait-%s" % name):
+      _library = ctypes.CDLL(ctypes.util.find_library("phish-bait-%s" % name))
+  if _library is None:
+    _library = ctypes.CDLL("libphish-bait-%s.so" % name)
+  if _library is None:
+    _library = ctypes.CDLL("libphish-bait-%s.dylib" % name)
+  if _library is None:
+    _library = ctypes.CDLL("libphish-bait-%s.dll" % name)
+  if _library is None:
+    raise Exception("Unable to load %s backend." % name)
+
 def reset():
   _library.phish_bait_reset()
 

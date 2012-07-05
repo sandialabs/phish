@@ -1,3 +1,4 @@
+import bait
 import optparse
 import re
 import sys
@@ -14,11 +15,11 @@ if options.graphviz + options.mpi + options.zmq != 1:
   raise Exception("You must specify a single backend using --graphviz, --mpi, or --zmq.")
 
 if options.graphviz:
-  import bait.graphviz
+  bait.backend("graphviz")
 if options.mpi:
-  import bait.mpi
+  bait.backend("mpi")
 if options.zmq:
-  import bait.zmq
+  bait.backend("zmq")
 
 variables = dict([(key, [value]) for key, value in options.variable])
 minnows = {}
