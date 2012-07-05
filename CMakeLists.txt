@@ -10,7 +10,7 @@ find_package(MPI)
 enable_testing()
 
 add_subdirectory(src)
-add_subdirectory(example2)
+add_subdirectory(example)
 add_subdirectory(minnow)
 add_subdirectory(perf)
 add_subdirectory(test)

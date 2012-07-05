@@ -60,7 +60,7 @@ void reset()
   ::phish_bait_reset();
 }
 
-std::vector<int> add_minnows(const std::string& name, const std::vector<std::string>& hosts, const std::vector<std::string>& arguments)
+void minnows(const std::string& id, const std::vector<std::string>& hosts, const std::vector<std::string>& arguments)
 {
   std::vector<const char*> temp_hosts;
   for(int i = 0; i != hosts.size(); ++i)
@@ -70,25 +70,12 @@ std::vector<int> add_minnows(const std::string& name, const std::vector<std::str
   for(int i = 0; i != arguments.size(); ++i)
     temp_arguments.push_back(arguments[i].c_str());
 
-  std::vector<int> minnows(hosts.size(), 0);
-
-  ::phish_bait_add_minnows(name.c_str(), temp_hosts.size(), temp_hosts.data(), temp_arguments.size(), temp_arguments.data(), minnows.data());
-  return minnows;
+  exception::test(::phish_bait_minnows(id.c_str(), temp_hosts.size(), temp_hosts.data(), temp_arguments.size(), temp_arguments.data()));
 }
 
-void all_to_all(const std::vector<int>& output_minnows, int output_port, const char* send_pattern, int input_port, const std::vector<int>& input_minnows)
+void hook(const std::string& output_id, int output_port, const std::string& style, int input_port, const std::string& input_id)
 {
-  ::phish_bait_all_to_all(output_minnows.size(), output_minnows.data(), output_port, send_pattern, input_port, input_minnows.size(), input_minnows.data());
-}
-
-void one_to_one(const std::vector<int>& output_minnows, int output_port, int input_port, const std::vector<int>& input_minnows)
-{
-  exception::test(::phish_bait_one_to_one(output_minnows.size(), output_minnows.data(), output_port, input_port, input_minnows.size(), input_minnows.data()));
-}
-
-void loop(const std::vector<int>& output_minnows, int output_port, int input_port, const std::vector<int>& input_minnows)
-{
-  exception::test(::phish_bait_loop(output_minnows.size(), output_minnows.data(), output_port, input_port, input_minnows.size(), input_minnows.data()));
+  exception::test(::phish_bait_hook(output_id.c_str(), output_port, style.c_str(), input_port, input_id.c_str()));
 }
 
 void start()

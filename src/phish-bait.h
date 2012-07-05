@@ -20,16 +20,20 @@
 extern "C" {
 #endif
 
-#define PHISH_BAIT_BROADCAST "broadcast"
+#define PHISH_BAIT_SINGLE "single"
+#define PHISH_BAIT_PAIRED "paired"
 #define PHISH_BAIT_HASHED "hashed"
 #define PHISH_BAIT_ROUND_ROBIN "round-robin"
 #define PHISH_BAIT_DIRECT "direct"
+#define PHISH_BAIT_BROADCAST "broadcast"
+#define PHISH_BAIT_CHAIN "chain"
+#define PHISH_BAIT_RING "ring"
+#define PHISH_BAIT_PUBLISH "publish"
+#define PHISH_BAIT_SUBSCRIBE "subscribe"
 
 void phish_bait_reset();
-void phish_bait_add_minnows(const char* name, int count, const char** hosts, int argc, const char** argv, int* minnows);
-void phish_bait_all_to_all(int output_count, const int* output_minnows, int output_port, const char* send_pattern, int input_port, int input_count, const int* input_minnows);
-int phish_bait_one_to_one(int output_count, const int* output_minnows, int output_port, int input_port, int input_count, const int* input_minnows);
-int phish_bait_loop(int output_count, const int* output_minnows, int output_port, int input_port, int input_count, const int* input_minnows);
+int phish_bait_minnows(const char* id, int count, const char** hosts, int argc, const char** argv);
+int phish_bait_hook(const char* output_id, int output_port, const char* style, int input_port, const char* input_id);
 int phish_bait_start();
 
 #ifdef __cplusplus
