@@ -29,7 +29,7 @@ def minnows(id, hosts, arguments):
     )
 
 def hook(output_id, output_port, style, input_port, input_id):
-  _library.phish_bait_all_to_all(
+  _library.phish_bait_hook(
     ctypes.c_char_p(output_id),
     ctypes.c_int(output_port),
     ctypes.c_char_p(style),

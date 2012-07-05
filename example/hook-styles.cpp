@@ -1,3 +1,9 @@
+// Demonstrates using the bait API to programmatically setup a phish job.
+//
+// Uses the graphviz backend to generate a dotfile that can be processed with
+// graphviz to display a diagram of the job.  If this were a real job, you
+// would link with the mpi or zmq backends to do the actual computation.
+
 #include <phish-bait.hpp>
 
 int main(int argc, char* argv[])
