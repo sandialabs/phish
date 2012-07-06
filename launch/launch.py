@@ -4,15 +4,17 @@ import sys
 
 parser = optparse.OptionParser()
 parser.add_option("--graphviz", default=False, action="store_true", help="Use the graphviz backend.")
-parser.add_option("--mpi", default=False, action="store_true", help="Use the MPI backend.")
-parser.add_option("--mpi-config", default=False, action="store_true", help="Use the MPI configfile backend.")
-parser.add_option("--variable", "-v", action="append", nargs=2, default=[], help="Verbose output.  Default: %default.")
+parser.add_option("--mpi-config", default=False, action="store_true", help="Use the MPI config file backend.")
+parser.add_option("--set", "-s", action="append", nargs=2, default=[], help="Set a backend-specific name-value pair.  Default: %default.")
+parser.add_option("--suffix", default="", help="Add a common suffix to minnow executables.")
+parser.add_option("--variable", "-v", action="append", nargs=2, default=[], help="Specify a variable value.  Default: %default.")
 parser.add_option("--verbose", default=False, action="store_true", help="Verbose output.  Default: %default.")
 parser.add_option("--zmq", default=False, action="store_true", help="Use the ZMQ backend.")
-parser.add_option("--suffix", default="", help="Add a suffix to minnow command names.")
 options, arguments = parser.parse_args()
 
+settings = dict(options.set)
 variables = dict([(key, [value]) for key, value in options.variable])
+
 schools = {}
 hooks = []
 
@@ -33,26 +35,28 @@ for line_number, line in enumerate(script):
   if line[:1] == "#":
     continue
 
-  # Split the line into a command ...
+  # Split the line into a command and a sequence of arguments ...
   arguments = line.split()
   command = arguments[0]
   arguments = arguments[1:]
 
-  # Do variable substitution on arguments ...
+  # Do variable expansion on each argument ...
   expanded = []
   for argument in arguments:
     match = re.match("\${?([^}]*)}?", argument)
     if match:
-      if match.group(1) not in variables:
-        raise Exception("Unknown variable '%s'" % match.group(1))
-      expanded += variables[match.group(1)]
+      name = match.group(1)
+      if name not in variables:
+        raise Exception("Unknown variable '%s'" % name)
+      expanded += variables[name]
     else:
       expanded.append(argument)
   arguments = expanded
 
-  # Currently unused by the zmq backend
   if command == "set":
-    pass
+    key = arguments[0]
+    value = arguments[1]
+    settings[key] = value
 
   elif command == "variable":
     key = arguments[0]
@@ -63,7 +67,7 @@ for line_number, line in enumerate(script):
   elif command == "minnow":
     id = arguments[0]
     arguments = arguments[1:]
-    schools[id] = {"arguments" : arguments, "count" : 1, "host" : "localhost"}
+    schools[id] = {"arguments" : arguments, "count" : 1, "host" : ""}
 
   elif command == "hook":
     output = arguments[0].split(":")
@@ -89,25 +93,30 @@ for line_number, line in enumerate(script):
 for school in schools.values():
   school["arguments"][0] = school["arguments"][0] + options.suffix
 
+# Optionally display all of the school command lines ...
 if options.verbose:
+  for name, value in settings.items():
+    sys.stderr.write("Launch setting: %s %s\n" % (name, value))
+
   for school in schools.values():
-    sys.stderr.write(" ".join(school["arguments"]) + "\n")
+    sys.stderr.write("Launch school:  %s\n" % (" ".join(school["arguments"])))
     sys.stderr.flush()
 
 # Pass the parsed data to the bait backend ...
 import bait
 
-if options.graphviz + options.mpi + options.mpi_config + options.zmq != 1:
-  raise Exception("You must specify a single backend using --graphviz, --mpi, --mpi-config, or --zmq.")
+if options.graphviz + options.mpi_config + options.zmq != 1:
+  raise Exception("You must specify a single backend using --graphviz, --mpi-config, or --zmq.")
 
 if options.graphviz:
   bait.backend("graphviz")
-if options.mpi:
-  bait.backend("mpi")
 if options.mpi_config:
   bait.backend("mpi-config")
 if options.zmq:
   bait.backend("zmq")
+
+for name, value in settings.items():
+  bait.set(name, value)
 
 for id, school in schools.items():
   bait.school(id, [school["host"]] * school["count"], school["arguments"])

@@ -32,6 +32,12 @@ def backend(name):
 def reset():
   _library.phish_bait_reset()
 
+def set(name, value):
+  _library.phish_bait_set(
+    ctypes.c_char_p(name),
+    ctypes.c_char_p(value)
+    )
+
 def school(id, hosts, arguments):
   count = len(hosts)
   argc = len(arguments)

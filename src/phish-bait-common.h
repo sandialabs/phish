@@ -78,6 +78,8 @@ struct minnow
   std::vector<connection> outgoing;
 };
 
+// Stores a collection of backend-specific name-value settings
+extern std::map<std::string, std::string> g_settings;
 // Stores a mapping from school id to school index
 extern std::map<std::string, int> g_school_index_map;
 // Stores a mapping from school id to minnow index

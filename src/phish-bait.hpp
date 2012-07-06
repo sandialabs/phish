@@ -60,6 +60,11 @@ void reset()
   ::phish_bait_reset();
 }
 
+void set(const std::string& name, const std::string& value)
+{
+  ::phish_bait_set(name.c_str(), value.c_str());
+}
+
 void school(const std::string& id, const std::vector<std::string>& hosts, const std::vector<std::string>& arguments)
 {
   std::vector<const char*> temp_hosts;

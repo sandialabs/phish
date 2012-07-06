@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 
+std::map<std::string, std::string> g_settings;
 std::map<std::string, int> g_school_index_map;
 std::map<std::string, std::vector<int> > g_minnow_index_map;
 std::vector<school> g_schools;
@@ -49,11 +50,16 @@ minnow::minnow(int _school_index, int _local_id) :
 
 void phish_bait_reset()
 {
+  g_settings.clear();
   g_school_index_map.clear();
-
   g_schools.clear();
   g_hooks.clear();
   g_minnows.clear();
+}
+
+void phish_bait_set(const char* name, const char* value)
+{
+  g_settings[name] = value;
 }
 
 int phish_bait_school(const char* id, int count, const char** hosts, int argc, const char** argv)

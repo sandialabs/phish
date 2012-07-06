@@ -10,6 +10,15 @@ int phish_bait_start()
 {
   try
   {
+    std::string memory = "1";
+    std::string safe = "0";
+
+    if(g_settings.count("memory"))
+      memory = g_settings["memory"];
+
+    if(g_settings.count("safe"))
+      safe = g_settings["safe"];
+
     for(std::vector<school>::iterator current = g_schools.begin(); current != g_schools.end(); ++current)
     {
       std::cout << "-n";
@@ -21,6 +30,12 @@ int phish_bait_start()
       arguments.push_back(current->id);
       arguments.push_back(string_cast(current->count));
       arguments.push_back(string_cast(current->first_global_id));
+
+      arguments.push_back("-memory");
+      arguments.push_back(memory);
+
+      if(safe != "0")
+        arguments.push_back("-safe");
 
       for(std::vector<hook>::iterator hook = g_hooks.begin(); hook != g_hooks.end(); ++hook)
       {
