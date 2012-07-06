@@ -1,17 +1,20 @@
 import optparse
+import os
 import re
 import sys
 
 parser = optparse.OptionParser()
 parser.add_option("--graphviz", default=False, action="store_true", help="Use the graphviz backend.")
 parser.add_option("--mpi-config", default=False, action="store_true", help="Use the MPI config file backend.")
-parser.add_option("--set", "-s", action="append", nargs=2, default=[], help="Set a backend-specific name-value pair.  Default: %default.")
+parser.add_option("--path", default="", help="Specify a colon-delimited list of paths to be prepended to executable names.")
+parser.add_option("--set", "-s", action="append", nargs=2, default=[], help="Set a backend-specific name-value pair.")
 parser.add_option("--suffix", default="", help="Add a common suffix to minnow executables.")
-parser.add_option("--variable", "-v", action="append", nargs=2, default=[], help="Specify a variable value.  Default: %default.")
+parser.add_option("--variable", "-v", action="append", nargs=2, default=[], help="Specify a variable value.")
 parser.add_option("--verbose", default=False, action="store_true", help="Verbose output.  Default: %default.")
 parser.add_option("--zmq", default=False, action="store_true", help="Use the ZMQ backend.")
 options, arguments = parser.parse_args()
 
+paths = options.path.split(":")
 settings = dict(options.set)
 variables = dict([(key, [value]) for key, value in options.variable])
 
@@ -89,9 +92,19 @@ for line_number, line in enumerate(script):
   else:
     raise Exception("Unknown command '%s' on line %s: %s" % (command, line_number, line))
 
-# Add suffixes to individual school arguments ...
+# Add suffixes to school executables ...
 for school in schools.values():
-  school["arguments"][0] = school["arguments"][0] + options.suffix
+  executable = school["arguments"][0]
+  executable = executable + options.suffix
+  school["arguments"][0] = executable
+
+# Locate school executables ...
+for school in schools.values():
+  executable = school["arguments"][0]
+  for path in paths:
+    if os.access(os.path.join(path, executable), os.X_OK):
+      executable = os.path.join(path, executable)
+  school["arguments"][0] = executable
 
 # Optionally display all of the school command lines ...
 if options.verbose:
