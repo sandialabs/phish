@@ -21,6 +21,8 @@
 #include "phish.h"
 #include "hash.h"
 
+#include <phish-common.h>
+
 // ZMQ support for publish/subscribe connections
 
 #ifdef PHISH_MPI_ZMQ
@@ -159,13 +161,13 @@ void deallocate_ports();
 
 /* ---------------------------------------------------------------------- */
 
-void phish_init(int *pnarg, char ***pargs)
+void phish_init(int* argc, char*** argv)
 {
   if (initflag) phish_error("Phish_init has already been called");
 
   // initialize MPI
 
-  MPI_Init(pnarg,pargs);
+  MPI_Init(argc, argv);
 
   world = MPI_COMM_WORLD;
   MPI_Comm_rank(world,&me);
@@ -191,66 +193,71 @@ void phish_init(int *pnarg, char ***pargs)
   allocate_ports();
 
   // parse input args and setup communication port data structs
+  std::vector<std::string> arguments(*argv, *argv + *argc);
+  std::vector<std::string> kept_arguments;
 
-  char **args = *pargs;
-  int narg = *pnarg;
-  int argstart = narg;
-  
-  int iarg = 1;
-  while (iarg < narg) {
-    if (strcmp(args[iarg],"-minnow") == 0) {
-      if (iarg+5 > narg)
-	phish_error("Invalid command-line args in phish_init");
+  exename = new char[arguments[0].size() + 1];
+  strcpy(exename, arguments[0].c_str());
 
-      int n = strlen(args[iarg+1]) + 1;
-      exename = new char[n];
-      strcpy(exename,args[iarg+1]);
-      n = strlen(args[iarg+2]) + 1;
-      idminnow = new char[n];
-      strcpy(idminnow,args[iarg+2]);
-      nlocal = atoi(args[iarg+3]);
-      int nprev = atoi(args[iarg+4]);
+  while(arguments.size())
+  {
+    const std::string argument = pop_argument(arguments);
+    if(argument == "-minnow")
+    {
+      if(arguments.size() < 3)
+	      phish_error("Invalid command-line args in phish_init");
+
+      idminnow = new char[arguments[0].size() + 1];
+      strcpy(idminnow, pop_argument(arguments).c_str());
+      nlocal = atoi(pop_argument(arguments).c_str());
+      int nprev = atoi(pop_argument(arguments).c_str());
       idlocal = me - nprev;
       idglobal = me;
       nglobal = nprocs;
-      iarg += 5;
+    }
+    else if(argument == "-memory")
+    {
+      if(arguments.size() < 1)
+	      phish_error("Invalid command-line args in phish_init");
 
-    } else if (strcmp(args[iarg],"-memory") == 0) {
-      if (iarg+2 > narg)
-	phish_error("Invalid command-line args in phish_init");
-      memchunk = atoi(args[iarg+1]);
+      memchunk = atoi(pop_argument(arguments).c_str());
       if (memchunk < 0) 
-	phish_error("Invalid command-line args in phish_init");
-      iarg += 2;
+        phish_error("Invalid command-line args in phish_init");
+    }
+    else if(argument == "-safe")
+    {
+      if(arguments.size() < 1)
+        phish_error("Invalid command-line args in phish_init");
 
-    } else if (strcmp(args[iarg],"-safe") == 0) {
-      if (iarg+2 > narg)
-	phish_error("Invalid command-line args in phish_init");
-      safe = atoi(args[iarg+1]);
+      safe = atoi(pop_argument(arguments).c_str());
       if (safe < 0)
-	phish_error("Invalid command-line args in phish_init");
-      iarg += 2;
-
-    } else if (strcmp(args[iarg],"-in") == 0) {
-      if (iarg+8 > narg)
-	phish_error("Invalid command-line args in phish_init");
+        phish_error("Invalid command-line args in phish_init");
+    }
+    else if(argument == "-in")
+    {
+      if(arguments.size() < 7)
+        phish_error("Invalid command-line args in phish_init");
 
       int style;
       int sprocs,sfirst,sport,rprocs,rfirst,rport;
       char *host = NULL;
 
-      sprocs = atoi(args[iarg+1]);
-      sfirst = atoi(args[iarg+2]);
-      sport = atoi(args[iarg+3]);
+      sprocs = atoi(pop_argument(arguments).c_str());
+      sfirst = atoi(pop_argument(arguments).c_str());
+      sport = atoi(pop_argument(arguments).c_str());
+      const std::string raw_style = pop_argument(arguments);
+      rprocs = atoi(pop_argument(arguments).c_str());
+      rfirst = atoi(pop_argument(arguments).c_str());
+      rport = atoi(pop_argument(arguments).c_str());
 
-      if (strcmp(args[iarg+4],"single") == 0) style = SINGLE;
-      else if (strcmp(args[iarg+4],"paired") == 0) style = PAIRED;
-      else if (strcmp(args[iarg+4],"hashed") == 0) style = HASHED;
-      else if (strcmp(args[iarg+4],"roundrobin") == 0) style = ROUNDROBIN;
-      else if (strcmp(args[iarg+4],"direct") == 0) style = DIRECT;
-      else if (strcmp(args[iarg+4],"bcast") == 0) style = BCAST;
-      else if (strcmp(args[iarg+4],"chain") == 0) style = CHAIN;
-      else if (strcmp(args[iarg+4],"ring") == 0) style = RING;
+      if (raw_style == "single") style = SINGLE;
+      else if (raw_style == "paired") style = PAIRED;
+      else if (raw_style == "hashed") style = HASHED;
+      else if (raw_style == "roundrobin") style = ROUNDROBIN;
+      else if (raw_style == "direct") style = DIRECT;
+      else if (raw_style == "bcast") style = BCAST;
+      else if (raw_style == "chain") style = CHAIN;
+      else if (raw_style == "ring") style = RING;
 #ifdef PHISH_MPI_ZMQ
       else if (strstr(args[iarg+4],"subscribe") == args[iarg+4]) {
 	style = SUBSCRIBE;
@@ -261,16 +268,13 @@ void phish_init(int *pnarg, char ***pargs)
 #endif
       else phish_error("Unrecognized in style in phish_init");
 
-      rprocs = atoi(args[iarg+5]);
-      rfirst = atoi(args[iarg+6]);
-      rport = atoi(args[iarg+7]);
 
       if (rport > MAXPORT)
 	phish_error("Invalid input port ID in phish_init");
       InputPort *ip = &inports[rport];
       ip->status = CLOSED_PORT;
       ip->nconnect++;
-      ip->connects = (InConnect *) 
+      ip->connects = (InConnect *)
 	realloc(ip->connects,ip->nconnect*sizeof(InConnect));
       InConnect *ic = &ip->connects[ip->nconnect-1];
 
@@ -294,29 +298,32 @@ void phish_init(int *pnarg, char ***pargs)
       case SUBSCRIBE:
 	break;
       }
-
-      iarg += 8;
-
-    } else if (strcmp(args[iarg],"-out") == 0) {
-      if (iarg+8 > narg) 
-	phish_error("Invalid command-line args in phish_init");
+    }
+    else if(argument == "-out")
+    {
+      if(arguments.size() < 7)
+        phish_error("Invalid command-line args in phish_init");
 
       int style;
       int sprocs,sfirst,sport,rprocs,rfirst,rport;
       int tcpport = 0;
 
-      sprocs = atoi(args[iarg+1]);
-      sfirst = atoi(args[iarg+2]);
-      sport = atoi(args[iarg+3]);
+      sprocs = atoi(pop_argument(arguments).c_str());
+      sfirst = atoi(pop_argument(arguments).c_str());
+      sport = atoi(pop_argument(arguments).c_str());
+      const std::string raw_style = pop_argument(arguments);
+      rprocs = atoi(pop_argument(arguments).c_str());
+      rfirst = atoi(pop_argument(arguments).c_str());
+      rport = atoi(pop_argument(arguments).c_str());
 
-      if (strcmp(args[iarg+4],"single") == 0) style = SINGLE;
-      else if (strcmp(args[iarg+4],"paired") == 0) style = PAIRED;
-      else if (strcmp(args[iarg+4],"hashed") == 0) style = HASHED;
-      else if (strcmp(args[iarg+4],"roundrobin") == 0) style = ROUNDROBIN;
-      else if (strcmp(args[iarg+4],"direct") == 0) style = DIRECT;
-      else if (strcmp(args[iarg+4],"bcast") == 0) style = BCAST;
-      else if (strcmp(args[iarg+4],"chain") == 0) style = CHAIN;
-      else if (strcmp(args[iarg+4],"ring") == 0) style = RING;
+      if (raw_style == "single") style = SINGLE;
+      else if (raw_style == "paired") style = PAIRED;
+      else if (raw_style == "hashed") style = HASHED;
+      else if (raw_style == "roundrobin") style = ROUNDROBIN;
+      else if (raw_style == "direct") style = DIRECT;
+      else if (raw_style == "bcast") style = BCAST;
+      else if (raw_style == "chain") style = CHAIN;
+      else if (raw_style == "ring") style = RING;
 #ifdef PHISH_MPI_ZMQ
       else if (strstr(args[iarg+4],"publish") == args[iarg+4]) {
 	style = PUBLISH;
@@ -324,10 +331,6 @@ void phish_init(int *pnarg, char ***pargs)
       }
 #endif
       else phish_error("Unrecognized out style in phish_init");
-
-      rprocs = atoi(args[iarg+5]);
-      rfirst = atoi(args[iarg+6]);
-      rport = atoi(args[iarg+7]);
 
       if (sport > MAXPORT)
 	phish_error("Invalid output port ID in phish_init");
@@ -405,15 +408,16 @@ void phish_init(int *pnarg, char ***pargs)
 	oc->offset = -1;
 	break;
       }
-
-      iarg += 8;
-
-    } else if (strcmp(args[iarg],"-args") == 0) {
-      argstart = iarg+1;
-      iarg = narg;
-
-    } else phish_error("Invalid command-line args in phish_init");
+    }
+    else
+    {
+      kept_arguments.push_back(argument);
+    }
   }
+
+  // Cleanup argc & argv ...
+  *argc = get_argc(kept_arguments);
+  *argv = get_argv(kept_arguments);
 
   // memory allocation/initialization for datum buffers
 
@@ -422,13 +426,6 @@ void phish_init(int *pnarg, char ***pargs)
   rbuf = (char *) malloc(maxbuf*sizeof(char));
 
   if (!sbuf || !rbuf) phish_error("Malloc of datum buffers failed");
-
-  // strip off PHISH args, leaving app args for app to use
-  // copy minnow exe name to arg 0 in stripped arg list
-
-  *pnarg = narg-argstart + 1;
-  *pargs = &args[argstart-1];
-  args[argstart-1] = args[0];
 
   // set send buffer ptr for initial datum
 

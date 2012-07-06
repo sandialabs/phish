@@ -3,7 +3,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 if(BUILD_MPI_BACKEND)
   include_directories(${MPI_C_INCLUDE_PATH})
 
-  add_library(phish-mpi SHARED hash.cpp phish-mpi.cpp)
+  add_library(phish-mpi SHARED hash.cpp phish-common.cpp phish-mpi.cpp)
   target_link_libraries(phish-mpi ${MPI_EXTRA_LIBRARY} ${MPI_LIBRARY})
 
   install(

@@ -34,8 +34,8 @@ int phish_bait_start()
       arguments.push_back("-memory");
       arguments.push_back(memory);
 
-      if(safe != "0")
-        arguments.push_back("-safe");
+      arguments.push_back("-safe");
+      arguments.push_back(safe);
 
       for(std::vector<hook>::iterator hook = g_hooks.begin(); hook != g_hooks.end(); ++hook)
       {
