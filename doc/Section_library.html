@@ -213,11 +213,8 @@ src/phish.h and makes calls to functions as follows:
 <PRE>#include "phish.h"
 phish_error("My error"); 
 </PRE>
-<P>NOTE: should namespace be PHISH or phish or Phish?
-      change in phish.hpp accordingly
-</P>
 <P>The C++ interface in src/phish.hpp encloses the PHISH API in the
-namespace "PHISH", so functions can be invoked as
+namespace "phish", so functions can be invoked as
 </P>
 <PRE>#include "phish.hpp"
 phish::error("My error"); 
@@ -225,7 +222,7 @@ phish::error("My error");
 <P>or as
 </P>
 <PRE>#include "phish.hpp"
-using namespace PHISH
+using namespace phish
 error("My error"); 
 </PRE>
 <P>To use the Python interface, the Python PHISH wrapper needs to be
@@ -238,7 +235,7 @@ phish.error("My error")
 </PRE>
 <P>or 
 </P>
-<PRE>from import phish *
+<PRE>from phish import *
 error("My error") 
 </PRE>
 <HR>
