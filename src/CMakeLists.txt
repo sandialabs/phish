@@ -33,11 +33,11 @@ install(
   LIBRARY DESTINATION lib
   )
 
-#add_library(phish-bait-mpi-config SHARED phish-bait-common.cpp phish-bait-mpi-config.cpp)
-#install(
-#  TARGETS phish-bait-mpi-config
-#  LIBRARY DESTINATION lib
-#  )
+add_library(phish-bait-mpi-config SHARED phish-bait-common.cpp phish-bait-mpi-config.cpp)
+install(
+  TARGETS phish-bait-mpi-config
+  LIBRARY DESTINATION lib
+  )
 
 install(
   FILES phish.h phish.hpp phish-bait.h phish-bait.hpp

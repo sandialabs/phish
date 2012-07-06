@@ -23,11 +23,19 @@ std::string string_cast(const T& value)
 // Storage for a school
 struct school
 {
-  school(const std::string& _id, const std::vector<std::string>& _hosts, const std::vector<std::string>& _arguments);
+  school(const std::string& _id, const std::vector<std::string>& _hosts, const std::vector<std::string>& _arguments, int _first_global_id);
 
+  // Stores a unique identifier for the school
   std::string id;
+  // Stores the set of hostnames for the school
   std::vector<std::string> hosts;
+  // Stores the command line arguments for the school
   std::vector<std::string> arguments;
+
+  // Stores the number of minnows in this school
+  int count;
+  // Stores the zero-based global id of the first minnow in this school
+  int first_global_id;
 };
 
 // Storage for a hook

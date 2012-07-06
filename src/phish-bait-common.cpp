@@ -10,10 +10,12 @@ std::vector<school> g_schools;
 std::vector<hook> g_hooks;
 std::vector<minnow> g_minnows;
 
-school::school(const std::string& _id, const std::vector<std::string>& _hosts, const std::vector<std::string>& _arguments) :
+school::school(const std::string& _id, const std::vector<std::string>& _hosts, const std::vector<std::string>& _arguments, int _first_global_id) :
   id(_id),
   hosts(_hosts),
-  arguments(_arguments)
+  arguments(_arguments),
+  count(_hosts.size()),
+  first_global_id(_first_global_id)
 {
 }
 
@@ -63,6 +65,8 @@ int phish_bait_school(const char* id, int count, const char** hosts, int argc, c
     if(count < 1)
       throw std::runtime_error("Minnow count must be >= 1");
 
+    const int first_global_id = g_minnows.size();
+
     g_minnow_index_map[id] = std::vector<int>();
     for(int i = 0; i != count; ++i)
     {
@@ -71,7 +75,7 @@ int phish_bait_school(const char* id, int count, const char** hosts, int argc, c
     }
 
     g_school_index_map[id] = g_schools.size();
-    g_schools.push_back(school(id, std::vector<std::string>(hosts, hosts + count), std::vector<std::string>(argv, argv + argc)));
+    g_schools.push_back(school(id, std::vector<std::string>(hosts, hosts + count), std::vector<std::string>(argv, argv + argc), first_global_id));
 
     return 0;
   }

@@ -65,7 +65,7 @@ int phish_bait_start()
       arguments.push_back("--phish-local-id");
       arguments.push_back(string_cast(minnow.local_id));
       arguments.push_back("--phish-local-count");
-      arguments.push_back(string_cast(school.hosts.size()));
+      arguments.push_back(string_cast(school.count));
       arguments.push_back("--phish-global-id");
       arguments.push_back(string_cast(i));
       arguments.push_back("--phish-global-count");
