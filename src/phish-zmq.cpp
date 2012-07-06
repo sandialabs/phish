@@ -21,6 +21,7 @@
 
 #include <hash.h>
 #include <phish.h>
+#include <phish-common.h>
 #include <zmq.hpp>
 
 #include <sys/time.h>
@@ -103,14 +104,6 @@ static std::set<int> g_defined_output_ports;
 
 //////////////////////////////////////////////////////////////////////////////////
 // Internal implementation details
-
-/// Helper function for argument-parsing ...
-static const std::string pop_argument(std::vector<std::string>& arguments)
-{
-  const std::string argument = arguments.front();
-  arguments.erase(arguments.begin());
-  return argument;
-}
 
 static inline void pack(uint8_t type, uint32_t count, uint32_t size, const void* data)
 {
@@ -464,17 +457,9 @@ void phish_init(int* argc, char*** argv)
     throw std::runtime_error(message.str());
   }
 
-  // Remove phish-specific arguments from argc & argv ...
-  int new_argc = kept_arguments.size();
-  char** new_argv = new char*[kept_arguments.size()];
-  for(int i = 0; i != kept_arguments.size(); ++i)
-  {
-    new_argv[i] = new char[kept_arguments[i].size() + 1];
-    strcpy(new_argv[i], kept_arguments[i].c_str());
-  }
-
-  *argc = new_argc;
-  *argv = new_argv;
+  // Cleanup argc & argv ...
+  *argc = get_argc(kept_arguments);
+  *argv = get_argv(kept_arguments);
 }
 
 int phish_init_python(int, char **)

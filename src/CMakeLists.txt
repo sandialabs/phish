@@ -15,7 +15,7 @@ endif(BUILD_MPI_BACKEND)
 if(BUILD_ZMQ_BACKEND)
   include_directories(${ZMQ_INCLUDE_DIR})
 
-  add_library(phish-zmq SHARED hash.cpp phish-zmq.cpp)
+  add_library(phish-zmq SHARED hash.cpp phish-common.cpp phish-zmq.cpp)
   target_link_libraries(phish-zmq ${ZMQ_LIBRARY})
 
   add_library(phish-bait-zmq SHARED phish-bait-common.cpp phish-bait-zmq.cpp)
