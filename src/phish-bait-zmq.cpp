@@ -97,7 +97,7 @@ int phish_bait_start()
         arguments.push_back(string_cast(connection->output_port) + "+" + connection->send_pattern + "+" + string_cast(connection->input_port) + buffer.str());
       }
 
-      if(host != "localhost" && host != "127.0.0.1")
+      if(host != "" && host != "localhost" && host != "127.0.0.1")
       {
         arguments.insert(arguments.begin(), host);
         arguments.insert(arguments.begin(), "-x");
