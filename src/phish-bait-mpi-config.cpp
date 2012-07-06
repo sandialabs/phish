@@ -76,6 +76,9 @@ int phish_bait_start()
       std::cout << "\n";
     }
 
+    std::cerr << "MPICH: mpiexec -configfile <file>" << std::endl;
+    std::cerr << "OpenMPI: mpiexec `cat <file>`" << std::endl;
+
     return 0;
   }
   catch(std::exception& e)
