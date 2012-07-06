@@ -1,4 +1,3 @@
-import bait
 import optparse
 import re
 import sys
@@ -6,21 +5,12 @@ import sys
 parser = optparse.OptionParser()
 parser.add_option("--graphviz", default=False, action="store_true", help="Use the graphviz backend.")
 parser.add_option("--mpi", default=False, action="store_true", help="Use the MPI backend.")
+parser.add_option("--mpi-config", default=False, action="store_true", help="Use the MPI configfile backend.")
 parser.add_option("--variable", "-v", action="append", nargs=2, default=[], help="Verbose output.  Default: %default.")
 parser.add_option("--verbose", default=False, action="store_true", help="Verbose output.  Default: %default.")
 parser.add_option("--zmq", default=False, action="store_true", help="Use the ZMQ backend.")
 parser.add_option("--suffix", default="", help="Add a suffix to minnow command names.")
 options, arguments = parser.parse_args()
-
-if options.graphviz + options.mpi + options.zmq != 1:
-  raise Exception("You must specify a single backend using --graphviz, --mpi, or --zmq.")
-
-if options.graphviz:
-  bait.backend("graphviz")
-if options.mpi:
-  bait.backend("mpi")
-if options.zmq:
-  bait.backend("zmq")
 
 variables = dict([(key, [value]) for key, value in options.variable])
 minnows = {}
@@ -59,9 +49,6 @@ for line_number, line in enumerate(script):
     else:
       expanded.append(argument)
   arguments = expanded
-
-  if options.verbose:
-    sys.stderr.write("%s %s %s\n" % (line_number, command, " ".join(arguments)))
 
   # Currently unused by the zmq backend
   if command == "set":
@@ -102,7 +89,26 @@ for line_number, line in enumerate(script):
 for minnow in minnows.values():
   minnow["arguments"][0] = minnow["arguments"][0] + options.suffix
 
+if options.verbose:
+  for minnow in minnows.values():
+    sys.stderr.write(" ".join(minnow["arguments"]) + "\n")
+    sys.stderr.flush()
+
 # Pass the parsed data to the bait backend ...
+import bait
+
+if options.graphviz + options.mpi + options.mpi_config + options.zmq != 1:
+  raise Exception("You must specify a single backend using --graphviz, --mpi, --mpi-config, or --zmq.")
+
+if options.graphviz:
+  bait.backend("graphviz")
+if options.mpi:
+  bait.backend("mpi")
+if options.mpi_config:
+  bait.backend("mpi-config")
+if options.zmq:
+  bait.backend("zmq")
+
 for id, minnow in minnows.items():
   bait.minnows(id, [minnow["host"]] * minnow["count"], minnow["arguments"])
 

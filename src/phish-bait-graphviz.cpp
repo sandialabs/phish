@@ -14,40 +14,47 @@ int phish_bait_start()
     std::cout << "{" << std::endl;
     std::cout << "\t" << "graph [rankdir=LR]" << std::endl;
 
-    // Setup nodes ...
+    // Setup minnows ...
     std::cout << "\t" << "node [shape=box,style=rounded,fontname=helvetica]" << std::endl;
-    for(int i = 0; i != g_ids.size(); ++i)
+    for(std::vector<minnow>::iterator minnow = g_minnows.begin(); minnow != g_minnows.end(); ++minnow)
     {
-      std::cout << "\t" << g_ids[i] << "_" << g_local_ids[i] << " [label=" << g_ids[i] << "]" << std::endl;
+      const std::string school_id = g_schools[minnow->school_index].id;
+      std::cout << "\t" << school_id << "_" << minnow->local_id << " [label=" << school_id << "]" << std::endl;
     }
 
-    // Setup edges ...
-    for(int i = 0; i != g_connections.size(); ++i)
+    // Setup connections ...
+    for(std::vector<minnow>::iterator output_minnow = g_minnows.begin(); output_minnow != g_minnows.end(); ++output_minnow)
     {
-      connection& c = g_connections[i];
-      for(int j = 0; j != c.input_minnows.size(); ++j)
+      for(std::vector<connection>::iterator connection = output_minnow->outgoing.begin(); connection != output_minnow->outgoing.end(); ++connection)
       {
-        std::cout << "\t";
-        std::cout << g_ids[c.output_minnow] << "_" << g_local_ids[c.output_minnow];
-        std::cout << " -> ";
-        std::cout << g_ids[c.input_minnows[j]] << "_" << g_local_ids[c.input_minnows[j]];
-        if(c.send_pattern == "hashed")
+        for(std::vector<int>::iterator i = connection->input_indices.begin(); i != connection->input_indices.end(); ++i)
         {
-          std::cout << " [style=dashed,color=darkgreen]";
+          const minnow& input_minnow = g_minnows[*i];
+
+          std::cout << "\t";
+          std::cout << g_schools[output_minnow->school_index].id << "_" << output_minnow->local_id;
+          std::cout << " -> ";
+          std::cout << g_schools[input_minnow.school_index].id << "_" << input_minnow.local_id;
+          if(connection->send_pattern == PHISH_BAIT_SEND_PATTERN_HASHED)
+          {
+            std::cout << " [style=dashed,color=darkgreen]";
+          }
+          else if(connection->send_pattern == PHISH_BAIT_SEND_PATTERN_ROUND_ROBIN)
+          {
+            std::cout << " [style=dashed,color=blue]";
+          }
+          else if(connection->send_pattern == PHISH_BAIT_SEND_PATTERN_DIRECT)
+          {
+            std::cout << " [style=dashed,color=red]";
+          }
+          std::cout << std::endl;
         }
-        else if(c.send_pattern == "round-robin")
-        {
-          std::cout << " [style=dashed,color=blue]";
-        }
-        else if(c.send_pattern == "direct")
-        {
-          std::cout << " [style=dashed,color=red]";
-        }
-        std::cout << std::endl;
       }
     }
 
     std::cout << "}" << std::endl;
+
+    return 0;
   }
   catch(std::exception& e)
   {

@@ -32,7 +32,7 @@ extern "C" {
 #define PHISH_BAIT_SUBSCRIBE "subscribe"
 
 void phish_bait_reset();
-int phish_bait_minnows(const char* id, int count, const char** hosts, int argc, const char** argv);
+int phish_bait_school(const char* id, int count, const char** hosts, int argc, const char** argv);
 int phish_bait_hook(const char* output_id, int output_port, const char* style, int input_port, const char* input_id);
 int phish_bait_start();
 

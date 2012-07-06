@@ -60,7 +60,7 @@ void reset()
   ::phish_bait_reset();
 }
 
-void minnows(const std::string& id, const std::vector<std::string>& hosts, const std::vector<std::string>& arguments)
+void school(const std::string& id, const std::vector<std::string>& hosts, const std::vector<std::string>& arguments)
 {
   std::vector<const char*> temp_hosts;
   for(int i = 0; i != hosts.size(); ++i)
@@ -70,7 +70,7 @@ void minnows(const std::string& id, const std::vector<std::string>& hosts, const
   for(int i = 0; i != arguments.size(); ++i)
     temp_arguments.push_back(arguments[i].c_str());
 
-  exception::test(::phish_bait_minnows(id.c_str(), temp_hosts.size(), temp_hosts.data(), temp_arguments.size(), temp_arguments.data()));
+  exception::test(::phish_bait_school(id.c_str(), temp_hosts.size(), temp_hosts.data(), temp_arguments.size(), temp_arguments.data()));
 }
 
 void hook(const std::string& output_id, int output_port, const std::string& style, int input_port, const std::string& input_id)

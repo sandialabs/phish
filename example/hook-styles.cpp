@@ -8,30 +8,30 @@
 
 int main(int argc, char* argv[])
 {
-  phish::bait::minnows("a", std::vector<std::string>(1, "localhost"), std::vector<std::string>());
+  phish::bait::school("a", std::vector<std::string>(1, "localhost"), std::vector<std::string>());
 
-  phish::bait::minnows("b", std::vector<std::string>(3, "localhost"), std::vector<std::string>());
+  phish::bait::school("b", std::vector<std::string>(3, "localhost"), std::vector<std::string>());
   phish::bait::hook("a", 0, PHISH_BAIT_DIRECT, 0, "b");
 
-  phish::bait::minnows("c", std::vector<std::string>(1, "localhost"), std::vector<std::string>());
+  phish::bait::school("c", std::vector<std::string>(1, "localhost"), std::vector<std::string>());
   phish::bait::hook("b", 0, PHISH_BAIT_SINGLE, 0, "c");
 
-  phish::bait::minnows("d", std::vector<std::string>(3, "localhost"), std::vector<std::string>());
+  phish::bait::school("d", std::vector<std::string>(3, "localhost"), std::vector<std::string>());
   phish::bait::hook("c", 0, PHISH_BAIT_ROUND_ROBIN, 0, "d");
 
-  phish::bait::minnows("e", std::vector<std::string>(3, "localhost"), std::vector<std::string>());
+  phish::bait::school("e", std::vector<std::string>(3, "localhost"), std::vector<std::string>());
   phish::bait::hook("d", 0, PHISH_BAIT_PAIRED, 0, "e");
 
-  phish::bait::minnows("f", std::vector<std::string>(3, "localhost"), std::vector<std::string>());
+  phish::bait::school("f", std::vector<std::string>(3, "localhost"), std::vector<std::string>());
   phish::bait::hook("e", 0, PHISH_BAIT_HASHED, 0, "f");
 
-  phish::bait::minnows("g", std::vector<std::string>(3, "localhost"), std::vector<std::string>());
+  phish::bait::school("g", std::vector<std::string>(3, "localhost"), std::vector<std::string>());
   phish::bait::hook("f", 0, PHISH_BAIT_BROADCAST, 0, "g");
 
-  phish::bait::minnows("h", std::vector<std::string>(7, "localhost"), std::vector<std::string>());
+  phish::bait::school("h", std::vector<std::string>(7, "localhost"), std::vector<std::string>());
   phish::bait::hook("h", 0, PHISH_BAIT_CHAIN, 0, "h");
 
-  phish::bait::minnows("i", std::vector<std::string>(7, "localhost"), std::vector<std::string>());
+  phish::bait::school("i", std::vector<std::string>(7, "localhost"), std::vector<std::string>());
   phish::bait::hook("i", 0, PHISH_BAIT_RING, 0, "i");
 
   phish::bait::start();

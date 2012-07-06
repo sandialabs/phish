@@ -8,18 +8,12 @@
 #include <map>
 #include <stdexcept>
 
-struct out_connection
+struct zmq_minnow
 {
-  out_connection(const std::string& sp, int ip, const std::vector<std::string>& ia) :
-    send_pattern(sp),
-    input_port(ip),
-    input_addresses(ia)
-  {
-  }
-
-  std::string send_pattern;
-  int input_port;
-  std::vector<std::string> input_addresses;
+  std::string control_port_internal;
+  std::string control_port_external;
+  std::string input_port_internal;
+  std::string input_port_external;
 };
 
 int phish_bait_start()
@@ -28,82 +22,63 @@ int phish_bait_start()
   {
     int next_port = 5555;
 
+    // Setup temporary storage for zmq-specific information
+    std::vector<zmq_minnow> zmq_minnows(g_minnows.size());
+
     // Assign control port addresses ...
-    std::vector<std::string> control_ports_internal;
-    std::vector<std::string> control_ports_external;
-    for(int i = 0; i != g_ids.size(); ++i)
+    for(int i = 0; i != zmq_minnows.size(); ++i)
     {
-      control_ports_internal.push_back("tcp://*:" + string_cast(next_port));
-      control_ports_external.push_back("tcp://" + g_hosts[i] + ":" + string_cast(next_port));
+      const school& school = g_schools[g_minnows[i].school_index];
+      const minnow& minnow = g_minnows[i];
+
+      zmq_minnows[i].control_port_internal = "tcp://*:" + string_cast(next_port);
+      zmq_minnows[i].control_port_external = "tcp://" + school.hosts[minnow.local_id] + ":" + string_cast(next_port);
       ++next_port;
     }
 
     // Assign input port addresses ...
-    std::vector<std::string> input_ports_internal;
-    std::vector<std::string> input_ports_external;
-    for(int i = 0; i != g_ids.size(); ++i)
+    for(int i = 0; i != zmq_minnows.size(); ++i)
     {
-      input_ports_internal.push_back("tcp://*:" + string_cast(next_port));
-      input_ports_external.push_back("tcp://" + g_hosts[i] + ":" + string_cast(next_port));
+      const school& school = g_schools[g_minnows[i].school_index];
+      const minnow& minnow = g_minnows[i];
+
+      zmq_minnows[i].input_port_internal = "tcp://*:" + string_cast(next_port);
+      zmq_minnows[i].input_port_external = "tcp://" + school.hosts[minnow.local_id] + ":" + string_cast(next_port);
       ++next_port;
-    }
-
-    // Count input port incoming connections ...
-    std::vector<std::map<int, int> > input_connection_counts(g_ids.size(), std::map<int, int>());
-    for(std::vector<connection>::iterator connection = g_connections.begin(); connection != g_connections.end(); ++connection)
-    {
-      for(std::vector<int>::iterator input_minnow = connection->input_minnows.begin(); input_minnow != connection->input_minnows.end(); ++input_minnow)
-      {
-        input_connection_counts[*input_minnow].insert(std::make_pair(connection->input_port, 0));
-        input_connection_counts[*input_minnow][connection->input_port] += 1;
-      }
-    }
-
-    // Keep track of output port outgoing connections ...
-    std::vector<std::map<int, std::vector<out_connection> > > output_connections(g_ids.size(), std::map<int, std::vector<out_connection> >());
-    for(std::vector<connection>::iterator connection = g_connections.begin(); connection != g_connections.end(); ++connection)
-    {
-      std::vector<std::string> input_addresses;
-      for(int i = 0; i != connection->input_minnows.size(); ++i)
-        input_addresses.push_back(input_ports_external[connection->input_minnows[i]]);
-
-      output_connections[connection->output_minnow].insert(std::make_pair(connection->output_port, std::vector<out_connection>()));
-      output_connections[connection->output_minnow][connection->output_port].push_back(out_connection(connection->send_pattern, connection->input_port, input_addresses));
     }
 
     std::vector<pid_t> processes;
 
     // Create each of the minnow processes ...
-    for(int i = 0; i != g_ids.size(); ++i)
+    for(int i = 0; i != zmq_minnows.size(); ++i)
     {
-      const std::string name = g_ids[i];
-      const int local_id = g_local_ids[i];
-      const int global_id = i;
-      const std::string host = g_hosts[i];
+      const school& school = g_schools[g_minnows[i].school_index];
+      const minnow& minnow = g_minnows[i];
+      const std::string host = school.hosts[minnow.local_id];
 
       std::vector<std::string> arguments;
-      arguments.insert(arguments.end(), g_arguments[i].begin(), g_arguments[i].end());
+      arguments.insert(arguments.end(), school.arguments.begin(), school.arguments.end());
       arguments.push_back("--phish-host");
       arguments.push_back(host);
       arguments.push_back("--phish-name");
-      arguments.push_back(name);
+      arguments.push_back(school.id);
       arguments.push_back("--phish-local-id");
-      arguments.push_back(string_cast(local_id));
+      arguments.push_back(string_cast(minnow.local_id));
       arguments.push_back("--phish-local-count");
-      arguments.push_back(string_cast(g_local_counts[i]));
+      arguments.push_back(string_cast(school.hosts.size()));
       arguments.push_back("--phish-global-id");
-      arguments.push_back(string_cast(global_id));
+      arguments.push_back(string_cast(i));
       arguments.push_back("--phish-global-count");
-      arguments.push_back(string_cast(g_ids.size()));
+      arguments.push_back(string_cast(g_minnows.size()));
       arguments.push_back("--phish-control-port");
-      arguments.push_back(control_ports_internal[i]);
+      arguments.push_back(zmq_minnows[i].control_port_internal);
       arguments.push_back("--phish-input-port");
-      arguments.push_back(input_ports_internal[i]);
+      arguments.push_back(zmq_minnows[i].input_port_internal);
 
-      for(std::map<int, int>::iterator j = input_connection_counts[i].begin(); j != input_connection_counts[i].end(); ++j)
+      for(std::map<int, int>::const_iterator incoming = minnow.incoming.begin(); incoming != minnow.incoming.end(); ++incoming)
       {
-        const int port = j->first;
-        const int count = j->second;
+        const int port = incoming->first;
+        const int count = incoming->second;
 
         std::ostringstream buffer;
         buffer << port << "+" << count;
@@ -112,18 +87,14 @@ int phish_bait_start()
         arguments.push_back(buffer.str());
       }
 
-      for(std::map<int, std::vector<out_connection> >::iterator j = output_connections[i].begin(); j != output_connections[i].end(); ++j)
+      for(std::vector<connection>::const_iterator connection = minnow.outgoing.begin(); connection != minnow.outgoing.end(); ++connection)
       {
-        const int output_port = j->first;
-        for(std::vector<out_connection>::iterator connection = j->second.begin(); connection != j->second.end(); ++connection)
-        {
-          std::ostringstream buffer;
-          for(int k = 0; k != connection->input_addresses.size(); ++k)
-            buffer << "+" << connection->input_addresses[k];
+        std::ostringstream buffer;
+        for(std::vector<int>::const_iterator i = connection->input_indices.begin(); i != connection->input_indices.end(); ++i)
+          buffer << "+" << zmq_minnows[*i].input_port_external;
 
-          arguments.push_back("--phish-output-connection");
-          arguments.push_back(string_cast(output_port) + "+" + connection->send_pattern + "+" + string_cast(connection->input_port) + buffer.str());
-        }
+        arguments.push_back("--phish-output-connection");
+        arguments.push_back(string_cast(connection->output_port) + "+" + connection->send_pattern + "+" + string_cast(connection->input_port) + buffer.str());
       }
 
       if(host != "localhost" && host != "127.0.0.1")
@@ -165,7 +136,7 @@ int phish_bait_start()
     for(int i = 0; i != processes.size(); ++i)
     {
       zmq::socket_t socket(context, ZMQ_REQ);
-      socket.connect(control_ports_external[i].c_str());
+      socket.connect(zmq_minnows[i].control_port_external.c_str());
       zmq::message_t request_message(const_cast<char*>("start"), strlen("start"), 0);
       socket.send(request_message, 0);
 
