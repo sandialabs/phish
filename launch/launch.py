@@ -13,7 +13,7 @@ parser.add_option("--suffix", default="", help="Add a suffix to minnow command n
 options, arguments = parser.parse_args()
 
 variables = dict([(key, [value]) for key, value in options.variable])
-minnows = {}
+schools = {}
 hooks = []
 
 # Parse the input script ...
@@ -63,7 +63,7 @@ for line_number, line in enumerate(script):
   elif command == "minnow":
     id = arguments[0]
     arguments = arguments[1:]
-    minnows[id] = {"arguments" : arguments, "count" : 1, "host" : "localhost"}
+    schools[id] = {"arguments" : arguments, "count" : 1, "host" : "localhost"}
 
   elif command == "hook":
     output = arguments[0].split(":")
@@ -75,23 +75,23 @@ for line_number, line in enumerate(script):
     id = arguments[0]
     count = arguments[1]
     keywords = arguments[2:]
-    minnows[id]["count"] = int(count)
+    schools[id]["count"] = int(count)
     for key, value in keywords:
       if key == "host":
-        minnows[id]["host"] = value
+        schools[id]["host"] = value
       elif key == "invoke":
-        minnows[id]["arguments"] = [value] + minnows[id]["arguments"]
+        schools[id]["arguments"] = [value] + schools[id]["arguments"]
 
   else:
     raise Exception("Unknown command '%s' on line %s: %s" % (command, line_number, line))
 
-# Add suffixes to individual minnow arguments ...
-for minnow in minnows.values():
-  minnow["arguments"][0] = minnow["arguments"][0] + options.suffix
+# Add suffixes to individual school arguments ...
+for school in schools.values():
+  school["arguments"][0] = school["arguments"][0] + options.suffix
 
 if options.verbose:
-  for minnow in minnows.values():
-    sys.stderr.write(" ".join(minnow["arguments"]) + "\n")
+  for school in schools.values():
+    sys.stderr.write(" ".join(school["arguments"]) + "\n")
     sys.stderr.flush()
 
 # Pass the parsed data to the bait backend ...
@@ -109,8 +109,8 @@ if options.mpi_config:
 if options.zmq:
   bait.backend("zmq")
 
-for id, minnow in minnows.items():
-  bait.minnows(id, [minnow["host"]] * minnow["count"], minnow["arguments"])
+for id, school in schools.items():
+  bait.school(id, [school["host"]] * school["count"], school["arguments"])
 
 for output_id, output_port, style, input_port, input_id in hooks:
   bait.hook(output_id, output_port, style, input_port, input_id)

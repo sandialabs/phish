@@ -32,10 +32,10 @@ def backend(name):
 def reset():
   _library.phish_bait_reset()
 
-def minnows(id, hosts, arguments):
+def school(id, hosts, arguments):
   count = len(hosts)
   argc = len(arguments)
-  _library.phish_bait_minnows(
+  _library.phish_bait_school(
     ctypes.c_char_p(id),
     ctypes.c_int(count),
     ctypes.byref((ctypes.c_char_p * count)(*hosts)),
