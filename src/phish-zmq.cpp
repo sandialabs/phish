@@ -21,6 +21,7 @@
 
 #include <hash.h>
 #include <phish.h>
+#include <phish-bait-common.h>
 #include <phish-common.h>
 #include <zmq.hpp>
 
@@ -247,12 +248,12 @@ public:
 
   void send_hashed(char* key, int key_length)
   {
-    phish_warn("Cannot send hashed with round-robin connection.");
+    phish_warn("Cannot send hashed with roundrobin connection.");
   }
 
   void send_direct(int destination)
   {
-    phish_warn("Cannot send direct with round-robin connection.");
+    phish_warn("Cannot send direct with roundrobin connection.");
   }
 };
 
@@ -412,19 +413,19 @@ void phish_init(int* argc, char*** argv)
         recipient_sockets.push_back(socket);
       }
 
-      if(pattern == "broadcast")
+      if(pattern == PHISH_BAIT_SEND_PATTERN_BROADCAST)
       {
         g_output_connections[output_port].push_back(new broadcast_connection(input_port, recipient_sockets));
       }
-      else if(pattern == "round-robin")
+      else if(pattern == PHISH_BAIT_SEND_PATTERN_ROUND_ROBIN)
       {
         g_output_connections[output_port].push_back(new round_robin_connection(input_port, recipient_sockets));
       }
-      else if(pattern == "hashed")
+      else if(pattern == PHISH_BAIT_SEND_PATTERN_HASHED)
       {
         g_output_connections[output_port].push_back(new hashed_connection(input_port, recipient_sockets));
       }
-      else if(pattern == "direct")
+      else if(pattern == PHISH_BAIT_SEND_PATTERN_DIRECT)
       {
         g_output_connections[output_port].push_back(new direct_connection(input_port, recipient_sockets));
       }

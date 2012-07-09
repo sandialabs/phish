@@ -9,7 +9,7 @@
 #define PHISH_BAIT_SEND_PATTERN_BROADCAST "broadcast"
 #define PHISH_BAIT_SEND_PATTERN_DIRECT "direct"
 #define PHISH_BAIT_SEND_PATTERN_HASHED "hashed"
-#define PHISH_BAIT_SEND_PATTERN_ROUND_ROBIN "round-robin"
+#define PHISH_BAIT_SEND_PATTERN_ROUND_ROBIN "roundrobin"
 
 // Converts any type to std::string
 template<typename T>

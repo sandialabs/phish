@@ -11,7 +11,7 @@ minnow 4 sort 10
 #minnow 5 print
 minnow 5 print.py
 
-hook 1 round-robin 2
+hook 1 roundrobin 2
 hook 2 hashed 3
 hook 3 single 4
 hook 4 single 5

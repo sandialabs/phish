@@ -23,7 +23,7 @@ extern "C" {
 #define PHISH_BAIT_SINGLE "single"
 #define PHISH_BAIT_PAIRED "paired"
 #define PHISH_BAIT_HASHED "hashed"
-#define PHISH_BAIT_ROUND_ROBIN "round-robin"
+#define PHISH_BAIT_ROUND_ROBIN "roundrobin"
 #define PHISH_BAIT_DIRECT "direct"
 #define PHISH_BAIT_BROADCAST "broadcast"
 #define PHISH_BAIT_CHAIN "chain"

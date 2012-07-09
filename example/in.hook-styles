@@ -16,7 +16,7 @@ minnow i i
 
 hook a direct b
 hook b single c
-hook c round-robin d
+hook c roundrobin d
 hook d paired e
 hook e hashed f
 hook f broadcast g
