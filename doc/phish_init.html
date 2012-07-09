@@ -13,7 +13,7 @@
 </H3>
 <P><B>C syntax:</B>
 </P>
-<PRE>void phish_init(int *narg, char ***args) 
+<PRE>void phish_init(int *argc, char ***argv) 
 </PRE>
 <P><B>C examples:</B>
 </P>
@@ -21,7 +21,7 @@
 </PRE>
 <P><B>C++ syntax:</B>
 </P>
-<PRE>void init(int& narg, char*& args) 
+<PRE>void init(int& argc, char*& argv) 
 </PRE>
 <P><B>C++ examples:</B>
 </P>
@@ -29,12 +29,12 @@
 </PRE>
 <P><B>Python syntax:</B>
 </P>
-<PRE>def init(args) 
+<PRE>def init(argv) 
 </PRE>
 <P><B>Python examples:</B>
 </P>
 <PRE>import phish
-args = phish.init(sys.argv) 
+argv = phish.init(sys.argv) 
 </PRE>
 <P><B>Description:</B>
 </P>
@@ -75,32 +75,29 @@ from a PHISH input script.
 command-line arguments, and a pointer to the arguments themselves as
 an array of strings.  These are passed as pointers, because the PHISH
 library reads and removes the PHISH-specific arguments.  It then
-returns the reamining minnow-specific arguments, which the minnow can
+returns the remaining minnow-specific arguments, which the minnow can
 read and process.  As is standard with C programs, the returned value
-of narg includes args[0] which is the name of the minnow executable.
+of argc includes argv[0] which is the name of the minnow executable.
 </P>
 <P>Note that in the Python version of phish.init(), the full argument
 list is passed as an argument, and the truncated argument list is
 returned.
 </P>
-<P>There are the switches and arguments the PHISH library looks for and
-processes.  These are generated automatically by the
-<A HREF = "Section_bait.html">bait.py</A> tool when it processes a PHISH input
-script, so normally you don't need to think about this level of
-detail, but it may be helpful for understanding how PHISH works.
+<P>There are the switches and arguments that the MPI version of the PHISH library
+looks for and processes.  These are generated automatically by the
+<A HREF = "Section_bait.html">bait.py</A> tool when it processes a PHISH input script, so
+normally you don't need to think about this level of detail, but it may be
+helpful for understanding how PHISH works.
 </P>
-<UL><LI>-minnow exefile ID Nlocal Nprev
+<UL><LI>-minnow ID Nlocal Nprev
 <LI>-memory N
-<LI>-safe
+<LI>-safe N
 <LI>-in sprocs sfirst sport style rprocs rfirst rport
-<LI>-out sprocs sfirst sport style rprocs rfirst rport
-<LI>-args arg1 arg2 ... = command-line args for the minnow itself 
+<LI>-out sprocs sfirst sport style rprocs rfirst rport 
 </UL>
-<P>The <I>-minnow</I> switch appears once, as the first argument.  <I>Exefile</I>
-is the name of executable file for this minnow, e.g. count or
-count.py.  The ID is the minnow ID in the PHISH input script.  The
-<I>Nlocal</I> argument was explained above.  <I>Nprev</I> is the total number of
-minnows in sets of minnows previous to this one.  It is used to infer
+<P>The <I>-minnow</I> switch appears once.  ID is the minnow ID in the PHISH input
+script.  The <I>Nlocal</I> argument was explained above.  <I>Nprev</I> is the total
+number of minnows in sets of minnows previous to this one.  It is used to infer
 the <I>local-ID</I> value discussed above.
 </P>
 <P>The <I>-memory</I> and <I>-safe</I> and switches change default settings within
@@ -110,11 +107,11 @@ the PHISH library.
 send and receive datums.
 </P>
 <P>The <I>-safe</I> switch forces the MPI version of the PHISH library to use
-MPI_SSend() calls instead of the standard MPI_Send().  These are
-"safer" in the sense they insure messages are not dropped due to a
-minnow not keeping up with its incoming messages.  See the
-<A HREF = "bait_set.html">set</A> command of the <A HREF = "Section_bait.html">bait.py</A> tool
-for more information on the settings of these switches.
+MPI_SSend() calls instead of the standard MPI_Send() when <I>N</I> is nonzero.
+These are "safer" in the sense they insure messages are not dropped due to a
+minnow not keeping up with its incoming messages.  See the <A HREF = "bait_set.html">set</A>
+command of the <A HREF = "Section_bait.html">bait.py</A> tool for more information on the
+settings of these switches.
 </P>
 <P>The <I>-in</I> switch appears once for every connection the minnow has with
 other minnows, where it is a receiver of datums.  See the
@@ -153,11 +150,8 @@ processed by the <A HREF = "Bait.html">bait.py</A> tool.  E.g. <I>style</I> is a
 like "single" or "hashed".  If it is "publish", then extra info about
 the TCP port is appended to the <I>style</I>, e.g. "publish/25".
 </P>
-<P>The <I>-args</I> switch appears last and lists all the remaining
-minnow-specific arguments.  The PHISH library ignores these, but
-strips all command-line arguments up to and including the <I>-args</I>
-switch before returning the remaining args to the minnow caller, with
-the name of the minnow executable prepended as args[0].
+<P>The PHISH library ignores any remaining arguments, returning them to to the
+minnow caller, including the name of the minnow executable in argv[0].
 </P>
 <P>The phish_init() function also flags each specified input port and
 output port with a CLOSED status, instead of UNUSED.  See the

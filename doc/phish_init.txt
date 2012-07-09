@@ -10,7 +10,7 @@ phish_init() function :h3
 
 [C syntax:]
 
-void phish_init(int *narg, char ***args) :pre
+void phish_init(int *argc, char ***argv) :pre
 
 [C examples:]
 
@@ -18,7 +18,7 @@ phish_init(&argc,&argv); :pre
 
 [C++ syntax:]
 
-void init(int& narg, char*& args) :pre
+void init(int& argc, char*& argv) :pre
 
 [C++ examples:]
 
@@ -26,12 +26,12 @@ phish::init(argc, argv); :pre
 
 [Python syntax:]
 
-def init(args) :pre
+def init(argv) :pre
 
 [Python examples:]
 
 import phish
-args = phish.init(sys.argv) :pre
+argv = phish.init(sys.argv) :pre
 
 [Description:]
 
@@ -72,32 +72,29 @@ The two arguments to phish_init() are pointers to the number of
 command-line arguments, and a pointer to the arguments themselves as
 an array of strings.  These are passed as pointers, because the PHISH
 library reads and removes the PHISH-specific arguments.  It then
-returns the reamining minnow-specific arguments, which the minnow can
+returns the remaining minnow-specific arguments, which the minnow can
 read and process.  As is standard with C programs, the returned value
-of narg includes args\[0\] which is the name of the minnow executable.
+of argc includes argv\[0\] which is the name of the minnow executable.
 
 Note that in the Python version of phish.init(), the full argument
 list is passed as an argument, and the truncated argument list is
 returned.
 
-There are the switches and arguments the PHISH library looks for and
-processes.  These are generated automatically by the
-"bait.py"_Section_bait.html tool when it processes a PHISH input
-script, so normally you don't need to think about this level of
-detail, but it may be helpful for understanding how PHISH works.
+There are the switches and arguments that the MPI version of the PHISH library
+looks for and processes.  These are generated automatically by the
+"bait.py"_Section_bait.html tool when it processes a PHISH input script, so
+normally you don't need to think about this level of detail, but it may be
+helpful for understanding how PHISH works.
 
--minnow exefile ID Nlocal Nprev
+-minnow ID Nlocal Nprev
 -memory N
--safe
+-safe N
 -in sprocs sfirst sport style rprocs rfirst rport
--out sprocs sfirst sport style rprocs rfirst rport
--args arg1 arg2 ... = command-line args for the minnow itself :ul
+-out sprocs sfirst sport style rprocs rfirst rport :ul
 
-The {-minnow} switch appears once, as the first argument.  {Exefile}
-is the name of executable file for this minnow, e.g. count or
-count.py.  The ID is the minnow ID in the PHISH input script.  The
-{Nlocal} argument was explained above.  {Nprev} is the total number of
-minnows in sets of minnows previous to this one.  It is used to infer
+The {-minnow} switch appears once.  ID is the minnow ID in the PHISH input
+script.  The {Nlocal} argument was explained above.  {Nprev} is the total
+number of minnows in sets of minnows previous to this one.  It is used to infer
 the {local-ID} value discussed above.
 
 The {-memory} and {-safe} and switches change default settings within
@@ -107,11 +104,11 @@ The {-memory} value {N} sets the maximum size of the buffers used to
 send and receive datums.
 
 The {-safe} switch forces the MPI version of the PHISH library to use
-MPI_SSend() calls instead of the standard MPI_Send().  These are
-"safer" in the sense they insure messages are not dropped due to a
-minnow not keeping up with its incoming messages.  See the
-"set"_bait_set.html command of the "bait.py"_Section_bait.html tool
-for more information on the settings of these switches.
+MPI_SSend() calls instead of the standard MPI_Send() when {N} is nonzero.
+These are "safer" in the sense they insure messages are not dropped due to a
+minnow not keeping up with its incoming messages.  See the "set"_bait_set.html
+command of the "bait.py"_Section_bait.html tool for more information on the
+settings of these switches.
 
 The {-in} switch appears once for every connection the minnow has with
 other minnows, where it is a receiver of datums.  See the
@@ -150,11 +147,8 @@ processed by the "bait.py"_Bait.html tool.  E.g. {style} is a word
 like "single" or "hashed".  If it is "publish", then extra info about
 the TCP port is appended to the {style}, e.g. "publish/25".
 
-The {-args} switch appears last and lists all the remaining
-minnow-specific arguments.  The PHISH library ignores these, but
-strips all command-line arguments up to and including the {-args}
-switch before returning the remaining args to the minnow caller, with
-the name of the minnow executable prepended as args\[0\].
+The PHISH library ignores any remaining arguments, returning them to to the
+minnow caller, including the name of the minnow executable in argv\[0\].
 
 The phish_init() function also flags each specified input port and
 output port with a CLOSED status, instead of UNUSED.  See the
