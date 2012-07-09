@@ -1,3 +1,4 @@
+import phish.bait
 import optparse
 import os
 import re
@@ -116,25 +117,23 @@ if options.verbose:
     sys.stderr.flush()
 
 # Pass the parsed data to the bait backend ...
-import bait
-
 if options.graphviz + options.mpi_config + options.zmq != 1:
   raise Exception("You must specify a single backend using --graphviz, --mpi-config, or --zmq.")
 
 if options.graphviz:
-  bait.backend("graphviz")
+  phish.bait.backend("graphviz")
 if options.mpi_config:
-  bait.backend("mpi-config")
+  phish.bait.backend("mpi-config")
 if options.zmq:
-  bait.backend("zmq")
+  phish.bait.backend("zmq")
 
 for name, value in settings.items():
-  bait.set(name, value)
+  phish.bait.set(name, value)
 
 for id, school in schools.items():
-  bait.school(id, [school["host"]] * school["count"], school["arguments"])
+  phish.bait.school(id, [school["host"]] * school["count"], school["arguments"])
 
 for output_id, output_port, style, input_port, input_id in hooks:
-  bait.hook(output_id, output_port, style, input_port, input_id)
+  phish.bait.hook(output_id, output_port, style, input_port, input_id)
 
-bait.start()
+phish.bait.start()

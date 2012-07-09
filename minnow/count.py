@@ -26,6 +26,6 @@ phish.check()
 if len(args) != 0: phish.error("Count syntax: count")
 
 hash = {}
-  
+
 phish.loop()
 phish.exit()

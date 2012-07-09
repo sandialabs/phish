@@ -4,6 +4,8 @@ import types
 from ctypes import *
 from cPickle import dumps,loads
 
+_library = None
+
 # data type defs from src/phish.h
 
 RAW = 0
@@ -35,35 +37,38 @@ PICKLE = 23
 
 MAXPORT = 16
 
-# load PHISH C++ library
+def backend(name):
+  import ctypes.util
+  global _library
+  _library = None
+  if _library is None:
+    if ctypes.util.find_library("phish-%s" % name):
+      _library = ctypes.CDLL(ctypes.util.find_library("phish-%s" % name))
+  if _library is None:
+    _library = ctypes.CDLL("libphish-%s.so" % name)
+  if _library is None:
+    _library = ctypes.CDLL("libphish-%s.dylib" % name)
+  if _library is None:
+    _library = ctypes.CDLL("libphish-%s.dll" % name)
+  if _library is None:
+    raise Exception("Unable to load %s backend." % name)
 
-try:
-  lib = CDLL("_phish.so")
-except:
-  try:
-    lib = CDLL("libphish-zmq.dylib")
-  except:
-    raise StandardError,"Could not load PHISH dynamic library"
+  # phish_timer() returns a double
+  _library.phish_timer.restype = c_double
 
-# phish_timer() returns a double
-  
-lib.phish_timer.restype = c_double
-
-# function defs
-# one-to-one match to functions in src/phish.h
 
 def init(args):
   narg = len(args)
   cargs = (c_char_p*narg)(*args)
-  n = lib.phish_init_python(narg,cargs)
+  n = _library.phish_init_python(narg,cargs)
   return args[n:]
 
 def exit():
-  lib.phish_exit()
+  _library.phish_exit()
 
 # clunky: using named callback for each port
 # Tim says to use closures to generate callback function code
-    
+
 def input(iport,datumfunc,donefunc,reqflag):
   global datum0_caller,done0_caller
   global datum1_caller,done1_caller
@@ -71,58 +76,58 @@ def input(iport,datumfunc,donefunc,reqflag):
     datum0_caller = datumfunc
     done0_caller = donefunc
     if datumfunc and donefunc:
-      lib.phish_input(iport,datum0_def,done0_def,reqflag)
+      _library.phish_input(iport,datum0_def,done0_def,reqflag)
     elif datumfunc:
-      lib.phish_input(iport,datum0_def,None,reqflag)
+      _library.phish_input(iport,datum0_def,None,reqflag)
     elif donefunc:
-      lib.phish_input(iport,None,done0_def,reqflag)
+      _library.phish_input(iport,None,done0_def,reqflag)
     else:
-      lib.phish_input(iport,None,None,reqflag)
+      _library.phish_input(iport,None,None,reqflag)
   if iport == 1:
     datum1_caller = datumfunc
     done1_caller = donefunc
     if datumfunc and donefunc:
-      lib.phish_input(iport,datum1_def,done1_def,reqflag)
+      _library.phish_input(iport,datum1_def,done1_def,reqflag)
     elif datumfunc:
-      lib.phish_input(iport,datum1_def,None,reqflag)
+      _library.phish_input(iport,datum1_def,None,reqflag)
     elif donefunc:
-      lib.phish_input(iport,None,done1_def,reqflag)
+      _library.phish_input(iport,None,done1_def,reqflag)
     else:
-      lib.phish_input(iport,None,None,reqflag)
-    
+      _library.phish_input(iport,None,None,reqflag)
+
 def output(iport):
-  lib.phish_output(iport)
+  _library.phish_output(iport)
 
 def check():
-  lib.phish_check()
+  _library.phish_check()
 
 def callback(alldonefunc,abortfunc):
   global alldone_caller,abort_caller
   alldone_caller = alldonefunc
   abort_caller = abortfunc
-  if alldonefunc and abortfunc: lib.phish_callback(alldone_def,abort_def)
-  elif alldonefunc: lib.phish_callback(alldone_def,None)
-  elif abortfunc: lib.phish_callback(None,abort_def)
-  else: lib.phish_done(None,None)
+  if alldonefunc and abortfunc: _library.phish_callback(alldone_def,abort_def)
+  elif alldonefunc: _library.phish_callback(alldone_def,None)
+  elif abortfunc: _library.phish_callback(None,abort_def)
+  else: _library.phish_done(None,None)
 
 def alldone_callback():
   alldone_caller()
 
 def abort_callback(flag):
   abort_caller(flag)
-  
+
 def close(iport):
-  lib.phish_close(iport)
+  _library.phish_close(iport)
 
 # loop, probe, recv functions with callbacks
-  
+
 def loop():
-  lib.phish_loop()
+  _library.phish_loop()
 
 def probe(probefunc):
   global probe_caller
   probe_caller = probefunc
-  lib.phish_probe(probe_def)
+  _library.phish_probe(probe_def)
 
 def probe_callback():
   probe_caller()
@@ -140,26 +145,26 @@ def done1_callback():
   done1_caller()
 
 def recv():
-  return lib.phish_recv()
+  return _library.phish_recv()
 
 # send functions
 
 def send(iport):
-  lib.phish_send(iport)
+  _library.phish_send(iport)
 
 # pickle the key so can hash any Python object
 # this means Python and non-Python minnows will not send
 # same key (e.g. a string) to the same minnow
-  
+
 def send_key(iport,key):
   cobj = dumps(key,1)
-  lib.phish_send_key(iport,cobj,len(cobj))
+  _library.phish_send_key(iport,cobj,len(cobj))
 
 def send_direct(iport,receiver):
-  lib.phish_send_direct(iport,receiver)
+  _library.phish_send_direct(iport,receiver)
 
 # error check that value is between begin (inclusive) and end (exclusive)
-  
+
 def check_range(begin,value,end):
   if value < begin or value >= end:
     raise Exception("Value must be in range [%s, %s)" % (begin, end))
@@ -167,60 +172,60 @@ def check_range(begin,value,end):
 # pack functions with range checking on int and uint values
 
 def repack():
-  lib.phish_repack()
+  _library.phish_repack()
 
 # cstr is a char ptr to Python object as if it were string
 # but user-specified len is passed to pack_raw(), not string length
 
 def pack_raw(obj,len):
   cstr = c_char_p(obj)
-  lib.phish_pack_raw(cstr,len)
+  _library.phish_pack_raw(cstr,len)
 
 def pack_char(value):
   check_range(0,value,256)
-  lib.phish_pack_char(c_char(value))
+  _library.phish_pack_char(c_char(value))
 
 def pack_int8(value):
   check_range(-128,value,128)
-  lib.phish_pack_int8(c_int8(value))
+  _library.phish_pack_int8(c_int8(value))
 
 def pack_int16(value):
   check_range(-32768,value,32768)
-  lib.phish_pack_int16(c_int16(value))
+  _library.phish_pack_int16(c_int16(value))
 
 def pack_int32(value):
   check_range(-2147483648,value,2147483648)
-  lib.phish_pack_int32(c_int32(value))
+  _library.phish_pack_int32(c_int32(value))
 
 def pack_int64(value):
   check_range(-9223372036854775808,value,9223372036854775808)
-  lib.phish_pack_int64(c_int64(value))
+  _library.phish_pack_int64(c_int64(value))
 
 def pack_uint8(value):
   check_range(0,value,256)
-  lib.phish_pack_uint8(c_uint8(value))
+  _library.phish_pack_uint8(c_uint8(value))
 
 def pack_uint16(value):
   check_range(0,value,65536)
-  lib.phish_pack_uint16(c_uint16(value))
+  _library.phish_pack_uint16(c_uint16(value))
 
 def pack_uint32(value):
   check_range(0,value,4294967296)
-  lib.phish_pack_uint32(c_uint32(value))
+  _library.phish_pack_uint32(c_uint32(value))
 
 def pack_uint64(value):
   check_range(0,value,18446744073709551616)
-  lib.phish_pack_uint64(c_uint64(value))
+  _library.phish_pack_uint64(c_uint64(value))
 
 def pack_float(value):
-  lib.phish_pack_float(c_float(value))
+  _library.phish_pack_float(c_float(value))
 
 def pack_double(value):
-  lib.phish_pack_double(c_double(value))
+  _library.phish_pack_double(c_double(value))
 
 def pack_string(str):
   cstr = c_char_p(str)
-  lib.phish_pack_string(cstr)
+  _library.phish_pack_string(cstr)
 
 def pack_int8_array(vec):
   n = len(vec)
@@ -228,7 +233,7 @@ def pack_int8_array(vec):
   for i in xrange(n):
     check_range(-128,vec[i],128)
     ptr[i] = vec[i]
-  lib.phish_pack_int8_array(ptr,n)
+  _library.phish_pack_int8_array(ptr,n)
 
 def pack_int16_array(vec):
   n = len(vec)
@@ -236,7 +241,7 @@ def pack_int16_array(vec):
   for i in xrange(n):
     check_range(-32768,vec[i],32768)
     ptr[i] = vec[i]
-  lib.phish_pack_int16_array(ptr,n)
+  _library.phish_pack_int16_array(ptr,n)
 
 def pack_int32_array(vec):
   n = len(vec)
@@ -244,7 +249,7 @@ def pack_int32_array(vec):
   for i in xrange(n):
     check_range(-2147483648,vec[i],2147483648)
     ptr[i] = vec[i]
-  lib.phish_pack_int32_array(ptr,n)
+  _library.phish_pack_int32_array(ptr,n)
 
 def pack_int64_array(vec):
   n = len(vec)
@@ -252,7 +257,7 @@ def pack_int64_array(vec):
   for i in xrange(n):
     check_range(-9223372036854775808,vec[i],9223372036854775808)
     ptr[i] = vec[i]
-  lib.phish_pack_int64_array(ptr,n)
+  _library.phish_pack_int64_array(ptr,n)
 
 def pack_uint8_array(vec):
   n = len(vec)
@@ -260,7 +265,7 @@ def pack_uint8_array(vec):
   for i in xrange(n):
     check_range(0,vec[i],256)
     ptr[i] = vec[i]
-  lib.phish_pack_uint8_array(ptr,n)
+  _library.phish_pack_uint8_array(ptr,n)
 
 def pack_uint16_array(vec):
   n = len(vec)
@@ -268,7 +273,7 @@ def pack_uint16_array(vec):
   for i in xrange(n):
     check_range(0,vec[i],65536)
     ptr[i] = vec[i]
-  lib.phish_pack_uint16_array(ptr,n)
+  _library.phish_pack_uint16_array(ptr,n)
 
 def pack_uint32_array(vec):
   n = len(vec)
@@ -276,7 +281,7 @@ def pack_uint32_array(vec):
   for i in xrange(n):
     check_range(0,vec[i],4294967296)
     ptr[i] = vec[i]
-  lib.phish_pack_uint32_array(ptr,n)
+  _library.phish_pack_uint32_array(ptr,n)
 
 def pack_uint64_array(vec):
   n = len(vec)
@@ -284,39 +289,39 @@ def pack_uint64_array(vec):
   for i in xrange(n):
     check_range(0,vec[i],18446744073709551616)
     ptr[i] = vec[i]
-  lib.phish_pack_uint64_array(ptr,n)
+  _library.phish_pack_uint64_array(ptr,n)
 
 def pack_float_array(vec):
   n = len(vec)
   ptr = (c_float*n)()
   for i in xrange(n): ptr[i] = vec[i]
-  lib.phish_pack_float_array(ptr,n)
+  _library.phish_pack_float_array(ptr,n)
 
 def pack_double_array(vec):
   n = len(vec)
   ptr = (c_double*n)()
   for i in xrange(n): ptr[i] = vec[i]
-  lib.phish_pack_double_array(ptr,n)
+  _library.phish_pack_double_array(ptr,n)
 
 # pickle an aribitrary Python object, to convert it to a string of bytes
-  
+
 def pack_pickle(obj):
   cobj = dumps(obj,1)
-  lib.phish_pack_pickle(cobj,len(cobj))
+  _library.phish_pack_pickle(cobj,len(cobj))
 
 # unpack based on data type
-  
+
 def unpack():
   buf = c_char_p()
   len = c_int32()
-  type = lib.phish_unpack(byref(buf),byref(len))
-  
+  type = _library.phish_unpack(byref(buf),byref(len))
+
   # return raw buf ptr and user-specified len
   # caller can do a ctypes cast to any POINTER
-  
+
   if type == RAW:
     return type,buf,len.value
-  
+
   if type == CHAR:
     ptr = cast(buf,POINTER(c_char))
     return type,ptr[0],len.value
@@ -405,49 +410,49 @@ def unpack():
 
   # unpickle the string of bytes back into a Python object
   # return object and length of byte string
-  
+
   if type == PICKLE:
     ptr = cast(buf,POINTER(c_char))
     obj = loads(ptr[:len.value])
     return type,obj,len.value
-  
+
 def datum(flag):
-  return lib.phish_datum(flag)
+  return _library.phish_datum(flag)
 
 # queue functions
 
 def queue():
-  return lib.phish_queue()
+  return _library.phish_queue()
 
 def dequeue(n):
-  return lib.phish_dequeue(n)
+  return _library.phish_dequeue(n)
 
 def nqueue():
-  return lib.phish_nqueue()
+  return _library.phish_nqueue()
 
 # query/set functions
 
 def query(str,flag1,flag2):
-  return lib.phish_query(str,flag1,flag2)
+  return _library.phish_query(str,flag1,flag2)
 
 def set(str,flag1,flag2):
-  lib.phish_set(str,flag1,flag2)
+  _library.phish_set(str,flag1,flag2)
 
 # error functions
-  
+
 def error(str):
-  lib.phish_error(str)
+  _library.phish_error(str)
 
 def warn(str):
-  lib.phish_warn(str)
+  _library.phish_warn(str)
 
 def abort():
-  lib.phish_abort()
+  _library.phish_abort()
 
 # timer function
-  
+
 def timer():
-  return lib.phish_timer()
+  return _library.phish_timer()
 
 # callback functions
 
@@ -464,6 +469,6 @@ datum1_def = DATUMFUNC(datum1_callback)
 DONEFUNC = CFUNCTYPE(c_void_p)
 done0_def = DONEFUNC(done0_callback)
 done1_def = DONEFUNC(done1_callback)
-  
+
 PROBEFUNC = CFUNCTYPE(c_void_p)
 probe_def = PROBEFUNC(probe_callback)
