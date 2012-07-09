@@ -58,10 +58,12 @@ def backend(name):
 
 
 def init(args):
-  narg = len(args)
-  cargs = (c_char_p*narg)(*args)
-  n = _library.phish_init_python(narg,cargs)
-  return args[n:]
+  argc = pointer(c_int(len(args)))
+
+  argv = POINTER(POINTER(c_char_p))()
+  argv.contents = pointer((c_char_p * len(args))(*args))
+  _library.phish_init(argc, argv)
+  return [argv.contents[i] for i in range(argc.contents.value)]
 
 def exit():
   _library.phish_exit()

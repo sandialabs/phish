@@ -463,11 +463,6 @@ void phish_init(int* argc, char*** argv)
   *argv = get_argv(kept_arguments);
 }
 
-int phish_init_python(int, char **)
-{
-  throw std::runtime_error("Not implemented.");
-}
-
 void phish_exit()
 {
   // Close output ports ...

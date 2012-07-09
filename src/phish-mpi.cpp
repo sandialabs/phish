@@ -435,15 +435,6 @@ void phish_init(int* argc, char*** argv)
 
 /* ---------------------------------------------------------------------- */
 
-int phish_init_python(int narg, char **args)
-{
-  int narg_start = narg;
-  phish_init(&narg,&args);
-  return narg_start-narg;
-}
-
-/* ---------------------------------------------------------------------- */
-
 void phish_exit()
 {
   if (!initflag) phish_error("Phish_init has not been called");
