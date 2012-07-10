@@ -52,6 +52,7 @@ void phish_bait_reset()
 {
   g_settings.clear();
   g_school_index_map.clear();
+  g_minnow_index_map.clear();
   g_schools.clear();
   g_hooks.clear();
   g_minnows.clear();
