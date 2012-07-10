@@ -6,6 +6,7 @@ import sys
 
 parser = optparse.OptionParser()
 parser.add_option("--graphviz", default=False, action="store_true", help="Use the graphviz backend.")
+parser.add_option("--mpi", default=False, action="store_true", help="Use the MPI backend.")
 parser.add_option("--mpi-config", default=False, action="store_true", help="Use the MPI config file backend.")
 parser.add_option("--path", default="", help="Specify a colon-delimited list of paths to be prepended to executable names.")
 parser.add_option("--set", "-s", action="append", nargs=2, default=[], help="Set a backend-specific name-value pair.")
@@ -117,11 +118,13 @@ if options.verbose:
     sys.stderr.flush()
 
 # Pass the parsed data to the bait backend ...
-if options.graphviz + options.mpi_config + options.zmq != 1:
-  raise Exception("You must specify a single backend using --graphviz, --mpi-config, or --zmq.")
+if options.graphviz + options.mpi + options.mpi_config + options.zmq != 1:
+  raise Exception("You must specify a single backend using --graphviz, --mpi, --mpi-config, or --zmq.")
 
 if options.graphviz:
   phish.bait.backend("graphviz")
+if options.mpi:
+  phish.bait.backend("mpi")
 if options.mpi_config:
   phish.bait.backend("mpi-config")
 if options.zmq:
