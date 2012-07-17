@@ -4,21 +4,40 @@ import os
 import re
 import sys
 
+def variable_callback(option, opt_str, value, parser):
+  def floatable(string):
+    try:
+      float(string)
+      return True
+    except ValueError:
+      return False
+
+  value = []
+  for arg in parser.rargs:
+    # stop on --foo like options
+    if arg[:2] == "--" and len(arg) > 2:
+      break
+    # stop on -a, but not on -3 or -3.0
+    if arg[:1] == "-" and len(arg) > 1 and not floatable(arg):
+      break
+    value.append(arg)
+  del parser.rargs[:len(value)]
+
+  value = (value[0], value[1:])
+  parser.values.variable.append(value)
+
 parser = optparse.OptionParser()
-parser.add_option("--graphviz", default=False, action="store_true", help="Use the graphviz backend.")
-parser.add_option("--mpi", default=False, action="store_true", help="Use the MPI backend.")
-parser.add_option("--mpi-config", default=False, action="store_true", help="Use the MPI config file backend.")
-parser.add_option("--path", default="", help="Specify a colon-delimited list of paths to be prepended to executable names.")
-parser.add_option("--set", "-s", action="append", nargs=2, default=[], help="Set a backend-specific name-value pair.")
+parser.add_option("--backend", default=None, help="Specify the backend to use: graphviz, mpi, mpi-config, null, or zmq.")
+parser.add_option("--path", default="", metavar="PATH1:PATH2:...", help="Specify a colon-delimited list of paths to be prepended to executable names.")
+parser.add_option("--set", "-s", action="append", nargs=2, default=[], metavar="NAME VALUE", help="Set a backend-specific name-value pair.")
 parser.add_option("--suffix", default="", help="Add a common suffix to minnow executables.")
-parser.add_option("--variable", "-v", action="append", nargs=2, default=[], help="Specify a variable value.")
+parser.add_option("--variable", "-v", action="callback", callback=variable_callback, dest="variable", default=[], metavar="NAME VALUE", help="Specify a variable value.")
 parser.add_option("--verbose", default=False, action="store_true", help="Verbose output.  Default: %default.")
-parser.add_option("--zmq", default=False, action="store_true", help="Use the ZMQ backend.")
 options, arguments = parser.parse_args()
 
 paths = options.path.split(":")
 settings = dict(options.set)
-variables = dict([(key, [value]) for key, value in options.variable])
+variables = dict([(key, value) for key, value in options.variable])
 
 schools = {}
 hooks = []
@@ -57,6 +76,9 @@ for line_number, line in enumerate(script):
     else:
       expanded.append(argument)
   arguments = expanded
+
+  if options.verbose:
+    sys.stderr.write("%s\n" % (" ".join([command] + arguments)))
 
   if command == "set":
     key = arguments[0]
@@ -118,17 +140,10 @@ if options.verbose:
     sys.stderr.flush()
 
 # Pass the parsed data to the bait backend ...
-if options.graphviz + options.mpi + options.mpi_config + options.zmq != 1:
-  raise Exception("You must specify a single backend using --graphviz, --mpi, --mpi-config, or --zmq.")
+if options.backend is None:
+  raise Exception("You must specify a backend using --backend.  Valid values are graphviz, mpi, mpi-config, null, zmq, or your own custom backend.")
 
-if options.graphviz:
-  phish.bait.backend("graphviz")
-if options.mpi:
-  phish.bait.backend("mpi")
-if options.mpi_config:
-  phish.bait.backend("mpi-config")
-if options.zmq:
-  phish.bait.backend("zmq")
+phish.bait.backend(options.backend)
 
 for name, value in settings.items():
   phish.bait.set(name, value)
