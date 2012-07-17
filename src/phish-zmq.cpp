@@ -25,8 +25,6 @@
 #include <phish-common.h>
 #include <zmq.hpp>
 
-#include <sys/time.h>
-
 #define phish_return_error(message, code) { phish_error(message); return code; }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -997,13 +995,6 @@ void phish_error(const char* message)
 void phish_warn(const char* message)
 {
   std::cerr << "PHISH ZMQ WARNING: Minnow " << g_name << " ID " << g_local_id << " # " << g_global_id << ": " << message << std::endl;
-}
-
-double phish_timer()
-{
-  timeval t;
-  ::gettimeofday(&t, 0);
-  return t.tv_sec + (t.tv_usec / 1000000.0);
 }
 
 }

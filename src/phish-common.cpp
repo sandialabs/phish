@@ -1,5 +1,7 @@
 #include <phish-common.h>
 
+#include <sys/time.h>
+
 void(*g_all_input_ports_closed)() = 0;
 void(*g_at_abort)(int*) = 0;
 
@@ -44,6 +46,13 @@ void phish_callback(void (*done)(), void(*at_abort)(int*))
 {
   g_all_input_ports_closed = done;
   g_at_abort = at_abort;
+}
+
+double phish_timer()
+{
+  timeval t;
+  ::gettimeofday(&t, 0);
+  return t.tv_sec + (t.tv_usec / 1000000.0);
 }
 
 } // extern "C"
