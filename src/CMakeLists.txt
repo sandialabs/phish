@@ -49,6 +49,13 @@ install(
   LIBRARY DESTINATION lib
   )
 
+add_library(phish-bait-null SHARED phish-bait-null.cpp)
+target_link_libraries(phish-bait-null phish-bait-common)
+install(
+  TARGETS phish-bait-null
+  LIBRARY DESTINATION lib
+  )
+
 add_library(phish-bait-mpi SHARED phish-bait-mpi.cpp)
 target_link_libraries(phish-bait-mpi phish-bait-common phish-bait-mpi-common)
 install(
