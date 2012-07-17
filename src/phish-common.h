@@ -18,6 +18,10 @@ extern int g_local_count;
 extern int g_global_id;
 // Number of minnows in the global net ...
 extern int g_global_count;
+// Set to true after phish_init() is called ...
+extern bool g_initialized;
+// Set to true after phish_check() is called ...
+extern bool g_checked;
 
 // Stores a callback to be called when the last input port is closed ...
 extern void(*g_all_input_ports_closed)();
@@ -35,5 +39,11 @@ char** get_argv(const std::vector<std::string>& arguments);
 int phish_abort_internal();
 
 void phish_message(const char* type, const char* message);
+
+#define phish_return_error(message, code) { phish_error(message); return code; }
+#define phish_assert_initialized() { if (!g_initialized) { phish_return_error("phish_init() has not been called.", -2); } }
+#define phish_assert_not_initialized() { if (g_initialized) { phish_return_error("phish_init() has already been called.", -3); } }
+#define phish_assert_checked() { if (!g_checked) { phish_return_error("phish_check() has not been called.", -4); } }
+#define phish_assert_not_checked() { if (g_checked) { phish_return_error("phish_check() has already been called.", -5); } }
 
 #endif // !PHISH_COMMON_H

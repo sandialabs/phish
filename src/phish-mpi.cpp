@@ -30,9 +30,6 @@
 #include "zmq.h"
 #endif
 
-#define phish_return_error(message, code) { phish_error(message); return code; }
-#define phish_assert_initialized() { if (!initflag) phish_return_error("phish_init() has not been called.", -2); }
-
 /* ---------------------------------------------------------------------- */
 // definitions
 
@@ -60,8 +57,6 @@ typedef void (AbortFunc)(int*);
 MPI_Comm world;           // MPI communicator
 int me,nprocs;            // MPI rank and total # of procs
 
-int initflag;             // 1 if phish_init has been called
-int checkflag;            // 1 if phish_check has been called
 
 
 int maxbuf;               // max allowed datum size in bytes
@@ -153,9 +148,9 @@ void deallocate_ports();
 
 /* ---------------------------------------------------------------------- */
 
-void phish_init(int* argc, char*** argv)
+int phish_init(int* argc, char*** argv)
 {
-  if (initflag) phish_error("Phish_init has already been called");
+  phish_assert_not_initialized();
 
   // initialize MPI
 
@@ -167,8 +162,7 @@ void phish_init(int* argc, char*** argv)
 
   // library status
 
-  initflag = 1;
-  checkflag = 0;
+  g_initialized = true;
   lastport = -1;
   nqueue = maxqueue = 0;
   queue = NULL;
@@ -425,14 +419,16 @@ void phish_init(int* argc, char*** argv)
 
   sptr = sbuf + sizeof(int32_t);
   npack = 0;
+
+  return 0;
 }
 
 /* ---------------------------------------------------------------------- */
 
-void phish_exit()
+int phish_exit()
 {
-  if (!initflag) phish_error("Phish_init has not been called");
-  if (!checkflag) phish_error("Phish_check has not been called");
+  phish_assert_initialized();
+  phish_assert_checked();
 
   // generate stats
 
@@ -460,7 +456,8 @@ void phish_exit()
   // shut-down MPI
 
   MPI_Finalize();
-  initflag = checkflag = 0;
+
+  return 0;
 }
 
 /* ----------------------------------------------------------------------
@@ -468,22 +465,23 @@ void phish_exit()
    reqflag = 1 if port must be used by input script
 ------------------------------------------------------------------------- */
 
-void phish_input(int iport, void (*datumfunc)(int), 
-		 void (*donefunc)(), int reqflag)
+int phish_input(int iport, void (*datumfunc)(int), void (*donefunc)(), int reqflag)
 {
-  if (!initflag) phish_error("Phish_init has not been called");
-  if (checkflag) phish_error("Phish_check has already been called");
+  phish_assert_initialized();
+  phish_assert_not_checked();
 
   if (iport < 0 || iport > MAXPORT)
-    phish_error("Invalid port ID in phish_input");
+    phish_return_error("Invalid port ID in phish_input", -1);
 
   if (reqflag && inports[iport].status == UNUSED_PORT)
-    phish_error("Input script does not use a required input port");
+    phish_return_error("Input script does not use a required input port", -1);
 
-  if (inports[iport].status == UNUSED_PORT) return;
+  if (inports[iport].status == UNUSED_PORT) return 0;
   inports[iport].status = OPEN_PORT;
   inports[iport].datumfunc = datumfunc;
   inports[iport].donefunc = donefunc;
+
+  return 0;
 }
 
 /* ----------------------------------------------------------------------
@@ -491,16 +489,18 @@ void phish_input(int iport, void (*datumfunc)(int),
    no reqflag setting, since script does not have to use the port
 ------------------------------------------------------------------------- */
 
-void phish_output(int iport)
+int phish_output(int iport)
 {
-  if (!initflag) phish_error("Phish_init has not been called");
-  if (checkflag) phish_error("Phish_check has already been called");
+  phish_assert_initialized();
+  phish_assert_not_checked();
 
   if (iport < 0 || iport > MAXPORT)
-    phish_error("Invalid port ID in phish_output");
+    phish_return_error("Invalid port ID in phish_output", -1);
 
-  if (outports[iport].status == UNUSED_PORT) return;
+  if (outports[iport].status == UNUSED_PORT) return 0;
   outports[iport].status = OPEN_PORT;
+
+  return 0;
 }
 
 /* ----------------------------------------------------------------------
@@ -510,8 +510,8 @@ void phish_output(int iport)
 int phish_check()
 {
   phish_assert_initialized();
-  if (checkflag) phish_error("Phish_check has already been called");
-  checkflag = 1;
+  phish_assert_not_checked();
+  g_checked = true;
 
   // args processed by phish_init() requested various input ports
   // flagged them as CLOSED, others as UNUSED
@@ -552,14 +552,14 @@ int phish_check()
    close output port iport
 ------------------------------------------------------------------------- */
 
-void phish_close(int iport)
+int phish_close(int iport)
 {
-  if (!checkflag) phish_error("Phish_check has not been called");
+  phish_assert_checked();
 
   if (iport < 0 || iport >= MAXPORT)
-    phish_error("Invalid port ID in phish_close");
+    phish_return_error("Invalid port ID in phish_close", -1);
   OutPort *op = &outports[iport];
-  if (op->status != OPEN_PORT) return;
+  if (op->status != OPEN_PORT) return 0;
 
   // loop over connections
   // loop over all receivers in connection
@@ -599,6 +599,8 @@ void phish_close(int iport)
   }
 
   outports[iport].status = CLOSED_PORT;
+
+  return 0;
 }
 
 /* ----------------------------------------------------------------------
@@ -607,12 +609,12 @@ void phish_close(int iport)
    check datum for DONE message, else callback to datumfunc()
 ------------------------------------------------------------------------- */
 
-void phish_loop()
+int phish_loop()
 {
+  phish_assert_checked();
+
   int iport,doneflag;
   MPI_Status status;
-
-  if (!checkflag) phish_error("Phish_check has not been called");
 
   while (1) {
     MPI_Recv(rbuf,maxbuf,MPI_BYTE,MPI_ANY_SOURCE,MPI_ANY_TAG,world,&status);
@@ -636,7 +638,7 @@ void phish_loop()
 	donecount++;
 	if (donecount == ninports) {
 	  if (g_all_input_ports_closed) (*g_all_input_ports_closed)();
-	  return;
+	  return 0;
 	}
       }
 
@@ -651,6 +653,8 @@ void phish_loop()
       }
     }
   }
+
+  return 0;
 }
 
 /* ----------------------------------------------------------------------
@@ -660,13 +664,14 @@ void phish_loop()
    if datum, check for DONE message, else callback to datumfunc()
 ------------------------------------------------------------------------- */
 
-void phish_probe(void (*probefunc)())
+int phish_probe(void (*probefunc)())
 {
+  phish_assert_checked();
+  if (!probefunc)
+    phish_return_error("phish_probe callback cannot be NULL", -1);
+
   int flag,iport,doneflag;
   MPI_Status status;
-
-  if (!checkflag) phish_error("Phish_check has not been called");
-  if (!probefunc) phish_error("Phish_probe callback cannot be NULL");
 
   while (1) {
     MPI_Iprobe(MPI_ANY_SOURCE,MPI_ANY_TAG,world,&flag,&status);
@@ -681,7 +686,7 @@ void phish_probe(void (*probefunc)())
 
       InputPort *ip = &inports[iport];
       if (ip->status != OPEN_PORT)
-	phish_error("Received datum on closed or unused port");
+	phish_return_error("Received datum on closed or unused port", -1);
       lastport = iport;
 
       if (doneflag) {
@@ -692,7 +697,7 @@ void phish_probe(void (*probefunc)())
 	  donecount++;
 	  if (donecount == ninports) {
 	    if (g_all_input_ports_closed) (*g_all_input_ports_closed)();
-	    return;
+	    return 0;
 	  }
 	}
 
@@ -708,6 +713,8 @@ void phish_probe(void (*probefunc)())
       }
     } else (*probefunc)();
   }
+
+  return 0;
 }
 
 /* ----------------------------------------------------------------------
@@ -722,7 +729,7 @@ void phish_probe(void (*probefunc)())
 
 int phish_recv()
 {
-  if (!checkflag) phish_error("Phish_check has not been called");
+  phish_assert_checked();
 
   int flag;
   MPI_Status status;
@@ -1448,30 +1455,32 @@ int phish_query(const char *keyword, int flag1, int flag2)
      used by application to permute the ordering of the ring
 ------------------------------------------------------------------------- */
 
-void phish_set(const char *keyword, int flag1, int flag2)
+int phish_set(const char *keyword, int flag1, int flag2)
 {
-  if (!initflag) phish_error("Phish_init has not been called");
+  phish_assert_initialized();
 
   if (strcmp(keyword,"ring/receiver") == 0) {
     int iport = flag1;
     int receiver = flag2;
 
     if (iport < 0 || iport >= MAXPORT) 
-      phish_error("Invalid port ID in phish_");
+      phish_return_error("Invalid port ID in phish_set", -1);
     OutPort *op = &outports[iport];
     if (op->status == UNUSED_PORT || op->status == CLOSED_PORT) 
-      phish_error("Unused or closed port in phish_set ring/receiver");
-    
+      phish_return_error("Unused or closed port in phish_set ring/receiver", -1);
+
     for (int iconnect = 0; iconnect < op->nconnect; iconnect++) {
       OutConnect *oc = &op->connects[iconnect];
       if (oc->style == RING) {
 	if (receiver < 0 || receiver >= oc->nrecv)
-	  phish_error("Invalid receiver in phish_set ring/receiver");
+	  phish_return_error("Invalid receiver in phish_set ring/receiver", -1);
 	oc->recvone = oc->recvfirst + receiver;
       }
     }
 
-  } else phish_error("Invalid phish_set keyword");
+  } else phish_return_error("Invalid phish_set keyword", -1);
+
+  return 0;
 }
 
 void phish_abort()

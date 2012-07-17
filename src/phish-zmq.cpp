@@ -300,8 +300,10 @@ public:
 extern "C"
 {
 
-void phish_init(int* argc, char*** argv)
+int phish_init(int* argc, char*** argv)
 {
+  phish_assert_not_initialized();
+
   std::vector<std::string> arguments(*argv, *argv + *argc);
   std::vector<std::string> kept_arguments;
 
@@ -415,7 +417,7 @@ void phish_init(int* argc, char*** argv)
       {
         std::ostringstream message;
         message << "Unknown send pattern: " << pattern;
-        throw std::runtime_error(message.str());
+        phish_return_error(message.str().c_str(), -1);
       }
     }
     else
@@ -437,16 +439,21 @@ void phish_init(int* argc, char*** argv)
   {
     std::ostringstream message;
     message << "Unexpected request: " << request;
-    throw std::runtime_error(message.str());
+    phish_return_error(message.str().c_str(), -1);
   }
 
   // Cleanup argc & argv ...
   *argc = get_argc(kept_arguments);
   *argv = get_argv(kept_arguments);
+
+  return 0;
 }
 
-void phish_exit()
+int phish_exit()
 {
+  phish_assert_initialized();
+  phish_assert_checked();
+
   // Close output ports ...
   const port_collection ports = output_ports();
   for(port_collection::const_iterator port = ports.begin(); port != ports.end(); ++port)
@@ -473,6 +480,8 @@ void phish_exit()
 */
   ::sleep(5);
   g_context = 0;
+
+  return 0;
 }
 
 void phish_abort()
@@ -484,20 +493,33 @@ void phish_abort()
   exit(-1);
 }
 
-void phish_input(int port, void(*message_callback)(int), void(*port_closed_callback)(), int required)
+int phish_input(int port, void(*message_callback)(int), void(*port_closed_callback)(), int required)
 {
+  phish_assert_initialized();
+  phish_assert_not_checked();
+
   g_input_port_message_callback[port] = message_callback;
   g_input_port_closed_callback[port] = port_closed_callback;
   g_input_port_required[port] = required;
+
+  return 0;
 }
 
-void phish_output(int port)
+int phish_output(int port)
 {
+  phish_assert_initialized();
+  phish_assert_not_checked();
+
   g_defined_output_ports.insert(port);
+
+  return 0;
 }
 
 int phish_check()
 {
+  phish_assert_initialized();
+  phish_assert_not_checked();
+
   for(std::map<int, int>::iterator port = g_input_port_connection_count.begin(); port != g_input_port_connection_count.end(); ++port)
   {
     if(!g_input_port_message_callback.count(port->first))
@@ -529,21 +551,29 @@ int phish_check()
   return 0;
 }
 
-void phish_close(int port)
+int phish_close(int port)
 {
+  phish_assert_initialized();
+  phish_assert_checked();
+
   if(!g_output_connections.count(port))
-    return;
+    return 0;
   for(int i = 0; i != g_output_connections[port].size(); ++i)
     delete g_output_connections[port][i];
   g_output_connections.erase(port);
+
+  return 0;
 }
 
-void phish_loop()
+int phish_loop()
 {
+  phish_assert_initialized();
+  phish_assert_checked();
+
   if(g_running)
   {
     phish_warn("Cannot call phish_loop() while a loop is already running.");
-    return;
+    return 0;
   }
   g_running = true;
 
@@ -597,14 +627,19 @@ void phish_loop()
       phish_warn(e.what());
     }
   }
+
+  return 0;
 }
 
-void phish_probe(void (*idle_callback)())
+int phish_probe(void (*idle_callback)())
 {
+  phish_assert_initialized();
+  phish_assert_checked();
+
   if(g_running)
   {
     phish_warn("Cannot call phish_probe() while a loop is already running.");
-    return;
+    return 0;
   }
   g_running = true;
 
@@ -669,6 +704,8 @@ void phish_probe(void (*idle_callback)())
       phish_warn(e.what());
     }
   }
+
+  return 0;
 }
 
 int phish_recv()
@@ -747,7 +784,8 @@ void phish_send(int port)
   {
     std::ostringstream message;
     message << "Cannot send message to closed port: " << port;
-    throw std::runtime_error(message.str());
+    phish_warn(message.str().c_str());
+    return;
   }
 
   const int end = g_output_connections[port].size();
@@ -767,7 +805,8 @@ void phish_send_key(int port, char* key, int key_length)
   {
     std::ostringstream message;
     message << "Cannot send message to closed port: " << port;
-    throw std::runtime_error(message.str());
+    phish_warn(message.str().c_str());
+    return;
   }
 
   const int end = g_output_connections[port].size();
@@ -787,7 +826,8 @@ void phish_send_direct(int port, int receiver)
   {
     std::ostringstream message;
     message << "Cannot send message to closed port: " << port;
-    throw std::runtime_error(message.str());
+    phish_warn(message.str().c_str());
+    return;
   }
 
   const int end = g_output_connections[port].size();
@@ -803,7 +843,7 @@ void phish_send_direct(int port, int receiver)
 
 void phish_reset_receiver(int, int)
 {
-  throw std::runtime_error("Not implemented.");
+  phish_warn("phish_reset_receiver() Not implemented.");
 }
 
 void phish_repack()
@@ -940,7 +980,7 @@ void phish_pack_pickle(char* data, int32_t count)
 int phish_unpack(char** data, int32_t* count)
 {
   if(g_unpack_index >= g_unpack_count)
-    throw std::runtime_error("No data to unpack.");
+    phish_return_error("No data to unpack.", -1);
 
   const uint8_t* message_data = reinterpret_cast<uint8_t*>(g_unpack_messages[g_unpack_index]->data());
 

@@ -47,17 +47,17 @@
 extern "C" {
 #endif
 
-void phish_init(int *, char ***);
-void phish_exit();
+int phish_init(int* argc, char*** argv);
+int phish_exit();
 
-void phish_input(int, void(*)(int), void(*)(), int);
-void phish_output(int);
+int phish_input(int input_port, void(*datumfunc)(int), void(*donefunc)(), int required);
+int phish_output(int output_port);
 int phish_check();
-void phish_callback(void (*)(), void(*)(int*));
-void phish_close(int);
+void phish_callback(void(*alldonefunc)(), void(*abortfunc)(int*));
+int phish_close(int output_port);
 
-void phish_loop();
-void phish_probe(void (*)());
+int phish_loop();
+int phish_probe(void(*idlefunc)());
 int phish_recv();
 
 void phish_send(int);
@@ -100,7 +100,7 @@ int phish_nqueue();
 
 int phish_query(const char *, int, int);
 const char* phish_host();
-  void phish_set(const char *, int, int);
+int phish_set(const char *, int, int);
 void phish_error(const char *);
 void phish_warn(const char *);
 void phish_abort();

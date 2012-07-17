@@ -12,6 +12,8 @@ int g_local_id = 0;
 int g_local_count = 0;
 int g_global_id = 0;
 int g_global_count = 0;
+bool g_initialized = false;
+bool g_checked = false;
 
 void(*g_all_input_ports_closed)() = 0;
 void(*g_at_abort)(int*) = 0;
