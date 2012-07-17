@@ -73,9 +73,6 @@ int maxbuf;               // max allowed datum size in bytes
 int memchunk;             // max allowed datum size in Kbytes
 int safe;                 // do safe MPI sends every this many sends (0 = never)
 
-DoneFunc *alldonefunc;    // callback when all input ports closed
-AbortFunc *abortfunc;     // callback before aborting
-
 // input ports
 // each can have multiple connections from output ports of other minnows
 
@@ -185,8 +182,6 @@ void phish_init(int* argc, char*** argv)
 
   memchunk = 1;
   safe = 0;
-  alldonefunc = NULL;
-  abortfunc = NULL;
 
   // port allocation
 
@@ -557,19 +552,6 @@ int phish_check()
 }
 
 /* ----------------------------------------------------------------------
-   set callback functions
-   alldonefunc = invoked when all input ports are closed
-   abortfunc = invoked when PHISH aborts via phish_error()
-   allow this one func to be called before phish_init() is called
-------------------------------------------------------------------------- */
-
-void phish_callback(void (*func1)(), void (*func2)(int*))
-{
-  if (func1) alldonefunc = func1;
-  if (func2) abortfunc = func2;
-}
-
-/* ----------------------------------------------------------------------
    close output port iport
 ------------------------------------------------------------------------- */
 
@@ -656,7 +638,7 @@ void phish_loop()
 	if (ip->donefunc) (*ip->donefunc)();
 	donecount++;
 	if (donecount == ninports) {
-	  if (alldonefunc) (*alldonefunc)();
+	  if (g_all_input_ports_closed) (*g_all_input_ports_closed)();
 	  return;
 	}
       }
@@ -712,7 +694,7 @@ void phish_probe(void (*probefunc)())
 	  if (ip->donefunc) (*ip->donefunc)();
 	  donecount++;
 	  if (donecount == ninports) {
-	    if (alldonefunc) (*alldonefunc)();
+	    if (g_all_input_ports_closed) (*g_all_input_ports_closed)();
 	    return;
 	  }
 	}
@@ -771,7 +753,7 @@ int phish_recv()
       ip->status = CLOSED_PORT;
       if (ip->donefunc) (*ip->donefunc)();
       donecount++;
-      if (donecount == ninports && alldonefunc) (*alldonefunc)();
+      if (donecount == ninports && g_all_input_ports_closed) (*g_all_input_ports_closed)();
     }
     return -1;
   }
@@ -1512,15 +1494,7 @@ void phish_error(const char *str)
   fprintf(stderr,"PHISH MPI ERROR: Minnow %s ID %s # %d: %s\n",
 	  exename,idminnow,idglobal,str);
 
-  if (abortfunc)
-  {
-    int cancel = false;
-    (*abortfunc)(&cancel);
-    if(cancel)
-      return;
-  }
-
-  MPI_Abort(world,1);
+  phish_abort();
 }
 
 /* ---------------------------------------------------------------------- */
@@ -1535,6 +1509,9 @@ void phish_warn(const char *str)
 
 void phish_abort()
 {
+  if(!phish_abort_internal())
+    return;
+
   MPI_Abort(world,1);
 }
 

@@ -45,9 +45,6 @@ static int g_global_id = 0;
 // Number of minnows in the global school ...
 static int g_global_count = 0;
 
-// Stores an optional callback to be called by phish_abort() ...
-static void(*g_at_abort)(int*) = 0;
-
 // ZMQ context and incoming sockets ...
 static zmq::context_t* g_context = 0;
 static zmq::socket_t* g_control_port = 0;
@@ -63,8 +60,6 @@ static std::map<int, void(*)()> g_input_port_closed_callback;
 static std::map<int, bool> g_input_port_required;
 // Stores the number of incoming connections for each input port ...
 static std::map<int, int> g_input_port_connection_count;
-// Stores a callback to be called when the last input port is closed ...
-static void(*g_all_input_ports_closed)();
 
 // Temporary storage for packing outgoing messages ...
 static std::vector<zmq::message_t*> g_pack_messages;
@@ -493,13 +488,8 @@ void phish_exit()
 
 void phish_abort()
 {
-  if(g_at_abort)
-  {
-    int cancel = false;
-    g_at_abort(&cancel);
-    if(cancel)
-      return;
-  }
+  if(!phish_abort_internal())
+    return;
 
   phish_warn("Currently, phish_abort() doesn't shut-down the entire school.");
   exit(-1);
@@ -548,12 +538,6 @@ int phish_check()
   }
 
   return 0;
-}
-
-void phish_callback(void (*done)(), void(*at_abort)(int*))
-{
-  g_all_input_ports_closed = done;
-  g_at_abort = at_abort;
 }
 
 void phish_close(int port)
