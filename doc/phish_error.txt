@@ -25,16 +25,16 @@ phish_abort();
 
 [C++ syntax:]
 
-void error(char *str)
-void warn(char *str)
-void abort() :pre
+void phish::error(char *str)
+void phish::warn(char *str)
+void phish::abort() :pre
 
 [C++ examples:]
 
 #include "phish.hpp"
 phish::error("Bad datum received");
 phish::warn("May overflow internal buffer");
-phish::abort();
+phish::abort(); :pre
 
 [Python syntax:]
 
@@ -51,7 +51,7 @@ phish.abort() :pre
 
 [Description:]
 
-There are PHISH library functions which can be called from a minnow
+These are PHISH library functions which can be called from a minnow
 application.  In "PHISH lingo"_Section_intro.html#intro_2, a "minnow"
 is a stand-alone application which makes calls to the "PHISH
 library"_Library.html.
@@ -64,7 +64,7 @@ These functions can be called by a minnow, but are also called
 internally by the PHISH library when error conditions are encountered.
 
 Also note that unlike calling "phish_exit"_phish_exit.html, these
-functions do not close a minnows input or output ports.  The latter
+functions do not close a minnow's input or output ports, or
 trigger "done" messages to be sent to downstream minnows.  This means
 that no other minnows are explicitly told about the failed minnow.
 However, see the discussion below about the phish_abort() function and
@@ -73,12 +73,10 @@ its effect on other minnows.
 :line
 
 The phish_error() function prints the specified character string to
-the screen, invokes the user-specified abort callback function if it
-is defined via "phish_callback"_phish_callback.html, then calls
-phish_abort().
+the screen, then calls phish_abort().
 
-The error message is printed in this format for the MPI version of the
-MPI library (replated MPI by SOCKET for the socket version):
+The error message is printed in the following format for the MPI version of the
+PHISH library (replace "MPI" with "ZMQ" for the socket version):
 
 PHISH MPI ERROR: Minnow exename ID idminnow # idglobal: message :pre
 
@@ -93,23 +91,24 @@ generated the error message.
 
 :line
 
-The phish_warn() function prints the specified character string to the
-screen, in the same format as phish_error(), execpt ERROR is replaced
-by WARNING.  The abort callback is not invoked and neither is
-phish_abort().  Control is simply returned to the calling minnow which
-can continue on.
+The phish_warn() function prints the specified character string to the screen,
+in the same format as phish_error(), execpt ERROR is replaced by WARNING.
+phish_abort() is not invoked and control is simply returned to the calling
+minnow which can continue executing.
 
 :line
 
-The phish_abort() function prints no message.  
+The phish_abort() function invokes the user-specified abort callback function
+defined via "phish_callback"_phish_callback.html.  If the callback function
+does not cancel the abort, the minnow then exits.
 
 For the MPI version of the PHISH library, phish_abort() invokes
 MPI_Abort(), which should force all minnows in the PHISH school to
 exit, and the "mpirun" or "mpiexec" command that launced the school to
 exit.
 
-TIM: how does this work for socket version?  Does it cause
-all minnows to exit?
+For the ZMQ version of the PHISH library, phish_abort() behavior is
+undefined.  In future versions of PHISH, all minnows in the net will exit.
 
 [Restrictions:] none
 
