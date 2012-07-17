@@ -75,18 +75,16 @@ its effect on other minnows.
 The phish_error() function prints the specified character string to
 the screen, then calls phish_abort().
 
-The error message is printed in the following format for the MPI version of the
-PHISH library (replace "MPI" with "ZMQ" for the socket version):
+The error message is printed with the following format:
 
-PHISH MPI ERROR: Minnow exename ID idminnow # idglobal: message :pre
+PHISH ERROR: Minnow executable ID school-id # global-id: message :pre
 
-where exename is the name of executable minnow file (not the full
-path, just the filename), idminnow is the ID of the minnow as
-specified in the PHISH input script, idglobal is the global-ID of the
-minnow, and message is the error message.  Each minnow has a global ID
-from 0 to Nglobal-1, where Nglobal is the total number of minnows in
-the school of minnows specified by the PHISH input script.  This
-supplementary information is helpful in debugging which minnow
+where "executable" is the name of executable minnow file (not the full path,
+just the filename), "school-id" is the ID of the minnow as specified in the
+PHISH input script, "global-id" is the global-ID of the minnow, and message is
+the error message.  Each minnow has a global ID from 0 to Nglobal-1, where
+Nglobal is the total number of minnows in the net specified by the PHISH input
+script.  This supplementary information is helpful in debugging which minnow
 generated the error message.
 
 :line
@@ -100,15 +98,14 @@ minnow which can continue executing.
 
 The phish_abort() function invokes the user-specified abort callback function
 defined via "phish_callback"_phish_callback.html.  If the callback function
-does not cancel the abort, the minnow then exits.
+does not cancel the abort, the minnow exits.
 
-For the MPI version of the PHISH library, phish_abort() invokes
-MPI_Abort(), which should force all minnows in the PHISH school to
-exit, and the "mpirun" or "mpiexec" command that launced the school to
-exit.
+For the MPI version of the PHISH library, phish_abort() invokes MPI_Abort(),
+which should force all minnows in the PHISH school to exit, along with the
+"mpirun" or "mpiexec" command that launched the net.
 
-For the ZMQ version of the PHISH library, phish_abort() behavior is
-undefined.  In future versions of PHISH, all minnows in the net will exit.
+For the ZMQ version of the PHISH library, phish_abort() behavior is undefined.
+We intend that in future versions of PHISH, all minnows in the net will exit.
 
 [Restrictions:] none
 
