@@ -1,6 +1,17 @@
+#include <phish.h>
 #include <phish-common.h>
 
+#include <iostream>
+
 #include <sys/time.h>
+
+std::string g_host = std::string();
+std::string g_executable = std::string();
+std::string g_school_id = std::string();
+int g_local_id = 0;
+int g_local_count = 0;
+int g_global_id = 0;
+int g_global_count = 0;
 
 void(*g_all_input_ports_closed)() = 0;
 void(*g_at_abort)(int*) = 0;
@@ -38,6 +49,11 @@ int phish_abort_internal()
   return !cancel;
 }
 
+void phish_message(const char* type, const char* message)
+{
+  std::cerr << "PHISH " << type << ": Minnow " << g_executable << " ID " << g_school_id << " # " << g_global_id << ": " << message << std::endl;
+}
+
 // Provide default implementations for some parts of the PHISH API ...
 extern "C"
 {
@@ -53,6 +69,22 @@ double phish_timer()
   timeval t;
   ::gettimeofday(&t, 0);
   return t.tv_sec + (t.tv_usec / 1000000.0);
+}
+
+const char* phish_host()
+{
+  return g_host.data();
+}
+
+void phish_error(const char* message)
+{
+  phish_message("ERROR", message);
+  phish_abort();
+}
+
+void phish_warn(const char* message)
+{
+  phish_message("WARNING", message);
 }
 
 } // extern "C"

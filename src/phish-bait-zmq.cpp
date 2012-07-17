@@ -63,7 +63,7 @@ int phish_bait_start()
       arguments.insert(arguments.end(), school.arguments.begin(), school.arguments.end());
       arguments.push_back("--phish-host");
       arguments.push_back(host);
-      arguments.push_back("--phish-name");
+      arguments.push_back("--phish-school-id");
       arguments.push_back(school.id);
       arguments.push_back("--phish-local-id");
       arguments.push_back(string_cast(minnow.local_id));

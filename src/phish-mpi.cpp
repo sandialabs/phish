@@ -23,6 +23,7 @@
 
 #include <phish-common.h>
 
+#include <sstream>
 // ZMQ support for publish/subscribe connections
 
 #ifdef PHISH_MPI_ZMQ
@@ -62,12 +63,6 @@ int me,nprocs;            // MPI rank and total # of procs
 int initflag;             // 1 if phish_init has been called
 int checkflag;            // 1 if phish_check has been called
 
-char *exename;            // name of minnow executable
-char *idminnow;           // ID of minnow in input script
-int idlocal;              // index of minnow within its set
-int nlocal;               // # of duplicate minnows via layout command
-int idglobal;             // index of minnow within global school
-int nglobal;              // # of total minnows in global school
 
 int maxbuf;               // max allowed datum size in bytes
 int memchunk;             // max allowed datum size in Kbytes
@@ -191,8 +186,7 @@ void phish_init(int* argc, char*** argv)
   std::vector<std::string> arguments(*argv, *argv + *argc);
   std::vector<std::string> kept_arguments;
 
-  exename = new char[arguments[0].size() + 1];
-  strcpy(exename, arguments[0].c_str());
+  g_executable = arguments[0];
 
   while(arguments.size())
   {
@@ -202,13 +196,12 @@ void phish_init(int* argc, char*** argv)
       if(arguments.size() < 3)
 	      phish_error("Invalid command-line args in phish_init");
 
-      idminnow = new char[arguments[0].size() + 1];
-      strcpy(idminnow, pop_argument(arguments).c_str());
-      nlocal = atoi(pop_argument(arguments).c_str());
+      g_school_id = pop_argument(arguments);
+      g_local_count = atoi(pop_argument(arguments).c_str());
       int nprev = atoi(pop_argument(arguments).c_str());
-      idlocal = me - nprev;
-      idglobal = me;
-      nglobal = nprocs;
+      g_local_id = me - nprev;
+      g_global_id = me;
+      g_global_count = nprocs;
     }
     else if(argument == "-memory")
     {
@@ -414,6 +407,12 @@ void phish_init(int* argc, char*** argv)
   *argc = get_argc(kept_arguments);
   *argv = get_argv(kept_arguments);
 
+  // Get this minnow's host ...
+  char host_buffer[MPI_MAX_PROCESSOR_NAME];
+  int length = 0;
+  MPI_Get_processor_name(host_buffer, &length);
+  g_host = std::string(host_buffer, length);
+
   // memory allocation/initialization for datum buffers
 
   maxbuf = memchunk * KBYTE;
@@ -457,8 +456,6 @@ void phish_exit()
   free(queue);
 
   deallocate_ports();
-  delete [] exename;
-  delete [] idminnow;
 
   // shut-down MPI
 
@@ -1387,10 +1384,10 @@ int phish_query(const char *keyword, int flag1, int flag2)
 {
   phish_assert_initialized();
 
-  if (strcmp(keyword,"idlocal") == 0) return idlocal;
-  else if (strcmp(keyword,"nlocal") == 0) return nlocal;
-  else if (strcmp(keyword,"idglobal") == 0) return idglobal;
-  else if (strcmp(keyword,"nglobal") == 0) return nglobal;
+  if (strcmp(keyword,"idlocal") == 0) return g_local_id;
+  else if (strcmp(keyword,"nlocal") == 0) return g_local_count;
+  else if (strcmp(keyword,"idglobal") == 0) return g_global_id;
+  else if (strcmp(keyword,"nglobal") == 0) return g_global_count;
   else if (strcmp(keyword,"inport/status") == 0) {
     int iport = flag1;
     if (iport < 0 || iport >= MAXPORT) 
@@ -1443,16 +1440,6 @@ int phish_query(const char *keyword, int flag1, int flag2)
   return 0;
 }
 
-char host_buffer[MPI_MAX_PROCESSOR_NAME];
-const char* phish_host()
-{
-  if (!initflag) phish_error("Phish_init has not been called");
-
-  int length = 0;
-  MPI_Get_processor_name(host_buffer, &length);
-  return host_buffer;
-}
-
 /* ----------------------------------------------------------------------
    reset internal PHISH info
    keyword = "ring/receiver"
@@ -1487,26 +1474,6 @@ void phish_set(const char *keyword, int flag1, int flag2)
   } else phish_error("Invalid phish_set keyword");
 }
 
-/* ---------------------------------------------------------------------- */
-
-void phish_error(const char *str)
-{
-  fprintf(stderr,"PHISH MPI ERROR: Minnow %s ID %s # %d: %s\n",
-	  exename,idminnow,idglobal,str);
-
-  phish_abort();
-}
-
-/* ---------------------------------------------------------------------- */
-
-void phish_warn(const char *str)
-{
-  fprintf(stderr,"PHISH MPI WARNING: Minnow %s ID %s # %d: %s\n",
-	  exename,idminnow,idglobal,str);
-}
-
-/* ---------------------------------------------------------------------- */
-
 void phish_abort()
 {
   if(!phish_abort_internal())
@@ -1529,9 +1496,10 @@ void phish_abort()
 
 void stats()
 {
-  // NOTE: why print this to stderr instead of stdout?
-  fprintf(stderr,"Stats: Minnow %s ID %s # %d: %lu %lu datums recv/sent\n",
-	  exename,idminnow,idglobal,rcount,scount);
+
+  std::ostringstream message;
+  message << rcount << " " << scount << " datums recv/sent";
+  phish_message("Stats", message.str().c_str());
 }
 
 /* ----------------------------------------------------------------------

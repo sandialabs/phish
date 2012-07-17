@@ -30,19 +30,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 // Internal state
 
-// Host for this minnow ...
-static std::string g_host = std::string();
-// Human-readable name for this minnow ...
-static std::string g_name = std::string();
-// This minnow's ID within the local group ...
-static int g_local_id = 0;
-// Number of minnows in the local group ...
-static int g_local_count = 0;
-// This minnow's ID within the global school ...
-static int g_global_id = 0;
-// Number of minnows in the global school ...
-static int g_global_count = 0;
-
 // ZMQ context and incoming sockets ...
 static zmq::context_t* g_context = 0;
 static zmq::socket_t* g_control_port = 0;
@@ -318,6 +305,8 @@ void phish_init(int* argc, char*** argv)
   std::vector<std::string> arguments(*argv, *argv + *argc);
   std::vector<std::string> kept_arguments;
 
+  g_executable = arguments[0];
+
   g_context = new zmq::context_t(2);
   while(arguments.size())
   {
@@ -326,9 +315,9 @@ void phish_init(int* argc, char*** argv)
     {
       g_host = pop_argument(arguments);
     }
-    else if(argument == "--phish-name")
+    else if(argument == "--phish-school-id")
     {
-      g_name = pop_argument(arguments);
+      g_school_id = pop_argument(arguments);
     }
     else if(argument == "--phish-local-id")
     {
@@ -474,7 +463,9 @@ void phish_exit()
   delete g_control_port;
   g_control_port = 0;
 
-  std::cerr << "Stats: Minnow " << g_name << " ID " << g_local_id << " # " << g_global_id << ": " << g_received_count << " " << g_sent_count << " datums recv/sent\n";
+  std::ostringstream message;
+  message << g_received_count << " " << g_sent_count << " datums recv/sent";
+  phish_message("Stats", message.str().c_str());
 
   // Shut-down zmq ...
 /* Don't try to shutdown zmq, see https://zeromq.jira.com/browse/LIBZMQ-229
@@ -512,7 +503,7 @@ int phish_check()
     if(!g_input_port_message_callback.count(port->first))
     {
       std::ostringstream message;
-      message << g_name << ": unexpected connection to undefined input port " << port->first;
+      message << g_school_id << ": unexpected connection to undefined input port " << port->first;
       phish_return_error(message.str().c_str(), -1);
     }
   }
@@ -521,7 +512,7 @@ int phish_check()
     if(!g_input_port_connection_count.count(port->first) && g_input_port_required[port->first])
     {
       std::ostringstream message;
-      message << g_name << ": required input port " << port->first << " does not have a connection.";
+      message << g_school_id << ": required input port " << port->first << " does not have a connection.";
       phish_return_error(message.str().c_str(), -1);
     }
   }
@@ -530,7 +521,7 @@ int phish_check()
     if(!g_defined_output_ports.count(port->first))
     {
       std::ostringstream message;
-      message << g_name << ": unexpected connection from undefined output port " << port->first;
+      message << g_school_id << ": unexpected connection from undefined output port " << port->first;
       phish_return_error(message.str().c_str(), -1);
     }
   }
@@ -981,21 +972,4 @@ int phish_query(const char* kw, int flag1, int flag2)
     phish_return_error("Invalid phish_query keyword.", -1);
 }
 
-const char* phish_host()
-{
-  return g_host.data();
-}
-
-void phish_error(const char* message)
-{
-  std::cerr << "PHISH ZMQ ERROR: Minnow " << g_name << " ID " << g_local_id << " # " << g_global_id << ": " << message << std::endl;
-  phish_abort();
-}
-
-void phish_warn(const char* message)
-{
-  std::cerr << "PHISH ZMQ WARNING: Minnow " << g_name << " ID " << g_local_id << " # " << g_global_id << ": " << message << std::endl;
-}
-
-}
-// extern "C"
+} // extern "C"
