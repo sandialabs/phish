@@ -31,7 +31,7 @@ These are the topics discussed:
 <P>Informatics is data-driven computing and is becoming more prevalent,
 even on large-scale parallel machines, traditionally used to run
 scientific simulations.  It can involve processing large archives of
-stored data or data that arrives on-the-fly in real time.  THe latter
+stored data or data that arrives on-the-fly in real time.  The latter
 is often referred to as "streaming" data.  Common attributes of
 streaming data are that it arrives continuously in a never-ending
 stream, its fast incoming rate requires it be processed as it arrives
@@ -53,7 +53,7 @@ choosing a set of processes (programs) and connecting them together in
 an appropriate fashion.  If written flexibly. individual programs can
 be re-used in different algorithms.
 </P>
-<P>PHISH is a small software package we created to make the task of
+<P>PHISH is a small software package to make the task of
 designing and developing such algorithms easier, and allowing the
 resulting program to be run in parallel, either on distributed memory
 platforms that support MPI message passing, or on a collection of
@@ -64,7 +64,7 @@ computers that support socket connections between them.
 <P>Parallelism can be achieved by using multiple copies of processes,
 each working on a part of the stream.  It is a framework or harness
 for connecting processes in a variety of simple, yet powerful, ways
-that enable parallel data processing.  While it is desinged with
+that enable parallel data processing.  While it is designed with
 streaming data in mind, it can also be used to process archived data
 from files or in a general sense to perform a computation in stages,
 using internally generated data of any type or size.  Hashing refers
@@ -134,8 +134,8 @@ Titan have nodes that can do MPI-style paralellism?).
 </P>
 <P>By contrast, PHISH minnows (nodes in the processing pipeline), are
 independent processes and the PHISH library moves data between them
-via "messages" which requires copying the aata, either using the
-message-passing MPI library or sockets.  This allows PHISH programs to
+via "messages" which requires copying the data, either using the
+MPI message-passing library or sockets.  This allows PHISH programs to
 be run on a broader range of hardware, and PHISH minnows to be
 developed as independent stand-alone applications, but also incurs a
 higher overhead for moving data from process to process.
@@ -153,8 +153,8 @@ Berkeley Software Development (BSD) license.  This effectively means
 that anyone can use the software for any purpose, including commercial
 redistribution. 
 
-<LI>The PHISH library is a small piece of code (couple 1000 lines), with a
-compact API (couple dozen functions).  It is written in C++, with a
+<LI>The PHISH library is a small piece of code, with a
+compact API.  It is written in C++, with a
 C-style interface, so that it can be easily called from programs
 written in a variety of languages (C, C++, Fortran, Python, etc).  The
 library is highly portable and can be compiled on any platform with a
@@ -186,23 +186,19 @@ allows data to be exchanged in various patterns between collections of
 independent processes (minnows).  This enables parallelism in data
 processing to be easily expressed and exploited. 
 
-<LI>PHISH input scripts can be converted into launch scripts via a
-provided Bait.py program.  This produces a file suitable for running
-either with MPI or sockets. 
+<LI>PHISH input scripts can be run directly or converted into launch scripts via the
+Bait.py program. 
 
-<LI>PHISH programs (nets) running on top of MPI are launched via the
-standard mpirun or mpiexec command.  Note that a PHISH net is
-different than the usual MPI program run on P processors where P
-copies of the same executable are launched.  A PHISH net typically
-consists of several different schools of minnows; each minnow is an
-independent executable. 
+<LI>PHISH programs (nets) running on top of MPI are launched via the standard
+mpiexec command.  Note that a PHISH net is different than the usual MPI program
+run on P processors where P copies of the same executable are launched.  A
+PHISH net typically consists of several different schools of minnows; each
+minnow is an independent executable. 
 
-<LI>PHISH programs (nets) running on top of sockets are launched via a
-provided Python script, called Launch.py, which mimics the operation
-of mpirun.  It invokes the set of independent processes (minnows) on
-various machines via ssh commands, sets up the socket connections
-between them, and synchrnoizes their launch so that no data is dropped
-as the processes (minnows) begin exchanging data. 
+<LI>PHISH programs (nets) running on top of sockets are launched via
+ssh commands, invoking the set of independent processes (minnows) on
+various machines and synchronizing their launch so that no messages are
+dropped as the processes (minnows) begin exchanging data. 
 
 <LI>PHISH programs (nets) can be run on a single processor, so long as the
 OS supports multiple processes.  They can be run on a multicore box.
@@ -236,12 +232,10 @@ tools typically used to perform a calculation, assuming you have
 designed an algorithm that can be encoded as a series of computational
 tasks, interconnected by moving chunks of data between them.
 </P>
-<OL><LI>build the PHISH library
-<LI>write and build one or more minnows that call the PHISH library
-<LI>write an input script defining a PHISH net, as schools of minnows and the communication patterns connecting them
-<LI>uss the bait.py tool to process the input script
-<LI>use mpirun or Launch.py to run the output file created by Bait.py,
-<LI>and perform the calculation 
+<OL><LI>Build the PHISH library.
+<LI>Write and build one or more minnows that call the PHISH library.
+<LI>Write an input script defining the minnows, schools and communication patterns that make a PHISH net.
+<LI>Use the bait.py tool to process the input script, either running it directly to perform the calculation or generating a config file for subsequent use with tools such as mpiexec. 
 </OL>
 <P>Step (1): An overview of the PHISH library and instructions for how to
 build it is given in <A HREF = "Section_library.html">this section</A>.
@@ -260,29 +254,6 @@ individual commands that explain their operation and options.
 <P>Step (4): The bait.py tool, its command-line options, and instructions
 on how to run it, are described in <A HREF = "Section_bait.html">this section</A>.
 </P>
-<P>Step (5): Bait.py produces a file as output.  If the "-mode mpich" or
-"-mode openmpi" switch was used, the file can be run using the
-standard mpirun command to run a parallel job.  In all the
-examples that follow, "outfile" is the name of the file
-produced by bait.py.
-</P>
-<P>For MPICH, you would do this as follows:
-</P>
-<PRE>mpiexec -configfile outfile 
-</PRE>
-<P>For OpenMPI, you would do this as follows:
-</P>
-<PRE>mpirun -configfile outfile 
-</PRE>
-<P>If the "-mode socket" switch was used with bait.py, then
-the file can be run using the Launch.py tool, as follows:
-</P>
-<PRE>launch.py ... outfile 
-</PRE>
-<P>TIM: Launch.py support the following command-line arguments ...
-</P>
-<P>TIM: Does launch.py need its own doc page?
-</P>
 <HR>
 
 <A NAME = "intro_5"></A><H4>1.5 Simple example 
@@ -298,28 +269,28 @@ perform the computation:
 <CENTER><IMG SRC = "JPG/wordcount.jpg">
 </CENTER>
 <P>Code for all 5 of these minnows is in the example directory of the
-PHISH distribution, both in C++ and Python.  The <I>FileGen</I> minnow
+PHISH distribution, both in C++ and Python.  The <I>filegen</I> minnow
 takes a list of files and/or directories as user input, searches them
 recursively, and generates a series of filenames.  The filenames are
-sent one-at-a-time to one of several <I>File2Words</I> minnows.  Each
+sent one-at-a-time to one of several <I>file2words</I> minnows.  Each
 receives a filename as input, opens and reads the content, and parses
-it into words.  Each word is hashed and sent to a specific <I>Count</I>
-minnow.  The key point is that each <I>Count</I> minnow will receive all
+it into words.  Each word is hashed and sent to a specific <I>count</I>
+minnow.  The key point is that each <I>count</I> minnow will receive all
 occurrences of a subset of possible words.  It stores an internal hash
 table and counts the occurrences of each word it receives.
 </P>
-<P>When the <I>FileGen</I> minnow sends the last filename if finds, it sends a
-"done" message to each of the <I>File2Words</I> minnows.  When they receive
-a "done" message, they send a "done" message to each <I>Count</I> minnow.
-When a <I>Count</I> minnow receives a "done" message from all the
-<I>File2Words</I> minnows, it sends its entire list of unique words and
-associated counts to the <I>Sort</I> minnow, followed by a "done" message.
-When the <I>Sort</I> minnow has received "done" message from all the
-upstream <I>Count</I> minnows, it knows it has received a list of all the
+<P>When the <I>filegen</I> minnow sends the last filename if finds, it sends a
+"done" message to each of the <I>file2words</I> minnows.  When they receive
+a "done" message, they send a "done" message to each <I>count</I> minnow.
+When a <I>count</I> minnow receives a "done" message from all the
+<I>file2words</I> minnows, it sends its entire list of unique words and
+associated counts to the <I>sort</I> minnow, followed by a "done" message.
+When the <I>sort</I> minnow has received "done" message from all the
+upstream <I>count</I> minnows, it knows it has received a list of all the
 unique words in the corpus of documents, and the count for each one.
-It sorts the list by count and sends the top <I>N</I> to the <I>Print</I>
+It sorts the list by count and sends the top <I>N</I> to the <I>print</I>
 minnow, one by one, followed by a "done" message.  <I>N</I> is a
-user-defined parameter.  The <I>Print</I> minnow echoes each datum it
+user-defined parameter.  The <I>print</I> minnow echoes each datum it
 receives to the screen or a file, until if receives a "done" message.
 At this point all minnows in the school have been shut down.
 </P>
@@ -332,7 +303,7 @@ minnows and communication connections of the above diagram is
 discussed, and its processing by the <A HREF = "Bait.html">bait.py</A> tool.
 </P>
 <P>In <A HREF = "Section_minnows.html#minnow_1">this section</A> of the <A HREF = "Minnows.html">PHISH
-Minnows</A> doc page, the code for the <I>Count</I> minnow is
+Minnows</A> doc page, the code for the <I>count</I> minnow is
 discussed in detail, to illustrate what calls it makes to the <A HREF = "Library.html">PHISH
 library</A> to send and receive datums.
 </P>
@@ -341,7 +312,7 @@ Library</A> doc page, the format of datums exchanged between
 minnows is discussed.
 </P>
 <P>Note that like a MapReduce, the PHISH program runs in parallel, since
-there can be N <I>File2Words</I> minnows and M <I>Count</I> minnows where N >=1,
+there can be N <I>file2words</I> minnows and M <I>count</I> minnows where N >=1,
 M >=1, and N = M is not required.  This is similar to the option in
 <A HREF = "hadoop">Hadoop</A> to vary the numbers of mappers and reducers.
 </P>
@@ -351,11 +322,11 @@ typically performed via <A HREF = "hadoop">Hadoop</A> or the <A HREF = "mrmpi">M
 library</A>.
 </P>
 <P>In a traditional MapReduce, the "map" stage (performed by the
-<I>File2Words</I> minnows) creates a huge list of all the words, including
+<I>file2words</I> minnows) creates a huge list of all the words, including
 duplicates, found in the corpus of documents, which is stored
 internally (in memory or on disk) until the "mapper" process is
 finished with all the files it processes.  Each mapper then sends
-chunks of the list to each "reduce" process (performed by the <I>Count</I>
+chunks of the list to each "reduce" process (performed by the <I>count</I>
 minnows).  This is the "shuffle" phase of a Hadoop MapReduce.
 The reducer performs a merge sort of all the words in the chunks
 it receives (one from each mapper).  It can then calculate the
@@ -364,7 +335,7 @@ count for each unique word.
 <P>In contrast, the PHISH program operates in a more continuous fashion,
 streaming the data (words in this case) through the minnows, without
 ever storing the full data set.  Only a small list of unique words is
-stored (by the <I>Count</I> minnows), each with a running counter.  In this
+stored (by the <I>count</I> minnows), each with a running counter.  In this
 example, PHISH exchanges data between minnows via many tiny messages
 (one word per message), whereas a traditional MapReduce would
 aggregate the data into a few large messages.
@@ -394,20 +365,20 @@ without using the "done" messages described above.
 </P>
 <CENTER><IMG SRC = "JPG/wordcount2.jpg">
 </CENTER>
-<P>In this case the <I>FileGen</I> minnow is continuously seeing new files
+<P>In this case the <I>filegen</I> minnow is continuously seeing new files
 appear in directories it monitors.  The words in those files are
 processed as they appear.  A <I>Trigger</I> minnow has been added which
 accepts user queries, e.g. via a keyboard or a socket connection.
 When the user makes a request (hits a key), a message is sent to each
-of the <I>Count</I> minnows on a different input port than it receives
-words from the <I>File2Words</I> minnows; see <A HREF = "Minnows.html#minnow_2">this
+of the <I>count</I> minnows on a different input port than it receives
+words from the <I>file2words</I> minnows; see <A HREF = "Minnows.html#minnow_2">this
 section</A> of the <A HREF = "Minnows.html">PHISH Minnows</A> doc
-page for a discussion of ports.  The message triggers the <I>Count</I>
-minnows to send their current unique word/count list to the <I>Sort</I>
-minnow which is sorted and printed via the <I>Print</I> minnow.
+page for a discussion of ports.  The message triggers the <I>count</I>
+minnows to send their current unique word/count list to the <I>sort</I>
+minnow which is sorted and printed via the <I>print</I> minnow.
 </P>
 <P>The PHISH job now runs continuously and a user can query the current
-top N words as often as desired.  The <I>FileGen</I>, <I>Count</I>, and <I>Sort</I>
+top N words as often as desired.  The <I>filegen</I>, <I>count</I>, and <I>sort</I>
 minnows would have to be modified, but only in small ways, to work in
 this mode.  Additional logic could be added (e.g. another user
 request) to re-initialize counts or accumulate counts in a
