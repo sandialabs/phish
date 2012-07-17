@@ -2,22 +2,22 @@
 # provide list of files or dirs as -v files command-line arg
 
 #minnow 1 filegen ${files}
-minnow 1 filegen.py ${files}
+minnow filegen filegen.py ${files}
 #minnow 2 file2words
-minnow 2 file2words.py
+minnow file2words file2words.py
 #minnow 3 count
-minnow 3 count.py
-minnow 4 sort 10
+minnow count count.py
+minnow sort sort 10
 #minnow 5 print
-minnow 5 print.py
+minnow print print.py
 
-hook 1 roundrobin 2
-hook 2 hashed 3
-hook 3 single 4
-hook 4 single 5
+hook filegen roundrobin file2words
+hook file2words hashed count
+hook count single sort
+hook sort single print
 
-school 1 1
-school 2 5
-school 3 3
-school 4 1
-school 5 1
+school filegen 1
+school file2words 4
+school count 3
+school sort 1
+school print 1
