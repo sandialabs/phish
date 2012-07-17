@@ -19,7 +19,7 @@ int phish_bait_start()
     for(std::vector<minnow>::iterator minnow = g_minnows.begin(); minnow != g_minnows.end(); ++minnow)
     {
       const std::string school_id = g_schools[minnow->school_index].id;
-      std::cout << "\t" << school_id << "_" << minnow->local_id << " [label=" << school_id << "]" << std::endl;
+      std::cout << "\t" << "m" << school_id << "_" << minnow->local_id << " [label=" << school_id << "]" << std::endl;
     }
 
     // Setup connections ...
@@ -32,9 +32,9 @@ int phish_bait_start()
           const minnow& input_minnow = g_minnows[*i];
 
           std::cout << "\t";
-          std::cout << g_schools[output_minnow->school_index].id << "_" << output_minnow->local_id;
+          std::cout << "m" << g_schools[output_minnow->school_index].id << "_" << output_minnow->local_id;
           std::cout << " -> ";
-          std::cout << g_schools[input_minnow.school_index].id << "_" << input_minnow.local_id;
+          std::cout << "m" << g_schools[input_minnow.school_index].id << "_" << input_minnow.local_id;
           if(connection->send_pattern == PHISH_BAIT_SEND_PATTERN_HASHED)
           {
             std::cout << " [style=dashed,color=darkgreen]";
