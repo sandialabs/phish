@@ -16,6 +16,9 @@ struct zmq_minnow
   std::string input_port_external;
 };
 
+extern "C"
+{
+
 int phish_bait_start()
 {
   try
@@ -162,3 +165,4 @@ int phish_bait_start()
   }
 }
 
+} // extern "C"

@@ -6,6 +6,9 @@
 #include <map>
 #include <stdexcept>
 
+extern "C"
+{
+
 int phish_bait_start()
 {
   try
@@ -62,4 +65,6 @@ int phish_bait_start()
     return -1;
   }
 }
+
+} // extern "C"
 

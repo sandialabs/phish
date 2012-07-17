@@ -48,6 +48,9 @@ minnow::minnow(int _school_index, int _local_id) :
 {
 }
 
+extern "C"
+{
+
 void phish_bait_reset()
 {
   g_settings.clear();
@@ -205,3 +208,4 @@ int phish_bait_hook(const char* output_id, int output_port, const char* style, i
   }
 }
 
+} // extern "C"
