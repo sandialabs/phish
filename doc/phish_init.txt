@@ -10,7 +10,7 @@ phish_init() function :h3
 
 [C syntax:]
 
-void phish_init(int *argc, char ***argv) :pre
+int phish_init(int *argc, char ***argv) :pre
 
 [C examples:]
 
@@ -35,20 +35,20 @@ argv = phish.init(sys.argv) :pre
 
 [Description:]
 
-This is a PHISH library functions which can be called from a minnow
+This is a PHISH library function which can be called from a minnow
 application.  In "PHISH lingo"_Section_intro.html#intro_2, a "minnow"
 is a stand-alone application which makes calls to the "PHISH
 library"_Library.html.
 
-A PHISH program typically includes one or more sets of minnows, as
-specified in a PHISH input script.  Each minnow in each set is an
-individual process.  In a local sense, each minnow has a local-ID from
-0 to Nlocal-1 within its set, where {Nlocal} is the number of minnows
-in the set.  Globally, each minnow has a global-ID from 0 to
-Nglobal-1, where {Nglobal} is the total number of minnows.  The
-global-IDs are ordered by set, so that minnows within each set have
+A PHISH program typically includes one or more schools of minnows, as
+specified in a PHISH input script.  Each minnow in each school is an
+individual process.  Locally, each minnow has a local-ID from
+0 to Nlocal-1 within its school, where {Nlocal} is the number of minnows
+in the school.  Globally, each minnow has a global-ID from 0 to
+Nglobal-1, where {Nglobal} is the total number of minnows in the net.  The
+global-IDs are ordered by school, so that minnows within each school have
 consecutive IDs.  These IDs enable the PHISH library to orchestrate
-communication of datums between minnows in different sets.  E.g. when
+communication of datums between minnows in different schools.  E.g. when
 running the MPI version of the PHISH library, the global-ID
 corresponsds to the rank ID of an MPI process, used in MPI_Send() and
 MPI_Recv() function calls.
@@ -65,8 +65,7 @@ program.
 
 It's purpose is to initialize the library using special command-line
 arguments passed to the minnow when it was launched, typically by the
-MPI or socket launch script that the "bait.py"_Bait.html tool creates
-from a PHISH input script.
+the "bait.py"_Bait.html tool that parses a PHISH input script.
 
 The two arguments to phish_init() are pointers to the number of
 command-line arguments, and a pointer to the arguments themselves as
@@ -74,7 +73,7 @@ an array of strings.  These are passed as pointers, because the PHISH
 library reads and removes the PHISH-specific arguments.  It then
 returns the remaining minnow-specific arguments, which the minnow can
 read and process.  As is standard with C programs, the returned value
-of argc includes argv\[0\] which is the name of the minnow executable.
+of argv includes argv\[0\] which is the name of the minnow executable.
 
 Note that in the Python version of phish.init(), the full argument
 list is passed as an argument, and the truncated argument list is
@@ -83,8 +82,9 @@ returned.
 There are the switches and arguments that the MPI version of the PHISH library
 looks for and processes.  These are generated automatically by the
 "bait.py"_Section_bait.html tool when it processes a PHISH input script, so
-normally you don't need to think about this level of detail, but it may be
-helpful for understanding how PHISH works.
+normally you don't need to think about these arguments, but it may be
+helpful for understanding how PHISH works.  For example, the MPI version
+of the PHISH library uses the following arguments:
 
 -minnow ID Nlocal Nprev
 -memory N
@@ -92,7 +92,7 @@ helpful for understanding how PHISH works.
 -in sprocs sfirst sport style rprocs rfirst rport
 -out sprocs sfirst sport style rprocs rfirst rport :ul
 
-The {-minnow} switch appears once.  ID is the minnow ID in the PHISH input
+The {-minnow} switch appears once.  ID is the school ID in the PHISH input
 script.  The {Nlocal} argument was explained above.  {Nprev} is the total
 number of minnows in sets of minnows previous to this one.  It is used to infer
 the {local-ID} value discussed above.
@@ -156,6 +156,10 @@ output port with a CLOSED status, instead of UNUSED.  See the
 for more info about communication ports.  See the
 "phish_input"_phish_input.html and "phish_output"_phish_output.html
 functions for more info about port status.
+
+The "C" binding to phish_init() returns a nonzero value if there were errors,
+otherwise zero.  The "C++" binding to phish::init() throws an exception if
+there were errors.
 
 :line
 
