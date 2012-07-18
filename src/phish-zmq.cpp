@@ -303,6 +303,7 @@ extern "C"
 int phish_init(int* argc, char*** argv)
 {
   phish_assert_not_initialized();
+  g_initialized = true;
 
   std::vector<std::string> arguments(*argv, *argv + *argc);
   std::vector<std::string> kept_arguments;
@@ -519,6 +520,7 @@ int phish_check()
 {
   phish_assert_initialized();
   phish_assert_not_checked();
+  g_checked = true;
 
   for(std::map<int, int>::iterator port = g_input_port_connection_count.begin(); port != g_input_port_connection_count.end(); ++port)
   {
