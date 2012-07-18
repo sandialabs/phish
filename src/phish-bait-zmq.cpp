@@ -23,6 +23,8 @@ int phish_bait_start()
 {
   try
   {
+    const bool verbose = (g_settings.count("verbose") != 0) && (g_settings["verbose"] == "true");
+
     int next_port = 5555;
 
     // Setup temporary storage for zmq-specific information
@@ -107,8 +109,12 @@ int phish_bait_start()
         arguments.insert(arguments.begin(), "ssh");
       }
 
-      std::copy(arguments.begin(), arguments.end(), std::ostream_iterator<std::string>(std::cerr, " "));
-      std::cerr << std::endl;
+      if(verbose)
+      {
+        std::cerr << "BAIT ZMQ Command: ";
+        std::copy(arguments.begin(), arguments.end(), std::ostream_iterator<std::string>(std::cerr, " "));
+        std::cerr << std::endl;
+      }
 
       switch(int pid = ::fork())
       {

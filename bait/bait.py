@@ -39,6 +39,9 @@ paths = options.path.split(":")
 settings = dict(options.set)
 variables = dict([(key, value) for key, value in options.variable])
 
+if options.verbose:
+  settings["verbose"] = "true"
+
 schools = {}
 hooks = []
 
@@ -78,7 +81,7 @@ for line_number, line in enumerate(script):
   arguments = expanded
 
   if options.verbose:
-    sys.stderr.write("%s\n" % (" ".join([command] + arguments)))
+    sys.stderr.write("BAIT Script: %s\n" % (" ".join([command] + arguments)))
 
   if command == "set":
     key = arguments[0]
@@ -133,11 +136,7 @@ for school in schools.values():
 # Optionally display all of the school command lines ...
 if options.verbose:
   for name, value in settings.items():
-    sys.stderr.write("Launch setting: %s %s\n" % (name, value))
-
-  for school in schools.values():
-    sys.stderr.write("Launch school:  %s\n" % (" ".join(school["arguments"])))
-    sys.stderr.flush()
+    sys.stderr.write("BAIT Setting: %s %s\n" % (name, value))
 
 # Pass the parsed data to the bait backend ...
 if options.backend is None:
