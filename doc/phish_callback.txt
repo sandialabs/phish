@@ -78,7 +78,7 @@ down.
 :line
 
 The abortfunc() function is used to specify a callback function that
-invoked by the PHISH library when "phish_error"_phish_error.html is
+invoked by the PHISH library when "phish_abort"_phish_error.html is
 called, either by the minnow, or internally by the PHISH library.
 
 The callback function should have the following form in C or C++:
@@ -94,7 +94,8 @@ in Python,
 where "abortfunc" is replaced by a function name of your choice.
 
 As explained on the "phish_error"_phish_error.html doc page, the
-phish_error() function prints a message and then causes the minnow
+phish_abort() function may be called by the minnow directly, or implicitly
+by a call to phish_error(), and causes the minnow
 itself and the entire school of PHISH minnows to exit.  If this
 callback is defined, the PHISH library will call the function before
 exiting.  This can be useful if the minnow wishes to close files or
