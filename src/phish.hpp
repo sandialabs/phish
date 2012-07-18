@@ -112,6 +112,7 @@ void send_key(const char* key, int key_length, int port = 0) { ::phish_send_key(
 
 void repack() { ::phish_repack(); }
 
+void pack(const char* data, int32_t length) { ::phish_pack_raw(const_cast<char*>(data), length); }
 void pack(char data) { ::phish_pack_char(data); }
 void pack(int8_t data) { ::phish_pack_int8(data); }
 void pack(int16_t data) { ::phish_pack_int16(data); }
@@ -125,6 +126,16 @@ void pack(float data) { ::phish_pack_float(data); }
 void pack(double data) { ::phish_pack_double(data); }
 void pack(const char* data) { ::phish_pack_string(const_cast<char*>(data)); }
 void pack(const std::string& data) { ::phish_pack_string(const_cast<char*>(data.c_str())); }
+void pack(const int8_t* data, int32_t length) { ::phish_pack_int8_array(const_cast<int8_t*>(data), length); }
+void pack(const int16_t* data, int32_t length) { ::phish_pack_int16_array(const_cast<int16_t*>(data), length); }
+void pack(const int32_t* data, int32_t length) { ::phish_pack_int32_array(const_cast<int32_t*>(data), length); }
+void pack(const int64_t* data, int32_t length) { ::phish_pack_int64_array(const_cast<int64_t*>(data), length); }
+void pack(const uint8_t* data, int32_t length) { ::phish_pack_uint8_array(const_cast<uint8_t*>(data), length); }
+void pack(const uint16_t* data, int32_t length) { ::phish_pack_uint16_array(const_cast<uint16_t*>(data), length); }
+void pack(const uint32_t* data, int32_t length) { ::phish_pack_uint32_array(const_cast<uint32_t*>(data), length); }
+void pack(const uint64_t* data, int32_t length) { ::phish_pack_uint64_array(const_cast<uint64_t*>(data), length); }
+void pack(const float* data, int32_t length) { ::phish_pack_float_array(const_cast<float*>(data), length); }
+void pack(const double* data, int32_t length) { ::phish_pack_double_array(const_cast<double*>(data), length); }
 
 data_type unpack(char*& data, int32_t& count) { return static_cast<data_type>(::phish_unpack(&data, &count)); }
 
