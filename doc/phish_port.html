@@ -27,14 +27,14 @@ phish_output(0);
 </PRE>
 <P><B>C++ syntax:</B>
 </P>
-<PRE>void input(int iport, void (*datumfunc)(int), void (*donefunc)(), reqflag)
-void output(int iport) 
+<PRE>void input(int port, void (*datumfunc)(int), void (*donefunc)(), bool required=true)
+void output(int port) 
 </PRE>
 <P><B>C++ examples:</B>
 </P>
 <PRE>#include "phish.h.pp"
-phish::input(0,count,NULL,1);
-phish::input(1,count,mydone,0);
+phish::input(0,count,NULL,true);
+phish::input(1,count,mydone,false);
 phish::output(0); 
 </PRE>
 <P><B>Python syntax:</B>
@@ -51,7 +51,7 @@ phish.output(0)
 </PRE>
 <P><B>Description:</B>
 </P>
-<P>There are PHISH library functions which can be called from a minnow
+<P>These are PHISH library functions which can be called from a minnow
 application.  In <A HREF = "Section_intro.html#intro_2">PHISH lingo</A>, a "minnow"
 is a stand-alone application which makes calls to the <A HREF = "Library.html">PHISH
 library</A>.
