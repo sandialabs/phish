@@ -134,15 +134,10 @@ Queue *queue;              // internal queue
 int nqueue;                // # of datums in queue
 int maxqueue;              // max # of datums queue can hold
 
-// stats
-
-uint64_t rcount;           // # of datums received
-uint64_t scount;           // # of datums sent
 
 // internal function prototypes
 
 void send(OutConnect *);
-void stats();
 void allocate_ports();
 void deallocate_ports();
 
@@ -430,9 +425,9 @@ int phish_exit()
   phish_assert_initialized();
   phish_assert_checked();
 
-  // generate stats
+  // display stats
 
-  stats();
+  phish_stats();
 
   // warn if any input port is still open
 
@@ -543,8 +538,6 @@ int phish_check()
 
   // stats
 
-  rcount = scount = 0;
-
   return 0;
 }
 
@@ -573,7 +566,7 @@ int phish_close(int iport)
     case SINGLE:
     case PAIRED:
     case RING:
-      if (safe && scount % safe == 0) 
+      if (safe && g_sent_count % safe == 0) 
 	MPI_Ssend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
       else MPI_Send(NULL,0,MPI_BYTE,oc->recvone,tag,world);
       break;
@@ -583,14 +576,14 @@ int phish_close(int iport)
     case DIRECT:
     case BCAST:
       for (int i = 0; i < oc->nrecv; i++)
-        if (safe && scount % safe == 0)
+        if (safe && g_sent_count % safe == 0)
 	  MPI_Ssend(NULL,0,MPI_BYTE,oc->recvfirst+i,tag,world);
         else MPI_Send(NULL,0,MPI_BYTE,oc->recvfirst+i,tag,world);
       break;
 
     case CHAIN:
       if (oc->nrecv) {
-	if (safe && scount % safe == 0) 
+	if (safe && g_sent_count % safe == 0) 
 	  MPI_Ssend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
 	else MPI_Send(NULL,0,MPI_BYTE,oc->recvone,tag,world);
       }
@@ -643,7 +636,7 @@ int phish_loop()
       }
 
     } else {
-      rcount++;
+      g_received_count++;
       if (ip->datumfunc) {
 	MPI_Get_count(&status,MPI_BYTE,&nrbytes);
 	nrfields = (int) (*(int32_t *) rbuf);
@@ -702,7 +695,7 @@ int phish_probe(void (*probefunc)())
 	}
 
       } else {
-	rcount++;
+	g_received_count++;
 	if (ip->datumfunc) {
 	  MPI_Get_count(&status,MPI_BYTE,&nrbytes);
 	  nrfields = (int) (*(int *) rbuf);
@@ -762,7 +755,7 @@ int phish_recv()
     return -1;
   }
 
-  rcount++;
+  g_received_count++;
   MPI_Get_count(&status,MPI_BYTE,&nrbytes);
   nrfields = (int) (*(int *) rbuf);
   rptr = rbuf + sizeof(int32_t);
@@ -788,7 +781,7 @@ void phish_send(int iport)
   if (op->status == CLOSED_PORT) 
     phish_error("Using phish_send with closed port");
 
-  scount++;
+  g_sent_count++;
 
   // setup send buffer
 
@@ -826,7 +819,7 @@ void phish_send_key(int iport, char *key, int keybytes)
   if (op->status == CLOSED_PORT) 
     phish_error("Using phish_send_key with closed port");
 
-  scount++;
+  g_sent_count++;
 
   // setup send buffer
 
@@ -846,7 +839,7 @@ void phish_send_key(int iport, char *key, int keybytes)
       {
 	int tag = oc->recvport;
 	int offset = hashlittle(key,keybytes,oc->nrecv) % oc->nrecv;
-	if (safe && scount % safe == 0) 
+	if (safe && g_sent_count % safe == 0) 
 	  MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+offset,tag,world);
 	else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+offset,tag,world);
       }
@@ -882,7 +875,7 @@ void phish_send_direct(int iport, int receiver)
   if (op->status == CLOSED_PORT) 
     phish_error("Using phish_send with closed port");
 
-  scount++;
+  g_sent_count++;
 
   // setup send buffer
 
@@ -903,7 +896,7 @@ void phish_send_direct(int iport, int receiver)
 	int tag = oc->recvport;
 	if (receiver < 0 || receiver >= oc->nrecv)
 	  phish_error("Invalid receiver for phish_send_direct");
-	if (safe && scount % safe == 0)
+	if (safe && g_sent_count % safe == 0)
 	  MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+receiver,tag,world);
 	else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+receiver,tag,world);
       }
@@ -935,13 +928,13 @@ void send(OutConnect *oc)
   case SINGLE:
   case PAIRED:
   case RING:
-    if (safe && scount % safe == 0) 
+    if (safe && g_sent_count % safe == 0) 
       MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
     else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
     break;
 
   case ROUNDROBIN:
-    if (safe && scount % safe == 0) 
+    if (safe && g_sent_count % safe == 0) 
       MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+oc->offset,tag,world);
     else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+oc->offset,tag,world);
     oc->offset++;
@@ -950,7 +943,7 @@ void send(OutConnect *oc)
 
   case CHAIN:
     if (oc->nrecv) {
-      if (safe && scount % safe == 0)
+      if (safe && g_sent_count % safe == 0)
 	MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
       else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
     }
@@ -958,7 +951,7 @@ void send(OutConnect *oc)
 
   case BCAST:
     for (int i = 0; i < oc->nrecv; i++)
-      if (safe && scount % safe == 0)
+      if (safe && g_sent_count % safe == 0)
 	MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+i,tag,world);
       else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+i,tag,world);
     break;
@@ -1498,18 +1491,6 @@ void phish_abort()
 /* ----------------------------------------------------------------------
    internal functions, NOT functions in the PHISH API
 ------------------------------------------------------------------------- */
-
-/* ----------------------------------------------------------------------
-   print stats about datums received/sent by minnow
-------------------------------------------------------------------------- */
-
-void stats()
-{
-
-  std::ostringstream message;
-  message << rcount << " " << scount << " datums recv/sent";
-  phish_message("Stats", message.str().c_str());
-}
 
 /* ----------------------------------------------------------------------
    allocate/deallocate memory for MAXPORT input and output ports

@@ -57,11 +57,6 @@ static uint32_t g_unpack_index = 0;
 // Keeps track of whether a message loop is running ...
 static bool g_running = false;
 
-// Keeps track of message statistics ...
-static uint64_t g_received_count = 0;
-static uint64_t g_sent_count = 0;
-static uint64_t g_sent_close_count = 0;
-
 /// Defines a collection of message recipients (zmq sockets).
 typedef std::vector<zmq::socket_t*> recipients_t;
 /// Abstract interface for classes that route messages to their destination(s).
@@ -151,7 +146,6 @@ output_connection::~output_connection()
     zmq::message_t frame(1);
     reinterpret_cast<uint8_t*>(frame.data())[0] = ((m_input_port & PORT_MASK) | CLOSE_MESSAGE);
     zmq_assert((*recipient)->send(frame));
-    ++g_sent_close_count;
   }
 
 /* Don't close the zmq sockets, see https://zeromq.jira.com/browse/LIBZMQ-229
@@ -471,9 +465,7 @@ int phish_exit()
   delete g_control_port;
   g_control_port = 0;
 
-  std::ostringstream message;
-  message << g_received_count << " " << g_sent_count << " datums recv/sent";
-  phish_message("Stats", message.str().c_str());
+  phish_stats();
 
   // Shut-down zmq ...
 /* Don't try to shutdown zmq, see https://zeromq.jira.com/browse/LIBZMQ-229

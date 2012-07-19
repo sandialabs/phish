@@ -2,6 +2,7 @@
 #include <phish-common.h>
 
 #include <iostream>
+#include <sstream>
 
 #include <sys/time.h>
 
@@ -14,6 +15,8 @@ int g_global_id = 0;
 int g_global_count = 0;
 bool g_initialized = false;
 bool g_checked = false;
+uint64_t g_received_count = 0;
+uint64_t g_sent_count = 0;
 
 void(*g_all_input_ports_closed)() = 0;
 void(*g_at_abort)(int*) = 0;
@@ -54,6 +57,14 @@ int phish_abort_internal()
 void phish_message(const char* type, const char* message)
 {
   std::cerr << "PHISH " << type << ": Minnow " << g_executable << " ID " << g_school_id << " # " << g_global_id << ": " << message << std::endl;
+}
+
+void phish_stats()
+{
+
+  std::ostringstream message;
+  message << g_received_count << " " << g_sent_count << " datums recv/sent";
+  phish_message("Stats", message.str().c_str());
 }
 
 // Provide default implementations for some parts of the PHISH API ...
