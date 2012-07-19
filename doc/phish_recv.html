@@ -97,7 +97,7 @@ control is returned to phish_loop().
 <P>(3) For a datum that closes the last open input port, step (2) is
 performed, and then an additional callback to the minnow is made, to
 the <I>alldone</I> callback function (optionally) assigned by the
-<A HREF = "phish_done.html">phish_done</A> function.  When the callback function
+<A HREF = "phish_callback.html">phish_callback</A> function.  When the callback function
 returns, control is returned to phish_loop().
 </P>
 <P>After option (3) has occurred, phish_loop() returns, giving control
@@ -123,7 +123,7 @@ useful work while waiting for the next datum to arrive.
 </PRE>
 <P>in Python,
 </P>
-<P>where "datumfunc" is replaced by a function name of your choice.  When
+<P>where "probefunc" is replaced by a function name of your choice.  When
 the <I>probefunc</I> callback function returns, control is returned to
 phish_probe().
 </P>

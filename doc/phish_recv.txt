@@ -92,7 +92,7 @@ control is returned to phish_loop().
 (3) For a datum that closes the last open input port, step (2) is
 performed, and then an additional callback to the minnow is made, to
 the {alldone} callback function (optionally) assigned by the
-"phish_done"_phish_done.html function.  When the callback function
+"phish_callback"_phish_callback.html function.  When the callback function
 returns, control is returned to phish_loop().
 
 After option (3) has occurred, phish_loop() returns, giving control
@@ -118,7 +118,7 @@ def probefunc() :pre
 
 in Python,
 
-where "datumfunc" is replaced by a function name of your choice.  When
+where "probefunc" is replaced by a function name of your choice.  When
 the {probefunc} callback function returns, control is returned to
 phish_probe().
 
