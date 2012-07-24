@@ -1,4 +1,4 @@
-import bait.zmq
+import phish.bait.zmq
 
 import optparse
 import sys
@@ -9,16 +9,16 @@ parser.add_option("--file2word-workers", type="int", default=2, help="Number of 
 parser.add_option("--count-workers", type="int", default=2, help="Number of workers.  Default: %default.")
 (options, arguments) = parser.parse_args()
 
-bait.minnows("filegen", ["localhost"], ["filegen-zmq"] + arguments)
-bait.minnows("file2words", ["localhost"] * options.file2word_workers, ["file2words-zmq"])
-bait.minnows("count", ["localhost"] * options.count_workers, ["count-zmq"])
-bait.minnows("sort", ["localhost"], ["sort-zmq", str(options.count)])
-bait.minnows("print", ["localhost"], ["print-zmq"])
+phish.bait.school("filegen", ["localhost"], ["filegen-zmq"] + arguments)
+phish.bait.school("file2words", ["localhost"] * options.file2word_workers, ["file2words-zmq"])
+phish.bait.school("count", ["localhost"] * options.count_workers, ["count-zmq"])
+phish.bait.school("sort", ["localhost"], ["sort-zmq", str(options.count)])
+phish.bait.school("print", ["localhost"], ["print-zmq"])
 
-bait.hook("filegen", 0, bait.ROUND_ROBIN, 0, "file2words")
-bait.hook("file2words", 0, bait.HASHED, 0, "count")
-bait.hook("count", 0, bait.SINGLE, 0, "sort")
-bait.hook("sort", 0, bait.SINGLE, 0, "print")
+phish.bait.hook("filegen", 0, phish.bait.ROUND_ROBIN, 0, "file2words")
+phish.bait.hook("file2words", 0, phish.bait.HASHED, 0, "count")
+phish.bait.hook("count", 0, phish.bait.SINGLE, 0, "sort")
+phish.bait.hook("sort", 0, phish.bait.SINGLE, 0, "print")
 
-bait.start()
+phish.bait.start()
 
