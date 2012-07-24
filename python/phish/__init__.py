@@ -37,30 +37,30 @@ PICKLE = 23
 
 MAXPORT = 16
 
-def backend(name):
-  import ctypes.util
-  global _library
-  _library = None
-  if _library is None:
-    if ctypes.util.find_library("phish-%s" % name):
-      _library = ctypes.CDLL(ctypes.util.find_library("phish-%s" % name))
-  if _library is None:
-    _library = ctypes.CDLL("libphish-%s.so" % name)
-  if _library is None:
-    _library = ctypes.CDLL("libphish-%s.dylib" % name)
-  if _library is None:
-    _library = ctypes.CDLL("libphish-%s.dll" % name)
-  if _library is None:
-    raise Exception("Unable to load %s backend." % name)
+def init(args):
+  for index, argument in enumerate(args):
+    if argument == "--phish-backend":
+      backend = args[index+1]
+
+      # Load the PHISH runtime library ...
+      import ctypes.util
+      global _library
+      _library = None
+      if _library is None:
+        if ctypes.util.find_library("phish-%s" % backend):
+          _library = ctypes.CDLL(ctypes.util.find_library("phish-%s" % backend))
+      if _library is None:
+        _library = ctypes.CDLL("libphish-%s.so" % backend)
+      if _library is None:
+        _library = ctypes.CDLL("libphish-%s.dylib" % backend)
+      if _library is None:
+        _library = ctypes.CDLL("libphish-%s.dll" % backend)
+      if _library is None:
+        raise Exception("Unable to load %s backend." % backend)
 
   # phish_timer() returns a double
   _library.phish_timer.restype = c_double
 
-
-def init(args):
-  for index, argument in enumerate(args):
-    if argument == "--phish-backend":
-      backend(args[index+1])
 
   argc = pointer(c_int(len(args)))
 
