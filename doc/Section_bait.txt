@@ -252,11 +252,11 @@ When this script is run thru bait.py in the example directory, as
 
 then bait.py produces the following lines in outfile
 
--n 1 ../minnow/filegen in.bottle in.cc in.cc.jon in.filelist in.pp in.rmat in.slow in.wc in.wrapsink in.wrapsource in.wrapsourcefile in.wrapss -minnow filegen 1 1 0 -out 1 0 0 roundrobin 5 1 0 :
--n 5 ../minnow/file2words -minnow file2words 2 5 1 -in 1 0 0 roundrobin 5 1 0 -out 5 1 0 hashed 3 6 0 :
--n 3 ../minnow/count -minnow count 3 3 6 -in 5 1 0 hashed 3 6 0 -out 3 6 0 single 1 9 0 :
--n 1 ../minnow/sort 10 -minnow sort 4 1 9 -in 3 6 0 single 1 9 0 -out 1 9 0 single 1 10 0 :
--n 1 ../minnow/print -minnow print 5 1 10 -in 1 9 0 single 1 10 0 :pre
+-n 1 ../minnow/filegen in.bottle in.cc in.cc.jon in.filelist in.pp in.rmat in.slow in.wc in.wrapsink in.wrapsource in.wrapsourcefile in.wrapss --phish-backend mpi --phish-minnow filegen 1 1 0 --phish-out 1 0 0 roundrobin 5 1 0 :
+-n 5 ../minnow/file2words --phish-backend mpi --phish-minnow file2words 2 5 1 --phish-in 1 0 0 roundrobin 5 1 0 --phish-out 5 1 0 hashed 3 6 0 :
+-n 3 ../minnow/count --phish-backend mpi --phish-minnow count 3 3 6 --phish-in 5 1 0 hashed 3 6 0 --phish-out 3 6 0 single 1 9 0 :
+-n 1 ../minnow/sort 10 --phish-backend mpi --phish-minnow sort 4 1 9 --phish-in 3 6 0 single 1 9 0 --phish-out 1 9 0 single 1 10 0 :
+-n 1 ../minnow/print --phish-backend mpi --phish-minnow print 5 1 10 --phish-in 1 9 0 single 1 10 0 :pre
 
 which is the format of an mpiexec config file.  There is one line per minnow,
 as defined by the input script.  The "-n N" specifies how many copies of the

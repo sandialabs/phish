@@ -82,38 +82,44 @@ of argv includes argv[0] which is the name of the minnow executable.
 list is passed as an argument, and the truncated argument list is
 returned.
 </P>
-<P>There are the switches and arguments that the MPI version of the PHISH library
-looks for and processes.  These are generated automatically by the
-<A HREF = "Section_bait.html">bait.py</A> tool when it processes a PHISH input script, so
-normally you don't need to think about these arguments, but it may be
-helpful for understanding how PHISH works.  For example, the MPI version
-of the PHISH library uses the following arguments:
+<P>Following are some sample switches and arguments that the MPI version of the
+PHISH library looks for and processes.  These are generated automatically by
+the <A HREF = "Section_bait.html">bait.py</A> tool when it processes a PHISH input script so
+you don't need to think about these arguments, but it may be helpful in
+understanding how PHISH works.  Note that the following arguments may change at
+any time.
 </P>
-<UL><LI>-minnow ID Nlocal Nprev
-<LI>-memory N
-<LI>-safe N
-<LI>-in sprocs sfirst sport style rprocs rfirst rport
-<LI>-out sprocs sfirst sport style rprocs rfirst rport 
+<UL><LI>--phish-backend mpi
+<LI>--phish-minnow ID Nlocal Nprev
+<LI>--phish-memory N
+<LI>--phish-safe N
+<LI>--phish-in sprocs sfirst sport style rprocs rfirst rport
+<LI>--phish-out sprocs sfirst sport style rprocs rfirst rport 
 </UL>
-<P>The <I>-minnow</I> switch appears once.  ID is the school ID in the PHISH input
+<P>The <I>--phish-backend</I> switch appears once, and is followed by the version of the
+PHISH library specified by bait.py.  This allows the PHISH library to detect
+incompatible runtime environments, e.g. mixing minnows linked against the socket
+version of the PHISH library with minnows using the MPI version.
+</P>
+<P>The <I>--phish-minnow</I> switch appears once.  ID is the school ID in the PHISH input
 script.  The <I>Nlocal</I> argument was explained above.  <I>Nprev</I> is the total
 number of minnows in sets of minnows previous to this one.  It is used to infer
 the <I>local-ID</I> value discussed above.
 </P>
-<P>The <I>-memory</I> and <I>-safe</I> and switches change default settings within
+<P>The <I>--phish-memory</I> and <I>--phish-safe</I> and switches change default settings within
 the PHISH library.
 </P>
-<P>The <I>-memory</I> value <I>N</I> sets the maximum size of the buffers used to
+<P>The <I>--phish-memory</I> value <I>N</I> sets the maximum size of the buffers used to
 send and receive datums.
 </P>
-<P>The <I>-safe</I> switch forces the MPI version of the PHISH library to use
+<P>The <I>--phish-safe</I> switch forces the MPI version of the PHISH library to use
 MPI_SSend() calls instead of the standard MPI_Send() when <I>N</I> is nonzero.
 These are "safer" in the sense they insure messages are not dropped due to a
 minnow not keeping up with its incoming messages.  See the <A HREF = "bait_set.html">set</A>
 command of the <A HREF = "Section_bait.html">bait.py</A> tool for more information on the
 settings of these switches.
 </P>
-<P>The <I>-in</I> switch appears once for every connection the minnow has with
+<P>The <I>--phish-in</I> switch appears once for every connection the minnow has with
 other minnows, where it is a receiver of datums.  See the
 <A HREF = "bait_hook.html">hook</A> command in PHISH input scripts processed
 by the <A HREF = "Bait.html">bait.py</A> tool, for more information.
@@ -132,7 +138,7 @@ like "single" or "hashed".  If it is "subscribe", then extra info
 about the external host and its TCP port is appended to the <I>style</I>,
 e.g. "subscribe/www.foo.com:25".
 </P>
-<P>The <I>-out</I> switch appears once for every connection the minnow has
+<P>The <I>--phish-out</I> switch appears once for every connection the minnow has
 with other minnows, where it is a sender of datums.  See the
 <A HREF = "bait_hook.html">hook</A> command in PHISH input scripts processed
 by the <A HREF = "Bait.html">bait.py</A> tool, for more information.
