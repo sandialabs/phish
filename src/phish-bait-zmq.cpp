@@ -63,6 +63,8 @@ int phish_bait_start()
 
       std::vector<std::string> arguments;
       arguments.insert(arguments.end(), school.arguments.begin(), school.arguments.end());
+      arguments.push_back("--phish-backend");
+      arguments.push_back("zmq");
       arguments.push_back("--phish-host");
       arguments.push_back(host);
       arguments.push_back("--phish-school-id");

@@ -308,7 +308,17 @@ int phish_init(int* argc, char*** argv)
   while(arguments.size())
   {
     const std::string argument = pop_argument(arguments);
-    if(argument == "--phish-host")
+    if(argument == "--phish-backend")
+    {
+      const std::string backend = pop_argument(arguments);
+      if(backend != "zmq")
+      {
+        std::ostringstream message;
+        message << "Incompatible backend: expected zmq, using " << backend << ".";
+        phish_return_error(message.str().c_str(), -1);
+      }
+    }
+    else if(argument == "--phish-host")
     {
       g_host = pop_argument(arguments);
     }

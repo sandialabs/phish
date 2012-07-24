@@ -180,10 +180,20 @@ int phish_init(int* argc, char*** argv)
   while(arguments.size())
   {
     const std::string argument = pop_argument(arguments);
-    if(argument == "-minnow")
+    if(argument == "--phish-backend")
+    {
+      const std::string backend = pop_argument(arguments);
+      if(backend != "mpi")
+      {
+        std::ostringstream message;
+        message << "Incompatible backend: expected mpi, using " << backend << ".";
+        phish_return_error(message.str().c_str(), -1);
+      }
+    }
+    else if(argument == "--phish-minnow")
     {
       if(arguments.size() < 3)
-	      phish_error("Invalid command-line args in phish_init");
+	      phish_return_error("Invalid command-line args in phish_init", -1);
 
       g_school_id = pop_argument(arguments);
       g_local_count = atoi(pop_argument(arguments).c_str());
@@ -192,28 +202,28 @@ int phish_init(int* argc, char*** argv)
       g_global_id = me;
       g_global_count = nprocs;
     }
-    else if(argument == "-memory")
+    else if(argument == "--phish-memory")
     {
       if(arguments.size() < 1)
-	      phish_error("Invalid command-line args in phish_init");
+	      phish_return_error("Invalid command-line args in phish_init", -1);
 
       memchunk = atoi(pop_argument(arguments).c_str());
       if (memchunk < 0) 
-        phish_error("Invalid command-line args in phish_init");
+        phish_return_error("Invalid command-line args in phish_init", -1);
     }
-    else if(argument == "-safe")
+    else if(argument == "--phish-safe")
     {
       if(arguments.size() < 1)
-        phish_error("Invalid command-line args in phish_init");
+        phish_return_error("Invalid command-line args in phish_init", -1);
 
       safe = atoi(pop_argument(arguments).c_str());
       if (safe < 0)
-        phish_error("Invalid command-line args in phish_init");
+        phish_return_error("Invalid command-line args in phish_init", -1);
     }
-    else if(argument == "-in")
+    else if(argument == "--phish-in")
     {
       if(arguments.size() < 7)
-        phish_error("Invalid command-line args in phish_init");
+        phish_return_error("Invalid command-line args in phish_init", -1);
 
       int style;
       int sprocs,sfirst,sport,rprocs,rfirst,rport;
@@ -243,11 +253,11 @@ int phish_init(int* argc, char*** argv)
 	strcpy(host,&args[iarg+4][strlen("subscribe/")]);
       }
 #endif
-      else phish_error("Unrecognized in style in phish_init");
+      else phish_return_error("Unrecognized in style in phish_init", -1);
 
 
       if (rport > MAXPORT)
-	phish_error("Invalid input port ID in phish_init");
+	phish_return_error("Invalid input port ID in phish_init", -1);
       InputPort *ip = &inports[rport];
       ip->status = CLOSED_PORT;
       ip->nconnect++;
@@ -276,10 +286,10 @@ int phish_init(int* argc, char*** argv)
 	break;
       }
     }
-    else if(argument == "-out")
+    else if(argument == "--phish-out")
     {
       if(arguments.size() < 7)
-        phish_error("Invalid command-line args in phish_init");
+        phish_return_error("Invalid command-line args in phish_init", -1);
 
       int style;
       int sprocs,sfirst,sport,rprocs,rfirst,rport;
@@ -307,10 +317,10 @@ int phish_init(int* argc, char*** argv)
 	tcpport = atoi(&args[iarg+4][strlen("publish/")]);
       }
 #endif
-      else phish_error("Unrecognized out style in phish_init");
+      else phish_return_error("Unrecognized out style in phish_init", -1);
 
       if (sport > MAXPORT)
-	phish_error("Invalid output port ID in phish_init");
+	phish_return_error("Invalid output port ID in phish_init", -1);
       OutPort *op = &outports[sport];
       op->status = CLOSED_PORT;
       op->nconnect++;
@@ -408,7 +418,7 @@ int phish_init(int* argc, char*** argv)
   sbuf = (char *) malloc(maxbuf*sizeof(char));
   rbuf = (char *) malloc(maxbuf*sizeof(char));
 
-  if (!sbuf || !rbuf) phish_error("Malloc of datum buffers failed");
+  if (!sbuf || !rbuf) phish_return_error("Malloc of datum buffers failed", -1);
 
   // set send buffer ptr for initial datum
 
@@ -620,7 +630,7 @@ int phish_loop()
 
     InputPort *ip = &inports[iport];
     if (ip->status != OPEN_PORT)
-      phish_error("Received datum on closed or unused port");
+      phish_return_error("Received datum on closed or unused port", -1);
     lastport = iport;
 
     if (doneflag) {
@@ -741,7 +751,7 @@ int phish_recv()
     
   InputPort *ip = &inports[iport];
   if (ip->status != OPEN_PORT)
-    phish_error("Received datum on closed or unused port");
+    phish_return_error("Received datum on closed or unused port", -1);
   lastport = iport;
 
   if (doneflag) {

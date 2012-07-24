@@ -23,15 +23,18 @@ std::vector<std::string> get_mpiexec_arguments()
     arguments.push_back(string_cast(current->count));
     arguments.insert(arguments.end(), current->arguments.begin(), current->arguments.end());
 
-    arguments.push_back("-minnow");
+    arguments.push_back("--phish-backend");
+    arguments.push_back("mpi");
+
+    arguments.push_back("--phish-minnow");
     arguments.push_back(current->id);
     arguments.push_back(string_cast(current->count));
     arguments.push_back(string_cast(current->first_global_id));
 
-    arguments.push_back("-memory");
+    arguments.push_back("--phish-memory");
     arguments.push_back(memory);
 
-    arguments.push_back("-safe");
+    arguments.push_back("--phish-safe");
     arguments.push_back(safe);
 
     for(std::vector<hook>::iterator hook = g_hooks.begin(); hook != g_hooks.end(); ++hook)
@@ -41,7 +44,7 @@ std::vector<std::string> get_mpiexec_arguments()
 
       if(hook->input_id == current->id)
       {
-        arguments.push_back("-in");
+        arguments.push_back("--phish-in");
         arguments.push_back(string_cast(output_school.count));
         arguments.push_back(string_cast(output_school.first_global_id));
         arguments.push_back(string_cast(hook->output_port));
@@ -53,7 +56,7 @@ std::vector<std::string> get_mpiexec_arguments()
 
       if(hook->output_id == current->id)
       {
-        arguments.push_back("-out");
+        arguments.push_back("--phish-out");
         arguments.push_back(string_cast(output_school.count));
         arguments.push_back(string_cast(output_school.first_global_id));
         arguments.push_back(string_cast(hook->output_port));
