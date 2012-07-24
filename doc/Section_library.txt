@@ -262,16 +262,17 @@ PHISH_DOUBLE_ARRAY = 22
 PHISH_PICKLE = 23 :ul
 
 PHISH_CHAR, PHISH_INT*, PHISH_UINT*, PHISH_FLOAT, and PHISH_DOUBLE are
-a single character, signed integer (of length 8,16,32,64 bits),
+a single character, a signed integer (of length 8,16,32,64 bits), an
 unsigned integer (of length 8,16,32,64 bits), a float (typically 4
 bytes), and a double (typically 8 bytes).
 
-PHISH_RAW is a string of raw bytes, which can be of any length, and
-which the minnow can format in any manner.  PHISH_STRING is a standard
-C-style NULL-terminated C-string.  The NULL is included in the field.
+PHISH_RAW is a string of raw bytes which minnows can format in any
+manner, e.g. a C data structure containing a collection of various C
+primitive data types.  PHISH_STRING is a standard C-style
+NULL-terminated C-string.  The NULL is included in the field.
 
-The ARRAYS are contiguous sequences of int*, uint*, float, or double
-values.
+The ARRAY types are contiguous sequences of int*, uint*, float, or
+double values, packed one after the other.
 
 PHISH_PICKLE is an option available when using the Python wrapper on
 the PHISH library to encode arbitrary Python objects in pickled form
