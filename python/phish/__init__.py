@@ -58,6 +58,10 @@ def backend(name):
 
 
 def init(args):
+  for index, argument in enumerate(args):
+    if argument == "--phish-backend":
+      backend(args[index+1])
+
   argc = pointer(c_int(len(args)))
 
   argv = POINTER(POINTER(c_char_p))()

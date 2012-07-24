@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import sys,os,glob,copy
+import sys
 import phish
 
 def read_file(nvalues):
@@ -15,12 +15,10 @@ def read_file(nvalues):
       phish.pack_string(word)
       phish.send_key(0,word)
 
-args = phish.init(sys.argv)
-phish.input(0,read_file,None,1)
+phish.init(sys.argv)
+phish.input(0, read_file, None, 1)
 phish.output(0)
 phish.check()
-
-if len(args) != 0: phish.error("File2words syntax: file2words")
 
 phish.loop()
 phish.exit()

@@ -1,19 +1,20 @@
 #!/usr/local/bin/python
 
-import sys,os,glob,copy
+import os
 import phish
+import sys
 
-args = phish.init(sys.argv)
+argv = phish.init(sys.argv)
 phish.output(0)
 phish.check()
 
-if len(args) == 0: phish.error("Filegen syntax: filegen.py file1 file2 ...")
-
 files = []
-
-for file in args:
-  if os.path.isfile(file): files.append(file)
-  else: files += glob.glob("%s/*" % file)
+for path in argv:
+  if os.path.isdir(path):
+    for directory, directories, files in os.walk(path):
+      files += [os.path.join(directory, file) for file in files]
+  else:
+    files.append(path)
 
 for file in files:
   phish.pack_string(file)
