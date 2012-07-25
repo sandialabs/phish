@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/local/python
 
 # Bait.py pre-processing script
 
@@ -130,10 +130,7 @@ for line_number, line in enumerate(script):
     keywords = arguments[2:]
     schools[id]["count"] = int(count)
     for key, value in keywords:
-      if key == "host":
-        schools[id]["host"] = value
-      elif key == "invoke":
-        schools[id]["arguments"] = [value] + schools[id]["arguments"]
+      if key == "host": schools[id]["host"] = value
 
   else:
     raise Exception("Unknown command '%s' on line %s: %s" %
