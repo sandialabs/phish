@@ -10,7 +10,7 @@
 using namespace std;
 
 void count(int);
-void sort();
+void dump();
 
 /* ---------------------------------------------------------------------- */
 
@@ -22,7 +22,7 @@ Hash hash;
 int main(int narg, char **args)
 {
   phish_init(&narg,&args);
-  phish_input(0,count,sort,1);
+  phish_input(0,count,dump,1);
   phish_output(0);
   phish_check();
 
