@@ -11,7 +11,7 @@ phish.input(0,process,None,1)
 phish.output(0)
 phish.check()
 
-if len(args) != 0: phish.error("Map syntax: map")
+if len(args) != 1: phish.error("Map syntax: map")
 
 random.seed()
 
