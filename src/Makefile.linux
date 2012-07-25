@@ -14,6 +14,7 @@ LIBFLAGS =	-shared
 # INC = path for mpi.h, other compiler settings
 
 MPI_INC =	-DMPICH_IGNORE_CXX_SEEK
+MPI_SYSLIB =	-lmpich -lmpl -lpthread
 
 # ZMQ settings
 # only needed to build ZMQ or MPI+ZMQ version of PHISH library
@@ -41,7 +42,7 @@ mpi:
 	$(CC) $(CCFLAGS) $(MPI_INC) -c phish-mpi.cpp
 	$(CC) $(CCFLAGS) -c phish-common.cpp
 	$(CC) $(CCFLAGS) -c hash.cpp
-	$(CC) $(LIBFLAGS) -o $(LIB_PM) phish-mpi.o phish-common.o hash.o
+	$(CC) $(LIBFLAGS) -o $(LIB_PM) phish-mpi.o phish-common.o hash.o $(MPI_SYSLIB)
 
 mpizmq:	
 	$(CC) $(CCFLAGS) $(MPI_INC) $(ZMQ_INC) -DPHISH_MPI_ZMQ -c phish-mpi.cpp

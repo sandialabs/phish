@@ -11,7 +11,6 @@ CCFLAGS =	-g -O -DMPICH_IGNORE_CXX_SEEK -I../src
 LINK =		g++
 LINKFLAGS =	-g -O 
 LIB =		../src/libphish-mpi.so
-SYSLIB =	-lmpich -lmpl -lpthread
 
 # ---------------------------------------------------------------------
 # build rules and dependencies
@@ -20,7 +19,7 @@ SYSLIB =	-lmpich -lmpl -lpthread
 OBJ = $(EXE).o
 
 $(EXE): $(OBJ)
-	$(LINK) $(LINKFLAGS) $(EXTRA_PATH) $(OBJ) $(LIB) $(SYSLIB) -o $(EXE)
+	$(LINK) $(LINKFLAGS) $(EXTRA_PATH) $(OBJ) $(LIB) -o $(EXE)
 
 # Rules
 

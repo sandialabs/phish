@@ -16,10 +16,10 @@ phish.input(0,ping,None,1)
 phish.output(0)
 phish.check()
 
-if len(args) != 2: phish.error("Ping syntax: ping N M")
+if len(args) != 3: phish.error("Ping syntax: ping N M")
 
-n = int(args[0])
-m = int(args[1])
+n = int(args[1])
+m = int(args[2])
 
 buf = m*"a"
 count = 0

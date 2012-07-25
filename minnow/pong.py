@@ -12,7 +12,7 @@ phish.input(0,pong,None,1)
 phish.output(0)
 phish.check()
 
-if len(args) != 0: phish.error("Pong syntax: pong")
+if len(args) != 1: phish.error("Pong syntax: pong")
 
 phish.loop()
 phish.exit()

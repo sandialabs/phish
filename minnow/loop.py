@@ -18,10 +18,10 @@ phish.input(0,loop,None,1)
 phish.output(0)
 phish.check()
 
-if len(args) != 2: phish.error("Loop syntax: loop N M")
+if len(args) != 3: phish.error("Loop syntax: loop N M")
 
-n = int(args[0])
-m = int(args[1])
+n = int(args[1])
+m = int(args[2])
 
 if n == 0: phish.error("N > 0 is required")
 

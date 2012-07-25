@@ -19,9 +19,9 @@ int main(int narg, char **args)
   phish_output(0);
   phish_check();
 
-  if (narg != 2) phish_error("Loop syntax: loop N M");
-  n = atoi(args[0]);
-  int m = atoi(args[1]);
+  if (narg != 3) phish_error("Loop syntax: loop N M");
+  n = atoi(args[1]);
+  int m = atoi(args[2]);
 
   if (n == 0) phish_error("N > 0 is required");
 

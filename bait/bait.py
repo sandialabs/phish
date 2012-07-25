@@ -44,6 +44,8 @@ parser.add_option("--set", "-s", action="append", nargs=2,
                   help="Set a backend-specific name-value pair.")
 parser.add_option("--suffix", default="",
                   help="Add a common suffix to minnow executables.")
+parser.add_option("--launch", "-l", default="",
+                  help="Add a launch prefix to minnow executables.")
 parser.add_option("--variable", "-v", action="callback",
                   callback=variable_callback, dest="variable", default=[],
                   metavar="NAME VALUE", help="Specify a variable value.")
@@ -137,26 +139,37 @@ for line_number, line in enumerate(script):
     raise Exception("Unknown command '%s' on line %s: %s" %
                     (command, line_number, line))
 
-# Add suffixes to school executables ...
+# add suffixes to school executables
+# assumes executable is 1st arg
+  
 for school in schools.values():
   executable = school["arguments"][0]
   executable = executable + options.suffix
   school["arguments"][0] = executable
 
-# Locate school executables ...
+# prepend path to school executables if find it
+# assumes executable is 1st arg
+
 for school in schools.values():
   executable = school["arguments"][0]
   for path in paths:
-    if os.access(os.path.join(path, executable), os.X_OK):
+    if os.access(os.path.join(path, executable), os.F_OK):
       executable = os.path.join(path, executable)
   school["arguments"][0] = executable
 
-# Optionally display all of the school command lines ...
+# prepend launch to school executables
+
+for school in schools.values():
+  school["arguments"] = options.launch.split() + school["arguments"]
+  
+# optionally display all of the school command lines
+
 if options.verbose:
   for name, value in settings.items():
     sys.stderr.write("BAIT Setting: %s %s\n" % (name, value))
 
-# Pass the parsed data to the bait backend ...
+# pass the parsed data to the bait backend
+
 if options.backend is None:
   raise Exception("You must specify a backend using --backend.  " +
                   "Valid values are graphviz, mpi, mpi-config, null, " +
