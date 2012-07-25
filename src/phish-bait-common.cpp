@@ -1,5 +1,5 @@
-#include <phish-bait.h>
-#include <phish-bait-common.h>
+#include "phish-bait.h"
+#include "phish-bait-common.h"
 
 #include <iostream>
 #include <stdexcept>

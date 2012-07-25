@@ -1,6 +1,6 @@
-#include <phish-bait.h>
-#include <phish-bait-common.h>
-#include <phish-bait-mpi-common.h>
+#include "phish-bait.h"
+#include "phish-bait-common.h"
+#include "phish-bait-mpi-common.h"
 
 #include <iostream>
 #include <stdexcept>

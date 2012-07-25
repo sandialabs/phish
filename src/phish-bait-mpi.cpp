@@ -1,9 +1,11 @@
-#include <phish-bait.h>
-#include <phish-bait-common.h>
-#include <phish-bait-mpi-common.h>
+#include "phish-bait.h"
+#include "phish-bait-common.h"
+#include "phish-bait-mpi-common.h"
 
+#include <string.h>
 #include <iostream>
 #include <stdexcept>
+#include <sys/wait.h>
 
 #include <errno.h>
 

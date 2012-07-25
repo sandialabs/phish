@@ -19,7 +19,7 @@ int main(int narg, char **args)
   phish_output(0);
   phish_check();
 
-  if (narg != 2) phish_error("Ping syntax: ping N M");
+  if (narg != 3) phish_error("Ping syntax: ping N M");
   n = atoi(args[0]);
   int m = atoi(args[1]);
 

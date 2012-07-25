@@ -19,11 +19,11 @@
 #include "string.h"
 #include "stdint.h"
 #include "phish.h"
+#include "phish-common.h"
 #include "hash.h"
 
-#include <phish-common.h>
-
 #include <sstream>
+
 // ZMQ support for publish/subscribe connections
 
 #ifdef PHISH_MPI_ZMQ
@@ -56,8 +56,6 @@ typedef void (AbortFunc)(int*);
 
 MPI_Comm world;           // MPI communicator
 int me,nprocs;            // MPI rank and total # of procs
-
-
 
 int maxbuf;               // max allowed datum size in bytes
 int memchunk;             // max allowed datum size in Kbytes
@@ -246,11 +244,11 @@ int phish_init(int* argc, char*** argv)
       else if (raw_style == "chain") style = CHAIN;
       else if (raw_style == "ring") style = RING;
 #ifdef PHISH_MPI_ZMQ
-      else if (strstr(args[iarg+4],"subscribe") == args[iarg+4]) {
-	style = SUBSCRIBE;
+      else if (raw_style == "subscribe") {
+        style = SUBSCRIBE;
 	int n = strlen(args[iarg+4]) - strlen("subscribe/") + 1;
 	host = new char[n];
-	strcpy(host,&args[iarg+4][strlen("subscribe/")]);
+	strcpy(host,&argv[iarg+4][strlen("subscribe/")]);
       }
 #endif
       else phish_return_error("Unrecognized in style in phish_init", -1);
@@ -312,9 +310,9 @@ int phish_init(int* argc, char*** argv)
       else if (raw_style == "chain") style = CHAIN;
       else if (raw_style == "ring") style = RING;
 #ifdef PHISH_MPI_ZMQ
-      else if (strstr(args[iarg+4],"publish") == args[iarg+4]) {
+      else if (strstr(argv[iarg+4],"publish") == argv[iarg+4]) {
 	style = PUBLISH;
-	tcpport = atoi(&args[iarg+4][strlen("publish/")]);
+	tcpport = atoi(&argv[iarg+4][strlen("publish/")]);
       }
 #endif
       else phish_return_error("Unrecognized out style in phish_init", -1);
@@ -470,7 +468,8 @@ int phish_exit()
    reqflag = 1 if port must be used by input script
 ------------------------------------------------------------------------- */
 
-int phish_input(int iport, void (*datumfunc)(int), void (*donefunc)(), int reqflag)
+int phish_input(int iport, void (*datumfunc)(int), void (*donefunc)(), 
+                int reqflag)
 {
   phish_assert_initialized();
   phish_assert_not_checked();
@@ -760,7 +759,8 @@ int phish_recv()
       ip->status = CLOSED_PORT;
       if (ip->donefunc) (*ip->donefunc)();
       donecount++;
-      if (donecount == ninports && g_all_input_ports_closed) (*g_all_input_ports_closed)();
+      if (donecount == ninports && g_all_input_ports_closed) 
+        (*g_all_input_ports_closed)();
     }
     return -1;
   }
@@ -1470,7 +1470,8 @@ int phish_set(const char *keyword, int flag1, int flag2)
       phish_return_error("Invalid port ID in phish_set", -1);
     OutPort *op = &outports[iport];
     if (op->status == UNUSED_PORT || op->status == CLOSED_PORT) 
-      phish_return_error("Unused or closed port in phish_set ring/receiver", -1);
+      phish_return_error("Unused or closed port in phish_set ring/receiver",
+                         -1);
 
     for (int iconnect = 0; iconnect < op->nconnect; iconnect++) {
       OutConnect *oc = &op->connects[iconnect];

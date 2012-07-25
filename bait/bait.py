@@ -1,3 +1,7 @@
+#!/usr/bin/python
+
+# Bait.py pre-processing script
+
 import phish.bait
 import optparse
 import os
@@ -26,13 +30,25 @@ def variable_callback(option, opt_str, value, parser):
   value = (value[0], value[1:])
   parser.values.variable.append(value)
 
+# Main program
+
 parser = optparse.OptionParser()
-parser.add_option("--backend", default=None, help="Specify the backend to use: graphviz, mpi, mpi-config, null, or zmq.")
-parser.add_option("--path", default="", metavar="PATH1:PATH2:...", help="Specify a colon-delimited list of paths to be prepended to executable names.")
-parser.add_option("--set", "-s", action="append", nargs=2, default=[], metavar="NAME VALUE", help="Set a backend-specific name-value pair.")
-parser.add_option("--suffix", default="", help="Add a common suffix to minnow executables.")
-parser.add_option("--variable", "-v", action="callback", callback=variable_callback, dest="variable", default=[], metavar="NAME VALUE", help="Specify a variable value.")
-parser.add_option("--verbose", default=False, action="store_true", help="Verbose output.  Default: %default.")
+parser.add_option("--backend", default=None,
+                  help="Specify the backend to use: " +
+                  "graphviz, mpi, mpi-config, null, or zmq.")
+parser.add_option("--path", default="", metavar="PATH1:PATH2:...",
+                  help="Specify a colon-delimited list of " +
+                  "paths to be prepended to executable names.")
+parser.add_option("--set", "-s", action="append", nargs=2,
+                  default=[], metavar="NAME VALUE",
+                  help="Set a backend-specific name-value pair.")
+parser.add_option("--suffix", default="",
+                  help="Add a common suffix to minnow executables.")
+parser.add_option("--variable", "-v", action="callback",
+                  callback=variable_callback, dest="variable", default=[],
+                  metavar="NAME VALUE", help="Specify a variable value.")
+parser.add_option("--verbose", default=False, action="store_true",
+                  help="Verbose output.  Default: %default.")
 options, arguments = parser.parse_args()
 
 paths = options.path.split(":")
@@ -103,7 +119,8 @@ for line_number, line in enumerate(script):
     output = arguments[0].split(":")
     style = arguments[1]
     input = arguments[2].split(":")
-    hooks.append((output[0], int(output[1]) if len(output) > 1 else 0, style, int(input[1]) if len(input) > 1 else 0, input[0]))
+    hooks.append((output[0], int(output[1]) if len(output) > 1 else 0,
+                  style, int(input[1]) if len(input) > 1 else 0, input[0]))
 
   elif command == "school":
     id = arguments[0]
@@ -117,7 +134,8 @@ for line_number, line in enumerate(script):
         schools[id]["arguments"] = [value] + schools[id]["arguments"]
 
   else:
-    raise Exception("Unknown command '%s' on line %s: %s" % (command, line_number, line))
+    raise Exception("Unknown command '%s' on line %s: %s" %
+                    (command, line_number, line))
 
 # Add suffixes to school executables ...
 for school in schools.values():
@@ -140,7 +158,9 @@ if options.verbose:
 
 # Pass the parsed data to the bait backend ...
 if options.backend is None:
-  raise Exception("You must specify a backend using --backend.  Valid values are graphviz, mpi, mpi-config, null, zmq, or your own custom backend.")
+  raise Exception("You must specify a backend using --backend.  " +
+                  "Valid values are graphviz, mpi, mpi-config, null, " +
+                  "zmq, or your own custom backend.")
 
 phish.bait.backend(options.backend)
 

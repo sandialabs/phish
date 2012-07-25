@@ -5,7 +5,7 @@ set memory 1025
 variable n 1000000
 variable m 0
 
-minnow 1 ping.py $n $m
+minnow 1 ping $n $m
 minnow 2 pong
 
 hook 1 single 2

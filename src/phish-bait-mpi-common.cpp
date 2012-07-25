@@ -1,5 +1,5 @@
-#include <phish-bait-common.h>
-#include <phish-bait-mpi-common.h>
+#include "phish-bait-common.h"
+#include "phish-bait-mpi-common.h"
 
 std::vector<std::string> get_mpiexec_arguments()
 {

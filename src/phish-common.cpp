@@ -1,9 +1,9 @@
-#include <phish.h>
-#include <phish-common.h>
+#include "string.h"
+#include "phish.h"
+#include "phish-common.h"
 
 #include <iostream>
 #include <sstream>
-
 #include <sys/time.h>
 
 std::string g_host = std::string();
