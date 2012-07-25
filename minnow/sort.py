@@ -1,5 +1,3 @@
-#!/usr/local/bin/python
-
 import phish
 import sys
 

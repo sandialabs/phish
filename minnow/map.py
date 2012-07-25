@@ -1,5 +1,3 @@
-#!/usr/local/bin/python
-
 import sys,random
 import phish
 
