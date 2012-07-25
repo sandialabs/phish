@@ -5,7 +5,7 @@ args = phish.init(sys.argv)
 phish.output(0)
 phish.check()
 
-if len(args) != 1: phish.error("Readgraph syntax: readgraph.py infile")
+if len(args) != 2: phish.error("Readgraph syntax: readgraph.py infile")
 
 lines = open(args[0],"r").readlines()
 
