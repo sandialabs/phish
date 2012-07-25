@@ -82,7 +82,7 @@ baitgraph:
 baitnull:	
 	$(CC) $(CCFLAGS) -c phish-bait-null.cpp
 	$(CC) $(CCFLAGS) -c phish-bait-common.cpp
-	$(CC) $(LIBFLAGS) -o $(LIB_BZ) phish-bait-null.o phish-bait-common.o
+	$(CC) $(LIBFLAGS) -o $(LIB_BN) phish-bait-null.o phish-bait-common.o
 
 # Clean up
 
