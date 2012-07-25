@@ -14,9 +14,9 @@ int main(int narg, char **args)
   phish_output(0);
   phish_check();
 
-  if (narg != 2) phish_error("Source syntax: source N M");
-  int n = atoi(args[0]);
-  int m = atoi(args[1]);
+  if (narg != 3) phish_error("Source syntax: source N M");
+  int n = atoi(args[1]);
+  int m = atoi(args[2]);
 
   int idlocal = phish_query("idlocal",0,0);
   int nlocal = phish_query("nlocal",0,0);

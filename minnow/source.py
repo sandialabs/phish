@@ -6,10 +6,10 @@ phish.input(0,None,None,1)
 phish.output(0)
 phish.check()
 
-if len(args) != 2: phish.error("Source syntax: source N M")
+if len(args) != 3: phish.error("Source syntax: source N M")
 
-n = int(args[0])
-m = int(args[1])
+n = int(args[1])
+m = int(args[2])
 
 idlocal = phish.query("idlocal",0,0)
 nlocal = phish.query("nlocal",0,0)

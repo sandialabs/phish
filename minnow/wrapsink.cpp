@@ -24,14 +24,14 @@ int main(int narg, char **args)
   phish_input(0,sink,close,1);
   phish_check();
 
-  if (narg < 1) phish_error("Wrapsink syntax: wrapsink program");
+  if (narg < 2) phish_error("Wrapsink syntax: wrapsink program");
 
   // combine all args into one string to launch with popen()
   // would be better if there was exactly one arg
   // but mpiexec strips quotes from quoted args
 
   char program[1024] = "";
-  for (int i = 0; i < narg; i++) {
+  for (int i = 1; i < narg; i++) {
     strcat(program,args[i]);
     if (i < narg-1) strcat(program," ");
   }

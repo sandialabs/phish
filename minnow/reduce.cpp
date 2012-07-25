@@ -14,7 +14,7 @@ int main(int narg, char **args)
   phish_output(0);
   phish_check();
 
-  if (narg != 0) phish_error("Reduce syntax: reduce");
+  if (narg != 1) phish_error("Reduce syntax: reduce");
 
   phish_loop();
   phish_exit();

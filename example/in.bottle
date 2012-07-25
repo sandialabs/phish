@@ -8,8 +8,6 @@ minnow 1 rmat $n 40 0.25 0.25 0.25 0.25 0.0 12345
 
 minnow 2 slowdown 0.0
 #minnow 2 slowdown 0.01
-#minnow 2 slowdown.py 0.0
-#minnow 2 slowdown.py 0.01
 
 minnow 3 print
 

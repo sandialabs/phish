@@ -21,12 +21,12 @@ int main(int narg, char **args)
 {
   phish_init(&narg,&args);
 
-  if (narg < 1) phish_error("Wrapsource syntax: wrapsource -f program");
+  if (narg < 2) phish_error("Wrapsource syntax: wrapsource -f program");
 
   // check for -f switch to run child multiple times on incoming datums
 
   int fileflag = 0;
-  if (strcmp(args[0],"-f") == 0) {
+  if (strcmp(args[1],"-f") == 0) {
     phish_input(0,launch,NULL,1);
     fileflag = 1;
   }
@@ -38,7 +38,7 @@ int main(int narg, char **args)
   // would be better if there was exactly one arg
   // but mpiexec strips quotes from quoted args
 
-  for (int i = fileflag; i < narg; i++) {
+  for (int i = 1+fileflag; i < narg; i++) {
     strcat(program,args[i]);
     if (i < narg-1) strcat(program," ");
   }

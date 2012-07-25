@@ -31,24 +31,24 @@ def variable_callback(option, opt_str, value, parser):
 # Main program
 
 parser = optparse.OptionParser()
-parser.add_option("--backend", default=None,
+parser.add_option("--backend", "-b", default="mpi",
                   help="Specify the backend to use: " +
-                  "graphviz, mpi, mpi-config, null, or zmq.")
-parser.add_option("--path", default="", metavar="PATH1:PATH2:...",
-                  help="Specify a colon-delimited list of " +
-                  "paths to be prepended to executable names.")
+                  "mpi, mpi-config, zmq, graphviz, or null")
+parser.add_option("--path", "-p", default="", metavar="PATH1:PATH2:...",
+                  help="Specify a colon-delimited list of possible" +
+                  "paths to prepend to executable, if file is found")
 parser.add_option("--set", "-s", action="append", nargs=2,
                   default=[], metavar="NAME VALUE",
-                  help="Set a backend-specific name-value pair.")
+                  help="Set a backend-specific name-value pair")
 parser.add_option("--suffix", default="",
-                  help="Add a common suffix to minnow executables.")
+                  help="Add a suffix to all minnow names")
 parser.add_option("--launch", "-l", default="",
-                  help="Add a launch prefix to minnow executables.")
+                  help="Add a launch prefix to all minnows")
 parser.add_option("--variable", "-v", action="callback",
                   callback=variable_callback, dest="variable", default=[],
-                  metavar="NAME VALUE", help="Specify a variable value.")
+                  metavar="NAME VALUE", help="Specify value of a variable")
 parser.add_option("--verbose", default=False, action="store_true",
-                  help="Verbose output.  Default: %default.")
+                  help="Verbose output, Default: %default.")
 options, arguments = parser.parse_args()
 
 paths = options.path.split(":")

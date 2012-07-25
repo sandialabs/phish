@@ -15,9 +15,9 @@ phish.input(0,send,None,1)
 phish.output(0)
 phish.check()
 
-if len(args) != 1: phish.error("Slowdown syntax: slowdown delta")
+if len(args) != 2: phish.error("Slowdown syntax: slowdown delta")
 
-delta = float(args[0])
+delta = float(args[1])
 time_previous = phish.timer()
 
 phish.loop()

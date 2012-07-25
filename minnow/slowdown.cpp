@@ -23,8 +23,8 @@ int main(int narg, char **args)
   phish_output(0);
   phish_check();
 
-  if (narg != 1) phish_error("Slowdown syntax: slowdown delta");
-  delta = atof(args[0]);
+  if (narg != 2) phish_error("Slowdown syntax: slowdown delta");
+  delta = atof(args[1]);
 
   time_previous = phish_timer();
 
