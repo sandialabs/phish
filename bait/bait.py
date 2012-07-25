@@ -1,5 +1,3 @@
-#!/usr/bin/local/python
-
 # Bait.py pre-processing script
 
 import phish.bait
