@@ -1,6 +1,6 @@
 # All targets
 
-all:	pingpong oneway loop hashed
+all:	pingpong oneway loop hashed self
 
 # programs
 
@@ -15,4 +15,7 @@ loop:   loop.o
 
 hashed: hashed.o hash.o
 	$(LINK) $(LINKFLAGS) hashed.o hash.o $(SYSLIB) -o hashed
+
+self: self.o
+	$(LINK) $(LINKFLAGS) self.o $(SYSLIB) -o self
 
