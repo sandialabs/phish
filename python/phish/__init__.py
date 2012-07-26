@@ -38,7 +38,7 @@ PICKLE = 23
 MAXPORT = 16
 
 def init(args):
-  for index, argument in enumerate(args):
+  for index,argument in enumerate(args):
     if argument == "--phish-backend":
       backend = args[index+1]
 
@@ -77,6 +77,7 @@ def exit():
 def input(iport,datumfunc,donefunc,reqflag):
   global datum0_caller,done0_caller
   global datum1_caller,done1_caller
+  global datum2_caller,done2_caller
   if iport == 0:
     datum0_caller = datumfunc
     done0_caller = donefunc
@@ -88,7 +89,7 @@ def input(iport,datumfunc,donefunc,reqflag):
       _library.phish_input(iport,None,done0_def,reqflag)
     else:
       _library.phish_input(iport,None,None,reqflag)
-  if iport == 1:
+  elif iport == 1:
     datum1_caller = datumfunc
     done1_caller = donefunc
     if datumfunc and donefunc:
@@ -97,6 +98,17 @@ def input(iport,datumfunc,donefunc,reqflag):
       _library.phish_input(iport,datum1_def,None,reqflag)
     elif donefunc:
       _library.phish_input(iport,None,done1_def,reqflag)
+    else:
+      _library.phish_input(iport,None,None,reqflag)
+  elif iport == 2:
+    datum2_caller = datumfunc
+    done2_caller = donefunc
+    if datumfunc and donefunc:
+      _library.phish_input(iport,datum2_def,done2_def,reqflag)
+    elif datumfunc:
+      _library.phish_input(iport,datum2_def,None,reqflag)
+    elif donefunc:
+      _library.phish_input(iport,None,done2_def,reqflag)
     else:
       _library.phish_input(iport,None,None,reqflag)
 
@@ -148,6 +160,12 @@ def datum1_callback(nvalues):
 
 def done1_callback():
   done1_caller()
+
+def datum2_callback(nvalues):
+  datum2_caller(nvalues)
+
+def done2_callback():
+  done2_caller()
 
 def recv():
   return _library.phish_recv()
@@ -470,10 +488,12 @@ abort_def = ABORTFUNC(abort_callback)
 DATUMFUNC = CFUNCTYPE(c_void_p,c_int)
 datum0_def = DATUMFUNC(datum0_callback)
 datum1_def = DATUMFUNC(datum1_callback)
+datum2_def = DATUMFUNC(datum2_callback)
 
 DONEFUNC = CFUNCTYPE(c_void_p)
 done0_def = DONEFUNC(done0_callback)
 done1_def = DONEFUNC(done1_callback)
+done2_def = DONEFUNC(done2_callback)
 
 PROBEFUNC = CFUNCTYPE(c_void_p)
 probe_def = PROBEFUNC(probe_callback)
