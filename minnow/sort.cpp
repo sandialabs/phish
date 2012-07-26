@@ -1,5 +1,5 @@
 // MINNOW sort
-// sort datums, emit top ones
+// sort datums, emit top N
 
 #include "stdlib.h"
 #include "stdio.h"

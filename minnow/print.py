@@ -12,15 +12,14 @@ def myprint(nvalues):
       for val in value: print >>fp,val,
   print >>fp
 
-argv = phish.init(sys.argv)
-phish.input(0, myprint, None, 1)
+args = phish.init(sys.argv)
+phish.input(0,myprint,None,1)
 phish.check()
 
 fp = sys.stdout
-
-for index, argument in enumerate(argv):
+for index,argument in enumerate(args):
   if argument == "-f":
-    fp = open(argv[index+1], "w")
+    fp = open(args[index+1],"w")
 
 phish.loop()
 phish.exit()
