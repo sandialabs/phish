@@ -46,8 +46,7 @@ char** get_argv(const std::vector<std::string>& arguments)
 
 int phish_abort_internal()
 {
-  if(!g_at_abort)
-    return true;
+  if (!g_at_abort) return true;
 
   int cancel = false;
   g_at_abort(&cancel);
@@ -56,18 +55,20 @@ int phish_abort_internal()
 
 void phish_message(const char* type, const char* message)
 {
-  std::cerr << "PHISH " << type << ": Minnow " << g_executable << " ID " << g_school_id << " # " << g_global_id << ": " << message << std::endl;
+  std::cerr << "PHISH " << type << ": Minnow " << g_executable << " ID " 
+            << g_school_id << " # " << g_global_id << ": " << message 
+            << std::endl;
 }
 
 void phish_stats()
 {
-
   std::ostringstream message;
   message << g_received_count << " " << g_sent_count << " datums recv/sent";
   phish_message("Stats", message.str().c_str());
 }
 
 // Provide default implementations for some parts of the PHISH API ...
+
 extern "C"
 {
 

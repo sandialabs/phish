@@ -47,6 +47,9 @@ enum{UNUSED_PORT,OPEN_PORT,CLOSED_PORT};
 
 #define DELTAQUEUE 16    // increment for # queue entries
 
+#define SELFNUM 10       // max # of outstanding self messages
+#define SELFOVERHEAD 100 // per-message MPI overhead in selfbuf
+
 typedef void (DatumFunc)(int);         // callback prototypes
 typedef void (DoneFunc)();
 typedef void (AbortFunc)(int*);
@@ -120,6 +123,9 @@ int nrfields;              // # of fields in received datum
 char *rptr;                // ptr to current loc in rbuf for unpacking
 int nunpack;               // # of fields unpacked thus far from rbuf
 
+int self;                  // 1 if possibly send message to self, else 0
+char *selfbuf;             // buffer for messages to self, used by MPI
+
 // queued datums
 
 struct Queue {             // one queued datum
@@ -132,7 +138,6 @@ Queue *queue;              // internal queue
 int nqueue;                // # of datums in queue
 int maxqueue;              // max # of datums queue can hold
 
-
 // internal function prototypes
 
 void send(OutConnect *);
@@ -141,13 +146,13 @@ void deallocate_ports();
 
 /* ---------------------------------------------------------------------- */
 
-int phish_init(int* argc, char*** argv)
+int phish_init(int *argc, char ***argv)
 {
   phish_assert_not_initialized();
 
   // initialize MPI
 
-  MPI_Init(argc, argv);
+  MPI_Init(argc,argv);
 
   world = MPI_COMM_WORLD;
   MPI_Comm_rank(world,&me);
@@ -170,28 +175,26 @@ int phish_init(int* argc, char*** argv)
   allocate_ports();
 
   // parse input args and setup communication port data structs
+
   std::vector<std::string> arguments(*argv, *argv + *argc);
   std::vector<std::string> kept_arguments;
 
   g_executable = arguments[0];
 
-  while(arguments.size())
-  {
+  while (arguments.size()) {
     const std::string argument = pop_argument(arguments);
-    if(argument == "--phish-backend")
-    {
+    if (argument == "--phish-backend") {
       const std::string backend = pop_argument(arguments);
-      if(backend != "mpi")
-      {
+      if (backend != "mpi") {
         std::ostringstream message;
-        message << "Incompatible backend: expected mpi, using " << backend << ".";
-        phish_return_error(message.str().c_str(), -1);
+        message << "Incompatible backend: expected mpi, using " 
+                << backend << ".";
+        phish_return_error(message.str().c_str(),-1);
       }
-    }
-    else if(argument == "--phish-minnow")
-    {
-      if(arguments.size() < 3)
-	      phish_return_error("Invalid command-line args in phish_init", -1);
+
+    } else if (argument == "--phish-minnow") {
+      if (arguments.size() < 3)
+        phish_return_error("Invalid command-line args in phish_init", -1);
 
       g_school_id = pop_argument(arguments);
       g_local_count = atoi(pop_argument(arguments).c_str());
@@ -199,32 +202,25 @@ int phish_init(int* argc, char*** argv)
       g_local_id = me - nprev;
       g_global_id = me;
       g_global_count = nprocs;
-    }
-    else if(argument == "--phish-memory")
-    {
-      if(arguments.size() < 1)
-	      phish_return_error("Invalid command-line args in phish_init", -1);
 
+    } else if (argument == "--phish-memory") {
+      if (arguments.size() < 1)
+        phish_return_error("Invalid command-line args in phish_init", -1);
       memchunk = atoi(pop_argument(arguments).c_str());
       if (memchunk < 0) 
         phish_return_error("Invalid command-line args in phish_init", -1);
-    }
-    else if(argument == "--phish-safe")
-    {
-      if(arguments.size() < 1)
-        phish_return_error("Invalid command-line args in phish_init", -1);
 
+    } else if(argument == "--phish-safe") {
+      if (arguments.size() < 1)
+        phish_return_error("Invalid command-line args in phish_init", -1);
       safe = atoi(pop_argument(arguments).c_str());
       if (safe < 0)
         phish_return_error("Invalid command-line args in phish_init", -1);
-    }
-    else if(argument == "--phish-in")
-    {
-      if(arguments.size() < 7)
-        phish_return_error("Invalid command-line args in phish_init", -1);
 
-      int style;
-      int sprocs,sfirst,sport,rprocs,rfirst,rport;
+    } else if (argument == "--phish-in") {
+      if (arguments.size() < 7)
+        phish_return_error("Invalid command-line args in phish_init", -1);
+      int style,sprocs,sfirst,sport,rprocs,rfirst,rport;
       char *host = NULL;
 
       sprocs = atoi(pop_argument(arguments).c_str());
@@ -252,7 +248,6 @@ int phish_init(int* argc, char*** argv)
       }
 #endif
       else phish_return_error("Unrecognized in style in phish_init", -1);
-
 
       if (rport > MAXPORT)
 	phish_return_error("Invalid input port ID in phish_init", -1);
@@ -283,14 +278,11 @@ int phish_init(int* argc, char*** argv)
       case SUBSCRIBE:
 	break;
       }
-    }
-    else if(argument == "--phish-out")
-    {
-      if(arguments.size() < 7)
-        phish_return_error("Invalid command-line args in phish_init", -1);
 
-      int style;
-      int sprocs,sfirst,sport,rprocs,rfirst,rport;
+    } else if (argument == "--phish-out") {
+      if (arguments.size() < 7)
+        phish_return_error("Invalid command-line args in phish_init", -1);
+      int style,sprocs,sfirst,sport,rprocs,rfirst,rport;
       int tcpport = 0;
 
       sprocs = atoi(pop_argument(arguments).c_str());
@@ -394,29 +386,59 @@ int phish_init(int* argc, char*** argv)
 	break;
       }
     }
-    else
-    {
-      kept_arguments.push_back(argument);
+
+    else kept_arguments.push_back(argument);
+  }
+
+  // check if possibly send message to self
+
+  self = 0;
+  for (int iport = 0; iport < MAXPORT; iport++) {
+    if (outports[iport].status == UNUSED_PORT) continue;
+    for (int iconnect = 0; iconnect < outports[iport].nconnect; iconnect++) {
+      OutConnect *oc = &outports[iport].connects[iconnect];
+      switch (oc->style) {
+      case SINGLE:
+      case PAIRED:
+        if (me == oc->recvone) self = 1;
+        break;
+      case HASHED:
+      case ROUNDROBIN:
+      case DIRECT:
+      case BCAST:
+        if (me >= oc->recvfirst && me < oc->recvfirst + oc->nrecv) self = 1;
+        break;
+      default:
+        break;
+      }
     }
   }
 
-  // Cleanup argc & argv ...
+  // cleanup argc & argv
+
   *argc = get_argc(kept_arguments);
   *argv = get_argv(kept_arguments);
 
-  // Get this minnow's host ...
+  // get this minnow's host
+
   char host_buffer[MPI_MAX_PROCESSOR_NAME];
   int length = 0;
-  MPI_Get_processor_name(host_buffer, &length);
-  g_host = std::string(host_buffer, length);
+  MPI_Get_processor_name(host_buffer,&length);
+  g_host = std::string(host_buffer,length);
 
   // memory allocation/initialization for datum buffers
+  // if self, attach buffer to MPI for sending to self
 
   maxbuf = memchunk * KBYTE;
   sbuf = (char *) malloc(maxbuf*sizeof(char));
   rbuf = (char *) malloc(maxbuf*sizeof(char));
-
   if (!sbuf || !rbuf) phish_return_error("Malloc of datum buffers failed", -1);
+
+  if (self) {
+    int n = SELFNUM * (maxbuf*KBYTE + SELFOVERHEAD);
+    selfbuf = (char *) malloc(n*sizeof(char));
+    MPI_Buffer_attach(selfbuf,n);
+  } else selfbuf = NULL;
 
   // set send buffer ptr for initial datum
 
@@ -451,6 +473,8 @@ int phish_exit()
 
   free(sbuf);
   free(rbuf);
+  free(selfbuf);
+
   for (int i = 0; i < nqueue; i++) delete [] queue[i].datum;
   free(queue);
 
@@ -475,10 +499,10 @@ int phish_input(int iport, void (*datumfunc)(int), void (*donefunc)(),
   phish_assert_not_checked();
 
   if (iport < 0 || iport > MAXPORT)
-    phish_return_error("Invalid port ID in phish_input", -1);
+    phish_return_error("Invalid port ID in phish_input",-1);
 
   if (reqflag && inports[iport].status == UNUSED_PORT)
-    phish_return_error("Input script does not use a required input port", -1);
+    phish_return_error("Input script does not use a required input port",-1);
 
   if (inports[iport].status == UNUSED_PORT) return 0;
   inports[iport].status = OPEN_PORT;
@@ -527,7 +551,7 @@ int phish_check()
   ninports = 0;
   for (int i = 0; i < MAXPORT; i++) {
     if (inports[i].status == CLOSED_PORT)
-      phish_return_error("Input script uses an undefined input port", -1);
+      phish_return_error("Input script uses an undefined input port",-1);
     if (inports[i].status == OPEN_PORT) ninports++;
   }
   donecount = 0;
@@ -541,7 +565,7 @@ int phish_check()
   noutports = 0;
   for (int i = 0; i < MAXPORT; i++) {
     if (outports[i].status == CLOSED_PORT)
-      phish_return_error("Input script uses an undefined output port", -1);
+      phish_return_error("Input script uses an undefined output port",-1);
     if (outports[i].status == OPEN_PORT) noutports++;
   }
 
@@ -849,7 +873,9 @@ void phish_send_key(int iport, char *key, int keybytes)
       {
 	int tag = oc->recvport;
 	int offset = hashlittle(key,keybytes,oc->nrecv) % oc->nrecv;
-	if (safe && g_sent_count % safe == 0) 
+        if (self && me == oc->recvfirst+offset)
+          MPI_Bsend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+offset,tag,world);
+	else if (safe && g_sent_count % safe == 0) 
 	  MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+offset,tag,world);
 	else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+offset,tag,world);
       }
@@ -926,7 +952,7 @@ void phish_send_direct(int iport, int receiver)
 /* ----------------------------------------------------------------------
    send datum packed in sbuf to downstream proc(s)
    internal function, NOT a function in the PHISH API
-------------------------------------------------------------------------- */
+------------------------------------------------------------------------ */
 
 void send(OutConnect *oc)
 {
