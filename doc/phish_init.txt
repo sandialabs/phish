@@ -89,7 +89,8 @@ any time.
 --phish-backend mpi
 --phish-minnow ID Nlocal Nprev
 --phish-memory N
---phish-safe N
+--phish-safe M
+--phish-self S
 --phish-in sprocs sfirst sport style rprocs rfirst rport
 --phish-out sprocs sfirst sport style rprocs rfirst rport :ul
 
@@ -107,14 +108,27 @@ The {--phish-memory} and {--phish-safe} and switches change default settings wit
 the PHISH library.
 
 The {--phish-memory} value {N} sets the maximum size of the buffers used to
-send and receive datums.
+send and receive datums.  See the "set"_bait_set.html command of
+the "bait.py"_Section_bait.html tool for more information on the
+settings of this switch.
 
-The {--phish-safe} switch forces the MPI version of the PHISH library to use
-MPI_SSend() calls instead of the standard MPI_Send() when {N} is nonzero.
-These are "safer" in the sense they insure messages are not dropped due to a
-minnow not keeping up with its incoming messages.  See the "set"_bait_set.html
-command of the "bait.py"_Section_bait.html tool for more information on the
-settings of these switches.
+The {--phish-safe} switch forces the MPI version of the PHISH library
+to use MPI_SSend() calls every {M} messages it sends, instead of the
+standard MPI_Send() when {M} is nonzero.  These are "safer" in the
+sense they insure messages are not dropped due to a minnow not keeping
+up with its incoming messages.  See the "set"_bait_set.html command of
+the "bait.py"_Section_bait.html tool for more information on the
+settings of this switch.
+
+The {--phish-self} switch sets the size of the buffer used by the MPI
+version of the PHISH library to perform non-blocking buffered sends
+via the MPI_BSend() call.  These calls are only made when a minnow
+sends a message to itself, e.g. in a looping fashion as specified by a
+"hook"_bait_hook.html command in a PHISH input script.  {S} specifies
+the number of maximum-size self messages that can be queued before the
+minnow receives them.  See the "set"_bait_set.html command of the
+"bait.py"_Section_bait.html tool for more information on the settings
+of this switch.
 
 The {--phish-in} switch appears once for every connection the minnow has with
 other minnows, where it is a receiver of datums.  See the

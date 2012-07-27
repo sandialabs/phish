@@ -92,7 +92,8 @@ any time.
 <UL><LI>--phish-backend mpi
 <LI>--phish-minnow ID Nlocal Nprev
 <LI>--phish-memory N
-<LI>--phish-safe N
+<LI>--phish-safe M
+<LI>--phish-self S
 <LI>--phish-in sprocs sfirst sport style rprocs rfirst rport
 <LI>--phish-out sprocs sfirst sport style rprocs rfirst rport 
 </UL>
@@ -110,14 +111,27 @@ the <I>local-ID</I> value discussed above.
 the PHISH library.
 </P>
 <P>The <I>--phish-memory</I> value <I>N</I> sets the maximum size of the buffers used to
-send and receive datums.
+send and receive datums.  See the <A HREF = "bait_set.html">set</A> command of
+the <A HREF = "Section_bait.html">bait.py</A> tool for more information on the
+settings of this switch.
 </P>
-<P>The <I>--phish-safe</I> switch forces the MPI version of the PHISH library to use
-MPI_SSend() calls instead of the standard MPI_Send() when <I>N</I> is nonzero.
-These are "safer" in the sense they insure messages are not dropped due to a
-minnow not keeping up with its incoming messages.  See the <A HREF = "bait_set.html">set</A>
-command of the <A HREF = "Section_bait.html">bait.py</A> tool for more information on the
-settings of these switches.
+<P>The <I>--phish-safe</I> switch forces the MPI version of the PHISH library
+to use MPI_SSend() calls every <I>M</I> messages it sends, instead of the
+standard MPI_Send() when <I>M</I> is nonzero.  These are "safer" in the
+sense they insure messages are not dropped due to a minnow not keeping
+up with its incoming messages.  See the <A HREF = "bait_set.html">set</A> command of
+the <A HREF = "Section_bait.html">bait.py</A> tool for more information on the
+settings of this switch.
+</P>
+<P>The <I>--phish-self</I> switch sets the size of the buffer used by the MPI
+version of the PHISH library to perform non-blocking buffered sends
+via the MPI_BSend() call.  These calls are only made when a minnow
+sends a message to itself, e.g. in a looping fashion as specified by a
+<A HREF = "bait_hook.html">hook</A> command in a PHISH input script.  <I>S</I> specifies
+the number of maximum-size self messages that can be queued before the
+minnow receives them.  See the <A HREF = "bait_set.html">set</A> command of the
+<A HREF = "Section_bait.html">bait.py</A> tool for more information on the settings
+of this switch.
 </P>
 <P>The <I>--phish-in</I> switch appears once for every connection the minnow has with
 other minnows, where it is a receiver of datums.  See the

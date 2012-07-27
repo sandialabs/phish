@@ -16,13 +16,16 @@ keyword = {memory} or {safe} or {port} :ulb,l
   {memory} value = N
     N = max size of datum in Kbytes
   {safe} value = M
-    M = send a datum "safely" every this many sends :pre
+    M = send a datum "safely" every this many sends
+  {self} value = S
+    S = allow queueing of this many messages to self :pre
 :ule
 
 [Examples:]
 
 set memory 1024
-set safe
+set safe 10
+set self 20 :pre
 
 [Description:]
 
@@ -65,6 +68,21 @@ or 10000 is fine if a single minnow is sending to the minnow.  If 10
 minnows are sending to the overflowing minnow, then M should be
 reduced by a factor of 10.
 
+The {self} keyword is only relevant for the MPI version of the PHISH.
+A PHISH net described by an input script can include
+"hook"_bait_hook.html commands that route datums from a school back to
+itself, e.g. in some kind of looping fashion.  This means that a
+procesor can send messages to itself.  When this occurs the PHISH
+library uses a buffered MPI_Bsend() call.  This avoids a possible hang
+due to a blocking send, which can happen in some MPI implementations.
+The value of {S} determines how big a buffer is reserved for the
+buffered send operations.  It effectively means how many messsages (of
+maximum size, as determined by the memory keyword above), can be sent
+to self and buffered before they are received.  In most cases the
+small default setting is sufficient, but if a minnow can send many
+messages to itself before reading and processing them, you may need to
+boost this setting.
+
 [Restrictions:] none
 
 [Related commands:]
@@ -74,4 +92,4 @@ See the discussion of command-line arguments for the
 
 [Default:]
 
-The default settings are memory = 1 (1 Kbyte), safe = 0.
+The default settings are memory = 1 (1 Kbyte), safe = 0, self = 10.
