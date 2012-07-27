@@ -46,13 +46,49 @@ static std::map<int, bool> g_input_port_required;
 // Stores the number of incoming connections for each input port ...
 static std::map<int, int> g_input_port_connection_count;
 
-// Temporary storage for packing outgoing messages ...
-static std::vector<zmq::message_t*> g_pack_messages;
+// Stores the maximum size of a datum, in bytes ...
+static int g_datum_size = 1024;
+// Keeps pointers to every allocated datum ...
+static std::vector<char*> g_datum_pool;
+// Keeps pointers to unused datums ...
+static std::vector<char*> g_unused_datum_pool;
 
-// Temporary storage for unpacking incoming messages ...
-static std::vector<zmq::message_t*> g_unpack_messages;
-static uint32_t g_unpack_count = 0;
-static uint32_t g_unpack_index = 0;
+char* use_datum()
+{
+  if(g_unused_datum_pool.empty())
+  {
+    g_datum_pool.push_back(new char[g_datum_size]());
+    return g_datum_pool.back();
+  }
+
+  char* const result = g_unused_datum_pool.back();
+  g_unused_datum_pool.pop_back();
+  return result;
+}
+
+void release_datum(char* datum)
+{
+  g_unused_datum_pool.push_back(datum);
+}
+
+// Temporary storage for packing outgoing datums ...
+static char* g_pack_begin = 0;
+static char* g_pack_end = 0;
+
+inline uint32_t& pack_count()
+{
+  return *reinterpret_cast<uint32_t*>(g_pack_begin);
+}
+
+// Temporary storage for packing incoming datums ...
+static char* g_unpack_begin = 0;
+static char* g_unpack_current = 0;
+static char* g_unpack_end = 0;
+
+inline uint32_t& unpack_count()
+{
+  return *reinterpret_cast<uint32_t*>(g_unpack_begin);
+}
 
 // Keeps track of whether a message loop is running ...
 static bool g_running = false;
@@ -83,17 +119,15 @@ static std::set<int> g_defined_output_ports;
 
 static inline void pack(uint8_t type, uint32_t count, uint32_t size, const void* data)
 {
-  zmq::message_t* const message = new zmq::message_t(sizeof(type) + sizeof(count) + (count * size));
-  uint8_t* message_data = reinterpret_cast<uint8_t*>(message->data());
-
-  *reinterpret_cast<uint8_t*>(message_data) = type;
-  message_data += sizeof(uint8_t);
-  *reinterpret_cast<uint32_t*>(message_data) = count;
-  message_data += sizeof(uint32_t);
-
-  ::memcpy(message_data, data, count * size);
-
-  g_pack_messages.push_back(message);
+  if(g_pack_end + sizeof(uint8_t) + sizeof(uint32_t) + (count * size) > g_pack_begin + g_datum_size)
+    phish_error("Send buffer overflow.");
+  pack_count() += 1;
+  *reinterpret_cast<uint8_t*>(g_pack_end) = type;
+  g_pack_end += sizeof(uint8_t);
+  *reinterpret_cast<uint32_t*>(g_pack_end) = count;
+  g_pack_end += sizeof(uint32_t);
+  ::memcpy(g_pack_end, data, count * size);
+  g_pack_end += count * size;
 }
 
 template<typename T>
@@ -161,13 +195,17 @@ void output_connection::raw_send(zmq::socket_t& recipient)
 {
   zmq::message_t frame(1);
   reinterpret_cast<uint8_t*>(frame.data())[0] = (m_input_port & PORT_MASK);
-  zmq_assert(recipient.send(frame, g_pack_messages.size() ? ZMQ_SNDMORE : 0));
-
-  for(int i = 0; i != g_pack_messages.size(); ++i)
+  if(pack_count())
   {
-    zmq::message_t message;
-    message.copy(g_pack_messages[i]);
-    zmq_assert(recipient.send(message, (i+1) != g_pack_messages.size() ? ZMQ_SNDMORE : 0));
+    zmq_assert(recipient.send(frame, ZMQ_SNDMORE));
+
+    zmq::message_t message(g_pack_end - g_pack_begin);
+    ::memcpy(message.data(), g_pack_begin, g_pack_end - g_pack_begin);
+    zmq_assert(recipient.send(message, 0));
+  }
+  else
+  {
+    zmq_assert(recipient.send(frame, 0));
   }
 }
 
@@ -431,6 +469,15 @@ int phish_init(int* argc, char*** argv)
     }
   }
 
+  // Setup send and receive buffers ...
+  g_pack_begin = use_datum();
+  pack_count() = 0;
+  g_pack_end = g_pack_begin + sizeof(uint32_t);
+
+  g_unpack_begin = use_datum();
+  g_unpack_current = g_unpack_begin;
+  g_unpack_end = g_unpack_begin;
+
   // Wait to hear from the school ...
   zmq::message_t message;
   g_control_port->recv(&message, 0);
@@ -475,7 +522,14 @@ int phish_exit()
   delete g_control_port;
   g_control_port = 0;
 
+  std::ostringstream message;
+  message << "Allocated " << g_datum_pool.size() << " datums.";
+  phish_message("Stats", message.str().c_str());
   phish_stats();
+
+  // Cleanup the datum pool ...
+  for(std::vector<char*>::iterator datum = g_datum_pool.begin(); datum != g_datum_pool.end(); ++datum)
+    delete [] *datum;
 
   // Shut-down zmq ...
 /* Don't try to shutdown zmq, see https://zeromq.jira.com/browse/LIBZMQ-229
@@ -612,18 +666,24 @@ int phish_loop()
       {
         g_received_count += 1;
 
-        g_unpack_index = 0;
-        g_unpack_count = 0;
+        unpack_count() = 0;
+        g_unpack_current = g_unpack_begin + sizeof(uint32_t);
+        g_unpack_end = g_unpack_begin + sizeof(uint32_t);
+
         int64_t more_parts = 0;
         size_t more_parts_size = sizeof(more_parts);
-        for(g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size); more_parts; g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size))
+        g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size);
+        if(more_parts)
         {
-          while(g_unpack_messages.size() <= g_unpack_count)
-            g_unpack_messages.push_back(new zmq::message_t());
-          zmq_assert(g_input_port->recv(g_unpack_messages[g_unpack_count], 0));
-          ++g_unpack_count;
+          zmq::message_t datum_message;
+          zmq_assert(g_input_port->recv(&datum_message, 0));
+          if(datum_message.size() > g_datum_size)
+            phish_return_error("Receive buffer overflow.", -1);
+          ::memcpy(g_unpack_begin, datum_message.data(), datum_message.size());
+          g_unpack_end = g_unpack_begin + datum_message.size();
         }
-        g_input_port_message_callback[port](g_unpack_count);
+
+        g_input_port_message_callback[port](unpack_count());
       }
     }
     catch(std::exception& e)
@@ -680,18 +740,24 @@ int phish_probe(void (*idle_callback)())
         {
           g_received_count += 1;
 
-          g_unpack_index = 0;
-          g_unpack_count = 0;
+          unpack_count() = 0;
+          g_unpack_current = g_unpack_begin + sizeof(uint32_t);
+          g_unpack_end = g_unpack_begin + sizeof(uint32_t);
+
           int64_t more_parts = 0;
           size_t more_parts_size = sizeof(more_parts);
-          for(g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size); more_parts; g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size))
+          g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size);
+          if(more_parts)
           {
-            while(g_unpack_messages.size() <= g_unpack_count)
-              g_unpack_messages.push_back(new zmq::message_t());
-            zmq_assert(g_input_port->recv(g_unpack_messages[g_unpack_count], 0));
-            ++g_unpack_count;
+            zmq::message_t datum_message;
+            zmq_assert(g_input_port->recv(&datum_message, 0));
+            if(datum_message.size() > g_datum_size)
+              phish_return_error("Receive buffer overflow.", -1);
+            ::memcpy(g_unpack_begin, datum_message.data(), datum_message.size());
+            g_unpack_end = g_unpack_begin + datum_message.size();
           }
-          g_input_port_message_callback[port](g_unpack_count);
+
+          g_input_port_message_callback[port](unpack_count());
         }
       }
       else if(errno == EAGAIN)
@@ -752,18 +818,24 @@ int phish_recv()
       {
         g_received_count += 1;
 
-        g_unpack_index = 0;
-        g_unpack_count = 0;
+        unpack_count() = 0;
+        g_unpack_current = g_unpack_begin + sizeof(uint32_t);
+        g_unpack_end = g_unpack_begin + sizeof(uint32_t);
+
         int64_t more_parts = 0;
         size_t more_parts_size = sizeof(more_parts);
-        for(g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size); more_parts; g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size))
+        g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size);
+        if(more_parts)
         {
-          while(g_unpack_messages.size() <= g_unpack_count)
-            g_unpack_messages.push_back(new zmq::message_t());
-          zmq_assert(g_input_port->recv(g_unpack_messages[g_unpack_count], 0));
-          ++g_unpack_count;
+          zmq::message_t datum_message;
+          zmq_assert(g_input_port->recv(&datum_message, 0));
+          if(datum_message.size() > g_datum_size)
+            phish_return_error("Receive buffer overflow.", -1);
+          ::memcpy(g_unpack_begin, datum_message.data(), datum_message.size());
+          g_unpack_end = g_unpack_begin + datum_message.size();
         }
-        return g_unpack_count;
+
+        g_input_port_message_callback[port](unpack_count());
       }
     }
     else if(errno == EAGAIN)
@@ -798,9 +870,8 @@ void phish_send(int port)
 
   g_sent_count += 1;
 
-  for(int i = 0; i != g_pack_messages.size(); ++i)
-    delete g_pack_messages[i];
-  g_pack_messages.resize(0);
+  pack_count() = 0;
+  g_pack_end = g_pack_begin + sizeof(uint32_t);
 }
 
 void phish_send_key(int port, char* key, int key_length)
@@ -819,9 +890,8 @@ void phish_send_key(int port, char* key, int key_length)
 
   g_sent_count += 1;
 
-  for(int i = 0; i != g_pack_messages.size(); ++i)
-    delete g_pack_messages[i];
-  g_pack_messages.resize(0);
+  pack_count() = 0;
+  g_pack_end = g_pack_begin + sizeof(uint32_t);
 }
 
 void phish_send_direct(int port, int receiver)
@@ -840,9 +910,8 @@ void phish_send_direct(int port, int receiver)
 
   g_sent_count += 1;
 
-  for(int i = 0; i != g_pack_messages.size(); ++i)
-    delete g_pack_messages[i];
-  g_pack_messages.resize(0);
+  pack_count() = 0;
+  g_pack_end = g_pack_begin + sizeof(uint32_t);
 }
 
 void phish_reset_receiver(int, int)
@@ -852,13 +921,14 @@ void phish_reset_receiver(int, int)
 
 void phish_repack()
 {
-  for(uint32_t i = 0; i != g_unpack_count; ++i)
-  {
-    zmq::message_t* const source = g_unpack_messages[i];
-    zmq::message_t* const destination = new zmq::message_t(source->size());
-    ::memcpy(destination->data(), source->data(), source->size());
-    g_pack_messages.push_back(destination);
-  }
+  release_datum(g_pack_begin);
+
+  g_pack_begin = g_unpack_begin;
+  g_pack_end = g_unpack_end;
+
+  g_unpack_begin = use_datum();
+  g_unpack_current = g_unpack_begin;
+  g_unpack_end = g_unpack_begin;
 }
 
 void phish_pack_raw(char* data, int32_t length)
@@ -983,21 +1053,232 @@ void phish_pack_pickle(char* data, int32_t count)
 
 int phish_unpack(char** data, int32_t* count)
 {
-  if(g_unpack_index >= g_unpack_count)
+  if(g_unpack_current >= g_unpack_end)
     phish_return_error("No data to unpack.", -1);
 
-  const uint8_t* message_data = reinterpret_cast<uint8_t*>(g_unpack_messages[g_unpack_index]->data());
+  const uint8_t type = *reinterpret_cast<uint8_t*>(g_unpack_current);
+  g_unpack_current += sizeof(uint8_t);
 
-  uint8_t type = *reinterpret_cast<const uint8_t*>(message_data);
-  message_data += sizeof(uint8_t);
+  switch(type)
+  {
+    case PHISH_CHAR:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
 
-  *count = *reinterpret_cast<const uint32_t*>(message_data);
-  message_data += sizeof(uint32_t);
+      *data = g_unpack_current;
+      g_unpack_current += sizeof(char);
 
-  *data = const_cast<char*>(reinterpret_cast<const char*>(message_data));
+      return type;
 
-  g_unpack_index += 1;
-  return type;
+    case PHISH_INT8:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += sizeof(int8_t);
+
+      return type;
+
+    case PHISH_INT16:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += sizeof(int16_t);
+
+      return type;
+
+    case PHISH_INT32:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += sizeof(int32_t);
+
+      return type;
+
+    case PHISH_INT64:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += sizeof(int64_t);
+
+      return type;
+
+    case PHISH_UINT8:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += sizeof(uint8_t);
+
+      return type;
+
+    case PHISH_UINT16:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += sizeof(uint16_t);
+
+      return type;
+
+    case PHISH_UINT32:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += sizeof(uint32_t);
+
+      return type;
+
+    case PHISH_UINT64:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += sizeof(uint64_t);
+
+      return type;
+
+    case PHISH_FLOAT:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += sizeof(float);
+
+      return type;
+
+    case PHISH_DOUBLE:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += sizeof(double);
+
+      return type;
+
+    case PHISH_RAW:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += *count * sizeof(char);
+
+      return type;
+
+    case PHISH_STRING:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += *count * sizeof(char);
+
+      return type;
+
+    case PHISH_INT8_ARRAY:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += *count * sizeof(int8_t);
+
+      return type;
+
+    case PHISH_INT16_ARRAY:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += *count * sizeof(int16_t);
+
+      return type;
+
+    case PHISH_INT32_ARRAY:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += *count * sizeof(int32_t);
+
+      return type;
+
+    case PHISH_INT64_ARRAY:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += *count * sizeof(int64_t);
+
+      return type;
+
+    case PHISH_UINT8_ARRAY:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += *count * sizeof(uint8_t);
+
+      return type;
+
+    case PHISH_UINT16_ARRAY:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += *count * sizeof(uint16_t);
+
+      return type;
+
+    case PHISH_UINT32_ARRAY:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += *count * sizeof(uint32_t);
+
+      return type;
+
+    case PHISH_UINT64_ARRAY:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += *count * sizeof(uint64_t);
+
+      return type;
+
+    case PHISH_FLOAT_ARRAY:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += *count * sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += *count * sizeof(float);
+
+      return type;
+
+    case PHISH_DOUBLE_ARRAY:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += *count * sizeof(double);
+
+      return type;
+
+    case PHISH_PICKLE:
+      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+      g_unpack_current += sizeof(uint32_t);
+
+      *data = g_unpack_current;
+      g_unpack_current += *count * sizeof(char);
+
+      return type;
+  }
+
+  phish_return_error("Unknown datum type.", -1);
 }
 
 int phish_query(const char* kw, int flag1, int flag2)
