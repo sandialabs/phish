@@ -477,11 +477,17 @@ int phish_exit()
 
   for (int i = 0; i < MAXPORT; i++) phish_close(i);
 
-  // free PHISH memory
+  // free PHISH memory, including self buffer attached to MPI
 
   free(sbuf);
   free(rbuf);
-  free(selfbuf);
+
+  if (self) {
+    char *tmpbuf;
+    int tmpsize;
+    MPI_Buffer_detach(&tmpbuf,&tmpsize);
+    free(selfbuf);
+  }
 
   for (int i = 0; i < nqueue; i++) delete [] queue[i].datum;
   free(queue);
@@ -490,9 +496,7 @@ int phish_exit()
 
   // shut-down MPI
 
-  printf("CCC\n");
   MPI_Finalize();
-  printf("DDD\n");
 
   return 0;
 }
