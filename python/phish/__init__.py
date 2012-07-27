@@ -127,60 +127,73 @@ def send(iport):
 # use type arg to create C datum so that Python and C hashing are identical
 # default type = PICKLE allows hashing of native Python objects
   
-def send_key(iport,key,type=PICKLE,len=0):
+def send_key(iport,key,type=PICKLE,keylen=0):
   if type == PICKLE:
     str = dumps(key)
+    if key == 242: print "PYTHON KEY",key,len(str),str
     _library.phish_send_key(iport,str,len(str))
-
+    return
   if type == RAW:
     cstr = c_char_p(obj)
-    _library.phish_send_key(iport,cstr,len)
+    _library.phish_send_key(iport,cstr,keylen)
+    return
   if type == CHAR:
     check_range(0,key,256)
     cobj = c_char(key)
     _library.phish_send_key(iport,byref(cobj),sizeof(c_char))
+    return
   if type == INT8:
     check_range(-128,key,128)
     cobj = c_int8(key)
     _library.phish_send_key(iport,byref(cobj),sizeof(c_int8))
+    return
   if type == INT16:
     check_range(-32768,key,32768)
     cobj = c_int16(key)
     _library.phish_send_key(iport,byref(cobj),sizeof(c_int16))
+    return
   if type == INT32:
     check_range(-2147483648,key,2147483648)
     cobj = c_int32(key)
     _library.phish_send_key(iport,byref(cobj),sizeof(c_int32))
+    return
   if type == INT64:
     check_range(-9223372036854775808,key,9223372036854775808)
     cobj = c_int64(key)
     _library.phish_send_key(iport,byref(cobj),sizeof(c_int64))
+    return
   if type == UINT8:
     check_range(0,key,256)
     cobj = c_uint8(key)
     _library.phish_send_key(iport,byref(cobj),sizeof(c_uint8))
+    return
   if type == UINT16:
     check_range(0,key,65536)
     cobj = c_uint16(key)
     _library.phish_send_key(iport,byref(cobj),sizeof(c_uint16))
+    return
   if type == UINT32:
     check_range(0,key,4294967296)
     cobj = c_uint32(key)
     _library.phish_send_key(iport,byref(cobj),sizeof(c_uint32))
+    return
   if type == UINT64:
     check_range(0,key,18446744073709551616)
     cobj = c_uint64(key)
     _library.phish_send_key(iport,byref(cobj),sizeof(c_uint64))
+    return
   if type == FLOAT:
     cobj = c_float(key)
     _library.phish_send_key(iport,byref(cobj),sizeof(c_float))
+    return
   if type == DOUBLE:
     cobj = c_double(key)
     _library.phish_send_key(iport,byref(cobj),sizeof(c_double))
+    return
   if type == STRING:
     cstr = c_char_p(key)
     _library.phish_send_key(iport,cstr,len(key))
-
+    return
   if type == INT8_ARRAY:
     n = len(key)
     ptr = (c_int8*n)()
@@ -188,6 +201,7 @@ def send_key(iport,key,type=PICKLE,len=0):
       check_range(-128,key[i],128)
       ptr[i] = key[i]
     _library.phish_send_key(iport,ptr,n*sizeof(c_int8))
+    return
   if type == INT16_ARRAY:
     n = len(key)
     ptr = (c_int16*n)()
@@ -195,6 +209,7 @@ def send_key(iport,key,type=PICKLE,len=0):
       check_range(-32768,key[i],32768)
       ptr[i] = key[i]
     _library.phish_send_key(iport,ptr,n*sizeof(c_int16))
+    return
   if type == INT32_ARRAY:
     n = len(key)
     ptr = (c_int32*n)()
@@ -202,6 +217,7 @@ def send_key(iport,key,type=PICKLE,len=0):
       check_range(-2147483648,key[i],2147483648)
       ptr[i] = key[i]
     _library.phish_send_key(iport,ptr,n*sizeof(c_int32))
+    return
   if type == INT64_ARRAY:
     n = len(key)
     ptr = (c_int64*n)()
@@ -209,6 +225,7 @@ def send_key(iport,key,type=PICKLE,len=0):
       check_range(-9223372036854775808,key[i],9223372036854775808)
       ptr[i] = key[i]
     _library.phish_send_key(iport,ptr,n*sizeof(c_int64))
+    return
   if type == UINT8_ARRAY:
     n = len(key)
     ptr = (c_uint8*n)()
@@ -216,6 +233,7 @@ def send_key(iport,key,type=PICKLE,len=0):
       check_range(0,key[i],256)
       ptr[i] = key[i]
     _library.phish_send_key(iport,ptr,n*sizeof(c_uint8))
+    return
   if type == UINT16_ARRAY:
     n = len(key)
     ptr = (c_uint16*n)()
@@ -223,6 +241,7 @@ def send_key(iport,key,type=PICKLE,len=0):
       check_range(0,key[i],65536)
       ptr[i] = key[i]
     _library.phish_send_key(iport,ptr,n*sizeof(c_uint16))
+    return
   if type == UINT32_ARRAY:
     n = len(key)
     ptr = (c_uint32*n)()
@@ -230,6 +249,7 @@ def send_key(iport,key,type=PICKLE,len=0):
       check_range(0,key[i],4294967296)
       ptr[i] = key[i]
     _library.phish_send_key(iport,ptr,n*sizeof(c_uint32))
+    return
   if type == UINT64_ARRAY:
     n = len(key)
     ptr = (c_uint64*n)()
@@ -237,19 +257,21 @@ def send_key(iport,key,type=PICKLE,len=0):
       check_range(0,key[i],18446744073709551616)
       ptr[i] = key[i]
     _library.phish_send_key(iport,ptr,n*sizeof(c_uint64))
+    return
   if type == FLOAT_ARRAY:
     n = len(key)
     ptr = (c_float*n)()
     for i in xrange(n):
       ptr[i] = key[i]
     _library.phish_send_key(iport,ptr,n*sizeof(c_float))
+    return
   if type == DOUBLE_ARRAY:
     n = len(key)
     ptr = (c_double*n)()
     for i in xrange(n):
       ptr[i] = key[i]
     _library.phish_send_key(iport,ptr,n*sizeof(c_double))
-
+    return
   raise Exception("Unknown type for send_key" % backend)
 
 def send_direct(iport,receiver):
