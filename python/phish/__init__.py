@@ -130,7 +130,6 @@ def send(iport):
 def send_key(iport,key,type=PICKLE,keylen=0):
   if type == PICKLE:
     str = dumps(key)
-    if key == 242: print "PYTHON KEY",key,len(str),str
     _library.phish_send_key(iport,str,len(str))
     return
   if type == RAW:
