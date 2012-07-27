@@ -47,7 +47,6 @@ enum{UNUSED_PORT,OPEN_PORT,CLOSED_PORT};
 
 #define DELTAQUEUE 16    // increment for # queue entries
 
-#define SELFNUM 10       // max # of outstanding self messages
 #define SELFOVERHEAD 100 // per-message MPI overhead in selfbuf
 
 typedef void (DatumFunc)(int);         // callback prototypes
@@ -124,6 +123,7 @@ char *rptr;                // ptr to current loc in rbuf for unpacking
 int nunpack;               // # of fields unpacked thus far from rbuf
 
 int self;                  // 1 if possibly send message to self, else 0
+int selfnum;               // # of queued self messsages that can be stored
 char *selfbuf;             // buffer for messages to self, used by MPI
 
 // queued datums
@@ -169,6 +169,7 @@ int phish_init(int *argc, char ***argv)
 
   memchunk = 1;
   safe = 0;
+  selfnum = 10;
 
   // port allocation
 
@@ -215,6 +216,13 @@ int phish_init(int *argc, char ***argv)
         phish_return_error("Invalid command-line args in phish_init", -1);
       safe = atoi(pop_argument(arguments).c_str());
       if (safe < 0)
+        phish_return_error("Invalid command-line args in phish_init", -1);
+
+    } else if(argument == "--phish-self") {
+      if (arguments.size() < 1)
+        phish_return_error("Invalid command-line args in phish_init", -1);
+      selfnum = atoi(pop_argument(arguments).c_str());
+      if (selfnum < 0)
         phish_return_error("Invalid command-line args in phish_init", -1);
 
     } else if (argument == "--phish-in") {
@@ -435,7 +443,7 @@ int phish_init(int *argc, char ***argv)
   if (!sbuf || !rbuf) phish_return_error("Malloc of datum buffers failed", -1);
 
   if (self) {
-    int n = SELFNUM * (maxbuf*KBYTE + SELFOVERHEAD);
+    int n = selfnum * (maxbuf*KBYTE + SELFOVERHEAD);
     selfbuf = (char *) malloc(n*sizeof(char));
     MPI_Buffer_attach(selfbuf,n);
   } else selfbuf = NULL;
@@ -599,7 +607,9 @@ int phish_close(int iport)
     case SINGLE:
     case PAIRED:
     case RING:
-      if (safe && g_sent_count % safe == 0) 
+      if (self && me == oc->recvone)
+	MPI_Bsend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
+      else if (safe && g_sent_count % safe == 0) 
 	MPI_Ssend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
       else MPI_Send(NULL,0,MPI_BYTE,oc->recvone,tag,world);
       break;
@@ -609,14 +619,18 @@ int phish_close(int iport)
     case DIRECT:
     case BCAST:
       for (int i = 0; i < oc->nrecv; i++)
-        if (safe && g_sent_count % safe == 0)
+        if (self && me == oc->recvfirst+i)
+          MPI_Bsend(NULL,0,MPI_BYTE,oc->recvfirst+i,tag,world);
+        else if (safe && g_sent_count % safe == 0)
 	  MPI_Ssend(NULL,0,MPI_BYTE,oc->recvfirst+i,tag,world);
         else MPI_Send(NULL,0,MPI_BYTE,oc->recvfirst+i,tag,world);
       break;
 
     case CHAIN:
       if (oc->nrecv) {
-	if (safe && g_sent_count % safe == 0) 
+	if (self && me == oc->recvone) 
+	  MPI_Bsend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
+	else if (safe && g_sent_count % safe == 0) 
 	  MPI_Ssend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
 	else MPI_Send(NULL,0,MPI_BYTE,oc->recvone,tag,world);
       }
@@ -932,7 +946,9 @@ void phish_send_direct(int iport, int receiver)
 	int tag = oc->recvport;
 	if (receiver < 0 || receiver >= oc->nrecv)
 	  phish_error("Invalid receiver for phish_send_direct");
-	if (safe && g_sent_count % safe == 0)
+	if (self && me == oc->recvfirst+receiver)
+	  MPI_Bsend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+receiver,tag,world);
+	else if (safe && g_sent_count % safe == 0)
 	  MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+receiver,tag,world);
 	else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+receiver,tag,world);
       }
@@ -964,13 +980,17 @@ void send(OutConnect *oc)
   case SINGLE:
   case PAIRED:
   case RING:
-    if (safe && g_sent_count % safe == 0) 
+    if (self && me == oc->recvone) 
+      MPI_Bsend(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
+    else if (safe && g_sent_count % safe == 0) 
       MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
     else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
     break;
 
   case ROUNDROBIN:
-    if (safe && g_sent_count % safe == 0) 
+    if (self && me == oc->recvfirst+oc->offset) 
+      MPI_Bsend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+oc->offset,tag,world);
+    else if (safe && g_sent_count % safe == 0) 
       MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+oc->offset,tag,world);
     else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+oc->offset,tag,world);
     oc->offset++;
@@ -979,7 +999,9 @@ void send(OutConnect *oc)
 
   case CHAIN:
     if (oc->nrecv) {
-      if (safe && g_sent_count % safe == 0)
+      if (self && me == oc->recvone)
+	MPI_Bsend(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
+      else if (safe && g_sent_count % safe == 0)
 	MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
       else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
     }
@@ -987,7 +1009,9 @@ void send(OutConnect *oc)
 
   case BCAST:
     for (int i = 0; i < oc->nrecv; i++)
-      if (safe && g_sent_count % safe == 0)
+      if (self && me == oc->recvfirst+i)
+	MPI_Bsend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+i,tag,world);
+      else if (safe && g_sent_count % safe == 0)
 	MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+i,tag,world);
       else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+i,tag,world);
     break;
