@@ -28,7 +28,8 @@ def variable_callback(option, opt_str, value, parser):
   value = (value[0], value[1:])
   parser.values.variable.append(value)
 
-# Main program
+# main program
+# parse command-line options
 
 parser = optparse.OptionParser()
 parser.add_option("--backend", "-b", default="mpi",
@@ -53,37 +54,34 @@ options, arguments = parser.parse_args()
 
 paths = options.path.split(":")
 settings = dict(options.set)
-variables = dict([(key, value) for key, value in options.variable])
+variables = dict([(key, value) for key,value in options.variable])
 
-if options.verbose:
-  settings["verbose"] = "true"
+if options.verbose: settings["verbose"] = "true"
 
 schools = {}
 hooks = []
 
-# Parse the input script ...
-if len(arguments) == 1:
-  script = open(arguments[0], "r")
-else:
-  script = sys.stdin
+# parse the input script
+
+if len(arguments) == 1: script = open(arguments[0], "r")
+else: script = sys.stdin
 
 for line_number, line in enumerate(script):
 
-  # Skip empty lines ...
+  # skip empty lines and commented lines
+  
   line = line.strip()
-  if len(line) == 0:
-    continue
+  if len(line) == 0: continue
+  if line[:1] == "#": continue
 
-  # Skip commented lines ...
-  if line[:1] == "#":
-    continue
-
-  # Split the line into a command and a sequence of arguments ...
+  # split line into command and a sequence of arguments
+  
   arguments = line.split()
   command = arguments[0]
   arguments = arguments[1:]
 
-  # Do variable expansion on each argument ...
+  # variable expansion on each argument
+  
   expanded = []
   for argument in arguments:
     match = re.match("\${?([^}]*)}?", argument)
@@ -97,8 +95,10 @@ for line_number, line in enumerate(script):
   arguments = expanded
 
   if options.verbose:
-    sys.stderr.write("BAIT Script: %s\n" % (" ".join([command] + arguments)))
+    sys.stderr.write("Bait.py script: %s\n" % (" ".join([command] + arguments)))
 
+  # handle specific commands
+    
   if command == "set":
     key = arguments[0]
     value = arguments[1]
@@ -119,7 +119,7 @@ for line_number, line in enumerate(script):
     output = arguments[0].split(":")
     style = arguments[1]
     input = arguments[2].split(":")
-    hooks.append((output[0], int(output[1]) if len(output) > 1 else 0,
+    hooks.append((output[0],int(output[1]) if len(output) > 1 else 0,
                   style, int(input[1]) if len(input) > 1 else 0, input[0]))
 
   elif command == "school":
@@ -152,18 +152,18 @@ for school in schools.values():
       executable = os.path.join(path, executable)
   school["arguments"][0] = executable
 
-# prepend launch to school executables
+# prepend launch string to school executables
 
 for school in schools.values():
   school["arguments"] = options.launch.split() + school["arguments"]
   
-# optionally display all of the school command lines
+# optionally display school command lines
 
 if options.verbose:
   for name, value in settings.items():
     sys.stderr.write("BAIT Setting: %s %s\n" % (name, value))
 
-# pass the parsed data to the bait backend
+# pass parsed data to the Bait.py backend
 
 if options.backend is None:
   raise Exception("You must specify a backend using --backend.  " +
@@ -172,13 +172,13 @@ if options.backend is None:
 
 phish.bait.backend(options.backend)
 
-for name, value in settings.items():
-  phish.bait.set(name, value)
+for name,value in settings.items():
+  phish.bait.set(name,value)
 
-for id, school in schools.items():
+for id,school in schools.items():
   phish.bait.school(id, [school["host"]] * school["count"], school["arguments"])
 
-for output_id, output_port, style, input_port, input_id in hooks:
-  phish.bait.hook(output_id, output_port, style, input_port, input_id)
+for output_id,output_port,style,input_port,input_id in hooks:
+  phish.bait.hook(output_id,output_port,style,input_port,input_id)
 
 phish.bait.start()
