@@ -74,6 +74,7 @@ int main(int narg, char **args)
     phish_pack_uint64(i);
     phish_pack_uint64(j);
     phish_send(0);
+    //phish_send_key(0,(char *) &i,sizeof(uint64_t));
 
     /*    
     if (m % 100 == 0) {
