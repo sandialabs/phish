@@ -78,6 +78,7 @@ def input(iport,datumfunc,donefunc,reqflag):
   global datum0_caller,done0_caller
   global datum1_caller,done1_caller
   global datum2_caller,done2_caller
+  global datum3_caller,done3_caller
   if iport == 0:
     datum0_caller = datumfunc
     done0_caller = donefunc
@@ -109,6 +110,17 @@ def input(iport,datumfunc,donefunc,reqflag):
       _library.phish_input(iport,datum2_def,None,reqflag)
     elif donefunc:
       _library.phish_input(iport,None,done2_def,reqflag)
+    else:
+      _library.phish_input(iport,None,None,reqflag)
+  elif iport == 3:
+    datum3_caller = datumfunc
+    done3_caller = donefunc
+    if datumfunc and donefunc:
+      _library.phish_input(iport,datum3_def,done3_def,reqflag)
+    elif datumfunc:
+      _library.phish_input(iport,datum3_def,None,reqflag)
+    elif donefunc:
+      _library.phish_input(iport,None,done3_def,reqflag)
     else:
       _library.phish_input(iport,None,None,reqflag)
 
@@ -166,6 +178,12 @@ def datum2_callback(nvalues):
 
 def done2_callback():
   done2_caller()
+
+def datum3_callback(nvalues):
+  datum3_caller(nvalues)
+
+def done3_callback():
+  done3_caller()
 
 def recv():
   return _library.phish_recv()
@@ -489,11 +507,13 @@ DATUMFUNC = CFUNCTYPE(c_void_p,c_int)
 datum0_def = DATUMFUNC(datum0_callback)
 datum1_def = DATUMFUNC(datum1_callback)
 datum2_def = DATUMFUNC(datum2_callback)
+datum3_def = DATUMFUNC(datum3_callback)
 
 DONEFUNC = CFUNCTYPE(c_void_p)
 done0_def = DONEFUNC(done0_callback)
 done1_def = DONEFUNC(done1_callback)
 done2_def = DONEFUNC(done2_callback)
+done3_def = DONEFUNC(done3_callback)
 
 PROBEFUNC = CFUNCTYPE(c_void_p)
 probe_def = PROBEFUNC(probe_callback)
