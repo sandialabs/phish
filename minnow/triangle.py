@@ -99,17 +99,13 @@ def wedge(nvalues):
   phish.repack()
   phish.send(0)
 
-def wedge_close():
-  phish.close(0)
-  print "WEDGE CLOSE"
-
 # main program
   
 args = phish.init(sys.argv)
 phish.input(0,edge,edge_close,1)
 phish.input(1,edge_degree,edge_degree_close,1)
 phish.input(2,edge_wedge,edge_wedge_close,1)
-phish.input(3,wedge,wedge_close,1)
+phish.input(3,wedge,None,1)
 phish.output(0)
 phish.output(1)
 phish.output(2)
@@ -122,4 +118,3 @@ hash = {}
 
 phish.loop()
 phish.exit()
-print "TRI DONE"

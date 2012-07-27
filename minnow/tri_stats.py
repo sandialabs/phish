@@ -28,6 +28,5 @@ for index,argument in enumerate(args):
 n = 0
 phish.loop()
 phish.exit()
-print "TRI STATS DONE"
 
 
