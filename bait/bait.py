@@ -6,7 +6,7 @@ import os
 import re
 import sys
 
-def variable_callback(option, opt_str, value, parser):
+def variable_callback(option,opt_str,value,parser):
   def floatable(string):
     try:
       float(string)
@@ -49,7 +49,7 @@ parser.add_option("--variable", "-v", action="callback",
                   callback=variable_callback, dest="variable", default=[],
                   metavar="NAME VALUE", help="Specify value of a variable")
 parser.add_option("--verbose", default=False, action="store_true",
-                  help="Verbose output, Default: %default.")
+                  help="Verbose output, Default: %default")
 options, arguments = parser.parse_args()
 
 paths = options.path.split(":")
@@ -58,6 +58,7 @@ variables = dict([(key, value) for key,value in options.variable])
 
 if options.verbose: settings["verbose"] = "true"
 
+iminnow = 0
 schools = {}
 hooks = []
 
@@ -113,8 +114,10 @@ for line_number, line in enumerate(script):
   elif command == "minnow":
     id = arguments[0]
     arguments = arguments[1:]
-    schools[id] = {"arguments" : arguments, "count" : 1, "host" : ""}
-
+    schools[id] = {"index" : iminnow, "arguments" : arguments,
+                   "count" : 1, "host" : ""}
+    iminnow += 1
+    
   elif command == "hook":
     output = arguments[0].split(":")
     style = arguments[1]
@@ -127,7 +130,7 @@ for line_number, line in enumerate(script):
     count = arguments[1]
     keywords = arguments[2:]
     schools[id]["count"] = int(count)
-    for key, value in keywords:
+    for key,value in keywords:
       if key == "host": schools[id]["host"] = value
 
   else:
@@ -164,19 +167,17 @@ if options.verbose:
     sys.stderr.write("BAIT Setting: %s %s\n" % (name, value))
 
 # pass parsed data to the Bait.py backend
-
-if options.backend is None:
-  raise Exception("You must specify a backend using --backend.  " +
-                  "Valid values are graphviz, mpi, mpi-config, null, " +
-                  "zmq, or your own custom backend.")
+# output schools in minnow order
 
 phish.bait.backend(options.backend)
 
 for name,value in settings.items():
   phish.bait.set(name,value)
 
-for id,school in schools.items():
-  phish.bait.school(id, [school["host"]] * school["count"], school["arguments"])
+for index in range(len(schools)):
+  for id,school in schools.items():
+    if school["index"] != index: continue
+    phish.bait.school(id,[school["host"]] * school["count"],school["arguments"])
 
 for output_id,output_port,style,input_port,input_id in hooks:
   phish.bait.hook(output_id,output_port,style,input_port,input_id)
