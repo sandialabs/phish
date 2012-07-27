@@ -59,7 +59,6 @@ for m in xrange(ngenerate):
   phish.pack_uint64(i)
   phish.pack_uint64(j)
   #phish.send(0)
-  print "RMAT send",i
   phish.send_key(0,i)
 
 phish.exit()
