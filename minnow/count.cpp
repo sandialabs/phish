@@ -50,7 +50,7 @@ void count(int nvalues)
 
 /* ---------------------------------------------------------------------- */
 
-void sort()
+void dump()
 {
   Hash::const_iterator end = hash.end(); 
   for (Hash::const_iterator i = hash.begin(); i != end; i++) {
