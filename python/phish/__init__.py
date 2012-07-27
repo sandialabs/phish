@@ -40,8 +40,6 @@ PICKLE = 23
 
 # max port setting from src/phish.cpp
 
-MAXPORT = 16
-
 def init(args):
   for index,argument in enumerate(args):
     if argument == "--phish-backend":
