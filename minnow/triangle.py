@@ -3,7 +3,7 @@ import phish
 
 # process an edge = (Vi,Vj)
 # sent by edge source to owner of Vi
-# ignore self edges
+# ignore self edges and duplicate edges
 # store edge and compute Di = degree of Vi
 # send (Vj,Vi,Di) to owner of Vj on port 1
 
@@ -11,6 +11,7 @@ def edge(nvalues):
   type,vi,tmp = phish.unpack()
   type,vj,tmp = phish.unpack()
   if vi == vj: return
+  if vi in hash and vj in hash[vi]: return
   if vi not in hash: hash[vi] = [vj]
   else: hash[vi].append(vj)
   di = len(hash[vi])
@@ -24,7 +25,8 @@ def edge_close():
   
 # process an edge + degree = (Vi,Vj,Dj)
 # sent by another triangle minnow in edge() to owner of Vi
-# store edge and compute Di = degree of Vi
+# store edge unless duplicate
+# compute Di = degree of Vi
 # if Di < Dj, send (Vj,Vi) to owner of Vj on port 2
 # else, send (Vj,Vi,Ni) to owner of Vj on port 3
 #   Ni = neighbor list of Vi
@@ -34,7 +36,7 @@ def edge_degree(nvalues):
   type,vj,tmp = phish.unpack()
   type,dj,tmp = phish.unpack()
   if vi not in hash: hash[vi] = [vj]
-  else: hash[vi].append(vj)
+  elif vj not in hash[vi]: hash[vi].append(vj)
   di = len(hash[vi])
   if di < dj:
     phish.pack_uint64(vj)

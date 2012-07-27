@@ -9,10 +9,11 @@ def edge(nvalues):
   type,vi,tmp = phish.unpack()
   type,vj,tmp = phish.unpack()
   if vi == vj: return
+  if vi in hash and vj in hash[vi]: return
   if vi not in hash: hash[vi] = [vj]
-  elif vj not in hash[vi]: hash[vi].append(vj)
+  else: hash[vi].append(vj)
   if vj not in hash: hash[vj] = [vi]
-  elif vi not in hash[vj]: hash[vj].append(vi)
+  else: hash[vj].append(vi)
   
 # process double edge list to find triangles
 # double loop over edges of each vertex = vj,vk
