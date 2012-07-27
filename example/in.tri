@@ -2,7 +2,7 @@
 
 minnow 1 rmat 500 8 0.25 0.25 0.25 0.25 0.0 12345
 minnow 2 triangle
-minnow 3 tri_stats
+minnow 3 tri_stats -f tmp.tri
 
 hook 1 hashed 2
 hook 2:1 hashed 2:1
@@ -11,5 +11,5 @@ hook 2:3 hashed 2:3
 hook 2 single 3
 
 school 1 1
-school 2 1
+school 2 2
 school 3 1
