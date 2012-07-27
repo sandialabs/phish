@@ -4,11 +4,12 @@ import types
 from ctypes import *
 from cPickle import dumps,loads
 
-# Storage for the loaded PHISH dynamic library.
+# the loaded PHISH dynamic library
+
 _library = None
 
-# Any time we wrap a callback function, we store it here to ensure that it
-# never goes out-of-scope.
+# store wrapped callback function to ensure they stay in scope
+
 _callbacks = []
 
 # data type defs from src/phish.h
@@ -38,14 +39,14 @@ FLOAT_ARRAY = 21
 DOUBLE_ARRAY = 22
 PICKLE = 23
 
-# max port setting from src/phish.cpp
+# PHISH library functions
 
 def init(args):
   for index,argument in enumerate(args):
     if argument == "--phish-backend":
       backend = args[index+1]
 
-      # Load the PHISH runtime library ...
+      # load the PHISH runtime library ...
       import ctypes.util
       global _library
       _library = None
@@ -59,7 +60,7 @@ def init(args):
       if _library is None:
         _library = ctypes.CDLL("libphish-%s.dll" % backend)
       if _library is None:
-        raise Exception("Unable to load %s backend." % backend)
+        raise Exception("Unable to load %s backend" % backend)
 
   # phish_timer() returns a double
   _library.phish_timer.restype = c_double
@@ -113,7 +114,6 @@ def loop():
 def probe(probefunc):
   probefunc = CFUNCTYPE(None)(probefunc)
   _callbacks.append(probefunc)
-
   _library.phish_probe(probefunc)
 
 def recv():
@@ -124,13 +124,133 @@ def recv():
 def send(iport):
   _library.phish_send(iport)
 
-# pickle the key so can hash any Python object
-# this means Python and non-Python minnows will not send
-# same key (e.g. a string) to the same minnow
+# use type arg to create C datum so that Python and C hashing are identical
+# default type = PICKLE allows hashing of native Python objects
+  
+def send_key(iport,key,type=PICKLE,len=0):
+  if type == PICKLE:
+    str = dumps(key)
+    _library.phish_send_key(iport,str,len(str))
 
-def send_key(iport,key):
-  cobj = dumps(key,1)
-  _library.phish_send_key(iport,cobj,len(cobj))
+  if type == RAW:
+    cstr = c_char_p(obj)
+    _library.phish_send_key(iport,cstr,len)
+  if type == CHAR:
+    check_range(0,key,256)
+    cobj = c_char(key)
+    _library.phish_send_key(iport,byref(cobj),sizeof(c_char))
+  if type == INT8:
+    check_range(-128,key,128)
+    cobj = c_int8(key)
+    _library.phish_send_key(iport,byref(cobj),sizeof(c_int8))
+  if type == INT16:
+    check_range(-32768,key,32768)
+    cobj = c_int16(key)
+    _library.phish_send_key(iport,byref(cobj),sizeof(c_int16))
+  if type == INT32:
+    check_range(-2147483648,key,2147483648)
+    cobj = c_int32(key)
+    _library.phish_send_key(iport,byref(cobj),sizeof(c_int32))
+  if type == INT64:
+    check_range(-9223372036854775808,key,9223372036854775808)
+    cobj = c_int64(key)
+    _library.phish_send_key(iport,byref(cobj),sizeof(c_int64))
+  if type == UINT8:
+    check_range(0,key,256)
+    cobj = c_uint8(key)
+    _library.phish_send_key(iport,byref(cobj),sizeof(c_uint8))
+  if type == UINT16:
+    check_range(0,key,65536)
+    cobj = c_uint16(key)
+    _library.phish_send_key(iport,byref(cobj),sizeof(c_uint16))
+  if type == UINT32:
+    check_range(0,key,4294967296)
+    cobj = c_uint32(key)
+    _library.phish_send_key(iport,byref(cobj),sizeof(c_uint32))
+  if type == UINT64:
+    check_range(0,key,18446744073709551616)
+    cobj = c_uint64(key)
+    _library.phish_send_key(iport,byref(cobj),sizeof(c_uint64))
+  if type == FLOAT:
+    cobj = c_float(key)
+    _library.phish_send_key(iport,byref(cobj),sizeof(c_float))
+  if type == DOUBLE:
+    cobj = c_double(key)
+    _library.phish_send_key(iport,byref(cobj),sizeof(c_double))
+  if type == STRING:
+    cstr = c_char_p(key)
+    _library.phish_send_key(iport,cstr,len(key))
+
+  if type == INT8_ARRAY:
+    n = len(key)
+    ptr = (c_int8*n)()
+    for i in xrange(n):
+      check_range(-128,key[i],128)
+      ptr[i] = key[i]
+    _library.phish_send_key(iport,ptr,n*sizeof(c_int8))
+  if type == INT16_ARRAY:
+    n = len(key)
+    ptr = (c_int16*n)()
+    for i in xrange(n):
+      check_range(-32768,key[i],32768)
+      ptr[i] = key[i]
+    _library.phish_send_key(iport,ptr,n*sizeof(c_int16))
+  if type == INT32_ARRAY:
+    n = len(key)
+    ptr = (c_int32*n)()
+    for i in xrange(n):
+      check_range(-2147483648,key[i],2147483648)
+      ptr[i] = key[i]
+    _library.phish_send_key(iport,ptr,n*sizeof(c_int32))
+  if type == INT64_ARRAY:
+    n = len(key)
+    ptr = (c_int64*n)()
+    for i in xrange(n):
+      check_range(-9223372036854775808,key[i],9223372036854775808)
+      ptr[i] = key[i]
+    _library.phish_send_key(iport,ptr,n*sizeof(c_int64))
+  if type == UINT8_ARRAY:
+    n = len(key)
+    ptr = (c_uint8*n)()
+    for i in xrange(n):
+      check_range(0,key[i],256)
+      ptr[i] = key[i]
+    _library.phish_send_key(iport,ptr,n*sizeof(c_uint8))
+  if type == UINT16_ARRAY:
+    n = len(key)
+    ptr = (c_uint16*n)()
+    for i in xrange(n):
+      check_range(0,key[i],65536)
+      ptr[i] = key[i]
+    _library.phish_send_key(iport,ptr,n*sizeof(c_uint16))
+  if type == UINT32_ARRAY:
+    n = len(key)
+    ptr = (c_uint32*n)()
+    for i in xrange(n):
+      check_range(0,key[i],4294967296)
+      ptr[i] = key[i]
+    _library.phish_send_key(iport,ptr,n*sizeof(c_uint32))
+  if type == UINT64_ARRAY:
+    n = len(key)
+    ptr = (c_uint64*n)()
+    for i in xrange(n):
+      check_range(0,key[i],18446744073709551616)
+      ptr[i] = key[i]
+    _library.phish_send_key(iport,ptr,n*sizeof(c_uint64))
+  if type == FLOAT_ARRAY:
+    n = len(key)
+    ptr = (c_float*n)()
+    for i in xrange(n):
+      ptr[i] = key[i]
+    _library.phish_send_key(iport,ptr,n*sizeof(c_float))
+  if type == DOUBLE_ARRAY:
+    n = len(key)
+    ptr = (c_double*n)()
+    for i in xrange(n):
+      ptr[i] = key[i]
+    _library.phish_send_key(iport,ptr,n*sizeof(c_double))
+
+  raise Exception("Unknown type for send_key" % backend)
 
 def send_direct(iport,receiver):
   _library.phish_send_direct(iport,receiver)
@@ -278,7 +398,7 @@ def pack_double_array(vec):
 # pickle an aribitrary Python object, to convert it to a string of bytes
 
 def pack_pickle(obj):
-  cobj = dumps(obj,1)
+  cobj = dumps(obj)
   _library.phish_pack_pickle(cobj,len(cobj))
 
 # unpack based on data type
