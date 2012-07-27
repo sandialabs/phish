@@ -4,7 +4,12 @@ import types
 from ctypes import *
 from cPickle import dumps,loads
 
+# Storage for the loaded PHISH dynamic library.
 _library = None
+
+# Any time we wrap a callback function, we store it here to ensure that it
+# never goes out-of-scope.
+_callbacks = []
 
 # data type defs from src/phish.h
 
@@ -71,58 +76,16 @@ def init(args):
 def exit():
   _library.phish_exit()
 
-# clunky: using named callback for each port
-# Tim says to use closures to generate callback function code
-
 def input(iport,datumfunc,donefunc,reqflag):
-  global datum0_caller,done0_caller
-  global datum1_caller,done1_caller
-  global datum2_caller,done2_caller
-  global datum3_caller,done3_caller
-  if iport == 0:
-    datum0_caller = datumfunc
-    done0_caller = donefunc
-    if datumfunc and donefunc:
-      _library.phish_input(iport,datum0_def,done0_def,reqflag)
-    elif datumfunc:
-      _library.phish_input(iport,datum0_def,None,reqflag)
-    elif donefunc:
-      _library.phish_input(iport,None,done0_def,reqflag)
-    else:
-      _library.phish_input(iport,None,None,reqflag)
-  elif iport == 1:
-    datum1_caller = datumfunc
-    done1_caller = donefunc
-    if datumfunc and donefunc:
-      _library.phish_input(iport,datum1_def,done1_def,reqflag)
-    elif datumfunc:
-      _library.phish_input(iport,datum1_def,None,reqflag)
-    elif donefunc:
-      _library.phish_input(iport,None,done1_def,reqflag)
-    else:
-      _library.phish_input(iport,None,None,reqflag)
-  elif iport == 2:
-    datum2_caller = datumfunc
-    done2_caller = donefunc
-    if datumfunc and donefunc:
-      _library.phish_input(iport,datum2_def,done2_def,reqflag)
-    elif datumfunc:
-      _library.phish_input(iport,datum2_def,None,reqflag)
-    elif donefunc:
-      _library.phish_input(iport,None,done2_def,reqflag)
-    else:
-      _library.phish_input(iport,None,None,reqflag)
-  elif iport == 3:
-    datum3_caller = datumfunc
-    done3_caller = donefunc
-    if datumfunc and donefunc:
-      _library.phish_input(iport,datum3_def,done3_def,reqflag)
-    elif datumfunc:
-      _library.phish_input(iport,datum3_def,None,reqflag)
-    elif donefunc:
-      _library.phish_input(iport,None,done3_def,reqflag)
-    else:
-      _library.phish_input(iport,None,None,reqflag)
+  if datumfunc is not None:
+    datumfunc = CFUNCTYPE(None, c_int)(datumfunc)
+    _callbacks.append(datumfunc)
+
+  if donefunc is not None:
+    donefunc = CFUNCTYPE(None)(donefunc)
+    _callbacks.append(donefunc)
+
+  _library.phish_input(iport, datumfunc, donefunc, reqflag)
 
 def output(iport):
   _library.phish_output(iport)
@@ -131,19 +94,15 @@ def check():
   _library.phish_check()
 
 def callback(alldonefunc,abortfunc):
-  global alldone_caller,abort_caller
-  alldone_caller = alldonefunc
-  abort_caller = abortfunc
-  if alldonefunc and abortfunc: _library.phish_callback(alldone_def,abort_def)
-  elif alldonefunc: _library.phish_callback(alldone_def,None)
-  elif abortfunc: _library.phish_callback(None,abort_def)
-  else: _library.phish_done(None,None)
+  if alldonefunc is not None:
+    alldonefunc = CFUNCTYPE(None)(alldonefunc)
+    _callbacks.append(alldonefunc)
 
-def alldone_callback():
-  alldone_caller()
+  if abortfunc is not None:
+    abortfunc = CFUNCTYPE(None, POINTER(c_int))(abortfunc)
+    _callbacks.append(abortfunc)
 
-def abort_callback(flag):
-  abort_caller(flag)
+  _library.phish_callback(alldonefunc, abortfunc)
 
 def close(iport):
   _library.phish_close(iport)
@@ -154,36 +113,10 @@ def loop():
   _library.phish_loop()
 
 def probe(probefunc):
-  global probe_caller
-  probe_caller = probefunc
-  _library.phish_probe(probe_def)
+  probefunc = CFUNCTYPE(None)(probefunc)
+  _callbacks.append(probefunc)
 
-def probe_callback():
-  probe_caller()
-
-def datum0_callback(nvalues):
-  datum0_caller(nvalues)
-
-def done0_callback():
-  done0_caller()
-
-def datum1_callback(nvalues):
-  datum1_caller(nvalues)
-
-def done1_callback():
-  done1_caller()
-
-def datum2_callback(nvalues):
-  datum2_caller(nvalues)
-
-def done2_callback():
-  done2_caller()
-
-def datum3_callback(nvalues):
-  datum3_caller(nvalues)
-
-def done3_callback():
-  done3_caller()
+  _library.phish_probe(probefunc)
 
 def recv():
   return _library.phish_recv()
@@ -495,25 +428,3 @@ def abort():
 def timer():
   return _library.phish_timer()
 
-# callback functions
-
-ALLDONEFUNC = CFUNCTYPE(c_void_p)
-alldone_def = ALLDONEFUNC(alldone_callback)
-
-ABORTFUNC = CFUNCTYPE(c_void_p,c_int)
-abort_def = ABORTFUNC(abort_callback)
-
-DATUMFUNC = CFUNCTYPE(c_void_p,c_int)
-datum0_def = DATUMFUNC(datum0_callback)
-datum1_def = DATUMFUNC(datum1_callback)
-datum2_def = DATUMFUNC(datum2_callback)
-datum3_def = DATUMFUNC(datum3_callback)
-
-DONEFUNC = CFUNCTYPE(c_void_p)
-done0_def = DONEFUNC(done0_callback)
-done1_def = DONEFUNC(done1_callback)
-done2_def = DONEFUNC(done2_callback)
-done3_def = DONEFUNC(done3_callback)
-
-PROBEFUNC = CFUNCTYPE(c_void_p)
-probe_def = PROBEFUNC(probe_callback)
