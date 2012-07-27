@@ -58,7 +58,6 @@ variables = dict([(key, value) for key,value in options.variable])
 
 if options.verbose: settings["verbose"] = "true"
 
-iminnow = 0
 schools = {}
 hooks = []
 
@@ -70,19 +69,19 @@ else: script = sys.stdin
 for line_number, line in enumerate(script):
 
   # skip empty lines and commented lines
-  
+
   line = line.strip()
   if len(line) == 0: continue
   if line[:1] == "#": continue
 
   # split line into command and a sequence of arguments
-  
+
   arguments = line.split()
   command = arguments[0]
   arguments = arguments[1:]
 
   # variable expansion on each argument
-  
+
   expanded = []
   for argument in arguments:
     match = re.match("\${?([^}]*)}?", argument)
@@ -99,7 +98,7 @@ for line_number, line in enumerate(script):
     sys.stderr.write("Bait.py script: %s\n" % (" ".join([command] + arguments)))
 
   # handle specific commands
-    
+
   if command == "set":
     key = arguments[0]
     value = arguments[1]
@@ -114,10 +113,11 @@ for line_number, line in enumerate(script):
   elif command == "minnow":
     id = arguments[0]
     arguments = arguments[1:]
-    schools[id] = {"index" : iminnow, "arguments" : arguments,
+    if id in schools:
+      raise Exception("Minnow cannot use duplicate id '%s'" % id)
+    schools[id] = {"index" : len(schools), "arguments" : arguments,
                    "count" : 1, "host" : ""}
-    iminnow += 1
-    
+
   elif command == "hook":
     output = arguments[0].split(":")
     style = arguments[1]
@@ -139,7 +139,7 @@ for line_number, line in enumerate(script):
 
 # add suffixes to school executables
 # assumes executable is 1st arg
-  
+
 for school in schools.values():
   executable = school["arguments"][0]
   executable = executable + options.suffix
@@ -159,7 +159,7 @@ for school in schools.values():
 
 for school in schools.values():
   school["arguments"] = options.launch.split() + school["arguments"]
-  
+
 # optionally display school command lines
 
 if options.verbose:
@@ -174,10 +174,8 @@ phish.bait.backend(options.backend)
 for name,value in settings.items():
   phish.bait.set(name,value)
 
-for index in range(len(schools)):
-  for id,school in schools.items():
-    if school["index"] != index: continue
-    phish.bait.school(id,[school["host"]] * school["count"],school["arguments"])
+for id,school in sorted(schools.items(), key=lambda x: x[1]["index"]):
+  phish.bait.school(id,[school["host"]] * school["count"],school["arguments"])
 
 for output_id,output_port,style,input_port,input_id in hooks:
   phish.bait.hook(output_id,output_port,style,input_port,input_id)
