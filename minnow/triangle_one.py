@@ -3,39 +3,32 @@ import phish
 
 # process an edge = (Vi,Vj)
 # ignore self edges
-# store edge with vertex of smaller degree
+# store edge with both vertices
 
 def edge(nvalues):
   type,vi,tmp = phish.unpack()
   type,vj,tmp = phish.unpack()
   if vi == vj: return
-  print min(vi,vj),max(vi,vj)
-  if vi not in hash: di = 0
-  else: di = len(hash[vi])
-  if vj not in hash: dj = 0
-  else: dj = len(hash[vj])
-  if di == 0: hash[vi] = [vj]
-  elif dj == 0: hash[vj] = [vi]
-  elif di <= dj:
-    if vj not in hash[vi]: hash[vi].append(vj)
-  else:
-    if vi not in hash[vj]: hash[vj].append(vi)
+  if vi not in hash: hash[vi] = [vj]
+  else: hash[vi]: hash[vi].append(vj)
+  if vj not in hash: hash[vj] = [vi]
+  else: hash[vj]: hash[vj].append(vi)
   
-# process edge list to find triangles
+# process double edge list to find triangles
 # double loop over edges of each vertex = vj,vk
-# emit triangle if find wedge-closing vj,vk edge
+# look for wedge-closing vj,vk edges
+# only emit triangle if vi is smallest vertex to avoid duplicates
 
 def find():
-  for vi,value in hash.items():
-    for j in xrange(len(value)):
-      vj = value[j]
+  for vi,list in hash.items():
+    for j in xrange(len(list)):
+      vj = list[j]
       if vj in hash: vjlist = hash[vj]
       else: vjlist = []
       for k in xrange(j):
-        vk = value[k]
-        if vk in hash: vklist = hash[vk]
-        else: vklist = []
-        if vk in vjlist or vj in vklist:
+        vk = list[k]
+        if vk in vjlist:
+          if vi > vj or vi > vk: continue
           phish.pack_uint64(vi)
           phish.pack_uint64(vj)
           phish.pack_uint64(vk)
