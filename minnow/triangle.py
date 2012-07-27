@@ -116,5 +116,7 @@ if len(args) != 1: phish.error("Triangle syntax: triangle")
 
 hash = {}
 
+me = phish.query("idlocal",0,0)
+
 phish.loop()
 phish.exit()
