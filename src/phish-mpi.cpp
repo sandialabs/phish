@@ -490,7 +490,9 @@ int phish_exit()
 
   // shut-down MPI
 
+  printf("CCC\n");
   MPI_Finalize();
+  printf("DDD\n");
 
   return 0;
 }

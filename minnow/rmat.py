@@ -62,3 +62,5 @@ for m in xrange(ngenerate):
   phish.send_key(0,i)
 
 phish.exit()
+print "RMAT DONE"
+
