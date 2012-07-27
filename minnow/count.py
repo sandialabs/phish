@@ -18,12 +18,12 @@ def dump():
     phish.pack_string(key)
     phish.send(0)
 
-phish.init(sys.argv)
+argv = phish.init(sys.argv)
 phish.input(0,count,dump,1)
 phish.output(0)
 phish.check()
 
-if narg != 1: phish.error("Count syntax: count");
+if len(argv) != 1: phish.error("Count syntax: count");
 
 hash = {}
 
