@@ -1,6 +1,6 @@
 # triangle enumeration
 
-minnow 1 rmat 20000 10 0.25 0.25 0.25 0.25 0.0 12345
+minnow 1 rmat 20000 10 0.25 0.25 0.25 0.25 0.0 12345 -o hashed
 minnow 2 triangle_one
 minnow 3 tri_stats -f tmp.tri_one
 
