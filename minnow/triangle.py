@@ -27,7 +27,7 @@ def edge_close():
 # sent by another triangle minnow in edge() to owner of Vi
 # store edge unless duplicate
 # compute Di = degree of Vi
-# if Di >= Dj, send (Vj,Vi) to owner of Vj on port 2 as neighbor request
+# if Di >= Dj, send (Vj,Vi) as neigh request to owner of Vj on port 2
 # else Di < Dj, so send (Vj,Vi,Ni) to owner of Vj on port 3
 #   Ni = neighbor list of Vi
 

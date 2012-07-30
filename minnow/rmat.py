@@ -4,12 +4,34 @@
 import sys,random
 import phish
 
+def error():
+  phish.error("Rmat syntax: rmat N M a b c d fraction seed -o mode -v V -e E")
+
+# Park/Miller RNG, called with explicit seed each time
+
+IA = 16807
+IM = 2147483647
+AM = 1.0/IM
+IQ = 127773
+IR = 2836
+
+def parkRNG(seed):
+  seed = seed & IM
+  k = int(seed/IQ)
+  seed = IA*(seed-k*IQ) - IR*k
+  if seed < 0: seed += IM
+  ans = AM*seed
+  return ans
+
+# main program
+
 args = phish.init(sys.argv)
 phish.output(0)
 phish.check()
 
-if len(args) != 9:
-  phish.error("Rmat syntax: rmat N M a b c d fraction seed")
+# mandatory args
+
+if len(args) < 9: error()
 
 ngenerate = int(args[1]) 
 nlevels = int(args[2]) 
@@ -20,15 +42,48 @@ d = float(args[6])
 fraction = float(args[7]) 
 seed = int(args[8])
 
+# optional args
+
+mode = 0
+vlabel = elabel = 0
+
+iarg = 9
+while iarg < len(args):
+  if args[iarg] == "-o":
+    if iarg+2 > len(args): error()
+    if args[iarg+1] == "standard": mode = 0
+    elif args[iarg+1] == "hashed": mode = 1
+    elif args[iarg+1] == "double": mode = 2
+    else: error()
+    iarg += 2
+  elif args[iarg] == "-v":
+    if iarg+2 > len(args): error()
+    vlabel = int(args[iarg+1])
+    iarg += 2
+  elif args[iarg] == "-e":
+    if iarg+2 > len(args): error()
+    elabel = int(args[iarg+1])
+    iarg += 2
+  else: error()
+
 if a + b + c + d != 1.0: phish.error("Rmat a,b,c,d must sum to 1")
 if fraction >= 1.0: phish.error("Rmat fraction must be < 1")
 if seed <= 0: phish.error("Rmat seed must be positive integer")
+if vlabel < 0: phish.error("Invalid -v value")
+if elabel < 0: phish.error("Invalid -e value")
 
 # perturb seed for each minnow in case running multiple minnows
 
 idglobal = phish.query("idglobal",0,0)
 random.seed(seed+idglobal)
 order = 1 << nlevels
+
+# generate edges = (Vi,Vj)
+# append vertex and edge labels if requested: (Vi,Vj,Li,Lj,Lij)
+# send each edge in one of 3 different modes:
+# standard = send edge once via standard, unhashed send
+# hashed = send edge once, hashed on Vi
+# double = send edge twice, hashed on Vi and on Vj
 
 for m in xrange(ngenerate):
   delta = order >> 1
@@ -58,7 +113,26 @@ for m in xrange(ngenerate):
 
   phish.pack_uint64(i)
   phish.pack_uint64(j)
-  #phish.send(0)
-  phish.send_key(0,long(i))
+  
+  if vlabel:
+    ilabel = int(vlabel*parkRNG(i))
+    jlabel = int(vlabel*parkRNG(j))
+    phish.pack_uint64(ilabel)
+    phish.pack_uint64(jlabel)
+  if elabel:
+    ijlabel = int(elabel*parkRNG(i+j))
+    phish.pack_uint64(ijlabel)
 
+  if mode == 0: phish.send(0)
+  else:
+    phish.send_key(0,long(i))
+    if mode == 2:
+      phish.pack_uint64(j)
+      phish.pack_uint64(i)
+      if vlabel:
+        phish.pack_uint64(jlabel)
+        phish.pack_uint64(ilabel)
+      if elabel: phish.pack_uint64(ijlabel)
+      phish.send_key(0,long(j))
+    
 phish.exit()
