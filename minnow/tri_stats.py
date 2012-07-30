@@ -33,5 +33,3 @@ hash = {}
 
 phish.loop()
 phish.exit()
-
-
