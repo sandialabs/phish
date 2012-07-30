@@ -1,4 +1,4 @@
-# triangle enumeration
+# triangle enumeration on 1 proc via serial algorithm
 
 minnow 1 rmat 20000 10 0.25 0.25 0.25 0.25 0.0 12345 -o hashed
 minnow 2 triangle_one
