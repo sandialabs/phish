@@ -41,7 +41,7 @@ parser.add_option("--path", "-p", default="", metavar="PATH1:PATH2:...",
 parser.add_option("--set", "-s", action="append", nargs=2,
                   default=[], metavar="NAME VALUE",
                   help="Set a backend-specific name-value pair")
-parser.add_option("--suffix", default="",
+parser.add_option("--suffix", "-x", default="",
                   help="Add a suffix to all minnow names")
 parser.add_option("--launch", "-l", default="",
                   help="Add a launch prefix to all minnows")
