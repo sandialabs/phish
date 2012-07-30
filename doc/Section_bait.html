@@ -91,72 +91,77 @@ specified as "-switch value(s)".  Each switch has an abbreviated form;
 several of them have default settings.
 </P>
 <P>-h or --help
---backend
---path=PATH1:PATH2:...
--s NAME VALUE or --set=NAME VALUE
---suffix=SUFFIX
--v NAME VALUE or --variable=NAME VALUE
+-b BACK or --backend BACK
+-p PATH1:PATH2:... or --path PATH1:PATH2:...
+-s NAME VALUE or --set NAME VALUE
+-x SUFFIX or --suffix SUFFIX
+-v NAME VALUE or --variable NAME VALUE
 --verbose
 </P>
 <P>Use <I>--help</I> to display a help message and exit.
 </P>
-<P>Use <I>--backend</I> to select the desired bait.py backend.  The choice of backend
-defines how the input script will be interpreted to run a PHISH net.  Current
-choices for the backend include "graphviz", "mpi", "mpi-config", "null", and "zmq".
+<P>Use <I>--backend</I> to select the desired bait.py backend.  The choice of
+backend defines how the input script will be interpreted to run a
+PHISH net.  Current choices for the backend include "graphviz", "mpi",
+"mpi-config", "null", and "zmq".
 </P>
-<P>The graphviz backend will write a GraphViz
-file in DOT format to stdout.  You can process this file using any of the
-GraphViz tools to create a diagram of your PHISH net, useful for documentation
-or presentations.
+<P>The graphviz backend will write a GraphViz file in DOT format to
+stdout.  You can process this file using any of the GraphViz tools to
+create a diagram of your PHISH net, useful for documentation or
+presentations.
 </P>
-<P>The mpi backend will run your PHISH net
-immediately using the mpiexec command, which must be available somewhere on
-your system PATH.
+<P>The mpi backend will run your PHISH net immediately using the mpiexec
+command, which must be available somewhere on your system PATH.
 </P>
-<P>The mpi-config backend will write an mpiexec compatible config file to stdout.
-You can then run your PHISH net any time by passing the generated file to
-mpiexec.
+<P>The mpi-config backend will write an mpiexec compatible config file to
+stdout.  You can then run your PHISH net any time by passing the
+generated file to mpiexec.
 </P>
-<P>The null backend is a do-nothing backend that is useful for troubleshooting.
-For example, you can combine the --verbose option with the null backend to
-confirm that variables are expanded correctly in your PHISH input script.
+<P>The null backend is a do-nothing backend that is useful for
+troubleshooting.  For example, you can combine the --verbose option
+with the null backend to confirm that variables are expanded correctly
+in your PHISH input script.
 </P>
 <P>The zmq backend will run your PHISH net immediately using ZMQ sockets.
 </P>
-<P>The <I>--path</I> option specifies a colon-separated list of one or more directories,
-which are added to an internal list stored by bait.py.  When bait.py processes
-each minnow, as specified by the <A HREF = "bait_minnow.html">minnow</A> command, it looks
-for the minnow's executable file in this list of directories, so that it can
-write it to the launch script with an absolute path name.
+<P>The <I>--path</I> option specifies a colon-separated list of one or more
+directories, which are added to an internal list stored by bait.py.
+When bait.py processes each minnow, as specified by the
+<A HREF = "bait_minnow.html">minnow</A> command, it looks for the minnow's
+executable file in this list of directories, so that it can write it
+to the launch script with an absolute path name.
 </P>
-<P>Use <I>--set</I> to set a backend-specific option, specified as a name value pair.
+<P>Use <I>--set</I> to set a backend-specific option, specified as a name
+value pair.
 </P>
-<P>Use <I>--suffix</I> to supply a string that will be appended to the name of each
-minnow executable in your input file.  This is useful when you have minnow
-executables that have been built using different communication backends - for
-example, if you have a minnow "foo.c", you might link it against the MPI and
-ZMQ backends to produce two executables, "foo-mpi", and "foo-zmq".  Using the
-<I>--suffix</I> option, you can create a single PHISH input script and run it
-against either executable by specifying --suffix=-mpi or --suffix=-zmq.
+<P>Use <I>--suffix</I> to supply a string that will be appended to the name of
+each minnow executable in your input file.  This is useful when you
+have minnow executables that have been built using different
+communication backends - for example, if you have a minnow "foo.c",
+you might link it against the MPI and ZMQ backends to produce two
+executables, "foo-mpi", and "foo-zmq".  Using the <I>--suffix</I> option,
+you can create a single PHISH input script and run it against either
+executable by specifying --suffix=-mpi or --suffix=-zmq.
 </P>
 <P>The <I>--variable</I> switch defines a variable that can be used within the
 script.  It can be used multiple times to define different variables.
 A <A HREF = "bait_variable.html">variable</A> command can also be used in the input
-script itself.  The variable name and value are any alphanumeric string.  A list
-of strings is assigned to it, e.g. a series of filenames.  For
-example,
+script itself.  The variable name and value are any alphanumeric
+string.  A list of strings is assigned to it, e.g. a series of
+filenames.  For example,
 </P>
 <PRE>bait.py --variable files *.cpp < in.phish 
 </PRE>
 <P>creates the variable named "files" containing a list of all CPP files
 in the current directory.
 </P>
-<P>The <I>--verbose</I> option causes bait.py to produce verbose output while processing
-your input script.  The verbose output will vary depending on the backend in use,
-and will be written to stderr.
+<P>The <I>--verbose</I> option causes bait.py to produce verbose output while
+processing your input script.  The verbose output will vary depending
+on the backend in use, and will be written to stderr.
 </P>
-<P>When using backends that generate file output, the output normally is written to
-stdout ... use your shell's redirection features to write the output to a file.
+<P>When using backends that generate file output, the output normally is
+written to stdout ... use your shell's redirection features to write
+the output to a file.
 </P>
 <HR>
 
@@ -178,9 +183,8 @@ referenced as $n.  A variable with a multi-character name (or
 single-character name), such as "foo", is referenced as ${foo}.
 Each variable found in the command line is replaced with the
 variable's contents, which is a list of strings, separated by
-whitespace.  Thus a variable "files" defined either
-by a bait.py command-line argument or the <A HREF = "bait_variable.html">variable</A>
-command as
+whitespace.  Thus a variable "files" defined either by a bait.py
+command-line argument or the <A HREF = "bait_variable.html">variable</A> command as
 </P>
 <PRE>-v files f1.txt f2.txt f3.txt
 variable files f1.txt f2.txt f3.txt 
