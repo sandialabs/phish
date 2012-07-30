@@ -30,18 +30,16 @@ def edge(nvalues):
     hash[Vi][2].append(Lj)
     hash[Vi][3].append(Lij)
 
-# extend walk by one vertex if matches path[ipath]
+# extend walk by one vertex if matches next stage of path
 # call recursively until walk is complete
 
-def extend(ipath,walk):
-  if ipath == len(path):
-    phish.pack_uint64_array(walk)
-    phish.send(0)
-    return
-  p = path[ipath]
-  pLij = path[ipath][2]
-  pLj = path[ipath][3]
-  pFj = path[ipath][4]
+def extend(walk):
+  global nextend
+  nextend += 1
+  p = path[len(walk)-1]
+  pLij = p[2]
+  pLj = p[3]
+  pFj = p[4]
   list = hash[walk[-1]]
   nedge = len(list[1])
   for i in xrange(nedge):
@@ -52,15 +50,19 @@ def extend(ipath,walk):
     if pFj < 0 and Vj in walk: continue
     if pFj >= 0 and Vj != walk[pFj]: continue
     walk.append(Vj)
-    extend(ipath+1,walk)
+    if len(walk) <= len(path): extend(walk)
+    else:
+      phish.pack_uint64_array(walk)
+      phish.send(0)
     walk.pop()
 
-# process graph edge list to find SGI matches
-  
+# process list of graph edges to find SGI matches
+# if any vertex matches 1st vertex in path, initiate a walk with [Vi]
+    
 def find():
   p = path[0]
   for Vi,value in hash.items():
-    if value[0] == p[0]: extend(0,[Vi])
+    if value[0] == p[0]: extend([Vi])
   
 # main program
 
@@ -110,6 +112,10 @@ while iarg < len(args):
 # convert sub-graph to path, starting from first edge
 
 hash = {}
+nextend = 0
 
 phish.loop()
+
+print "Calls to extend by sgi_one:",nextend
+
 phish.exit()

@@ -111,6 +111,13 @@ for m in xrange(ngenerate):
       c1 /= total
       d1 /= total
 
+  #if m == 0:
+  #  i = 1; j = 2
+  #elif m == 1:
+  #  i = 1; j = 3
+  #elif m == 2:
+  #  i = 2; j = 3
+    
   phish.pack_uint64(i)
   phish.pack_uint64(j)
   

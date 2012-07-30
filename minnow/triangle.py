@@ -75,7 +75,6 @@ def neighbors(nvalues):
   type,vj,tmp = phish.unpack()
   type,nj,tmp = phish.unpack()
   ni = hash[vi]
-  #print "NEIGH",vi,vj,ni,nj
   for vk in nj:
     if vk in ni:
       phish.pack_uint64(vi)
