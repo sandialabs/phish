@@ -25,7 +25,7 @@ extern "C" {
 #define PHISH_BAIT_HASHED "hashed"
 #define PHISH_BAIT_ROUND_ROBIN "roundrobin"
 #define PHISH_BAIT_DIRECT "direct"
-#define PHISH_BAIT_BROADCAST "broadcast"
+#define PHISH_BAIT_BROADCAST "bcast"
 #define PHISH_BAIT_CHAIN "chain"
 #define PHISH_BAIT_RING "ring"
 #define PHISH_BAIT_PUBLISH "publish"
