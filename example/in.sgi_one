@@ -1,6 +1,6 @@
 # SGI enumeration on 1 proc via serial algorithm
 
-minnow 1 rmat 300 8 0.25 0.25 0.25 0.25 0.0 12345 -o double -v 1 -e 1
+minnow 1 rmat 1000 8 0.25 0.25 0.25 0.25 0.0 12345 -o double -v 1 -e 1
 minnow 2 sgi_one -p 0 -1 0 0 -1 -p 0 -1 0 0 -1 -p 0 -1 0 0 0
 minnow 3 sgi_stats -f tmp.sgi_one
 
