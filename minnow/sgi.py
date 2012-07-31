@@ -163,7 +163,6 @@ paths = (path,)
 
 maxpathlen = 0
 for path in paths: maxpathlen = max(maxpathlen,len(path))
-print "MAX",maxpathlen
 doneflag = maxpathlen*[0]
 nsgiprocs = phish.query("nlocal",0,0)
 
