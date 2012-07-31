@@ -52,6 +52,7 @@ def edge_close():
 #   walk[-1] = vertex owned by this proc,
 #   but is possible proc has not yet processed an RMAT edge to store it,
 #   so check if walk[1] is in hash and return if not
+#   walk should still be found when edge finally arrives
   
 def extend(nvalues):
   type,whichpath,tmp = phish.unpack()
@@ -151,17 +152,20 @@ while iarg < len(args):
   else: error()
 
 # convert sub-graph to set of paths, starting from first edge
-
+# NOTE: still need code for this, so can drop -p style input
+#       and only use -v and -e
+# need to create one path starting at each edge
+  
 #paths = (path, path, path)
 paths = (path,)
-
-hash = {}
 
 # values used by complete() to track completion of walk stages
 
 maxpathlen = 3
 doneflag = maxpathlen*[0]
 nsgiprocs = phish.query("nlocal",0,0)
+
+hash = {}
 
 phish.loop()
 phish.exit()
