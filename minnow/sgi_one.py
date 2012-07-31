@@ -115,7 +115,5 @@ hash = {}
 nextend = 0
 
 phish.loop()
-
-print "Calls to extend by sgi_one:",nextend
-
+print "Extend calls by sgi_one:",nextend
 phish.exit()

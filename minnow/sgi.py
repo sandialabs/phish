@@ -8,7 +8,7 @@ def error():
 # verts = dict of (Vi : Li) for sub-graph
 # edges = list of (Vi,Vj,Li,Lj,Lij) for sub-graph
 # path = list of (Li,Fi,Lij,Lj,Fj) = walk thru sub-graph
-# hash = (Vi: Li, [Vj,...], [Lj,...], [Lij,...]) =
+# hash = {Vi: Li, [Vj,...], [Lj,...], [Lij,...]} =
 #        edges in full graph, doubly stored
 
 # process an edge = (Vi,Vj,Li,Lj,Lij)
@@ -16,8 +16,7 @@ def error():
 # store edge with Vi
 # same edge will also be sent to Vj
 # if Vi < Vj and edge matches 1st step of any walk:
-#   initiate a walk by sending ([Vi])
-# send (??) to all valid Vj on port 1
+#   initiate a walk by sending ([Vi]) to self on port 1
 
 def edge(nvalues):
   type,Vi,tmp = phish.unpack()
@@ -38,13 +37,22 @@ def edge(nvalues):
       phish.pack_int32(whichpath)
       phish.pack_uint64_array([Vi])
       phish.send_key(1,Vi)
-  
+
+# walk stage 0 is done, send message to port 2
+      
 def edge_close():
-  phish.close(1)
+  phish.pack_int32(0)
+  phish.send(2)
 
 # extend walk by one vertex if matches path[ipath]
-# call recursively until walk is complete
-
+# call extend succsessively until walk is complete
+# all walk datums sent and received on port 1
+# SGI match message sent downstream on port 0
+# important NOTE:
+#   walk[-1] = vertex owned by this proc,
+#   but is possible proc has not yet processed an RMAT edge to store it,
+#   so check if walk[1] is in hash and return if not
+  
 def extend(nvalues):
   type,whichpath,tmp = phish.unpack()
   type,walk,tmp = phish.unpack()
@@ -52,6 +60,9 @@ def extend(nvalues):
   pLij = p[2]
   pLj = p[3]
   pFj = p[4]
+  if walk[-1] not in hash:
+    #print "NOT FOUND",walk[1], walk
+    return
   list = hash[walk[-1]]
   nedge = len(list[1])
   for i in xrange(nedge):
@@ -65,28 +76,40 @@ def extend(nvalues):
     if len(walk) <= len(paths[whichpath]):
       phish.pack_int32(whichpath)
       phish.pack_uint64_array(walk)
-      phish.send_key(len(walk),Vj)
+      phish.send_key(1,Vj)
     else:
       phish.pack_uint64_array(walk)
       phish.send(0)
     walk.pop()
+
+# receive done messages on port 2, indicating sender is done with a walk stage
+# stage is completed when recv message from all SGI procs
+# key point: when a stage is complete, it means this proc
+#   has processed and sent all datums for next stage,
+#   thus it can send a done message for next stage
+# when last stage is complete, close input ports 1 and 2
+# this will trigger closing of output port 3 for shutdown
     
-def extend_close():
-  global closeflag
-  closeflag += 1
-  if closeflag < 4: phish.close(closeflag)
+def complete(nvalues):
+  type,istage,tmp = phish.unpack()
+  doneflag[istage] += 1
+  if doneflag[istage] == nsgiprocs:
+    if istage+1 == maxpathlen:
+      phish.close(1)
+      phish.close(2)
+    else:
+      phish.pack_int32(istage+1)
+      phish.send(2)
 
 # main program
   
 args = phish.init(sys.argv)
 phish.input(0,edge,edge_close,1)
-phish.input(1,extend,extend_close,1)
-phish.input(2,extend,extend_close,1)
-phish.input(3,extend,None,1)
+phish.input(1,extend,None,1)
+phish.input(2,complete,None,1)
 phish.output(0)
 phish.output(1)
 phish.output(2)
-phish.output(3)
 phish.check()
 
 # read sub-graph definition
@@ -133,7 +156,12 @@ while iarg < len(args):
 paths = (path,)
 
 hash = {}
-closeflag = 1
+
+# values used by complete() to track completion of walk stages
+
+maxpathlen = 3
+doneflag = maxpathlen*[0]
+nsgiprocs = phish.query("nlocal",0,0)
 
 phish.loop()
 phish.exit()

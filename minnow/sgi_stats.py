@@ -4,9 +4,7 @@ import phish
 def count(nvalues):
   global n
   type,walk,nw = phish.unpack()
-  for i,vi in enumerate(walk):
-    if i: print >>fp,", ",
-    print >>fp,"%d" % vi,
+  for vi in walk: print >>fp,vi,
   print >>fp
   n += 1
     
