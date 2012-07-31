@@ -117,29 +117,49 @@ static std::set<int> g_defined_output_ports;
 //////////////////////////////////////////////////////////////////////////////////
 // Internal implementation details
 
-static inline void pack(uint8_t type, uint32_t count, uint32_t size, const void* data)
+template<typename T>
+static inline void pack_value(const T& data, uint8_t type)
 {
-  if(g_pack_end + sizeof(uint8_t) + sizeof(uint32_t) + (count * size) > g_pack_begin + g_datum_size)
+  if(g_pack_end + sizeof(uint8_t) + sizeof(T) > g_pack_begin + g_datum_size)
+    phish_error("Send buffer overflow.");
+  pack_count() += 1;
+  *reinterpret_cast<uint8_t*>(g_pack_end) = type;
+  g_pack_end += sizeof(uint8_t);
+  *reinterpret_cast<T*>(g_pack_end) = data;
+  g_pack_end += sizeof(T);
+}
+
+template<typename T>
+static inline void pack_array(const T* data, int32_t count, uint8_t type)
+{
+  if(g_pack_end + sizeof(uint8_t) + sizeof(uint32_t) + (count * sizeof(T)) > g_pack_begin + g_datum_size)
     phish_error("Send buffer overflow.");
   pack_count() += 1;
   *reinterpret_cast<uint8_t*>(g_pack_end) = type;
   g_pack_end += sizeof(uint8_t);
   *reinterpret_cast<uint32_t*>(g_pack_end) = count;
   g_pack_end += sizeof(uint32_t);
-  ::memcpy(g_pack_end, data, count * size);
-  g_pack_end += count * size;
+  ::memcpy(g_pack_end, data, count * sizeof(T));
+  g_pack_end += count * sizeof(T);
 }
 
-template<typename T>
-static inline void pack_value(const T& value, uint8_t type)
+template <typename T>
+static inline void unpack_value(char** data, int32_t* count)
 {
-  pack(type, 1, sizeof(T), &value);
+  *count = 1;
+
+  *data = g_unpack_current;
+  g_unpack_current += sizeof(T);
 }
 
-template<typename T>
-static inline void pack_array(const T* array, int32_t count, uint8_t type)
+template <typename T>
+static inline void unpack_array(char** data, int32_t* count)
 {
-  pack(type, count, sizeof(T), array);
+  *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
+  g_unpack_current += sizeof(uint32_t);
+
+  *data = g_unpack_current;
+  g_unpack_current += *count * sizeof(T);
 }
 
 /// Defines a container for a collection of ports.
@@ -933,7 +953,7 @@ void phish_repack()
 
 void phish_pack_raw(char* data, int32_t length)
 {
-  pack(PHISH_RAW, length, sizeof(char), data);
+  pack_array(data, length, PHISH_RAW);
 }
 
 void phish_pack_char(char value)
@@ -993,7 +1013,7 @@ void phish_pack_double(double value)
 
 void phish_pack_string(char* value)
 {
-  pack(PHISH_STRING, strlen(value) + 1, sizeof(char), value);
+  pack_array(value, strlen(value) + 1, PHISH_STRING);
 }
 
 void phish_pack_int8_array(int8_t* array, int32_t count)
@@ -1048,7 +1068,7 @@ void phish_pack_double_array(double* array, int32_t count)
 
 void phish_pack_pickle(char* data, int32_t count)
 {
-  pack(PHISH_PICKLE, count, sizeof(char), data);
+  pack_array(data, count, PHISH_PICKLE);
 }
 
 int phish_unpack(char** data, int32_t* count)
@@ -1062,219 +1082,99 @@ int phish_unpack(char** data, int32_t* count)
   switch(type)
   {
     case PHISH_CHAR:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += sizeof(char);
-
+      unpack_value<char>(data, count);
       return type;
 
     case PHISH_INT8:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += sizeof(int8_t);
-
+      unpack_value<int8_t>(data, count);
       return type;
 
     case PHISH_INT16:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += sizeof(int16_t);
-
+      unpack_value<int16_t>(data, count);
       return type;
 
     case PHISH_INT32:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += sizeof(int32_t);
-
+      unpack_value<int32_t>(data, count);
       return type;
 
     case PHISH_INT64:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += sizeof(int64_t);
-
+      unpack_value<int64_t>(data, count);
       return type;
 
     case PHISH_UINT8:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += sizeof(uint8_t);
-
+      unpack_value<uint8_t>(data, count);
       return type;
 
     case PHISH_UINT16:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += sizeof(uint16_t);
-
+      unpack_value<uint16_t>(data, count);
       return type;
 
     case PHISH_UINT32:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += sizeof(uint32_t);
-
+      unpack_value<uint32_t>(data, count);
       return type;
 
     case PHISH_UINT64:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += sizeof(uint64_t);
-
+      unpack_value<uint64_t>(data, count);
       return type;
 
     case PHISH_FLOAT:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += sizeof(float);
-
+      unpack_value<float>(data, count);
       return type;
 
     case PHISH_DOUBLE:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += sizeof(double);
-
+      unpack_value<double>(data, count);
       return type;
 
     case PHISH_RAW:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += *count * sizeof(char);
-
+      unpack_array<char>(data, count);
       return type;
 
     case PHISH_STRING:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += *count * sizeof(char);
-
+      unpack_array<char>(data, count);
       return type;
 
     case PHISH_INT8_ARRAY:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += *count * sizeof(int8_t);
-
+      unpack_array<int8_t>(data, count);
       return type;
 
     case PHISH_INT16_ARRAY:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += *count * sizeof(int16_t);
-
+      unpack_array<int16_t>(data, count);
       return type;
 
     case PHISH_INT32_ARRAY:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += *count * sizeof(int32_t);
-
+      unpack_array<int32_t>(data, count);
       return type;
 
     case PHISH_INT64_ARRAY:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += *count * sizeof(int64_t);
-
+      unpack_array<int64_t>(data, count);
       return type;
 
     case PHISH_UINT8_ARRAY:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += *count * sizeof(uint8_t);
-
+      unpack_array<uint8_t>(data, count);
       return type;
 
     case PHISH_UINT16_ARRAY:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += *count * sizeof(uint16_t);
-
+      unpack_array<uint16_t>(data, count);
       return type;
 
     case PHISH_UINT32_ARRAY:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += *count * sizeof(uint32_t);
-
+      unpack_array<uint32_t>(data, count);
       return type;
 
     case PHISH_UINT64_ARRAY:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += *count * sizeof(uint64_t);
-
+      unpack_array<uint64_t>(data, count);
       return type;
 
     case PHISH_FLOAT_ARRAY:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += *count * sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += *count * sizeof(float);
-
+      unpack_array<float>(data, count);
       return type;
 
     case PHISH_DOUBLE_ARRAY:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += *count * sizeof(double);
-
+      unpack_array<double>(data, count);
       return type;
 
     case PHISH_PICKLE:
-      *count = *reinterpret_cast<uint32_t*>(g_unpack_current);
-      g_unpack_current += sizeof(uint32_t);
-
-      *data = g_unpack_current;
-      g_unpack_current += *count * sizeof(char);
-
+      unpack_array<char>(data, count);
       return type;
   }
 
