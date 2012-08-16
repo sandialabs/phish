@@ -25,7 +25,14 @@ def variable_callback(option,opt_str,value,parser):
   value = (value[0], value[1:])
   parser.values.variable.append(value)
 
-def starparse(str,n,param):
+# compute bounds implied by numeric str with a possible wildcard asterik
+# 0 = lower bound, N-1 = upper bound
+# 5 possibilities:
+#   (1) I = I to I, (2) * = 0 to N-1
+#   (3) I* = I to N-1, (4) *J = 0 to J, (5) I*J = I to J
+# return start,stop
+
+def bounds(str,n,param):
   star = str.find('*')
   if star < 0: start = stop = int(str)
   elif star == 0 and len(str) == 1:
@@ -208,8 +215,8 @@ for id,school in schools.items():
     if comma < 0: raise Exception("Invalid syntax in school command")
     nodes = param[:comma]
     cores = param[comma+1:]
-    nodestart,nodestop = starparse(nodes,numnodes,param)
-    corestart,corestop = starparse(cores,pernode,param)
+    nodestart,nodestop = bounds(nodes,numnodes,param)
+    corestart,corestop = bounds(cores,pernode,param)
   for inode in range(nodestart,nodestop+1):
     for icore in range(corestart,corestop+1):
       nclist.append([inode,icore])
