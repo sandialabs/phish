@@ -29,7 +29,7 @@ ZMQ_INC =	-I~/zmq
 # no need to edit this section
 
 LIB_PM = libphish-mpi.so
-LIB)PMZ = libphish-mpizmq.so
+LIB_PMZ = libphish-mpizmq.so
 LIB_PZ = libphish-zmq.so
 
 LIB_BM = libphish-bait-mpi.so

@@ -220,11 +220,9 @@ for id,school in schools.items():
   for inode in range(nodestart,nodestop+1):
     for icore in range(corestart,corestop+1):
       nclist.append([inode,icore])
-  if len(nclist) < school["count"]:
-    raise Exception("Insufficient bind params for school count")
   bindlist = []
   for i in range(school["count"]):
-    bindlist.append(nclist[i])
+    bindlist.append(nclist[i % len(nclist)])
   school["bind"] = bindlist
   
 # add suffixes to school executables

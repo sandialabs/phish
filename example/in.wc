@@ -16,4 +16,4 @@ school filegen 1
 school file2words 4
 school count 3
 school sort 1
-school print 1
+school print 1 host blah
