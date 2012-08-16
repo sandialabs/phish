@@ -15,14 +15,16 @@
 </P>
 <P>set keyword value
 </P>
-<UL><LI>keyword = <I>memory</I> or <I>safe</I> or <I>port</I> 
+<UL><LI>keyword = <I>memory</I> or <I>safe</I> or <I>port</I> or <I>pernode</I> 
 
 <PRE>  <I>memory</I> value = N
     N = max size of datum in Kbytes
   <I>safe</I> value = M
     M = send a datum "safely" every this many sends
   <I>self</I> value = S
-    S = allow queueing of this many messages to self 
+    S = allow queueing of this many messages to self
+  <I>pernode</I> value = Nc
+    Nc = # of cores per node 
 </PRE>
 
 </UL>
@@ -88,6 +90,15 @@ small default setting is sufficient, but if a minnow can send many
 messages to itself before reading and processing them, you may need to
 boost this setting.
 </P>
+<P>The <I>pernode</I> keyword is only relevant when running a PHISH script
+with MPI and when using the <I>bind</I> option for the bait.py
+<A HREF = "bait_school.html">school</A> command.  It tells bait.py how many cores
+per node (Nc) there are on the system the PHISH script will be run on.
+This enables the <I>bind</I> parameters of the <A HREF = "bait_school.html">school</A>
+command to be converted into specific node and core assignments for
+each instance of each minnow.  See the <A HREF = "bait_school.html">school</A>
+command for more details.
+</P>
 <P><B>Restrictions:</B> none
 </P>
 <P><B>Related commands:</B>
@@ -97,6 +108,7 @@ boost this setting.
 </P>
 <P><B>Default:</B>
 </P>
-<P>The default settings are memory = 1 (1 Kbyte), safe = 0, self = 10.
+<P>The default settings are memory = 1 (1 Kbyte), safe = 0, self = 10,
+and pernode = 1.
 </P>
 </HTML>

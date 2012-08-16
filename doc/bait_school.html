@@ -17,16 +17,17 @@
 </PRE>
 <UL><LI>minnow-ID = ID of minnow 
 
-<LI>Np = # of duplicate processes to launch for this minnow 
+<LI>Np = # of instances of this minnow to launch 
 
 <LI>zero or more keyword/value pairs can be appended 
 
-<PRE>possible keywords = <I>host</I> or <I>invoke</I>
+<PRE>possible keywords = <I>host</I> or <I>bind</I>
   <I>host</I> value = machine
-    machine = name of host to run the minnow on
-              what if want some minnows on one host, some on another?
-  <I>invoke</I> value = launcher
-    launcher = run minnow via this program 
+    machine = name of host to run all the minnows on
+  <I>bind</I> values = N1,C1 N2,C2 ...
+    N1,C1 = node ID, core ID for first minnow
+    N2,C2 = node ID, core ID for second minnow, etc
+    see discussion below for wildcard format 
 </PRE>
 
 </UL>
@@ -35,7 +36,9 @@
 <PRE>school 3 10
 school countapp 1
 school countapp 1 host foo.locallan.gov
-school myApp 5 invoke python 
+school myApp 5 bind *,0
+school myApp 2 bind 0,0 3,2
+school myApp 5 bind 0*1,* 2,0 
 </PRE>
 <P><B>Description:</B>
 </P>
@@ -58,24 +61,79 @@ command-line argument is used with <A HREF = "Bait.html">bait.py</A>.  The <I>ma
 value is the name of the machine (e.g. foo.locallan.gov) to launch all
 the minnow processes on.
 </P>
-<P>The <I>invoke</I> keyword can be used if the minnow application should be
-run by another program.  For example if the minnow is a Python script,
-the <I>launcher</I> could be set to "python" or to
-"/usr/local/bin/python2.4".  In this case, if the minnow <I>exefile</I> was
-specified as foo.py, then the launch script output by
-<A HREF = "Bait.html">bait.py</A> would include a line such as
+<P>The <I>bind</I> keyword is only relevant when running a PHISH program under
+MPI.  It allows you to control which nodes and cores of a multi-core
+machine that each instance of each minnow will run on.  Each minnow
+instance is an MPI process, so if there are 2 schools of minnows with
+<I>Np</I> values of 12 and 8, then there are 20 MPI processes, with MPI
+ranks from 0 to 19 inclusive.
 </P>
-<PRE>python foo.py ... 
-</PRE>
-<P>instead of simply
+<P>If you do not specify the <I>bind</I> option for any minnow, then the 20
+processes will be assigned to the nodes and cores with whatever
+options you sepcify with the mpirun command.  By default this is
+typically first by core, then by node.  I.e. on a machine with
+quad-core nodes, the 12 instances of the first minnow would run on the
+12 cores of the first 3 nodes, and the 8 instances of the second
+minnow on the 8 cores of the last 2 nodes, since your job will be
+allocated 5 nodes when mpirun requests 20 processes for the entire
+PHISH program.
 </P>
-<PRE>foo.py ... 
+<P>If you want to change the default assignments in a manner not
+enabled by options on the mpirun command, then the <I>bind</I>
+option can be used.  It must be specified for every minnow and
+thus for every school command.
+</P>
+<P>To use the <I>bind</I> values, bait.py needs to know how many cores per
+node Nc there are on the machine you will run on.  This can be
+specified by the <A HREF = "bait_set.html">set pernode</A> command; it defaults to 1
+if not set.  Bait.py uses this to infer how many nodes Nn you will run
+on, i.e. Nn = Nprocs / Nc, where Nprocs is the total number of
+minnow instances (MPI processes).  Nn is rounded up if Nprocs is not
+evenly divisible by Nc.
+</P>
+<P>The <I>bind</I> keyword takes one or more node/core ID pairs as values.
+Node IDs must be from 0 to Nn-1 inclusive.  Core IDs must be from 0 to
+Nc-1 inclusive.  Each node and core ID can represent a range of
+consecutive node and core IDs if it is specified using a wildcard.
+This takes the form "*" or "*n" or "n*" or "m*n".  If N = Nn or Nc for
+node or core count, then an asterisk with no numeric values means all
+IDs from 0 to N-1 (inclusive).  A leading asterisk means all IDs
+from 0 to n (inclusive).  A trailing asterisk means all IDs from n
+to N-1 (inclusive).  A middle asterisk means all IDs from m to n
+(inclusive).  Specifying an ID that is < 0 or >= N is an error.
+</P>
+<P>For each <I>bind</I> value an ordered list L of node/core IDs is generated,
+with the core ID varying first, then the node ID.  If there are
+multiple <I>bind</I> values, the lists are concatenated together to form
+one long list.  For example, on a machine with 4 cores per node,
+and 3 nodes allocated for your PHISH run, this command
+</P>
+<PRE>school myApp 5 bind 1*,* 0,2* 
 </PRE>
+<P>would generate the following list L of node/core ID pairs, of length
+10:
+</P>
+<PRE>(1,0), (1,1) (1,2) (1,3) (2,0) (2,1) (2,2) (2,3) (0,2) (0,3) 
+</PRE>
+<P>As a final step, the minnow instances are assigned to this list in
+order.  I.e. the first minnow instance will run on the 1st node/core
+ID, the 2nd instance of the minnow on the 2nd node/core ID, etc.
+</P>
+<P>If the number of instances Ni < the length of the list L, then only
+the first Ni node/core ID pairs are used.  If Ni > length of L, then
+the list is looped over until all minnow instances are assigned.  Note
+that this will run multiple minnow instances on the same core.
+</P>
+<P>This assignment information is passed to MPI in different ways for
+MPICH versus OpenMPI.  For MPICH is it via a host file; for OpenMPI it
+is via a rankfile.  The output printed by the bait.py command tells
+you how to specify the appropriate mpirun command.
+</P>
 <P><B>Restrictions:</B> none
 </P>
 <P><B>Related commands:</B>
 </P>
-<P><A HREF = "bait_minnow.html">minnow</A>
+<P><A HREF = "bait_minnow.html">minnow</A>, <A HREF = "bait_set.html">set</A>
 </P>
 <P><B>Default:</B>
 </P>
