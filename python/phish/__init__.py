@@ -552,6 +552,10 @@ def query(str,flag1,flag2):
 def set(str,flag1,flag2):
   _library.phish_set(str,flag1,flag2)
 
+def host():
+  _library.phish_host.restype = c_char_p
+  return _library.phish_host()
+
 # error functions
 
 def error(str):

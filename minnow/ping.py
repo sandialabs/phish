@@ -17,6 +17,9 @@ phish.input(0,ping,None,1)
 phish.output(0)
 phish.check()
 
+idglobal = phish.query("idglobal",0,0)
+print "PHISH host ping %d: %s" % (idglobal,phish.host())
+
 if len(args) != 3: phish.error("Ping syntax: ping N M")
 
 n = int(args[1])

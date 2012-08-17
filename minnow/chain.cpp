@@ -20,6 +20,9 @@ int main(int narg, char **args)
   phish_output(0);
   phish_check();
 
+  int idglobal = phish_query("idglobal",0,0);
+  printf("PHISH host chain %d: %s\n",idglobal,phish_host());
+
   if (narg != 3) phish_error("Chain syntax: chain N M");
   n = atoi(args[1]);
   int m = atoi(args[2]);

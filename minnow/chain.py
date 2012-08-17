@@ -20,6 +20,9 @@ phish.input(0,loop,None,1)
 phish.output(0)
 phish.check()
 
+idglobal = phish_query("idglobal",0,0)
+print "PHISH host chain %d: %s" % (idglobal,phish.host())
+
 if len(args) != 3: phish.error("Chain syntax: chain N M")
 n = int(args[1])
 m = int(args[2])

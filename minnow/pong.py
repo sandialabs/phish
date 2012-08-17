@@ -13,6 +13,9 @@ phish.input(0,pong,None,1)
 phish.output(0)
 phish.check()
 
+idglobal = phish.query("idglobal",0,0)
+print "PHISH host pong %d: %s" % (idglobal,phish.host())
+
 if len(args) != 1: phish.error("Pong syntax: pong")
 
 phish.loop()
