@@ -49,12 +49,12 @@ def school(id, hosts, bind, arguments):
       i += 2
   else: ptr = None
   argc = len(arguments)
+  # NOTE: could now add bindptr as arg to phish_bait_school()
   
   _library.phish_bait_school(
     ctypes.c_char_p(id),
     ctypes.c_int(count),
-    ctypes.byref((ctypes.c_char_p * count)(*hosts)),
-    bindptr,
+    ctypes.byref((ctypes.c_char_p * count)(*hosts)), # bindptr,
     ctypes.c_int(argc),
     ctypes.byref((ctypes.c_char_p * argc)(*arguments)),
     )

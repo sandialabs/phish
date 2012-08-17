@@ -256,16 +256,24 @@ if options.verbose:
 
 # pass parsed data to the Bait.py backend
 # output the schools in minnow order
-
+# NOTE: for now, write bind info (if it exists) to file "rankfile"
+#       this is in OpenMPI format for use with mpirun -rf rankfile
+#       this code should be moved to back-end
+    
 phish.bait.backend(options.backend)
 
 for name,value in settings.items():
   phish.bait.set(name,value)
 
+bindlist = []
 for id,school in sorted(schools.items(), key=lambda x: x[1]["index"]):
+  bindlist += school["bind"]
   phish.bait.school(id,school["count"]*[school["host"]],
                     school["bind"],school["arguments"])
 
+if bindlist:
+  print "BL",bindlist
+  
 for output_id,output_port,style,input_port,input_id in hooks:
   phish.bait.hook(output_id,output_port,style,input_port,input_id)
 
