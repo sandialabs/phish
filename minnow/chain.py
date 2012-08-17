@@ -1,5 +1,6 @@
-# MINNOW loop
-# send messages around a ring
+# MINNOW chain
+# send messages from head to tail along a chain
+# tail signals head when done
 
 import sys,time
 import phish
