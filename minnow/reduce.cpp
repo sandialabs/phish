@@ -1,5 +1,5 @@
 // MINNOW reduce
-// read hashed messages from map
+// read hashed messages from map or source
 
 #include "stdlib.h"
 #include "stdio.h"

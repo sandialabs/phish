@@ -1,5 +1,5 @@
 # MINNOW source
-# generate hashed messages for map
+# generate hashed messages for map or reduce
 
 import sys,random
 import phish
