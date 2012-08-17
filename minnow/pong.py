@@ -1,3 +1,6 @@
+# MINNOW pong
+# reflect messages to a sender
+
 import sys
 import phish
 

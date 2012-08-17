@@ -1,3 +1,6 @@
+# MINNOW reduce
+# read hashed messages from map
+
 import sys
 import phish
 

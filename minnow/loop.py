@@ -1,3 +1,6 @@
+# MINNOW loop
+# send messages around a ring
+
 import sys,time
 import phish
 

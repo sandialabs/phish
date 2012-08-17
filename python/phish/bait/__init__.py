@@ -38,13 +38,23 @@ def set(name, value):
     ctypes.c_char_p(value)
     )
 
-def school(id, hosts, arguments):
+def school(id, hosts, bind, arguments):
   count = len(hosts)
+  if bind:
+    bindptr = (ctypes.c_int*(2*count))()
+    i = 0
+    for pair in bind:
+      bindptr[i] = pair[0]
+      bindptr[i+1] = pair[1]
+      i += 2
+  else: ptr = None
   argc = len(arguments)
+  
   _library.phish_bait_school(
     ctypes.c_char_p(id),
     ctypes.c_int(count),
     ctypes.byref((ctypes.c_char_p * count)(*hosts)),
+    bindptr,
     ctypes.c_int(argc),
     ctypes.byref((ctypes.c_char_p * argc)(*arguments)),
     )

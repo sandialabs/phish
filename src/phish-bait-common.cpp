@@ -11,9 +11,12 @@ std::vector<school> g_schools;
 std::vector<hook> g_hooks;
 std::vector<minnow> g_minnows;
 
-school::school(const std::string& _id, const std::vector<std::string>& _hosts, const std::vector<std::string>& _arguments, int _first_global_id) :
+school::school(const std::string& _id, const std::vector<std::string>& _hosts, 
+               int *_bind, const std::vector<std::string>& _arguments, 
+               int _first_global_id) :
   id(_id),
   hosts(_hosts),
+  bind(_bind),
   arguments(_arguments),
   count(_hosts.size()),
   first_global_id(_first_global_id)
@@ -66,7 +69,8 @@ void phish_bait_set(const char* name, const char* value)
   g_settings[name] = value;
 }
 
-int phish_bait_school(const char* id, int count, const char** hosts, int argc, const char** argv)
+int phish_bait_school(const char* id, int count, const char** hosts, 
+                      int *bait, int argc, const char** argv)
 {
   try
   {
@@ -85,7 +89,7 @@ int phish_bait_school(const char* id, int count, const char** hosts, int argc, c
     }
 
     g_school_index_map[id] = g_schools.size();
-    g_schools.push_back(school(id, std::vector<std::string>(hosts, hosts + count), std::vector<std::string>(argv, argv + argc), first_global_id));
+    g_schools.push_back(school(id, std::vector<std::string>(hosts, hosts + count), bait, std::vector<std::string>(argv, argv + argc), first_global_id));
 
     return 0;
   }

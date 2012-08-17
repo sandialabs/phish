@@ -23,7 +23,7 @@ std::string string_cast(const T& value)
 /// Storage for a school.
 struct school
 {
-  school(const std::string& _id, const std::vector<std::string>& _hosts, const std::vector<std::string>& _arguments, int _first_global_id);
+  school(const std::string& _id, const std::vector<std::string>& _hosts, int *_bind, const std::vector<std::string>& _arguments, int _first_global_id);
 
   /// Stores a unique identifier for the school.
   std::string id;
@@ -36,6 +36,8 @@ struct school
   int count;
   /// Stores the zero-based global index of the first minnow in this school.
   int first_global_id;
+  /// Stores the set of node/core bindings for the school.
+  int *bind;
 };
 
 /// Storage for a hook.

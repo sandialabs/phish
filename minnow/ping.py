@@ -1,3 +1,6 @@
+# MINNOW ping
+# reflect messages to a receiver
+
 import sys
 import phish
 
