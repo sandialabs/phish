@@ -3,6 +3,8 @@ import ctypes.util
 
 _library = None
 
+# NOTE: are these used anywhere?
+
 SINGLE = "single"
 PAIRED = "paired"
 HASHED = "hashed"
@@ -47,9 +49,14 @@ def school(id, hosts, bind, arguments):
       bindptr[i] = pair[0]
       bindptr[i+1] = pair[1]
       i += 2
-  else: ptr = None
+  else: bindptr = None
   argc = len(arguments)
+  
   # NOTE: could now add bindptr as arg to phish_bait_school()
+  #       bindptr is a vector of 2 ints per minnow instance
+  # NOTE: could delete hosts, and just use bind info,
+  #       let backend for ZMQ or MPICH interpret integer bind node ID
+  #       as a hostname from a hostfile
   
   _library.phish_bait_school(
     ctypes.c_char_p(id),
