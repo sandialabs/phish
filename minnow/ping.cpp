@@ -19,9 +19,12 @@ int main(int narg, char **args)
   phish_output(0);
   phish_check();
 
+  int idglobal = phish_query("idglobal",0,0);
+  printf("PHISH host ping %d: %s\n",idglobal,phish_host());
+
   if (narg != 3) phish_error("Ping syntax: ping N M");
-  n = atoi(args[0]);
-  int m = atoi(args[1]);
+  n = atoi(args[1]);
+  int m = atoi(args[2]);
 
   buf = new char[m];
   for (int i = 0; i < m; i++) buf[i] = '\0';

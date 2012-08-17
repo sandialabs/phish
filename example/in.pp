@@ -1,5 +1,5 @@
-# ping-pong latency test between 2 minnows
-# send N messages of length M
+# ping-pong latency test
+# 2 minnows send N messages of length M back and forth
 
 set memory 1025
 

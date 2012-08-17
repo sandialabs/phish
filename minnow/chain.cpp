@@ -1,4 +1,4 @@
-// MINNOW loop
+// MINNOW chain
 // send messages from head to tail along a chain
 // tail signals head when done
 
@@ -20,7 +20,7 @@ int main(int narg, char **args)
   phish_output(0);
   phish_check();
 
-  if (narg != 3) phish_error("Loop syntax: loop N M");
+  if (narg != 3) phish_error("Chain syntax: chain N M");
   n = atoi(args[1]);
   int m = atoi(args[2]);
 
@@ -45,8 +45,8 @@ int main(int narg, char **args)
     }
     phish_loop();
     double time_stop = phish_timer();
-    printf("Elapsed time for %d loop messages of %d bytes = %g secs\n",
-	   n,m,time_stop-time_start);
+    printf("Elapsed time for %d chain messages of %d bytes on "
+           "%d procs = %g secs\n",n,m,nlocal,time_stop-time_start);
 
   } else phish_loop();
 

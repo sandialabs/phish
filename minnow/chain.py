@@ -20,8 +20,7 @@ phish.input(0,loop,None,1)
 phish.output(0)
 phish.check()
 
-if len(args) != 3: phish.error("Loop syntax: loop N M")
-
+if len(args) != 3: phish.error("Chain syntax: chain N M")
 n = int(args[1])
 m = int(args[2])
 
@@ -43,8 +42,8 @@ if head:
     phish.send(0)
   phish.loop()
   time_stop = phish.timer()
-  print "Elapsed time for %d loop messages of %d bytes = %g secs" % \
-      (n,m,time_stop-time_start)
+  print "Elapsed time for %d chain messages of %d bytes on " + \
+      "%d procs = %g secs" % (n,m,nlocal,time_stop-time_start)
 
 else: phish.loop()
   
