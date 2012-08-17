@@ -68,7 +68,7 @@ def init(args):
   argc = pointer(c_int(len(args)))
 
   argv = POINTER(POINTER(c_char_p))()
-  argv.contents = pointer((c_char_p * len(args))(*args))
+  argv.contents = cast(pointer((c_char_p * len(args))(*args)), POINTER(c_char_p))
   _library.phish_init(argc, argv)
   return [argv.contents[i] for i in range(argc.contents.value)]
 
