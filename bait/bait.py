@@ -258,7 +258,7 @@ if options.verbose:
 # output the schools in minnow order
 # NOTE: for now, write bind info (if it exists) to file "rankfile"
 #       this is in OpenMPI format for use with mpirun -rf rankfile
-#       this code should be moved to back-end
+#       code for this should be moved to back-end
     
 phish.bait.backend(options.backend)
 
@@ -272,7 +272,10 @@ for id,school in sorted(schools.items(), key=lambda x: x[1]["index"]):
                     school["bind"],school["arguments"])
 
 if bindlist:
-  print "BL",bindlist
+  fp = open("rankfile","w")
+  for i,pair in enumerate(bindlist):
+    print >>fp,"rank %d=+n%d slot=%d" % (i,pair[0],pair[1])
+  fp.close()
   
 for output_id,output_port,style,input_port,input_id in hooks:
   phish.bait.hook(output_id,output_port,style,input_port,input_id)
