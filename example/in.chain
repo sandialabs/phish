@@ -1,13 +1,11 @@
 # chain rate test
 # P minnows send N messages of length M from one to the next
 
-set safe 10000
-
 variable P 10
 variable N 1000000
 variable M 0
 
-minnow 1 loop $N $M
+minnow 1 chain $N $M
 
 hook 1 ring 1
 

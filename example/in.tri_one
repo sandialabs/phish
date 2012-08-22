@@ -1,7 +1,10 @@
 # triangle enumeration on 1 proc via serial algorithm
 
-minnow 1 rmat 1000 8 0.25 0.25 0.25 0.25 0.0 12345 -o hashed
-minnow 2 triangle_one
+variable N 40000
+variable M 12
+
+minnow 1 rmat $N $M 0.25 0.25 0.25 0.25 0.0 12345 -o hash
+minnow 2 tri_one
 minnow 3 tri_stats -f tmp.tri_one
 
 hook 1 hashed 2

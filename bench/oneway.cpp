@@ -1,4 +1,4 @@
-// MPI-only one-way test for throughput
+// MPI-only one-way test for throughput between 2 procs
 // Syntax: oneway N M S
 //         N = # of messages
 //         M = size of each message

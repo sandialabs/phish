@@ -2,8 +2,6 @@
 # S minnows send N messages of length M to R minnows via hashing
 # each source minnow sends N/S messages
 
-#set safe
-
 variable S 1
 variable R 1
 variable N 10000000

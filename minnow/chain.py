@@ -20,7 +20,7 @@ phish.input(0,loop,None,1)
 phish.output(0)
 phish.check()
 
-idglobal = phish_query("idglobal",0,0)
+idglobal = phish.query("idglobal",0,0)
 print "PHISH host chain %d: %s" % (idglobal,phish.host())
 
 if len(args) != 3: phish.error("Chain syntax: chain N M")
@@ -45,8 +45,9 @@ if head:
     phish.send(0)
   phish.loop()
   time_stop = phish.timer()
-  print "Elapsed time for %d chain messages of %d bytes on " + \
-      "%d procs = %g secs" % (n,m,nlocal,time_stop-time_start)
+  str = "Elapsed time for %d chain messages of %d bytes on " + \
+      "%d procs = %g secs"
+  print str % (n,m,nlocal,time_stop-time_start)
 
 else: phish.loop()
   

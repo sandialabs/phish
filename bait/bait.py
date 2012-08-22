@@ -54,7 +54,105 @@ def bounds(str,n,param):
   if start > stop:
     raise Exception("Invalid school bind parameter %s" % param)
   return start,stop
+
+# generate process-to-processor bindings if requested
+# either by explicit school command params or a non-zero bondorder setting
+
+def generate_bindings():
   
+  # nprocs, bindorder, pernode, numnode
+  # nprocs = # of minnows
+  # bindorder default = 0
+  # pernode default = 1
+  # numnode default = # of nodes required to run nprocs
+
+  nprocs = 0
+  for id,school in schools.items(): nprocs += school["count"]
+
+  if "bindorder" in settings: bindorder = int(settings["bindorder"])
+  else: bindorder = 0
+  if bindorder < 0 or bindorder > 2:
+    raise Exception("Invalid bindorder setting")
+
+  if "pernode" in settings: pernode = int(settings["pernode"])
+  else: pernode = 1
+  if pernode <= 0: raise Exception("Invalid pernode setting")
+
+  if "numnode" in settings: numnode = int(settings["numnode"])
+  else:
+    numnode = nprocs / pernode
+    if nprocs % pernode: numnode += 1
+  if numnode <= 0: raise Exception("Invalid numnode setting")
+
+  # bindflag = 1 if explicit school settings, 0 if not
+  # if any school has bind params, all of them must
+
+  bindflag = -1
+  for id,school in schools.items():
+    bindparams = school["bind"]
+    if bindparams and bindflag < 0: bindflag = 1
+    if not bindparams and bindflag < 0: bindflag = 0
+    if bindparams and bindflag == 0:
+      raise Exception("All or no school commands must use bind option")
+    if not bindparams and bindflag:
+      raise Exception("All or no school commands must use bind option")
+
+  # generate bindings from explicit settings on each school command
+  # convert bind params to list of [node,core] for each minnow instance
+  # expand each bind param with wildcards -> nclist = node,core list
+  # assign count instances of minnow to leading entries in nclist
+    
+  if bindflag:
+    for id,school in schools.items():
+      bindparams = school["bind"]
+      nclist = []
+      for param in bindparams:
+        comma = param.find(',')
+        if comma < 0: raise Exception("Invalid syntax in school command")
+        nodes = param[:comma]
+        cores = param[comma+1:]
+        nodestart,nodestop = bounds(nodes,numnode,param)
+        corestart,corestop = bounds(cores,pernode,param)
+      if bindorder == 0 or bindorder == 1:
+        for inode in range(nodestart,nodestop+1):
+          for icore in range(corestart,corestop+1):
+            nclist.append([inode,icore])
+      elif bindorder == 2:
+        for icore in range(corestart,corestop+1):
+          for inode in range(nodestart,nodestop+1):
+            nclist.append([inode,icore])
+      bindlist = []
+      for i in range(school["count"]):
+        bindlist.append(nclist[i % len(nclist)])
+      school["bind"] = bindlist
+
+  # generate bindings from bindorder setting
+  # only if no explicit school settings
+  # always generate bindings if backend = ZMQ
+  # NOTE: ZMQ part is a bit kludgy
+  #       could be handled better if change args to backend school()
+      
+  if (bindorder and not bindflag) or options.backend == "zmq":
+    nclist = []
+    if bindorder <= 1:
+      for inode in range(numnode):
+        for icore in range(pernode):
+          nclist.append([inode,icore])
+    elif bindorder == 2:
+      for icore in range(pernode):
+        for inode in range(numnode):
+          nclist.append([inode,icore])
+    offset = 0
+    for id,school in schools.items():
+      bindlist = []
+      for i in range(school["count"]):
+        iproc = offset + i
+        bindlist.append(nclist[iproc % len(nclist)])
+      school["bind"] = bindlist
+      offset += school["count"]
+      
+# --------------------------------------------------------------------
+
 # main program
 # parse command-line options
 
@@ -142,7 +240,7 @@ for line_number, line in enumerate(script):
     arguments = arguments[1:]
     if id in schools: raise Exception("Duplicate ID in minnow command")
     schools[id] = {"index" : len(schools), "arguments" : arguments,
-                   "count" : 1, "host" : "", "bind" : []}
+                   "count" : 1, "host" : [], "bind" : []}
 
   elif command == "hook":
     if len(arguments) != 3: raise Exception("Invalid hook command")
@@ -152,7 +250,7 @@ for line_number, line in enumerate(script):
     hooks.append((output[0],int(output[1]) if len(output) > 1 else 0,
                   style, int(input[1]) if len(input) > 1 else 0, input[0]))
 
-  # school has host and bind options
+  # school has bind option
     
   elif command == "school":
     if len(arguments) < 2: raise Exception("Invalid school command")
@@ -163,12 +261,7 @@ for line_number, line in enumerate(script):
     schools[id]["count"] = int(count)
     iarg = 0
     while iarg < len(keywords):
-      if keywords[iarg] == "host":
-        if iarg+2 > len(keywords):
-          raise Exception("Invalid syntax in school command")
-        schools[id]["host"] = keywords[iarg+1]
-        iarg += 2
-      elif keywords[iarg] == "bind":
+      if keywords[iarg] == "bind":
         if iarg+2 > len(keywords):
           raise Exception("Invalid syntax in school command")
         iargstart = iarg+1
@@ -178,53 +271,18 @@ for line_number, line in enumerate(script):
                 keywords[iarg][0] not in string.digits: break
           iarg += 1
         schools[id]["bind"] = keywords[iargstart:iarg]
+      else: raise Exception("Invalid syntax in school command")
           
   else:
     raise Exception("Unknown command '%s' on line %s: %s" %
                     (command, line_number, line))
 
 if len(schools) == 0: raise Exception("No minnows defined")
-  
-# convert bind params to list of [node,core] for each minnow instance
-# expand each bind param with wildcards into nclist = node,core list
-# assign count instances of minnow to leading entries in nclist
-# if any school has bind params, all of them must
 
-if "pernode" in settings: pernode = int(settings["pernode"])
-else: pernode = 1
-if pernode == 0: raise Exception("Invalid pernode setting")
+# generate process-to-processor bindings if requested
 
-nprocs = 0
-for id,school in schools.items(): nprocs += school["count"]
-numnodes = nprocs / pernode
-if nprocs % pernode: numnodes += 1
+generate_bindings()
 
-bindflag = -1
-for id,school in schools.items():
-  bindparams = school["bind"]
-  if bindparams and bindflag < 0: bindflag = 1
-  if not bindparams and bindflag < 0: bindflag = 0
-  if bindparams and bindflag == 0:
-    raise Exception("All or no school commands must use bind option")
-  if not bindparams and bindflag:
-    raise Exception("All or no school commands must use bind option")
-  if not bindparams: continue
-  nclist = []
-  for param in bindparams:
-    comma = param.find(',')
-    if comma < 0: raise Exception("Invalid syntax in school command")
-    nodes = param[:comma]
-    cores = param[comma+1:]
-    nodestart,nodestop = bounds(nodes,numnodes,param)
-    corestart,corestop = bounds(cores,pernode,param)
-  for inode in range(nodestart,nodestop+1):
-    for icore in range(corestart,corestop+1):
-      nclist.append([inode,icore])
-  bindlist = []
-  for i in range(school["count"]):
-    bindlist.append(nclist[i % len(nclist)])
-  school["bind"] = bindlist
-  
 # add suffixes to school executables
 # assumes executable is 1st arg
 
@@ -254,29 +312,50 @@ if options.verbose:
   for name, value in settings.items():
     sys.stderr.write("BAIT Setting: %s %s\n" % (name, value))
 
-# pass parsed data to the Bait.py backend
-# output the schools in minnow order
-# NOTE: for now, write bind info (if it exists) to file "rankfile"
-#       this is in OpenMPI format for use with mpirun -rf rankfile
-#       code for this should be moved to back-end
-    
-phish.bait.backend(options.backend)
-
-for name,value in settings.items():
-  phish.bait.set(name,value)
+# for MPI, write bind info (if it exists) to file "rankfile"
+#   this is in OpenMPI format for use with mpirun -rf rankfile
+# for ZMQ, bind info is required, create host list for each school
+# NOTE: code for this should be moved to back-end
 
 bindlist = []
 for id,school in sorted(schools.items(), key=lambda x: x[1]["index"]):
   bindlist += school["bind"]
-  phish.bait.school(id,school["count"]*[school["host"]],
-                    school["bind"],school["arguments"])
 
-if bindlist:
+if bindlist and (options.backend == "mpi" or options.backend == "mpi-config"):
   fp = open("rankfile","w")
   for i,pair in enumerate(bindlist):
     print >>fp,"rank %d=+n%d slot=%d" % (i,pair[0],pair[1])
   fp.close()
-  
+
+if bindlist and options.backend == "zmq":
+  if "hostnames" not in variables:
+    raise Exception("Hostnames variable is required for ZMQ backend")
+  hostnames = variables["hostnames"]
+  for id,school in sorted(schools.items(), key=lambda x: x[1]["index"]):
+    host = []
+    bindpairs = school["bind"]
+    for pair in bindpairs:
+      host.append(hostnames[pair[0] % len(hostnames)])
+    school["host"] = host
+    
+if not bindlist:
+  for id,school in sorted(schools.items(), key=lambda x: x[1]["index"]):
+    school["host"] = school["count"] * [""]
+    
+# NOTE: should this give an error if backend is not built?
+#       e.g. ZMQ backend just does nothing if not built
+
+phish.bait.backend(options.backend)
+
+# pass parsed data to the Bait.py backend
+# output the schools in minnow order
+
+for name,value in settings.items():
+  phish.bait.set(name,value)
+
+for id,school in sorted(schools.items(), key=lambda x: x[1]["index"]):
+  phish.bait.school(id,school["host"],school["bind"],school["arguments"])
+
 for output_id,output_port,style,input_port,input_id in hooks:
   phish.bait.hook(output_id,output_port,style,input_port,input_id)
 

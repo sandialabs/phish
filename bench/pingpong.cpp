@@ -1,4 +1,6 @@
-// MPI-only ping-pong test for latency
+// MPI-only ping-pong
+// reflect messages back and from between sender and receiver
+
 // Syntax: pingpong N M
 //         N = # of messages
 //         M = size of each message
@@ -24,6 +26,12 @@ int main(int narg, char **args)
     MPI_Finalize();
     exit(1);
   }
+
+  int host_length;
+  char host[MPI_MAX_PROCESSOR_NAME];
+  MPI_Get_processor_name(host,&host_length);
+  host[host_length] = '\0';
+  printf("PHISH host pingpong %d: %s\n",me,host);
 
   // parse input args
 
@@ -54,7 +62,7 @@ int main(int narg, char **args)
     }
 
     double time_stop = MPI_Wtime();
-    printf("Elapsed time for %d pingpong messages of %d bytes = %g secs\n",
+    printf("Elapsed time for %d pingpong exchanges of %d bytes = %g secs\n",
 	   n,m,time_stop-time_start);
 
   // pong processor

@@ -1,21 +1,21 @@
 # All targets
 
-all:	pingpong oneway loop hashed self
+all:	pingpong chain hash # oneway self
 
 # programs
 
 pingpong:     pingpong.o
 	$(LINK) $(LINKFLAGS) pingpong.o $(SYSLIB) -o pingpong
 
-oneway: oneway.o
-	$(LINK) $(LINKFLAGS) oneway.o $(SYSLIB) -o oneway
+chain:   chain.o
+	$(LINK) $(LINKFLAGS) chain.o $(SYSLIB) -o chain
 
-loop:   loop.o
-	$(LINK) $(LINKFLAGS) loop.o $(SYSLIB) -o loop
+hash: hash.o hashlittle.o
+	$(LINK) $(LINKFLAGS) hash.o hashlittle.o $(SYSLIB) -o hash
 
-hashed: hashed.o hash.o
-	$(LINK) $(LINKFLAGS) hashed.o hash.o $(SYSLIB) -o hashed
+#oneway: oneway.o
+#	$(LINK) $(LINKFLAGS) oneway.o $(SYSLIB) -o oneway
 
-self: self.o
-	$(LINK) $(LINKFLAGS) self.o $(SYSLIB) -o self
+#self: self.o
+#	$(LINK) $(LINKFLAGS) self.o $(SYSLIB) -o self
 

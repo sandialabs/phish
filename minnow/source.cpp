@@ -43,8 +43,10 @@ int main(int narg, char **args)
   phish_loop();
 
   double time_stop = phish_timer();
-  printf("Elapsed time for %d hashed messages of %d bytes = %g secs\n",
-	 n,m,time_stop-time_start);
+  if (idlocal == 0)
+    printf("Elapsed time for %d hashed messages of %d bytes "
+           "from %d sources = %g secs\n",
+           n,m,nlocal,time_stop-time_start);
 
   delete [] buf;
   phish_exit();

@@ -1,8 +1,6 @@
 # ping-pong latency test
 # 2 minnows send N messages of length M back and forth
 
-set memory 1025
-
 variable N 1000000
 variable M 0
 

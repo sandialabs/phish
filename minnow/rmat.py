@@ -51,8 +51,8 @@ iarg = 9
 while iarg < len(args):
   if args[iarg] == "-o":
     if iarg+2 > len(args): error()
-    if args[iarg+1] == "standard": mode = 0
-    elif args[iarg+1] == "hashed": mode = 1
+    if args[iarg+1] == "std": mode = 0
+    elif args[iarg+1] == "hash": mode = 1
     elif args[iarg+1] == "double": mode = 2
     else: error()
     iarg += 2

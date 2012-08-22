@@ -33,7 +33,9 @@ phish.close(0)
 phish.loop()
 
 time_stop = phish.timer()
-print "Elapsed time for %d hashed messages of %d bytes = %g secs" % \
-    (n,m,time_stop-time_start)
+if idlocal == 0:
+  str = "Elapsed time for %d hashed messages of %d bytes " + \
+      "from %d sources = %g secs"
+  print str % (n,m,nlocal,time_stop-time_start)
 
 phish.exit()
