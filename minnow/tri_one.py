@@ -22,12 +22,9 @@ def edge(nvalues):
 
 def find():
   for vi,list in hash.items():
-    for j in xrange(len(list)):
-      vj = list[j]
-      if vj in hash: vjlist = hash[vj]
-      else: vjlist = []
-      for k in xrange(j):
-        vk = list[k]
+    for j,vj in enumerate(list):
+      vjlist = hash[vj]
+      for vk in list[:j]:
         if vk in vjlist:
           if vi > vj or vi > vk: continue
           phish.pack_uint64(vi)
@@ -42,11 +39,17 @@ phish.input(0,edge,find,1)
 phish.output(0)
 phish.check()
 
-if len(args) != 1: phish.error("Triangle_one syntax: triangle_one")
+if len(args) != 1: phish.error("Tri_one syntax: tri_one")
 if phish.query("nlocal",0,0) != 1:
-  phish.error("Can only be a single triangle_one minnow")
+  phish.error("Can only be a single tri_one minnow")
 
 hash = {}
 
+time_start = phish.timer()
+
 phish.loop()
+
+time_stop = phish.timer()
+print "Elapsed time for tri_one = %g secs" % (time_stop-time_start)
+
 phish.exit()
