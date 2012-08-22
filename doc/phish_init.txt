@@ -104,12 +104,12 @@ script.  The {Nlocal} argument was explained above.  {Nprev} is the total
 number of minnows in sets of minnows previous to this one.  It is used to infer
 the {local-ID} value discussed above.
 
-The {--phish-memory} and {--phish-safe} and switches change default settings within
-the PHISH library.
+The {--phish-memory} and {--phish-safe} and switches change default
+settings within the PHISH library.
 
-The {--phish-memory} value {N} sets the maximum size of the buffers used to
-send and receive datums.  See the "set"_bait_set.html command of
-the "bait.py"_Section_bait.html tool for more information on the
+The {--phish-memory} value {N} sets the maximum size of the buffers
+used to send and receive datums.  See the "set"_bait_set.html command
+of the "bait.py"_Section_bait.html tool for more information on the
 settings of this switch.
 
 The {--phish-safe} switch forces the MPI version of the PHISH library
@@ -130,10 +130,10 @@ minnow receives them.  See the "set"_bait_set.html command of the
 "bait.py"_Section_bait.html tool for more information on the settings
 of this switch.
 
-The {--phish-in} switch appears once for every connection the minnow has with
-other minnows, where it is a receiver of datums.  See the
-"hook"_bait_hook.html command in PHISH input scripts processed
-by the "bait.py"_Bait.html tool, for more information.
+The {--phish-in} switch appears once for every connection the minnow
+has with other minnows, where it is a receiver of datums.  See the
+"hook"_bait_hook.html command in PHISH input scripts processed by the
+"bait.py"_Bait.html tool, for more information.
 
 {Sprocs}, {sfirst}, and {sport} refer to the set of minnows sending to
 this minnow.  They are respectively, the number of minnows in the set,
@@ -143,10 +143,10 @@ minnows receivng the datums, i.e. the set of minnows this minnow
 belongs to.  They are respectively, the number of minnows in the set,
 the global ID of the first minnow in the set, and the input port used
 by those minnows.  {Style} is the connection style, as specified by
-the "hook"_bait_hook.html command in the PHISH input script
-processed by the "bait.py"_Bait.html tool.  E.g. {style} is a word
-like "single" or "hashed".  If it is "subscribe", then extra info
-about the external host and its TCP port is appended to the {style},
+the "hook"_bait_hook.html command in the PHISH input script processed
+by the "bait.py"_Bait.html tool.  E.g. {style} is a word like "single"
+or "hashed".  If it is "subscribe", then extra info about the external
+host and its TCP port is appended to the {style},
 e.g. "subscribe/www.foo.com:25".
 
 The {--phish-out} switch appears once for every connection the minnow has

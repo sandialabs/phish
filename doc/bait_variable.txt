@@ -20,11 +20,11 @@ variable N 100 :pre
 [Description:]
 
 Variable is a command that can be used in a PHISH input script which
-is recognized by the "bait.py"_Bait.html setup program.  It creates a
-variable with name {ID} which contains a list of one or more strings.
-The variable can be used elsewhere in the input script.  The
+is recognized by the "bait.py"_Section_bait.html setup program.  It
+creates a variable with name {ID} which contains a list of one or more
+strings.  The variable can be used elsewhere in the input script.  The
 substitution rules for variables are described by the
-"bait.py"_Bait.html doc page.
+"bait.py"_Section_bait.html doc page.
 
 The {ID} of the variable can only contain alphanumeric characters and
 underscores.  The strings can contain any printable character.
@@ -33,14 +33,34 @@ A variable can only be defined once, i.e. IDs must be unique.  The one
 exception is for variables defined as "command-line
 arguments"_Section_bait.html#bait_3 to the "bait.py"_Section_bait.html
 command.  In this case, a variable command in the input script is
-ignored if the variable was already set in the command line.
-This allows an input script to set default values for variables
-that can be overridded by command-line settings.
+ignored if the variable was already set in the command line.  This
+allows an input script to set default values for variables that can be
+overridded by command-line settings.
+
+:line
+
+There is one variable that must be set when using the ZMQ backend to
+"bait.py"_Section_bait.html.  It's ID is "hostnames" and it should be
+a list of the hostnames on which to launch the PHISH job.  If you are
+running on a large parallel machine, it is typically the names of the
+nodes assigned to your job by the batch allocator.  If you are running
+on your desktop, it can be just the hostname of your machine.  E.g.
+
+variable hostnames rsnode3 rsnode4 rsnode10
+variable hostnames mybox
+variable hostnames mybox otherbox.localnet.gov :pre
+
+This variable is used by the ZMQ backend to determine what host to
+launch each minnow on.  See the bind option of the "bait.py
+school"_bait_school.html command for further discussion and how to
+assign specific minnows to specific hosts.
 
 [Restrictions:] none
 
 [Related commands:]
 
-See the {-var} command-line argument for "bait.py"_Bait.html.
+Any variable can be set in a PHISH input script or via the
+{--variable} or {-v} command-line arguments of the
+"bait.py"_Secttion_bait.html tool.
 
 [Default:] none

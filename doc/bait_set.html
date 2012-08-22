@@ -15,7 +15,7 @@
 </P>
 <P>set keyword value
 </P>
-<UL><LI>keyword = <I>memory</I> or <I>safe</I> or <I>port</I> or <I>pernode</I> 
+<UL><LI>keyword = <I>memory</I> or <I>safe</I> or <I>port</I> or <I>pernode</I> or <I>numnode</I> or <I>bindorder</I> 
 
 <PRE>  <I>memory</I> value = N
     N = max size of datum in Kbytes
@@ -24,7 +24,13 @@
   <I>self</I> value = S
     S = allow queueing of this many messages to self
   <I>pernode</I> value = Nc
-    Nc = # of cores per node 
+    Nc = # of cores per node to use when binding minnows to processors
+  <I>numnode</I> value = Nn
+    Nn = # of nodes to use when binding minnows to processors
+  <I>bindorder</I> value = B
+    B = 0 = no bind order is imposed
+    B = 1 = perform binding by looping over cores, then over nodes
+    B = 2 = perform binding by looping over nodes, then over cores 
 </PRE>
 
 </UL>
@@ -32,7 +38,9 @@
 </P>
 <PRE>set memory 1024
 set safe 10
-set self 20 
+set self 20
+set 
+set bindorder 2 
 </PRE>
 <P><B>Description:</B>
 </P>
@@ -88,27 +96,30 @@ maximum size, as determined by the memory keyword above), can be sent
 to self and buffered before they are received.  In most cases the
 small default setting is sufficient, but if a minnow can send many
 messages to itself before reading and processing them, you may need to
-boost this setting.
+boost this setting to avoid an MPI error or hang.
 </P>
-<P>The <I>pernode</I> keyword is only relevant when running a PHISH script
-with MPI and when using the <I>bind</I> option for the bait.py
-<A HREF = "bait_school.html">school</A> command.  It tells bait.py how many cores
-per node (Nc) there are on the system the PHISH script will be run on.
-This enables the <I>bind</I> parameters of the <A HREF = "bait_school.html">school</A>
-command to be converted into specific node and core assignments for
-each instance of each minnow.  See the <A HREF = "bait_school.html">school</A>
-command for more details.
+<P>The <I>pernode</I>, (numnode</I>, and <I>bindorder</I> keywords are used to tailor
+the assignment of minnows to physical processors when the PHISH
+program is run.  See the discussion of the <I>bind</I> option for the
+<A HREF = "bait_school.html">bait.py school</A> command for more details on this
+topic.
+</P>
+<P>Note that the default setting of <I>numnode</I> is equal to the total
+number of minnow instances <I>Np</I> in a PHISH input script, divided by
+the <I>pernode</I> setting.  If <I>Np</I> is not evenly divisible by <I>pernode</I>,
+then <I>numnode</I> is incremented by one so that <I>numnode</I> * <I>pernode</I> >=
+<I>Np</I>.
 </P>
 <P><B>Restrictions:</B> none
 </P>
 <P><B>Related commands:</B>
 </P>
-<P>See the discussion of command-line arguments for the
-<A HREF = "Secttion_bait.html">bait.py</A> tool.
+<P>Any setting can be made in a PHISH input script or via the <I>--set</I> or
+<I>-s</I> command-line arguments of the <A HREF = "Secttion_bait.html">bait.py</A> tool.
 </P>
 <P><B>Default:</B>
 </P>
 <P>The default settings are memory = 1 (1 Kbyte), safe = 0, self = 10,
-and pernode = 1.
+pernode = 1, numnode = # of minnows / pernode, and bindorder = 0.
 </P>
 </HTML>

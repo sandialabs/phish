@@ -23,11 +23,11 @@ variable N 100
 <P><B>Description:</B>
 </P>
 <P>Variable is a command that can be used in a PHISH input script which
-is recognized by the <A HREF = "Bait.html">bait.py</A> setup program.  It creates a
-variable with name <I>ID</I> which contains a list of one or more strings.
-The variable can be used elsewhere in the input script.  The
+is recognized by the <A HREF = "Section_bait.html">bait.py</A> setup program.  It
+creates a variable with name <I>ID</I> which contains a list of one or more
+strings.  The variable can be used elsewhere in the input script.  The
 substitution rules for variables are described by the
-<A HREF = "Bait.html">bait.py</A> doc page.
+<A HREF = "Section_bait.html">bait.py</A> doc page.
 </P>
 <P>The <I>ID</I> of the variable can only contain alphanumeric characters and
 underscores.  The strings can contain any printable character.
@@ -36,15 +36,35 @@ underscores.  The strings can contain any printable character.
 exception is for variables defined as <A HREF = "Section_bait.html#bait_3">command-line
 arguments</A> to the <A HREF = "Section_bait.html">bait.py</A>
 command.  In this case, a variable command in the input script is
-ignored if the variable was already set in the command line.
-This allows an input script to set default values for variables
-that can be overridded by command-line settings.
+ignored if the variable was already set in the command line.  This
+allows an input script to set default values for variables that can be
+overridded by command-line settings.
+</P>
+<HR>
+
+<P>There is one variable that must be set when using the ZMQ backend to
+<A HREF = "Section_bait.html">bait.py</A>.  It's ID is "hostnames" and it should be
+a list of the hostnames on which to launch the PHISH job.  If you are
+running on a large parallel machine, it is typically the names of the
+nodes assigned to your job by the batch allocator.  If you are running
+on your desktop, it can be just the hostname of your machine.  E.g.
+</P>
+<PRE>variable hostnames rsnode3 rsnode4 rsnode10
+variable hostnames mybox
+variable hostnames mybox otherbox.localnet.gov 
+</PRE>
+<P>This variable is used by the ZMQ backend to determine what host to
+launch each minnow on.  See the bind option of the <A HREF = "bait_school.html">bait.py
+school</A> command for further discussion and how to
+assign specific minnows to specific hosts.
 </P>
 <P><B>Restrictions:</B> none
 </P>
 <P><B>Related commands:</B>
 </P>
-<P>See the <I>-var</I> command-line argument for <A HREF = "Bait.html">bait.py</A>.
+<P>Any variable can be set in a PHISH input script or via the
+<I>--variable</I> or <I>-v</I> command-line arguments of the
+<A HREF = "Secttion_bait.html">bait.py</A> tool.
 </P>
 <P><B>Default:</B> none
 </P>
