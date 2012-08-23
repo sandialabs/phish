@@ -14,9 +14,9 @@ import sys,commands,re
 # which Python to use
 
 # desktop
-python = "python"
+#python = "python"
 # RedSky
-#python = "/ascldap/users/tshead/install/python/bin/python2.7"
+python = "/ascldap/users/tshead/install/python/bin/python2.7"
 
 # settings for machine and looping and timing and different test sizes
 
@@ -24,8 +24,8 @@ numnode = 32       # allocated # of nodes
 pernode = 8        # of cores per node
 rankfileflag = 1   # 1 if supports OpenMPI rankfiles
 
-hostnames = [commands.getoutput("hostname")]
-#hostnames = commands.getoutput("scontrol show hostnames").split()
+#hostnames = [commands.getoutput("hostname")]
+hostnames = commands.getoutput("scontrol show hostnames").split()
 
 safe = 10000       # applied to chain and hash
 
