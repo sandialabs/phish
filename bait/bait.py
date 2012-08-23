@@ -338,7 +338,7 @@ if bindlist and options.backend == "zmq":
       host.append(hostnames[pair[0] % len(hostnames)])
     school["host"] = host
     
-if not bindlist:
+if not bindlist or not options.backend == "zmq":
   for id,school in sorted(schools.items(), key=lambda x: x[1]["index"]):
     school["host"] = school["count"] * [""]
     
