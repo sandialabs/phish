@@ -11,9 +11,9 @@ def edge(nvalues):
   type,vi,tmp = phish.unpack()
   type,vj,tmp = phish.unpack()
   if vi == vj: return
-  if vi in hash and vj in hash[vi]: return
-  if vi not in hash: hash[vi] = [vj]
-  else: hash[vi].append(vj)
+  if vi in graph and vj in graph[vi]: return
+  if vi not in graph: graph[vi] = [vj]
+  else: graph[vi].append(vj)
   phish.pack_uint64(vj)
   phish.pack_uint64(vi)
   phish.send_key(1,vj)
@@ -30,9 +30,9 @@ def edge_close():
 def edge_again(nvalues):
   type,vi,tmp = phish.unpack()
   type,vj,tmp = phish.unpack()
-  if vi not in hash: hash[vi] = [vj]
-  elif vj not in hash[vi]: hash[vi].append(vj)
-  di = len(hash[vi])
+  if vi not in graph: graph[vi] = [vj]
+  elif vj not in graph[vi]: graph[vi].append(vj)
+  di = len(graph[vi])
   phish.pack_uint64(vj)
   phish.pack_uint64(vi)
   phish.pack_int32(di)
@@ -53,7 +53,7 @@ def edge_degree(nvalues):
   type,vi,tmp = phish.unpack()
   type,vj,tmp = phish.unpack()
   type,dj,tmp = phish.unpack()
-  di = len(hash[vi])
+  di = len(graph[vi])
   if di > dj:
     phish.pack_uint64(vj)
     phish.pack_uint64(vi)
@@ -64,7 +64,7 @@ def edge_degree(nvalues):
     phish.pack_uint64(vj)
     phish.pack_uint64(vi)
     phish.pack_uint64(dj)
-    phish.pack_uint64_array(hash[vi])
+    phish.pack_uint64_array(graph[vi])
     phish.send_key(4,vj)
 
 def edge_degree_close():
@@ -83,7 +83,7 @@ def neigh_request(nvalues):
   phish.pack_uint64(vj)
   phish.pack_uint64(vi)
   phish.pack_uint64(dj)
-  phish.pack_uint64_array(hash[vi][:di])
+  phish.pack_uint64_array(graph[vi][:di])
   phish.send_key(4,vj)
 
 def neigh_request_close():
@@ -98,7 +98,7 @@ def neighbors(nvalues):
   type,vj,tmp = phish.unpack()
   type,di,tmp = phish.unpack()
   type,nj,tmp = phish.unpack()
-  ni = hash[vi][:di]
+  ni = graph[vi][:di]
   for vk in nj:
     if vk in ni:
       phish.pack_uint64(vi)
@@ -123,7 +123,7 @@ phish.check()
 
 if len(args) != 1: phish.error("Tri syntax: tri")
 
-hash = {}
+graph = {}
 
 nlocal = phish.query("nlocal",0,0)
 time_start = phish.timer()

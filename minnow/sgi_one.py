@@ -114,6 +114,12 @@ while iarg < len(args):
 hash = {}
 nextend = 0
 
+time_start = phish.timer()
+
 phish.loop()
-print "Extend calls by sgi_one:",nextend
+
+time_stop = phish.timer()
+print "Elapsed time for sgi_one = %g secs with %d extend calls" % \
+    (time_stop-time_start,nextend)
+
 phish.exit()

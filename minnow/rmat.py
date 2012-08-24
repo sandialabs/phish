@@ -1,5 +1,7 @@
 # MINNOW rmat
 # emit edges from an RMAT matrix
+# if V,E specified, vertex labels will be from 1 to V inclusive,
+#                   edge labels will be from 1 to E inclusive
 
 import sys,random
 import phish
@@ -8,6 +10,7 @@ def error():
   phish.error("Rmat syntax: rmat N M a b c d fraction seed -o mode -v V -e E")
 
 # Park/Miller RNG, called with explicit seed each time
+# so labels assigned to vertices and edges will be consistent
 
 IA = 16807
 IM = 2147483647
@@ -122,12 +125,12 @@ for m in xrange(ngenerate):
   phish.pack_uint64(j)
   
   if vlabel:
-    ilabel = int(vlabel*parkRNG(i))
-    jlabel = int(vlabel*parkRNG(j))
+    ilabel = int(vlabel*parkRNG(i)) + 1
+    jlabel = int(vlabel*parkRNG(j)) + 1
     phish.pack_uint64(ilabel)
     phish.pack_uint64(jlabel)
   if elabel:
-    ijlabel = int(elabel*parkRNG(i+j))
+    ijlabel = int(elabel*parkRNG(i+j)) + 1
     phish.pack_uint64(ijlabel)
 
   if mode == 0: phish.send(0)
