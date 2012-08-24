@@ -45,10 +45,6 @@ enum{UNUSED_PORT,OPEN_PORT,CLOSED_PORT};
 #define MAXPORT 16       // max # of input and output ports
                          // hardwired to insure all minnows use same value
 
-#define DELTAQUEUE 16    // increment for # queue entries
-
-#define SELFOVERHEAD 100 // per-message MPI overhead in selfbuf
-
 typedef void (DatumFunc)(int);         // callback prototypes
 typedef void (DoneFunc)();
 typedef void (AbortFunc)(int*);
@@ -59,8 +55,10 @@ typedef void (AbortFunc)(int*);
 MPI_Comm world;           // MPI communicator
 int me,nprocs;            // MPI rank and total # of procs
 
-int maxbuf;               // max allowed datum size in bytes
-int memchunk;             // max allowed datum size in Kbytes
+int maxdatum;             // max allowed datum size
+int maxself;              // max # of datums self queue can store
+int maxhold;              // max # of datums hold queue can store
+
 int safe;                 // do safe MPI sends every this many sends (0 = never)
 
 // input ports
@@ -109,38 +107,41 @@ struct OutPort {           // one output port
 OutPort *outports;         // list of output ports
 int noutports;             // # of used output ports
 
-// send/receive buffers that hold a datum
+// send/receive buffers for datums
 
-char *sbuf;                // buffer to hold datum to send
-int nsbytes;               // total size of send datum
-char *sptr;                // ptr to current loc in sbuf for packing
-int npack;                 // # of fields packed thus far into sbuf
-
-char *rbuf;                // buffer to hold received datum
-int nrbytes;               // total size of received datum
-int nrfields;              // # of fields in received datum
-char *rptr;                // ptr to current loc in rbuf for unpacking
-int nunpack;               // # of fields unpacked thus far from rbuf
-
-int self;                  // 1 if possibly send message to self, else 0
-int selfnum;               // # of queued self messsages that can be stored
-char *selfbuf;             // buffer for messages to self, used by MPI
-
-// queued datums
-
-struct Queue {             // one queued datum
+struct Message {           // one cached datum
   char *datum;             // copy of entire datum
   int nbytes;              // byte size of datum
   int iport;               // port the datum was received on
 };
 
-Queue *queue;              // internal queue
-int nqueue;                // # of datums in queue
-int maxqueue;              // max # of datums queue can hold
+char *sbufone;             // allocated buf for one datum to send
+char *rbufone;             // allocated buf for one datum to recv
+                           //   from another proc as a message
+
+int selfflag;              // 1 if possibly send message to self, else 0
+Message *self;             // queue of datums received from self
+int nself;                 // # of datums in self queue
+int selflo,selfhi;         // indices of start,end of self queue
+
+Message *hold;             // queue of received datums held by application
+int nhold;                 // # of datums in hold queue
+
+char *sbuf;                // ptr to current send message
+char *sptr;                // ptr to current loc in sbufone for packing
+int nsbytes;               // total size of send datum
+int npack;                 // # of fields packed thus far into sbuf
+
+char *rbuf;                // ptr to current recv message
+char *rptr;                // ptr to current loc in rbuf for unpacking
+int nrbytes;               // total size of received datum
+int nrfields;              // # of fields in received datum
+int nunpack;               // # of fields unpacked thus far from rbuf
 
 // internal function prototypes
 
 void send(OutConnect *);
+void send_self(int);
 void allocate_ports();
 void deallocate_ports();
 
@@ -149,6 +150,7 @@ void deallocate_ports();
 int phish_init(int *argc, char ***argv)
 {
   phish_assert_not_initialized();
+  g_initialized = true;
 
   // initialize MPI
 
@@ -158,18 +160,12 @@ int phish_init(int *argc, char ***argv)
   MPI_Comm_rank(world,&me);
   MPI_Comm_size(world,&nprocs);
 
-  // library status
-
-  g_initialized = true;
-  lastport = -1;
-  nqueue = maxqueue = 0;
-  queue = NULL;
-
   // default settings
 
-  memchunk = 1;
+  maxdatum = 1;
+  maxself = 8;
+  maxhold = 8;
   safe = 0;
-  selfnum = 10;
 
   // port allocation
 
@@ -207,8 +203,23 @@ int phish_init(int *argc, char ***argv)
     } else if (argument == "--phish-memory") {
       if (arguments.size() < 1)
         phish_return_error("Invalid command-line args in phish_init", -1);
-      memchunk = atoi(pop_argument(arguments).c_str());
-      if (memchunk < 0) 
+      int memory = atoi(pop_argument(arguments).c_str());
+      if (memory < 0)
+        phish_return_error("Invalid command-line args in phish_init", -1);
+      maxdatum = memory*KBYTE;
+
+    } else if (argument == "--phish-self") {
+      if (arguments.size() < 1)
+        phish_return_error("Invalid command-line args in phish_init", -1);
+      maxself = atoi(pop_argument(arguments).c_str());
+      if (maxself < 0)
+        phish_return_error("Invalid command-line args in phish_init", -1);
+
+    } else if(argument == "--phish-queue") {
+      if (arguments.size() < 1)
+        phish_return_error("Invalid command-line args in phish_init", -1);
+      maxhold = atoi(pop_argument(arguments).c_str());
+      if (maxhold < 0)
         phish_return_error("Invalid command-line args in phish_init", -1);
 
     } else if(argument == "--phish-safe") {
@@ -216,13 +227,6 @@ int phish_init(int *argc, char ***argv)
         phish_return_error("Invalid command-line args in phish_init", -1);
       safe = atoi(pop_argument(arguments).c_str());
       if (safe < 0)
-        phish_return_error("Invalid command-line args in phish_init", -1);
-
-    } else if(argument == "--phish-self") {
-      if (arguments.size() < 1)
-        phish_return_error("Invalid command-line args in phish_init", -1);
-      selfnum = atoi(pop_argument(arguments).c_str());
-      if (selfnum < 0)
         phish_return_error("Invalid command-line args in phish_init", -1);
 
     } else if (argument == "--phish-in") {
@@ -400,7 +404,7 @@ int phish_init(int *argc, char ***argv)
 
   // check if possibly send message to self
 
-  self = 0;
+  selfflag = 0;
   for (int iport = 0; iport < MAXPORT; iport++) {
     if (outports[iport].status == UNUSED_PORT) continue;
     for (int iconnect = 0; iconnect < outports[iport].nconnect; iconnect++) {
@@ -408,13 +412,14 @@ int phish_init(int *argc, char ***argv)
       switch (oc->style) {
       case SINGLE:
       case PAIRED:
-        if (me == oc->recvone) self = 1;
+        if (me == oc->recvone) selfflag = 1;
         break;
       case HASHED:
       case ROUNDROBIN:
       case DIRECT:
       case BCAST:
-        if (me >= oc->recvfirst && me < oc->recvfirst + oc->nrecv) self = 1;
+        if (me >= oc->recvfirst && me < oc->recvfirst + oc->nrecv)
+          selfflag = 1;
         break;
       default:
         break;
@@ -435,21 +440,25 @@ int phish_init(int *argc, char ***argv)
   g_host = std::string(host_buffer,length);
 
   // memory allocation/initialization for datum buffers
-  // if self, attach buffer to MPI for sending to self
 
-  maxbuf = memchunk * KBYTE;
-  sbuf = (char *) malloc(maxbuf*sizeof(char));
-  rbuf = (char *) malloc(maxbuf*sizeof(char));
-  if (!sbuf || !rbuf) phish_return_error("Malloc of datum buffers failed", -1);
+  sbufone = (char *) malloc(maxdatum*sizeof(char));
+  rbufone = (char *) malloc(maxdatum*sizeof(char));
+  if (!sbufone || !rbufone)
+    phish_return_error("Malloc of datum buffers failed", -1);
 
-  if (self) {
-    int n = selfnum * (maxbuf*KBYTE + SELFOVERHEAD);
-    selfbuf = (char *) malloc(n*sizeof(char));
-    MPI_Buffer_attach(selfbuf,n);
-  } else selfbuf = NULL;
+  nself = 0;
+  selflo = selfhi = 0;
+  self = new Message[maxself];
+  for (int i = 0; i < maxself; i++) self[i].datum = NULL;
 
-  // set send buffer ptr for initial datum
+  nhold = 0;
+  hold = new Message[maxhold];
+  for (int i = 0; i < maxhold; i++) hold[i].datum = NULL;
 
+  // sbuf points permanently to sbufone
+  
+  lastport = -1;
+  sbuf = sbufone;
   sptr = sbuf + sizeof(int32_t);
   npack = 0;
 
@@ -477,20 +486,16 @@ int phish_exit()
 
   for (int i = 0; i < MAXPORT; i++) phish_close(i);
 
-  // free PHISH memory, including self buffer attached to MPI
+  // free PHISH memory
 
-  free(sbuf);
-  free(rbuf);
-
-  if (self) {
-    char *tmpbuf;
-    int tmpsize;
-    MPI_Buffer_detach(&tmpbuf,&tmpsize);
-    free(selfbuf);
-  }
-
-  for (int i = 0; i < nqueue; i++) delete [] queue[i].datum;
-  free(queue);
+  free(sbufone);
+  free(rbufone);
+  for (int i = 0; i < maxself; i++)
+    if (self[i].datum) free(self[i].datum);
+  delete [] self;
+  for (int i = 0; i < maxhold; i++)
+    if (hold[i].datum) free(hold[i].datum);
+  delete [] hold;
 
   deallocate_ports();
 
@@ -613,9 +618,10 @@ int phish_close(int iport)
     case SINGLE:
     case PAIRED:
     case RING:
-      if (self && me == oc->recvone)
-	MPI_Bsend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
-      else if (safe && g_sent_count % safe == 0) 
+      if (selfflag && me == oc->recvone) {
+        nsbytes = 0;
+        send_self(tag);
+      } else if (safe && g_sent_count % safe == 0) 
 	MPI_Ssend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
       else MPI_Send(NULL,0,MPI_BYTE,oc->recvone,tag,world);
       break;
@@ -625,18 +631,20 @@ int phish_close(int iport)
     case DIRECT:
     case BCAST:
       for (int i = 0; i < oc->nrecv; i++)
-        if (self && me == oc->recvfirst+i)
-          MPI_Bsend(NULL,0,MPI_BYTE,oc->recvfirst+i,tag,world);
-        else if (safe && g_sent_count % safe == 0)
+        if (selfflag && me == oc->recvfirst+i) {
+          nsbytes = 0;
+          send_self(tag);
+        } else if (safe && g_sent_count % safe == 0)
 	  MPI_Ssend(NULL,0,MPI_BYTE,oc->recvfirst+i,tag,world);
         else MPI_Send(NULL,0,MPI_BYTE,oc->recvfirst+i,tag,world);
       break;
 
     case CHAIN:
       if (oc->nrecv) {
-	if (self && me == oc->recvone) 
-	  MPI_Bsend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
-	else if (safe && g_sent_count % safe == 0) 
+	if (selfflag && me == oc->recvone) {
+          nsbytes = 0;
+          send_self(tag);
+        } else if (safe && g_sent_count % safe == 0) 
 	  MPI_Ssend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
 	else MPI_Send(NULL,0,MPI_BYTE,oc->recvone,tag,world);
       }
@@ -663,9 +671,22 @@ int phish_loop()
   MPI_Status status;
 
   while (1) {
-    MPI_Recv(rbuf,maxbuf,MPI_BYTE,MPI_ANY_SOURCE,MPI_ANY_TAG,world,&status);
+    if (nself) {
+      rbuf = self[selflo].datum;
+      iport = self[selflo].iport;
+      nrbytes = self[selflo].nbytes;
+      selflo++;
+      if (selflo == maxself) selflo = 0;
+      if (selflo == selfhi) selflo = selfhi = 0;
+      nself--;
+    } else {
+      MPI_Recv(rbufone,maxdatum,MPI_BYTE,MPI_ANY_SOURCE,MPI_ANY_TAG,
+               world,&status);
+      rbuf = rbufone;
+      iport = status.MPI_TAG;
+      MPI_Get_count(&status,MPI_BYTE,&nrbytes);
+    }
 
-    iport = status.MPI_TAG;
     if (iport >= MAXPORT) {
       iport -= MAXPORT;
       doneflag = 1;
@@ -691,7 +712,6 @@ int phish_loop()
     } else {
       g_received_count++;
       if (ip->datumfunc) {
-	MPI_Get_count(&status,MPI_BYTE,&nrbytes);
 	nrfields = (int) (*(int32_t *) rbuf);
 	rptr = rbuf + sizeof(int32_t);
 	nunpack = 0;
@@ -720,42 +740,58 @@ int phish_probe(void (*probefunc)())
   MPI_Status status;
 
   while (1) {
-    MPI_Iprobe(MPI_ANY_SOURCE,MPI_ANY_TAG,world,&flag,&status);
+    flag = 0;
+    if (nself) {
+      flag = 1;
+      rbuf = self[selflo].datum;
+      iport = self[selflo].iport;
+      nrbytes = self[selflo].nbytes;
+      selflo++;
+      if (selflo == maxself) selflo = 0;
+      if (selflo == selfhi) selflo = selfhi = 0;
+      nself--;
+    } else {
+      MPI_Iprobe(MPI_ANY_SOURCE,MPI_ANY_TAG,world,&flag,&status);
+      if (flag) {
+        MPI_Recv(rbufone,maxdatum,MPI_BYTE,MPI_ANY_SOURCE,MPI_ANY_TAG,
+                 world,&status);
+        rbuf = rbufone;
+        iport = status.MPI_TAG;
+        MPI_Get_count(&status,MPI_BYTE,&nrbytes);
+      }
+    }
+
     if (flag) {
-      MPI_Recv(rbuf,maxbuf,MPI_BYTE,MPI_ANY_SOURCE,MPI_ANY_TAG,world,&status);
-
-      iport = status.MPI_TAG;
       if (iport >= MAXPORT) {
-	iport -= MAXPORT;
-	doneflag = 1;
+        iport -= MAXPORT;
+        doneflag = 1;
       } else doneflag = 0;
-
+        
       InputPort *ip = &inports[iport];
       if (ip->status != OPEN_PORT)
-	phish_return_error("Received datum on closed or unused port", -1);
+        phish_return_error("Received datum on closed or unused port", -1);
       lastport = iport;
-
+      
       if (doneflag) {
-	ip->donecount++;
-	if (ip->donecount == ip->donemax) {
-	  ip->status = CLOSED_PORT;
-	  if (ip->donefunc) (*ip->donefunc)();
-	  donecount++;
-	  if (donecount == ninports) {
-	    if (g_all_input_ports_closed) (*g_all_input_ports_closed)();
-	    return 0;
-	  }
-	}
-
+        ip->donecount++;
+        if (ip->donecount == ip->donemax) {
+          ip->status = CLOSED_PORT;
+          if (ip->donefunc) (*ip->donefunc)();
+          donecount++;
+          if (donecount == ninports) {
+            if (g_all_input_ports_closed) (*g_all_input_ports_closed)();
+            return 0;
+          }
+        }
+        
       } else {
-	g_received_count++;
-	if (ip->datumfunc) {
-	  MPI_Get_count(&status,MPI_BYTE,&nrbytes);
-	  nrfields = (int) (*(int *) rbuf);
-	  rptr = rbuf + sizeof(int32_t);
-	  nunpack = 0;
-	  (*ip->datumfunc)(nrfields);
-	}
+        g_received_count++;
+        if (ip->datumfunc) {
+          nrfields = (int) (*(int *) rbuf);
+          rptr = rbuf + sizeof(int32_t);
+          nunpack = 0;
+          (*ip->datumfunc)(nrfields);
+        }
       }
     } else (*probefunc)();
   }
@@ -777,16 +813,32 @@ int phish_recv()
 {
   phish_assert_checked();
 
-  int flag;
+  int flag,iport,doneflag;
   MPI_Status status;
 
-  MPI_Iprobe(MPI_ANY_SOURCE,MPI_ANY_TAG,world,&flag,&status);
+  flag = 0;
+  if (nself) {
+    flag = 1;
+    rbuf = self[selflo].datum;
+    iport = self[selflo].iport;
+    nrbytes = self[selflo].nbytes;
+    selflo++;
+    if (selflo == maxself) selflo = 0;
+    if (selflo == selfhi) selflo = selfhi = 0;
+    nself--;
+  } else {
+    MPI_Iprobe(MPI_ANY_SOURCE,MPI_ANY_TAG,world,&flag,&status);
+    if (flag) {
+      MPI_Recv(rbufone,maxdatum,MPI_BYTE,MPI_ANY_SOURCE,MPI_ANY_TAG,
+               world,&status);
+      rbuf = rbufone;
+      iport = status.MPI_TAG;
+      MPI_Get_count(&status,MPI_BYTE,&nrbytes);
+    }
+  }
+
   if (!flag) return 0;
 
-  MPI_Recv(rbuf,maxbuf,MPI_BYTE,MPI_ANY_SOURCE,MPI_ANY_TAG,world,&status);
-
-  int doneflag;
-  int iport = status.MPI_TAG;
   if (iport >= MAXPORT) {
     iport -= MAXPORT;
     doneflag = 1;
@@ -810,7 +862,6 @@ int phish_recv()
   }
 
   g_received_count++;
-  MPI_Get_count(&status,MPI_BYTE,&nrbytes);
   nrfields = (int) (*(int *) rbuf);
   rptr = rbuf + sizeof(int32_t);
   nunpack = 0;
@@ -893,8 +944,7 @@ void phish_send_key(int iport, char *key, int keybytes)
       {
 	int tag = oc->recvport;
 	int offset = hashlittle(key,keybytes,oc->nrecv) % oc->nrecv;
-        if (self && me == oc->recvfirst+offset)
-          MPI_Bsend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+offset,tag,world);
+        if (selfflag && me == oc->recvfirst+offset) send_self(tag);
 	else if (safe && g_sent_count % safe == 0) 
 	  MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+offset,tag,world);
 	else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+offset,tag,world);
@@ -952,8 +1002,7 @@ void phish_send_direct(int iport, int receiver)
 	int tag = oc->recvport;
 	if (receiver < 0 || receiver >= oc->nrecv)
 	  phish_error("Invalid receiver for phish_send_direct");
-	if (self && me == oc->recvfirst+receiver)
-	  MPI_Bsend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+receiver,tag,world);
+	if (selfflag && me == oc->recvfirst+receiver) send_self(tag);
 	else if (safe && g_sent_count % safe == 0)
 	  MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+receiver,tag,world);
 	else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+receiver,tag,world);
@@ -986,16 +1035,14 @@ void send(OutConnect *oc)
   case SINGLE:
   case PAIRED:
   case RING:
-    if (self && me == oc->recvone) 
-      MPI_Bsend(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
+    if (selfflag && me == oc->recvone) send_self(tag);
     else if (safe && g_sent_count % safe == 0) 
       MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
     else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
     break;
 
   case ROUNDROBIN:
-    if (self && me == oc->recvfirst+oc->offset) 
-      MPI_Bsend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+oc->offset,tag,world);
+    if (selfflag && me == oc->recvfirst+oc->offset) send_self(tag);
     else if (safe && g_sent_count % safe == 0) 
       MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+oc->offset,tag,world);
     else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+oc->offset,tag,world);
@@ -1005,8 +1052,7 @@ void send(OutConnect *oc)
 
   case CHAIN:
     if (oc->nrecv) {
-      if (self && me == oc->recvone)
-	MPI_Bsend(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
+      if (selfflag && me == oc->recvone) send_self(tag);
       else if (safe && g_sent_count % safe == 0)
 	MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
       else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvone,tag,world);
@@ -1015,8 +1061,7 @@ void send(OutConnect *oc)
 
   case BCAST:
     for (int i = 0; i < oc->nrecv; i++)
-      if (self && me == oc->recvfirst+i)
-	MPI_Bsend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+i,tag,world);
+      if (selfflag && me == oc->recvfirst+i) send_self(tag);
       else if (safe && g_sent_count % safe == 0)
 	MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+i,tag,world);
       else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+i,tag,world);
@@ -1034,13 +1079,36 @@ void send(OutConnect *oc)
 }
 
 /* ----------------------------------------------------------------------
+   send datum packed in sbuf to self
+   internal function, NOT a function in the PHISH API
+------------------------------------------------------------------------ */
+
+void send_self(int tag)
+{
+  if (nself == maxself) phish_error("Self limit exceeded");
+
+  if (self[selfhi].datum == NULL) {
+    char *ptr = (char *) malloc(maxdatum*sizeof(char));
+    if (!ptr) phish_error("Malloc of self datum buffer failed");
+    self[selfhi].datum = ptr;
+  }
+
+  memcpy(self[selfhi].datum,sbuf,nsbytes);
+  self[selfhi].nbytes = nsbytes;
+  self[selfhi].iport = tag;
+  selfhi++;
+  if (selfhi == maxself) selfhi = 0;
+  nself++;
+}
+
+/* ----------------------------------------------------------------------
    copy fields of receive buffer into send buffer
 ------------------------------------------------------------------------- */
 
 void phish_repack()
 {
   int nbytes = nrbytes - sizeof(int32_t);
-  if (sptr + nbytes - sbuf > maxbuf) phish_error("Send buffer overflow");
+  if (sptr + nbytes - sbuf > maxdatum) phish_error("Send buffer overflow");
 
   memcpy(sptr,rbuf+sizeof(int32_t),nbytes);
   sptr += nbytes;
@@ -1055,7 +1123,7 @@ void phish_repack()
 template<typename T>
 inline void phish_pack_helper(const T& value, int data_type)
 {
-  if (sptr + sizeof(int32_t) + sizeof(T) - sbuf > maxbuf)
+  if (sptr + sizeof(int32_t) + sizeof(T) - sbuf > maxdatum)
     phish_error("Send buffer overflow");
 
   *(int32_t *) sptr = data_type;
@@ -1069,7 +1137,7 @@ template<typename T>
 inline void phish_pack_array_helper(T *vec, int32_t n, int data_type)
 {
   int nbytes = n*sizeof(T);
-  if (sptr + 2*sizeof(int32_t) + nbytes - sbuf > maxbuf)
+  if (sptr + 2*sizeof(int32_t) + nbytes - sbuf > maxdatum)
     phish_error("Send buffer overflow");
 
   *(int32_t *) sptr = data_type;
@@ -1146,7 +1214,7 @@ void phish_pack_double(double value)
 
 void phish_pack_raw(char *buf, int32_t len)
 {
-  if (sptr + 2*sizeof(int32_t) + len - sbuf > maxbuf)
+  if (sptr + 2*sizeof(int32_t) + len - sbuf > maxdatum)
     phish_error("Send buffer overflow");
 
   *(int32_t *) sptr = PHISH_RAW;
@@ -1161,7 +1229,7 @@ void phish_pack_raw(char *buf, int32_t len)
 void phish_pack_string(char *str)
 {
   int nbytes = strlen(str) + 1;
-  if (sptr + 2*sizeof(int32_t) + nbytes - sbuf > maxbuf)
+  if (sptr + 2*sizeof(int32_t) + nbytes - sbuf > maxdatum)
     phish_error("Send buffer overflow");
 
   *(int32_t *) sptr = PHISH_STRING;
@@ -1225,7 +1293,7 @@ void phish_pack_double_array(double *vec, int32_t n)
 
 void phish_pack_pickle(char *buf, int32_t len)
 {
-  if (sptr + 2*sizeof(int32_t) + len - sbuf > maxbuf)
+  if (sptr + 2*sizeof(int32_t) + len - sbuf > maxdatum)
     phish_error("Send buffer overflow");
 
   *(int32_t *) sptr = PHISH_PICKLE;
@@ -1381,64 +1449,66 @@ int phish_datum(int flag)
 {
   if (flag == 0) return nrfields;
   if (flag == 1) return lastport;
-  phish_error("Invalid flag in phish_datum");
+  phish_return_error("Invalid flag in phish_datum",-1);
   return 0;
 }
 
 /* ----------------------------------------------------------------------
-   add current datum to end of internal queue
-   return count of queued datums
+   add current datum to internal hold queue
+   return count of held datums
 ------------------------------------------------------------------------- */
 
 int phish_queue()
 {
-  if (nqueue == maxqueue) {
-    maxqueue += DELTAQUEUE;
-    queue = (Queue *) realloc(queue,maxqueue*sizeof(Queue));
-    if (!queue) phish_error("Phish_queue ran out of memory");
+  if (nhold == maxhold) phish_return_error("Queue limit exceeded",-1);
+  if (hold[nhold].datum == NULL) {
+    char *ptr = (char *) malloc(maxdatum*sizeof(char));
+    if (!ptr) phish_return_error("Malloc of queue datum buffer failed",-1);
+    hold[nhold].datum = ptr;
   }
 
-  queue[nqueue].datum = new char[nrbytes];
-  if (!queue[nqueue].datum) phish_error("Phish_queue ran out of memory");
-  memcpy(queue[nqueue].datum,rbuf,nrbytes);
-  queue[nqueue].nbytes = nrbytes;
-  queue[nqueue].iport = lastport;
-  nqueue++;
+  memcpy(hold[nhold].datum,rbuf,nrbytes);
+  hold[nhold].nbytes = nrbytes;
+  hold[nhold].iport = lastport;
+  nhold++;
 
-  return nqueue;
+  return nhold;
 }
 
 /* ----------------------------------------------------------------------
-   remove datum N from internal queue
-   copy it to receive buffer, as if just received, compress queue
+   remove datum N from internal hold queue
+   copy it to receive buffer, as if just received, compress hold queue
    return # of values in the datum
 ------------------------------------------------------------------------- */
 
 int phish_dequeue(int n)
 {
-  if (n < 0 || n >= nqueue) phish_error("Invalid index in phish_dequeue");
+  if (n < 0 || n >= nhold)
+    phish_return_error("Invalid index in phish_dequeue",-1);
 
- nrbytes = queue[n].nbytes;
- memcpy(rbuf,queue[n].datum,nrbytes);
- delete [] queue[n].datum;
+ nrbytes = hold[n].nbytes;
+ memcpy(rbufone,hold[n].datum,nrbytes);
+ delete [] hold[n].datum;
+
+ rbuf = rbufone;
  nrfields = (int) (*(int32_t *) rbuf);
  rptr = rbuf + sizeof(int32_t);
  nunpack = 0;
- lastport = queue[n].iport;
+ lastport = hold[n].iport;
 
- memmove(&queue[n],&queue[n+1],(nqueue-n-1)*sizeof(Queue));
- nqueue--;
+ memmove(&hold[n],&hold[n+1],(nhold-n-1)*sizeof(Message));
+ nhold--;
 
  return nrfields;
 }
 
 /* ----------------------------------------------------------------------
-   return count of internally queued datums
+   return count of internally held datums in hold queue
 ------------------------------------------------------------------------- */
 
 int phish_nqueue()
 {
-  return nqueue;
+  return nhold;
 }
 
 /* ----------------------------------------------------------------------

@@ -6,12 +6,17 @@ std::vector<std::string> get_mpiexec_arguments()
   std::vector<std::string> arguments;
 
   std::string memory = "1";
+  std::string self = "8";
+  std::string queue = "8";
   std::string safe = "0";
 
-  if(g_settings.count("memory"))
+  if (g_settings.count("memory"))
     memory = g_settings["memory"];
-
-  if(g_settings.count("safe"))
+  if (g_settings.count("self"))
+    self = g_settings["self"];
+  if (g_settings.count("queue"))
+    queue = g_settings["queue"];
+  if (g_settings.count("safe"))
     safe = g_settings["safe"];
 
   for(std::vector<school>::iterator current = g_schools.begin(); current != g_schools.end(); ++current)
@@ -33,7 +38,10 @@ std::vector<std::string> get_mpiexec_arguments()
 
     arguments.push_back("--phish-memory");
     arguments.push_back(memory);
-
+    arguments.push_back("--phish-self");
+    arguments.push_back(self);
+    arguments.push_back("--phish-queue");
+    arguments.push_back(queue);
     arguments.push_back("--phish-safe");
     arguments.push_back(safe);
 
