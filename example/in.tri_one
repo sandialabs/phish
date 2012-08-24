@@ -1,6 +1,6 @@
 # triangle enumeration on 1 proc via serial algorithm
 
-variable N 40000
+variable N 80000
 variable M 12
 
 minnow 1 rmat $N $M 0.25 0.25 0.25 0.25 0.0 12345 -o hash
