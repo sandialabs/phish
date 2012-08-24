@@ -90,8 +90,8 @@ def neigh_request_close():
   phish.close(4)
 
 # process a neighbor list = (Vi,Vj,Di,Nj) where Nj = neighbor list of Vj
-# Nj is <= than first Di neighbors of Ni, so loop over Nj
-# if value in Nj is in Ni, emit found triangle to port 0
+# Nj is <= than first Di neighbors of Ni, so loop over Nj, not Ni
+# if value in Nj is also in Ni, emit found triangle to port 0
 
 def neighbors(nvalues):
   type,vi,tmp = phish.unpack()
