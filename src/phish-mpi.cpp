@@ -1477,7 +1477,7 @@ int phish_queue()
 
 /* ----------------------------------------------------------------------
    remove datum N from internal hold queue
-   copy it to receive buffer, as if just received, compress hold queue
+   copy it to receive buffer, as if just received
    return # of values in the datum
 ------------------------------------------------------------------------- */
 
@@ -1496,8 +1496,13 @@ int phish_dequeue(int n)
  nunpack = 0;
  lastport = hold[n].iport;
 
+ // compress hold queue via memmove()
+ // must also copy just-used datum ptr to empty slot at end of queue
+ 
+ char *ptr = hold[n].datum;
  memmove(&hold[n],&hold[n+1],(nhold-n-1)*sizeof(Message));
  nhold--;
+ hold[nhold].datum = ptr;
 
  return nrfields;
 }
