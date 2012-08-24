@@ -12,13 +12,15 @@ set command :h3
 
 set keyword value
 
-keyword = {memory} or {safe} or {port} or {pernode} or {numnode} or {bindorder} :ulb,l
+keyword = {memory} or {self} or {queue} or {safe} or {port} or {pernode} or {numnode} or {bindorder} :ulb,l
   {memory} value = N
     N = max size of datum in Kbytes
-  {safe} value = M
-    M = send a datum "safely" every this many sends
   {self} value = S
     S = allow queueing of this many messages to self
+  {queue} value = Q
+    Q = allow queueing of this many previously received messages
+  {safe} value = M
+    M = send a datum "safely" every this many sends
   {pernode} value = Nc
     Nc = # of cores per node to use when binding minnows to processors
   {numnode} value = Nn
@@ -32,9 +34,8 @@ keyword = {memory} or {safe} or {port} or {pernode} or {numnode} or {bindorder} 
 [Examples:]
 
 set memory 1024
-set safe 10
 set self 20
-set 
+set safe 10
 set bindorder 2 :pre
 
 [Description:]
@@ -44,16 +45,43 @@ recognized by the "bait.py"_Bait.html setup program.  It resets
 default values that are used by the bait.py program as it reads and
 processes commands from the PHISH input script.
 
+:line
+
 The {memory} keyword sets the maximum length of datums that are
 exchanged by minnows when a PHISH program runs.  Send and receive
 buffers for datums are allocated by the "PHISH
-library"_Section_library.html.  Only 2 such buffers are allocated, so
-this setting essentially determines the memory footprint of the PHISH
-library.
+library"_Section_library.html.  The {N} setting is in Kbytes, so that
+{N} = 1024 is 1 Mbyte, and {N} = 1048576 is 1 Gbyte.  The default is
+{N} = 1, since typical PHISH minnows send and receive small datums.
 
-The {N} setting is in Kbytes, so that {N} = 1024 is 1 Mbyte, and {N} =
-1048576 is 1 Gbyte.  The default is {N} = 1, since typical PHISH
-minnows send and receive small datums.
+The {self} keyword sets the size of a queue used to buffer datums sent
+by a minnow to itself.  In most PHISH input scripts this never
+happens, but it is allowed.  Since messages to self are received with
+the highest priority by PHISH library functions such as phish_loop()
+and phish_probe() that receive messages, it is also typical that this
+queue needs to be no larger than $S$ = 1 message, since $S refers to
+the maximum number of outstanding (sent, but not yet received)
+messages.  But it can be set larger if a minnow may several sends (to
+itself) before receiving a new message.
+
+The {queue} keyword sets the size of a queue used to buffer previously
+received datums when a minnow uses the phish_queue() and
+phish_dequeue() library calls, so that it can process a received datum
+later, after receiving other datums.  The $Q$ setting determines the
+maximum number of datums that can be queued at one time in this
+manner.
+
+These 3 settings determine how much memory PHISH allocates.  There are
+always 2 buffers of size {memory} = $N$, one for sending, one for
+receiving.  There are at most {self} = $S$ buffers, each of size $N$,
+allocated for self messages, and likewise at most {queue} = $Q$
+buffers, each of size $N$, allocated for queued messages.  These
+buffers for self and queued messages are only allocated if they are
+needed as the PHISH script runs and messages are processed. Thus the
+overall memory footprint of the PHISH library is typically tiny,
+unless you set these parameters to large values.
+
+:line
 
 The {safe} keyword is only relevant for the MPI version of the PHISH
 library.  It causes the library to use a "safe" MPI_Ssend() call every
@@ -114,5 +142,6 @@ Any setting can be made in a PHISH input script or via the {--set} or
 
 [Default:]
 
-The default settings are memory = 1 (1 Kbyte), safe = 0, self = 10,
-pernode = 1, numnode = # of minnows / pernode, and bindorder = 0.
+The default settings are memory = 1 (1 Kbyte), self = 8, queue = 8,
+safe = 0, pernode = 1, numnode = # of minnows / pernode, and bindorder
+= 0.
