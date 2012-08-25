@@ -1,6 +1,15 @@
-# SGI enumeration
+# SGI enumeration test
+# one RMAT minnow, P sgi minnows, 1 sgi_stats minnow
+# generate N edges from RMAT matrix of order M
+# assign vertex labels from 1 to V and edge labels from 1 to E
 
-minnow 1 rmat 1000 8 0.25 0.25 0.25 0.25 0.0 12345 -o double -v 1 -e 1
+variable P 1
+variable N 1000
+variable M 8
+variable V 1
+variable E 1
+
+minnow 1 rmat $N $M 0.25 0.25 0.25 0.25 0.0 12345 -o hash -v $V -e $E
 minnow 2 sgi sgi.path1
 minnow 3 sgi_stats -f tmp.sgi
 
@@ -11,5 +20,5 @@ hook 2:3 bcast 2:3
 hook 2 single 3
 
 school 1 1
-school 2 4
+school 2 $P
 school 3 1

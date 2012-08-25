@@ -1,10 +1,10 @@
 # triangle enumeration test
-# one RMAT minnow to P tri minnows to 1 tri_stats minnow
+# one RMAT minnow, P tri minnows, 1 tri_stats minnow
 # generate N edges from RMAT matrix of order M
 
 variable P 1
-variable N 80000
-variable M 12
+variable N 1000
+variable M 8
 
 minnow 1 rmat $N $M 0.25 0.25 0.25 0.25 0.0 12345 -o hash
 minnow 2 tri
