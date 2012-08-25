@@ -18,6 +18,8 @@ def count(nvalues):
     
 def done():
   print "Triangle count %d out of %d" % (n,ndup)
+
+# main program
   
 args = phish.init(sys.argv)
 phish.input(0,count,done,1)

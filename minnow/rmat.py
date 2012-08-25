@@ -1,30 +1,13 @@
 # MINNOW rmat
 # emit edges from an RMAT matrix
-# if V,E specified, vertex labels will be from 1 to V inclusive,
-#                   edge labels will be from 1 to E inclusive
+# if V,E specified, vertex labels will be random from 1 to V inclusive,
+#                   edge labels will be random from 1 to E inclusive
 
 import sys,random
 import phish
 
 def error():
   phish.error("Rmat syntax: rmat N M a b c d fraction seed -o mode -v V -e E")
-
-# Park/Miller RNG, called with explicit seed each time
-# so labels assigned to vertices and edges will be consistent
-
-IA = 16807
-IM = 2147483647
-AM = 1.0/IM
-IQ = 127773
-IR = 2836
-
-def parkRNG(seed):
-  seed = seed & IM
-  k = int(seed/IQ)
-  seed = IA*(seed-k*IQ) - IR*k
-  if seed < 0: seed += IM
-  ans = AM*seed
-  return ans
 
 # main program
 
@@ -114,23 +97,25 @@ for m in xrange(ngenerate):
       c1 /= total
       d1 /= total
 
-  #if m == 0:
-  #  i = 1; j = 2
-  #elif m == 1:
-  #  i = 1; j = 3
-  #elif m == 2:
-  #  i = 2; j = 3
-    
   phish.pack_uint64(i)
   phish.pack_uint64(j)
+
+  # use internal __hash__() method to generate random labels
+  # require label of a vertex or edge always be consistent
   
   if vlabel:
-    ilabel = int(vlabel*parkRNG(i)) + 1
-    jlabel = int(vlabel*parkRNG(j)) + 1
+    sum = 0
+    for digit in tuple(str(str(i).__hash__())[1:]): sum += int(digit)
+    ilabel = (sum % vlabel) + 1
+    sum = 0
+    for digit in tuple(str(str(j).__hash__())[1:]): sum += int(digit)
+    jlabel = (sum % vlabel) + 1
     phish.pack_uint64(ilabel)
     phish.pack_uint64(jlabel)
   if elabel:
-    ijlabel = int(elabel*parkRNG(i+j)) + 1
+    sum = 0
+    for digit in tuple(str(str(i+j).__hash__())[1:]): sum += int(digit)
+    ijlabel = (sum % vlabel) + 1
     phish.pack_uint64(ijlabel)
 
   if mode == 0: phish.send(0)
@@ -144,5 +129,5 @@ for m in xrange(ngenerate):
         phish.pack_uint64(ilabel)
       if elabel: phish.pack_uint64(ijlabel)
       phish.send_key(0,long(j))
-    
+
 phish.exit()

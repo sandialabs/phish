@@ -1,20 +1,46 @@
 import sys
 import phish
 
-def error():
-  phish.error("Sgi_one syntax: sgi_one -v ID label ... -e V1 V2 label ...")
-
 # data structures:
-# verts = dict of (Vi : Li) for sub-graph
-# edges = list of (Vi,Vj,Li,Lj,Lij) for sub-graph
-# path = list of (Li,Fi,Lij,Lj,Fj) = walk thru sub-graph
-# hash = (Vi: Li, [Vj,...], [Lj,...], [Lij,...]) =
-#        edges in full graph, doubly stored
-  
+# paths = list of [(Li,Fi),Lij,(Lj,Fj), ... ,(Ln,Fn)]
+#         each entry is path thru sub-graph starting at different edge
+# graph = {Vi: (Li, [Vj,...], [Lj,...], [Lij,...])} =
+#         graph edges, doubly stored, with labels on verts and edges
+
+def readpaths(file):
+  txt = open(file,"r").readlines()
+  paths = []
+  for line in txt:
+    words = line.split()
+    path = []
+    vflag = 1
+    for word in words:
+      if vflag == 0:
+        if word[0] == '(' or word[-1] == ')':
+          print "Syntax error in SGI path file"
+          sys.exit()
+        elabel = int(word)
+        vflag = 1
+        path.append(elabel) 
+      elif vflag == 1:
+        if word[0] != '(':
+          print "Syntax error in SGI path file"
+          sys.exit()
+        vlabel = int(word[1:])
+        vflag = 2
+      elif vflag == 2:
+        if word[-1] != ')':
+          print "Syntax error in SGI path file"
+          sys.exit()
+        vconstraint = int(word[:-1]) - 1
+        vflag = 0
+        path.append((vlabel,vconstraint))
+    paths.append(path)
+    return paths
+
 # process an edge = (Vi,Vj,Li,Lj,Lij)
 # ignore self edges and duplicate edges
-# store edge with Vi
-# same edge will also be sent to Vj
+# store edge with Vi and Vj
 
 def edge(nvalues):
   type,Vi,tmp = phish.unpack()
@@ -23,24 +49,30 @@ def edge(nvalues):
   type,Lj,tmp = phish.unpack()
   type,Lij,tmp = phish.unpack()
   if Vi == Vj: return
-  if Vi in hash and Vj in hash[Vi][1]: return
-  if Vi not in hash: hash[Vi] = [Li,[Vj],[Lj],[Lij]]
+  if Vi in graph and Vj in graph[Vi][1]: return
+  if Vi not in graph: graph[Vi] = [Li,[Vj],[Lj],[Lij]]
   else:
-    hash[Vi][1].append(Vj)
-    hash[Vi][2].append(Lj)
-    hash[Vi][3].append(Lij)
+    graph[Vi][1].append(Vj)
+    graph[Vi][2].append(Lj)
+    graph[Vi][3].append(Lij)
+  if Vj not in graph: graph[Vj] = [Lj,[Vi],[Li],[Lij]]
+  else:
+    graph[Vj][1].append(Vi)
+    graph[Vj][2].append(Li)
+    graph[Vj][3].append(Lij)
 
 # extend walk by one vertex if matches next stage of path
 # call recursively until walk is complete
 
-def extend(walk):
+def extend(which,walk):
   global nextend
   nextend += 1
-  p = path[len(walk)-1]
-  pLij = p[2]
-  pLj = p[3]
-  pFj = p[4]
-  list = hash[walk[-1]]
+  n = len(walk)
+  path = paths[which]
+  pLij = path[2*n-1]
+  pLj = path[2*n][0]
+  pFj = path[2*n][1]
+  list = graph[walk[-1]]
   nedge = len(list[1])
   for i in xrange(nedge):
     Vj = list[1][i]
@@ -50,20 +82,30 @@ def extend(walk):
     if pFj < 0 and Vj in walk: continue
     if pFj >= 0 and Vj != walk[pFj]: continue
     walk.append(Vj)
-    if len(walk) <= len(path): extend(walk)
+    if len(walk) <= len(path)/2: extend(which,walk)
     else:
       phish.pack_uint64_array(walk)
       phish.send(0)
     walk.pop()
 
 # process list of graph edges to find SGI matches
-# if any vertex matches 1st vertex in path, initiate a walk with [Vi]
+# loop over vertices and all its edges
+# check if edge matches first edge of any path in paths
+# only check in one direction, since Vj will check in other direction
+# if edge is symmetric, avoid matching twice by only matching if Vi < Vj
+# for each match, initiate a walk by calling extend with (pathID,[Vi Vj])
     
 def find():
-  p = path[0]
-  for Vi,value in hash.items():
-    if value[0] == p[0]: extend([Vi])
-  
+  for Vi,value in graph.items():
+    Li = value[0]
+    for j,Vj in enumerate(value[1]):
+      Lj = value[2][j]
+      Lij = value[3][j]
+      for which,path in enumerate(paths):
+        if Li == path[0][0] and Lij == path[1] and Lj == path[2][0]:
+          if Li == Lj and Vi > Vj: continue
+          extend(which,[Vi,Vj])
+
 # main program
 
 args = phish.init(sys.argv)
@@ -73,45 +115,12 @@ phish.check()
 
 # read sub-graph definition
 
-if len(args) < 2: error()
+if len(args) != 2: phish.error("Sgi_one syntax: sgi_one pathfile")
+paths = readpaths(args[1])
 
-verts = {}
-edges = []
-path = []
+# receive graph, then find SGI matches
 
-iarg = 1
-while iarg < len(args):
-  if args[iarg] == "-v":
-    if iarg+3 > len(args): error()
-    Vi = int(args[iarg+1])
-    Li = int(args[iarg+2])
-    if Vi in verts: error()
-    if Li < 0: error()
-    verts[Vi] = Li
-    iarg += 3
-  elif args[iarg] == "-e":
-    if iarg+4 > len(args): error()
-    Vi = int(args[iarg+1])
-    Vj = int(args[iarg+2])
-    Lij = int(args[iarg+3])
-    if Vi not in verts or Vj not in verts: error()
-    if Lij < 0: error()
-    edges.append((Vi,Vj,verts[Vi],verts[Vj],Lij))
-    iarg += 4
-  elif args[iarg] == "-p":
-    if iarg+6 > len(args): error()
-    Li = int(args[iarg+1])
-    Fi = int(args[iarg+2])
-    Lij = int(args[iarg+3])
-    Lj = int(args[iarg+4])
-    Fj = int(args[iarg+5])
-    path.append((Li,Fi,Lij,Lj,Fj))
-    iarg += 6
-  else: error()
-
-# convert sub-graph to path, starting from first edge
-
-hash = {}
+graph = {}
 nextend = 0
 
 time_start = phish.timer()

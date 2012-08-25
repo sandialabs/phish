@@ -3,27 +3,27 @@ import phish
 
 # process an edge = (Vi,Vj)
 # ignore self edges and duplicate edges
-# store edge with both vertices
+# store edge with Vi and Vj
 
 def edge(nvalues):
   type,vi,tmp = phish.unpack()
   type,vj,tmp = phish.unpack()
   if vi == vj: return
-  if vi in hash and vj in hash[vi]: return
-  if vi not in hash: hash[vi] = [vj]
-  else: hash[vi].append(vj)
-  if vj not in hash: hash[vj] = [vi]
-  else: hash[vj].append(vi)
+  if vi in graph and vj in graph[vi]: return
+  if vi not in graph: graph[vi] = [vj]
+  else: graph[vi].append(vj)
+  if vj not in graph: graph[vj] = [vi]
+  else: graph[vj].append(vi)
   
-# process double edge list to find triangles
+# process graph to find triangles
 # double loop over edges of each vertex = vj,vk
 # look for wedge-closing vj,vk edges
 # only emit triangle if vi is smallest vertex to avoid duplicates
 
 def find():
-  for vi,list in hash.items():
+  for vi,list in graph.items():
     for j,vj in enumerate(list):
-      vjlist = hash[vj]
+      vjlist = graph[vj]
       for vk in list[:j]:
         if vk in vjlist:
           if vi > vj or vi > vk: continue
@@ -43,7 +43,7 @@ if len(args) != 1: phish.error("Tri_one syntax: tri_one")
 if phish.query("nlocal",0,0) != 1:
   phish.error("Can only be a single tri_one minnow")
 
-hash = {}
+graph = {}
 
 time_start = phish.timer()
 

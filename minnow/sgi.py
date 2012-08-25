@@ -32,9 +32,9 @@ def readpaths(file):
         if word[-1] != ')':
           print "Syntax error in SGI path file"
           sys.exit()
-        vflag = int(word[:-1])
+        vconstraint = int(word[:-1]) - 1
         vflag = 0
-        path.append((vlabel,vflag))
+        path.append((vlabel,vconstraint))
     paths.append(path)
     return paths
   
@@ -70,10 +70,11 @@ def edge_close():
 # process 2nd copy of edge = (Vi,Vj,Li,Lj,Lij)
 # sent by another triangle minnow in edge() to owner of Vi
 # store edge unless duplicate
-# check if either vertex in edge matches 1st vertex of any path in paths
-# for symmetric edge, only match a particular path once
-# for each match, initiate a walk by sending (walkID,[V])
-#   to owner of V on port 2, sending to self if V = Vi
+# check if edge matches first edge of any path in paths
+# for symmetric edge, only match a specific path once
+# for asymmetric edge, can match in either direction
+# for each match, initiate a walk by sending (pathID,[V1 V2])
+#   to owner of V2 on port 2, sending to self if V2 = Vi
 
 def edge_again(nvalues):
   type,Vi,tmp = phish.unpack()
@@ -122,9 +123,7 @@ def extend(nvalues):
   pLij = path[2*n-1]
   pLj = path[2*n][0]
   pFj = path[2*n][1]
-  if walk[-1] not in graph:
-    #print "NOT FOUND",walk[1], walk
-    return
+  if walk[-1] not in graph: return
   list = graph[walk[-1]]
   nedge = len(list[1])
   for i in xrange(nedge):
@@ -138,7 +137,7 @@ def extend(nvalues):
     if len(walk) <= len(path)/2:
       phish.pack_int32(which)
       phish.pack_uint64_array(walk)
-      phish.send_key(1,Vj)
+      phish.send_key(2,Vj)
     else:
       phish.pack_uint64_array(walk)
       phish.send(0)
@@ -181,7 +180,7 @@ phish.check()
 
 # read sub-graph definition
 
-if len(args) != 2: phish.error("SGI syntax: sgi pathfile")
+if len(args) != 2: phish.error("Sgi syntax: sgi pathfile")
 paths = readpaths(args[1])
 
 # values used by complete() to track completion of path stages
