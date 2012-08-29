@@ -22,7 +22,9 @@ MPI_LIB =
 # INC = path for zmq.h, other compiler settings
 
 ZMQ_INC =	-I/ascldap/users/tshead/install/zmq/include
-ZMQ_LIB =	/ascldap/users/tshead/install/zmq/lib/libzmq.so
+ZMQ_PATH =	-L/ascldap/users/tshead/install/zmq/lib
+ZMQ_LIB =	-lzmq
+#ZMQ_LIB =	/ascldap/users/tshead/install/zmq/lib/libzmq.so
 
 # ---------------------------------------------------------------------
 # targets = 3 versions of PHISH library: mpi, mpizmq, zmq
@@ -58,7 +60,7 @@ zmq:
 	$(CC) $(CCFLAGS) $(ZMQ_INC) -c phish-zmq.cpp
 	$(CC) $(CCFLAGS) -c phish-common.cpp
 	$(CC) $(CCFLAGS) -c hash.cpp
-	$(CC) $(LIBFLAGS) -o $(LIB_PZ) phish-zmq.o phish-common.o hash.o \
+	$(CC) $(LIBFLAGS) $(ZMQ_PATH) -o $(LIB_PZ) phish-zmq.o phish-common.o hash.o \
         $(ZMQ_LIB)
 
 baitmpi:	
