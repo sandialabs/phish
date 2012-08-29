@@ -6,9 +6,13 @@ SHELL = /bin/sh
 # compiler/linker settings
 # specify flags and libraries needed for your compiler
 
-CC =		mpic++
-CCFLAGS =	-O2 -xsse4.2 -funroll-loops -fstrict-aliasing -I../src
-LINK =		mpic++
+#CC =		mpic++
+#CCFLAGS =	-O2 -xsse4.2 -funroll-loops -fstrict-aliasing -I../src
+#LINK =		mpic++
+
+CC =		g++
+CCFLAGS =	-O2 -I../src
+LINK =		g++
 LINKFLAGS =	-O
 LIB =		-rdynamic ../src/libphish-zmq.so /ascldap/users/tshead/install/zmq/lib/libzmq.so
 LIB_RPATH =     -Wl,-rpath,/ascldap/users/tshead/build/phish/src:/ascldap/users/tshead/install/zmq/lib
