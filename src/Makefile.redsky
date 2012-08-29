@@ -81,7 +81,7 @@ baitzmq:
 	$(CC) $(CCFLAGS) $(ZMQ_INC) -c phish-bait-zmq.cpp
 	$(CC) $(CCFLAGS) -c phish-bait-common.cpp
 	$(CC) $(LIBFLAGS) -o $(LIB_BZ) \
-        phish-bait-zmq.o phish-bait-common.o $(ZMQ_LIB) 
+        phish-bait-zmq.o phish-bait-common.o $(ZMQ_LIB) $(ZMQ_RPATH)
 
 baitgraph:	
 	$(CC) $(CCFLAGS) -c phish-bait-graphviz.cpp

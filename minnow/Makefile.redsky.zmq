@@ -10,12 +10,12 @@ SHELL = /bin/sh
 #CCFLAGS =	-O2 -xsse4.2 -funroll-loops -fstrict-aliasing -I../src
 #LINK =		mpic++
 
-CC =		g++
+CC =		c++
 CCFLAGS =	-O2 -I../src
-LINK =		g++
+LINK =		c++
 LINKFLAGS =	-O
-LIB =		-rdynamic ../src/libphish-zmq.so /ascldap/users/tshead/install/zmq/lib/libzmq.so
-LIB_RPATH =     -Wl,-rpath,/ascldap/users/tshead/build/phish/src:/ascldap/users/tshead/install/zmq/lib
+LIB =		-rdynamic /ascldap/users/tshead/src/phish/src/libphish-zmq.so /ascldap/users/tshead/install/zmq/lib/libzmq.so
+LIB_RPATH =     -Wl,-rpath,/ascldap/users/tshead/src/phish/src:/ascldap/users/tshead/install/zmq/lib
 
 # ---------------------------------------------------------------------
 # build rules and dependencies
