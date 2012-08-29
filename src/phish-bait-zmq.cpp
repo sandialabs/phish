@@ -8,6 +8,9 @@
 #include <map>
 #include <stdexcept>
 
+#include <sys/types.h>
+#include <sys/wait.h>
+
 struct zmq_minnow
 {
   std::string control_port_internal;
