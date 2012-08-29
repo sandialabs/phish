@@ -29,12 +29,13 @@ hostnames = commands.getoutput("scontrol show hostnames").split()
 
 safe = 10000       # applied to chain and hash
 
-mincpu = 30.0      # minimum CPU seconds
+mincpu = 1.0      # minimum CPU seconds
 miniter = 100000   # minimum iterations
 increase = 2       # increase iterations by this factor every time
 repeat = 2         # repeat final run that exceeds mincpu this many times
 
-ppsizes = [0,64,256,1024,4096,16384]
+#ppsizes = [0,64,256,1024,4096,16384]
+ppsizes = [0,64]
 
 chainprocs = [2,4,8,16,32,64,128,256]
 chainsizes = [0,64,256,1024,4096,16384]

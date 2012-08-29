@@ -22,9 +22,7 @@ MPI_LIB =
 # INC = path for zmq.h, other compiler settings
 
 ZMQ_INC =	-I/ascldap/users/tshead/install/zmq/include
-ZMQ_PATH =	-L/ascldap/users/tshead/install/zmq/lib
-ZMQ_LIB =	-lzmq
-#ZMQ_LIB =	/ascldap/users/tshead/install/zmq/lib/libzmq.so
+ZMQ_LIB =	/ascldap/users/tshead/install/zmq/lib/libzmq.so
 
 # ---------------------------------------------------------------------
 # targets = 3 versions of PHISH library: mpi, mpizmq, zmq
@@ -46,22 +44,22 @@ mpi:
 	$(CC) $(CCFLAGS) $(MPI_INC) -c phish-mpi.cpp
 	$(CC) $(CCFLAGS) -c phish-common.cpp
 	$(CC) $(CCFLAGS) -c hash.cpp
-	$(CC) $(LIBFLAGS) -o $(LIB_PM) phish-mpi.o phish-common.o hash.o \
-        $(MPI_LIB)
+	$(CC) $(LIBFLAGS) -o $(LIB_PM) \
+        phish-mpi.o phish-common.o hash.o $(MPI_LIB)
 
 mpizmq:	
 	$(CC) $(CCFLAGS) $(MPI_INC) $(ZMQ_INC) -DPHISH_MPI_ZMQ -c phish-mpi.cpp
 	$(CC) $(CCFLAGS) -c phish-common.cpp
 	$(CC) $(CCFLAGS) -c hash.cpp
-	$(CC) $(LIBFLAGS) -o $(LIB_PMZ) phish-mpi.o phish-common.o hash.o \
-        $(MPI_LIB) $(ZMQ_LIB)
+	$(CC) $(LIBFLAGS) -o $(LIB_PMZ) \
+        phish-mpi.o phish-common.o hash.o $(MPI_LIB) $(ZMQ_LIB) 
 
 zmq:
 	$(CC) $(CCFLAGS) $(ZMQ_INC) -c phish-zmq.cpp
 	$(CC) $(CCFLAGS) -c phish-common.cpp
 	$(CC) $(CCFLAGS) -c hash.cpp
-	$(CC) $(LIBFLAGS) $(ZMQ_PATH) -o $(LIB_PZ) phish-zmq.o phish-common.o hash.o \
-        $(ZMQ_LIB)
+	$(CC) $(LIBFLAGS) -o $(LIB_PZ) \
+        phish-zmq.o phish-common.o hash.o $(ZMQ_LIB)
 
 baitmpi:	
 	$(CC) $(CCFLAGS) -c phish-bait-mpi.cpp
@@ -80,7 +78,8 @@ baitmpiconfig:
 baitzmq:	
 	$(CC) $(CCFLAGS) $(ZMQ_INC) -c phish-bait-zmq.cpp
 	$(CC) $(CCFLAGS) -c phish-bait-common.cpp
-	$(CC) $(LIBFLAGS) -o $(LIB_BZ) phish-bait-zmq.o phish-bait-common.o
+	$(CC) $(LIBFLAGS) -o $(LIB_BZ) \
+        phish-bait-zmq.o phish-bait-common.o $(ZMQ_LIB) 
 
 baitgraph:	
 	$(CC) $(CCFLAGS) -c phish-bait-graphviz.cpp
