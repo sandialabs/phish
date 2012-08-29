@@ -368,11 +368,11 @@ int phish_init(int* argc, char*** argv)
     const std::string argument = pop_argument(arguments);
     if(argument == "--phish-backend")
     {
-      const std::string backend = pop_argument(arguments);
-      if(backend != "zmq")
+      g_backend = pop_argument(arguments);
+      if(g_backend != "zmq")
       {
         std::ostringstream message;
-        message << "Incompatible backend: expected zmq, using " << backend << ".";
+        message << "Incompatible backend: expected zmq, using " << g_backend << ".";
         phish_return_error(message.str().c_str(), -1);
       }
     }
@@ -488,6 +488,10 @@ int phish_init(int* argc, char*** argv)
       kept_arguments.push_back(argument);
     }
   }
+
+  // Do some sanity checking on our command-line arguments ...
+  if(g_backend.empty() || g_host.empty() || g_school_id.empty() || !g_control_port)
+    phish_return_error("Missing required phish arguments.  You must use the phish bait system to execute a minnow.", -1);
 
   // Setup send and receive buffers ...
   g_pack_begin = use_datum();

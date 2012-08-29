@@ -181,11 +181,11 @@ int phish_init(int *argc, char ***argv)
   while (arguments.size()) {
     const std::string argument = pop_argument(arguments);
     if (argument == "--phish-backend") {
-      const std::string backend = pop_argument(arguments);
-      if (backend != "mpi") {
+      g_backend = pop_argument(arguments);
+      if (g_backend != "mpi") {
         std::ostringstream message;
         message << "Incompatible backend: expected mpi, using " 
-                << backend << ".";
+                << g_backend << ".";
         phish_return_error(message.str().c_str(),-1);
       }
 

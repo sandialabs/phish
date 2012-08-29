@@ -6,6 +6,7 @@
 #include <sstream>
 #include <sys/time.h>
 
+std::string g_backend = std::string();
 std::string g_host = std::string();
 std::string g_executable = std::string();
 std::string g_school_id = std::string();
