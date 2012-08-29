@@ -1,0 +1,97 @@
+# Makefile for PHISH library: RedSky cluster with mpic++, openmpi, ZMQ
+
+SHELL = /bin/sh
+
+# ---------------------------------------------------------------------
+# compiler settings
+
+#CC =		g++
+CC =		mpic++
+CCFLAGS =	-O2 -fPIC -xsse4.2 -funroll-loops -fstrict-aliasing
+LIBFLAGS =	-shared
+
+# MPI settings
+# only needed to build MPI version of PHISH library
+# INC = path for mpi.h, other compiler settings
+
+MPI_INC =	-DMPICH_IGNORE_CXX_SEEK
+MPI_LIB =       
+
+# ZMQ settings
+# only needed to build ZMQ or MPI+ZMQ version of PHISH library
+# INC = path for zmq.h, other compiler settings
+
+ZMQ_INC =	-I/ascldap/users/tshead/install/zmq/include
+ZMQ_LIB =	/ascldap/users/tshead/install/zmq/lib/libzmq.so
+
+# ---------------------------------------------------------------------
+# targets = 3 versions of PHISH library: mpi, mpizmq, zmq
+# targets = versions of Bait.py backend:
+#  baitmpi, baitmpiconfig, baitnull, baitgraph, zmq
+# no need to edit this section
+
+LIB_PM = libphish-mpi.so
+LIB_PMZ = libphish-mpizmq.so
+LIB_PZ = libphish-zmq.so
+
+LIB_BM = libphish-bait-mpi.so
+LIB_BMC = libphish-bait-mpi-config.so
+LIB_BZ = libphish-bait-zmq.so
+LIB_BG = libphish-bait-graphviz.so
+LIB_BN = libphish-bait-null.so
+
+mpi:	
+	$(CC) $(CCFLAGS) $(MPI_INC) -c phish-mpi.cpp
+	$(CC) $(CCFLAGS) -c phish-common.cpp
+	$(CC) $(CCFLAGS) -c hash.cpp
+	$(CC) $(LIBFLAGS) -o $(LIB_PM) phish-mpi.o phish-common.o hash.o \
+        $(MPI_LIB)
+
+mpizmq:	
+	$(CC) $(CCFLAGS) $(MPI_INC) $(ZMQ_INC) -DPHISH_MPI_ZMQ -c phish-mpi.cpp
+	$(CC) $(CCFLAGS) -c phish-common.cpp
+	$(CC) $(CCFLAGS) -c hash.cpp
+	$(CC) $(LIBFLAGS) -o $(LIB_PMZ) phish-mpi.o phish-common.o hash.o \
+        $(MPI_LIB) $(ZMQ_LIB)
+
+zmq:
+	$(CC) $(CCFLAGS) $(ZMQ_INC) -c phish-zmq.cpp
+	$(CC) $(CCFLAGS) -c phish-common.cpp
+	$(CC) $(CCFLAGS) -c hash.cpp
+	$(CC) $(LIBFLAGS) -o $(LIB_PZ) phish-zmq.o phish-common.o hash.o \
+        $(ZMQ_LIB)
+
+baitmpi:	
+	$(CC) $(CCFLAGS) -c phish-bait-mpi.cpp
+	$(CC) $(CCFLAGS) -c phish-bait-mpi-common.cpp
+	$(CC) $(CCFLAGS) -c phish-bait-common.cpp
+	$(CC) $(LIBFLAGS) -o $(LIB_BM) \
+        phish-bait-mpi.o phish-bait-mpi-common.o phish-bait-common.o
+
+baitmpiconfig:	
+	$(CC) $(CCFLAGS) -c phish-bait-mpi-config.cpp
+	$(CC) $(CCFLAGS) -c phish-bait-mpi-common.cpp
+	$(CC) $(CCFLAGS) -c phish-bait-common.cpp
+	$(CC) $(LIBFLAGS) -o $(LIB_BMC) \
+        phish-bait-mpi-config.o phish-bait-mpi-common.o phish-bait-common.o
+
+baitzmq:	
+	$(CC) $(CCFLAGS) $(ZMQ_INC) -c phish-bait-zmq.cpp
+	$(CC) $(CCFLAGS) -c phish-bait-common.cpp
+	$(CC) $(LIBFLAGS) -o $(LIB_BZ) phish-bait-zmq.o phish-bait-common.o
+
+baitgraph:	
+	$(CC) $(CCFLAGS) -c phish-bait-graphviz.cpp
+	$(CC) $(CCFLAGS) -c phish-bait-common.cpp
+	$(CC) $(LIBFLAGS) -o $(LIB_BG) phish-bait-graphviz.o phish-bait-common.o
+
+baitnull:	
+	$(CC) $(CCFLAGS) -c phish-bait-null.cpp
+	$(CC) $(CCFLAGS) -c phish-bait-common.cpp
+	$(CC) $(LIBFLAGS) -o $(LIB_BN) phish-bait-null.o phish-bait-common.o
+
+# Clean up
+
+clean:
+	@rm -f *.o
+	@rm -f lib*.so
