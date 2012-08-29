@@ -20,7 +20,8 @@ MPI_LIB =	-lmpich -lmpl -lpthread
 # only needed to build ZMQ or MPI+ZMQ version of PHISH library
 # INC = path for zmq.h, other compiler settings
 
-ZMQ_INC =	-I~/zmq
+ZMQ_INC =
+ZMQ_LIB =	-lzmq
 
 # ---------------------------------------------------------------------
 # targets = 3 versions of PHISH library: mpi, mpizmq, zmq
@@ -55,7 +56,8 @@ zmq:
 	$(CC) $(CCFLAGS) $(ZMQ_INC) -c phish-zmq.cpp
 	$(CC) $(CCFLAGS) -c phish-common.cpp
 	$(CC) $(CCFLAGS) -c hash.cpp
-	$(CC) $(LIBFLAGS) -o $(LIB_PZ) phish-zmq.o hash.o
+	$(CC) $(LIBFLAGS) -o $(LIB_PZ) phish-zmq.o phish-common.o hash.o \
+        $(ZMQ_LIB)
 
 baitmpi:	
 	$(CC) $(CCFLAGS) -c phish-bait-mpi.cpp

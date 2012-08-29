@@ -180,10 +180,6 @@ def pp(which):
 def chain(which):
   
   for nprocs in chainprocs:
-
-    # NOTE
-    if which == "pympi": continue
-
     for size in chainsizes:
       kbytes = size2kbytes(size)
 
@@ -239,10 +235,6 @@ def chain(which):
   if not rankfileflag: return
 
   for nprocs in chainprocs:
-
-    # NOTE
-    if which == "pympi": continue
-    
     for size in chainsizes:
       kbytes = size2kbytes(size)
 
@@ -312,10 +304,6 @@ def chain(which):
         output(out + "\n\n")
 
   for nprocs in chainprocs:
-    
-    # NOTE
-    if which == "pympi" and nprocs < 64: continue
-
     for size in chainsizes:
       kbytes = size2kbytes(size)
 
@@ -393,10 +381,6 @@ def chain(which):
 def hash(which):
 
   for nprocs in hashprocs:
-
-    # NOTE
-    if which == "pympi": continue
-
     nprocs1 = nprocs / 2
     nprocs2 = nprocs - nprocs1
     for size in hashsizes:
@@ -457,10 +441,6 @@ def hash(which):
   if not rankfileflag: return
         
   for nprocs in hashprocs:
-
-    # NOTE
-    if which == "pympi": continue
-
     nprocs1 = nprocs / 2
     nprocs2 = nprocs - nprocs1
     for size in hashsizes:
@@ -532,10 +512,6 @@ def hash(which):
         output(out + "\n\n")
 
   for nprocs in hashprocs:
-
-    # NOTE
-    if which == "pympi" and nprocs < 16: continue
-
     nprocs1 = nprocs / 2
     nprocs2 = nprocs - nprocs1
     for size in hashsizes:
