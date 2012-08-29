@@ -9,8 +9,9 @@ SHELL = /bin/sh
 CC =		mpic++
 CCFLAGS =	-O2 -xsse4.2 -funroll-loops -fstrict-aliasing -I../src
 LINK =		mpic++
-LINKFLAGS =	-O 
-LIB =		../src/libphish-zmq.so
+LINKFLAGS =	-O
+LIB =		-rdynamic ../src/libphish-zmq.so /ascldap/users/tshead/install/zmq/lib/libzmq.so
+LIB_RPATH =     -Wl,-rpath,/ascldap/users/tshead/build/phish/src:/ascldap/users/tshead/install/zmq/lib
 
 # ---------------------------------------------------------------------
 # build rules and dependencies
@@ -19,7 +20,7 @@ LIB =		../src/libphish-zmq.so
 OBJ = $(EXE).o
 
 $(EXE): $(OBJ)
-	$(LINK) $(LINKFLAGS) $(OBJ) $(LIB) -o $(EXE)
+	$(LINK) $(LINKFLAGS) $(OBJ) $(LIB) -o $(EXE) $(LIB_RPATH)
 
 # Rules
 

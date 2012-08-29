@@ -34,7 +34,7 @@ LIB_PMZ = libphish-mpizmq.so
 LIB_PZ = libphish-zmq.so
 
 LIB_BM = libphish-bait-mpi.so
-LIB_BMC = libphish-bait-mpi-config.so
+LIB_BMC = libphish-bait-mpiconfig.so
 LIB_BZ = libphish-bait-zmq.so
 LIB_BG = libphish-bait-graphviz.so
 LIB_BN = libphish-bait-null.so

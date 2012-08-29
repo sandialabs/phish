@@ -23,6 +23,7 @@ MPI_LIB =
 
 ZMQ_INC =	-I/ascldap/users/tshead/install/zmq/include
 ZMQ_LIB =	/ascldap/users/tshead/install/zmq/lib/libzmq.so
+ZMQ_RPATH =     -Wl,-rpath,/ascldap/users/tshead/install/zmq/lib:
 
 # ---------------------------------------------------------------------
 # targets = 3 versions of PHISH library: mpi, mpizmq, zmq
@@ -35,7 +36,7 @@ LIB_PMZ = libphish-mpizmq.so
 LIB_PZ = libphish-zmq.so
 
 LIB_BM = libphish-bait-mpi.so
-LIB_BMC = libphish-bait-mpi-config.so
+LIB_BMC = libphish-bait-mpiconfig.so
 LIB_BZ = libphish-bait-zmq.so
 LIB_BG = libphish-bait-graphviz.so
 LIB_BN = libphish-bait-null.so
@@ -59,7 +60,7 @@ zmq:
 	$(CC) $(CCFLAGS) -c phish-common.cpp
 	$(CC) $(CCFLAGS) -c hash.cpp
 	$(CC) $(LIBFLAGS) -o $(LIB_PZ) \
-        phish-zmq.o phish-common.o hash.o $(ZMQ_LIB)
+        phish-zmq.o phish-common.o hash.o $(ZMQ_LIB) $(ZMQ_RPATH)
 
 baitmpi:	
 	$(CC) $(CCFLAGS) -c phish-bait-mpi.cpp
