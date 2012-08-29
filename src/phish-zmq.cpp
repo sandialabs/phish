@@ -19,11 +19,11 @@
 #include <stdexcept>
 #include <vector>
 
-#include <hash.h>
-#include <phish.h>
-#include <phish-bait-common.h>
-#include <phish-common.h>
-#include <zmq.hpp>
+#include "hash.h"
+#include "phish.h"
+#include "phish-bait-common.h"
+#include "phish-common.h"
+#include "zmq.hpp"
 
 #define phish_return_error(message, code) { phish_error(message); return code; }
 
