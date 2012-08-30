@@ -42,7 +42,7 @@ ppsizes = [0,64]
 #chainprocs = [2,4,8,16,32,64,128,256]
 #chainsizes = [0,64,256,1024,4096,16384]
 
-chainprocs = [2,4,8,16]
+chainprocs = [2,16]
 chainsizes = [0]
 
 hashprocs = [2,4,8,16,32,64,128,256]
