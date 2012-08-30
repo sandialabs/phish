@@ -14,9 +14,9 @@ import sys,commands,re
 # which Python to use
 
 # desktop
-python = "python"
+#python = "python"
 # RedSky
-#python = "/ascldap/users/tshead/install/python/bin/python2.7"
+python = "/ascldap/users/tshead/install/python/bin/python2.7"
 
 # settings for machine and looping and timing and different test sizes
 
@@ -24,14 +24,14 @@ numnode = 32       # allocated # of nodes
 pernode = 8        # of cores per node
 rankfileflag = 1   # 1 if supports OpenMPI rankfiles
 
-#minnowdir = "/ascldap/users/sjplimp/phish/minnow"
-minnowdir = "../minnow"
+minnowdir = "/ascldap/users/sjplimp/phish/minnow"
+#minnowdir = "../minnow"
 #hostnames = [commands.getoutput("hostname")]
 hostnames = commands.getoutput("scontrol show hostnames").split()
 
 safe = 10000       # applied to chain and hash
 
-mincpu = 1.0      # minimum CPU seconds
+mincpu = 10.0      # minimum CPU seconds
 miniter = 100000   # minimum iterations
 increase = 2       # increase iterations by this factor every time
 repeat = 2         # repeat final run that exceeds mincpu this many times
