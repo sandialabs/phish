@@ -25,7 +25,7 @@ hostnames = commands.getoutput("scontrol show hostnames").split()
 
 # settings for machine and looping and timing and different test sizes
 
-numnode = 32       # allocated # of nodes
+numnode = 2       # allocated # of nodes
 pernode = 8        # of cores per node
 rankfileflag = 1   # 1 if supports OpenMPI rankfiles
 
