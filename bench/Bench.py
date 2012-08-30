@@ -14,9 +14,9 @@ import sys,commands,re
 # which Python to use
 
 # desktop
-#python = "python"
+python = "python"
 # RedSky
-python = "/ascldap/users/tshead/install/python/bin/python2.7"
+#python = "/ascldap/users/tshead/install/python/bin/python2.7"
 
 # settings for machine and looping and timing and different test sizes
 
@@ -24,8 +24,8 @@ numnode = 32       # allocated # of nodes
 pernode = 8        # of cores per node
 rankfileflag = 1   # 1 if supports OpenMPI rankfiles
 
-minnowdir = "/ascldap/users/sjplimp/phish/minnow"
-#minnowdir = "../minnow"
+#minnowdir = "/ascldap/users/sjplimp/phish/minnow"
+minnowdir = "../minnow"
 #hostnames = [commands.getoutput("hostname")]
 hostnames = commands.getoutput("scontrol show hostnames").split()
 
@@ -79,27 +79,29 @@ def pp(which):
         str = "%s ../bait/bait.py -p ../minnow -b mpi-config " + \
             "-s memory %d -v N %%d -v M %d < ../example/in.pp"
         str = str % (python,kbytes,size)
+        out = commands.getoutput(str)
+        lines = out.split('\n')
+        str = ' '.join(lines[2:])
+        masterstr = "mpirun %s" % str
       elif which == "pympi":
         str = "%s ../bait/bait.py -p ../minnow -b mpi-config " + \
             "-s memory %d -v N %%d -v M %d -x .py -l %s < ../example/in.pp"
         str = str % (python,kbytes,size,python)
+        out = commands.getoutput(str)
+        lines = out.split('\n')
+        str = ' '.join(lines[2:])
+        masterstr = "mpirun %s" % str
       elif which == "zmq":
         str = "%s ../bait/bait.py -p %s -b zmq " + \
             "-s memory %d -v N %%d -v M %d -v hostnames %s < ../example/in.pp"
-        str = str % (python,minnowdir,kbytes,size," ".join(hostnames))
+        masterstr = str % (python,minnowdir,kbytes,size," ".join(hostnames))
       elif which == "pyzmq":
         str = "%s ../bait/bait.py --verbose -p %s -b zmq " + \
             "-s memory %d -v N %%d -v M %d -v hostnames %s " + \
             "-x .py -l %s < ../example/in.pp"
-        str = str % (python,minnowdir,kbytes,size," ".join(hostnames),python)
-        print "STR",str
-        
-      out = commands.getoutput(str)
-      print out
-      lines = out.split('\n')
-      str = ' '.join(lines[2:])
-      masterstr = "mpirun %s" % str
-      
+        masterstr = str % \
+            (python,minnowdir,kbytes,size," ".join(hostnames),python)
+
     iter = miniter
     while 1:
       runstr = masterstr % iter
