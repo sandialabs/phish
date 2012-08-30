@@ -88,7 +88,7 @@ def pp(which):
             "-s memory %d -v N %%d -v M %d -v hostnames %s < ../example/in.pp"
         str = str % (python,minnowdir,kbytes,size," ".join(hostnames))
       elif which == "pyzmq":
-        str = "%s ../bait/bait.py -p %s -b zmq " + \
+        str = "%s ../bait/bait.py --verbose -p %s -b zmq " + \
             "-s memory %d -v N %%d -v M %d -v hostnames %s " + \
             "-x .py -l %s < ../example/in.pp"
         str = str % (python,minnowdir,kbytes,size," ".join(hostnames),python)
