@@ -340,8 +340,10 @@ if bindlist and options.backend == "zmq":
   for id,school in sorted(schools.items(), key=lambda x: x[1]["index"]):
     host = []
     bindpairs = school["bind"]
+    print "BINDPAIRS",bindpairs
     for pair in bindpairs:
       host.append(hostnames[pair[0] % len(hostnames)])
+    print "HOST",host
     school["host"] = host
     
 if not bindlist or not options.backend == "zmq":
