@@ -32,7 +32,7 @@ rankfileflag = 1   # 1 if supports OpenMPI rankfiles
 safe = 10000       # applied to chain and hash
 
 mincpu = 1.0      # minimum CPU seconds
-miniter = 1000   # minimum iterations
+miniter = 100000   # minimum iterations
 increase = 2       # increase iterations by this factor every time
 repeat = 2         # repeat final run that exceeds mincpu this many times
 
