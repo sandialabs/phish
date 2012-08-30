@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#a!/usr/local/bin/python
 
 # benchmark various PHISH scripts
 # some runs below are OpenMPI specific with rankfile
@@ -24,6 +24,7 @@ numnode = 32       # allocated # of nodes
 pernode = 8        # of cores per node
 rankfileflag = 1   # 1 if supports OpenMPI rankfiles
 
+minnowdir = "/ascldap/users/sjplimp/phish/minnow"
 #hostnames = [commands.getoutput("hostname")]
 hostnames = commands.getoutput("scontrol show hostnames").split()
 
@@ -82,14 +83,14 @@ def pp(which):
             "-s memory %d -v N %%d -v M %d -x .py -l %s < ../example/in.pp"
         str = str % (python,kbytes,size,python)
       elif which == "zmq":
-        str = "%s ../bait/bait.py -p ../minnow -b zmq " + \
+        str = "%s ../bait/bait.py -p %s -b zmq " + \
             "-s memory %d -v N %%d -v M %d -v hostnames %s < ../example/in.pp"
-        str = str % (python,kbytes,size," ".join(hostnames))
+        str = str % (python,minnowdir,kbytes,size," ".join(hostnames))
       elif which == "pyzmq":
-        str = "%s ../bait/bait.py -p ../minnow -b zmq " + \
+        str = "%s ../bait/bait.py -p %s -b zmq " + \
             "-s memory %d -v N %%d -v M %d -v hostnames %s " + \
             "-x .py -l %s < ../example/in.pp"
-        str = str % (python,kbytes,size," ".join(hostnames),python)
+        str = str % (python,minnowdir,kbytes,size," ".join(hostnames),python)
 
       out = commands.getoutput(str)
       lines = out.split('\n')
