@@ -680,9 +680,9 @@ int phish_loop()
       if (selflo == selfhi) selflo = selfhi = 0;
       nself--;
     } else {
-      rbuf = pool_get();
-      MPI_Recv(rbuf,maxdatum,MPI_BYTE,MPI_ANY_SOURCE,MPI_ANY_TAG,
+      MPI_Recv(rbufone,maxdatum,MPI_BYTE,MPI_ANY_SOURCE,MPI_ANY_TAG,
                world,&status);
+      rbuf = rbufone;
       iport = status.MPI_TAG;
       MPI_Get_count(&status,MPI_BYTE,&nrbytes);
     }
@@ -698,14 +698,12 @@ int phish_loop()
     lastport = iport;
 
     if (doneflag) {
-      pool_put(rbuf)
       ip->donecount++;
       if (ip->donecount == ip->donemax) {
 	ip->status = CLOSED_PORT;
 	if (ip->donefunc) (*ip->donefunc)();
 	donecount++;
 	if (donecount == ninports) {
-          pool_put(rbuf);
 	  if (g_all_input_ports_closed) (*g_all_input_ports_closed)();
 	  return 0;
 	}
@@ -720,8 +718,6 @@ int phish_loop()
 	(*ip->datumfunc)(nrfields);
       }
     }
-
-    pool_put(rbuf);
   }
 
   return 0;
@@ -757,9 +753,9 @@ int phish_probe(void (*probefunc)())
     } else {
       MPI_Iprobe(MPI_ANY_SOURCE,MPI_ANY_TAG,world,&flag,&status);
       if (flag) {
-        rbuf = pool_get();
-        MPI_Recv(rbuf,maxdatum,MPI_BYTE,MPI_ANY_SOURCE,MPI_ANY_TAG,
+        MPI_Recv(rbufone,maxdatum,MPI_BYTE,MPI_ANY_SOURCE,MPI_ANY_TAG,
                  world,&status);
+        rbuf = rbufone;
         iport = status.MPI_TAG;
         MPI_Get_count(&status,MPI_BYTE,&nrbytes);
       }
@@ -783,7 +779,6 @@ int phish_probe(void (*probefunc)())
           if (ip->donefunc) (*ip->donefunc)();
           donecount++;
           if (donecount == ninports) {
-            pool_put(rbuf);
             if (g_all_input_ports_closed) (*g_all_input_ports_closed)();
             return 0;
           }
@@ -798,9 +793,6 @@ int phish_probe(void (*probefunc)())
           (*ip->datumfunc)(nrfields);
         }
       }
-
-      pool_put(rbuf);
-
     } else (*probefunc)();
   }
 
