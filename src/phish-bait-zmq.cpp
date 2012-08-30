@@ -19,6 +19,11 @@ struct zmq_minnow
   std::string input_port_external;
 };
 
+const std::string quoted_string(const std::string& string)
+{
+  return "\"" + string + "\"";
+}
+
 extern "C"
 {
 
@@ -69,9 +74,9 @@ int phish_bait_start()
       arguments.push_back("--phish-backend");
       arguments.push_back("zmq");
       arguments.push_back("--phish-host");
-      arguments.push_back(host);
+      arguments.push_back(quoted_string(host));
       arguments.push_back("--phish-school-id");
-      arguments.push_back(school.id);
+      arguments.push_back(quoted_string(school.id));
       arguments.push_back("--phish-local-id");
       arguments.push_back(string_cast(minnow.local_id));
       arguments.push_back("--phish-local-count");
@@ -81,9 +86,9 @@ int phish_bait_start()
       arguments.push_back("--phish-global-count");
       arguments.push_back(string_cast(g_minnows.size()));
       arguments.push_back("--phish-control-port");
-      arguments.push_back(zmq_minnows[i].control_port_internal);
+      arguments.push_back(quoted_string(zmq_minnows[i].control_port_internal));
       arguments.push_back("--phish-input-port");
-      arguments.push_back(zmq_minnows[i].input_port_internal);
+      arguments.push_back(quoted_string(zmq_minnows[i].input_port_internal));
 
       for(std::map<int, int>::const_iterator incoming = minnow.incoming.begin(); incoming != minnow.incoming.end(); ++incoming)
       {
@@ -94,7 +99,7 @@ int phish_bait_start()
         buffer << port << "+" << count;
 
         arguments.push_back("--phish-input-connections");
-        arguments.push_back(buffer.str());
+        arguments.push_back(quoted_string(buffer.str()));
       }
 
       for(std::vector<connection>::const_iterator connection = minnow.outgoing.begin(); connection != minnow.outgoing.end(); ++connection)
@@ -104,7 +109,7 @@ int phish_bait_start()
           buffer << "+" << zmq_minnows[*i].input_port_external;
 
         arguments.push_back("--phish-output-connection");
-        arguments.push_back(string_cast(connection->output_port) + "+" + connection->send_pattern + "+" + string_cast(connection->input_port) + buffer.str());
+        arguments.push_back(quoted_string(string_cast(connection->output_port) + "+" + connection->send_pattern + "+" + string_cast(connection->input_port) + buffer.str()));
       }
 
       if(host != "" && host != "localhost" && host != "127.0.0.1")
