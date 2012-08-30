@@ -142,14 +142,12 @@ def generate_bindings():
       for icore in range(pernode):
         for inode in range(numnode):
           nclist.append([inode,icore])
-    print "NCLIST",nclist,bindorder,numnode,pernode
     offset = 0
     for id,school in schools.items():
       bindlist = []
       for i in range(school["count"]):
         iproc = offset + i
         bindlist.append(nclist[iproc % len(nclist)])
-      print "SCHLBLIST",bindlist
       school["bind"] = bindlist
       offset += school["count"]
       
@@ -328,7 +326,6 @@ if options.verbose:
 bindlist = []
 for id,school in sorted(schools.items(), key=lambda x: x[1]["index"]):
   bindlist += school["bind"]
-print "BINDLIST",bindlist
 
 if options.backend == "mpi" or options.backend == "mpi-config":
   if bindlist:
@@ -346,7 +343,6 @@ if options.backend == "zmq":
     bindpairs = school["bind"]
     for pair in bindpairs:
       host.append(hostnames[pair[0] % len(hostnames)])
-    print "HOST",host
     school["host"] = host
     
 if not options.backend == "zmq":
