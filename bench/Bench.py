@@ -96,12 +96,12 @@ def pp(which):
         str = ' '.join(lines[2:])
         masterstr = "mpirun %s" % str
       elif which == "zmq":
-        str = "%s ../bait/bait.py --verbose -p %s -b zmq -s pernode %s " + \
+        str = "%s ../bait/bait.py -p %s -b zmq -s pernode %s " + \
             "-s memory %d -v N %%d -v M %d -v hostnames %s < ../example/in.pp"
         masterstr = str % (python,minnowdir,pernode,
                            kbytes,size," ".join(hostnames))
       elif which == "pyzmq":
-        str = "%s ../bait/bait.py --verbose -p %s -b zmq -s pernode %s " + \
+        str = "%s ../bait/bait.py -p %s -b zmq -s pernode %s " + \
             "-s memory %d -v N %%d -v M %d -v hostnames %s " + \
             "-x .py -l %s < ../example/in.pp"
         masterstr = str % (python,minnowdir,pernode,
