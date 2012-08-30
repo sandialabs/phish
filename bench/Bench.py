@@ -25,6 +25,7 @@ pernode = 8        # of cores per node
 rankfileflag = 1   # 1 if supports OpenMPI rankfiles
 
 minnowdir = "/ascldap/users/sjplimp/phish/minnow"
+#minnowdir = "../minnow"
 #hostnames = [commands.getoutput("hostname")]
 hostnames = commands.getoutput("scontrol show hostnames").split()
 
@@ -93,6 +94,7 @@ def pp(which):
         str = str % (python,minnowdir,kbytes,size," ".join(hostnames),python)
 
       out = commands.getoutput(str)
+      print out
       lines = out.split('\n')
       str = ' '.join(lines[2:])
       masterstr = "mpirun %s" % str
