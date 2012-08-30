@@ -14,9 +14,9 @@ import sys,commands,re
 # which Python to use
 
 # desktop
-#python = "python"
+python = "python"
 # RedSky
-python = "/ascldap/users/tshead/install/python/bin/python2.7"
+#python = "/ascldap/users/tshead/install/python/bin/python2.7"
 
 # settings for machine and looping and timing and different test sizes
 
@@ -24,8 +24,8 @@ numnode = 32       # allocated # of nodes
 pernode = 8        # of cores per node
 rankfileflag = 1   # 1 if supports OpenMPI rankfiles
 
-minnowdir = "/ascldap/users/sjplimp/phish/minnow"
-#minnowdir = "../minnow"
+#minnowdir = "/ascldap/users/sjplimp/phish/minnow"
+minnowdir = "../minnow"
 #hostnames = [commands.getoutput("hostname")]
 hostnames = commands.getoutput("scontrol show hostnames").split()
 
@@ -76,31 +76,33 @@ def pp(which):
       masterstr = "mpirun -np 2 pingpong %%d %d" % size
     else:
       if which == "mpi":
-        str = "%s ../bait/bait.py -p ../minnow -b mpi-config " + \
+        str = "%s ../bait/bait.py -p %s -b mpi-config -v pernode %s " + \
             "-s memory %d -v N %%d -v M %d < ../example/in.pp"
-        str = str % (python,kbytes,size)
+        str = str % (python,minnowdir,pernode,kbytes,size)
         out = commands.getoutput(str)
+        print out
         lines = out.split('\n')
         str = ' '.join(lines[2:])
         masterstr = "mpirun %s" % str
       elif which == "pympi":
-        str = "%s ../bait/bait.py -p ../minnow -b mpi-config " + \
+        str = "%s ../bait/bait.py -p %s -b mpi-config -v pernode %s " + \
             "-s memory %d -v N %%d -v M %d -x .py -l %s < ../example/in.pp"
-        str = str % (python,kbytes,size,python)
+        str = str % (python,minnowdir,pernode,kbytes,size,python)
         out = commands.getoutput(str)
         lines = out.split('\n')
         str = ' '.join(lines[2:])
         masterstr = "mpirun %s" % str
       elif which == "zmq":
-        str = "%s ../bait/bait.py -p %s -b zmq " + \
+        str = "%s ../bait/bait.py -p %s -b zmq -v pernode %s " + \
             "-s memory %d -v N %%d -v M %d -v hostnames %s < ../example/in.pp"
-        masterstr = str % (python,minnowdir,kbytes,size," ".join(hostnames))
+        masterstr = str % (python,minnowdir,pernode,
+                           kbytes,size," ".join(hostnames))
       elif which == "pyzmq":
-        str = "%s ../bait/bait.py --verbose -p %s -b zmq " + \
+        str = "%s ../bait/bait.py --verbose -p %s -b zmq -v pernode %s " + \
             "-s memory %d -v N %%d -v M %d -v hostnames %s " + \
             "-x .py -l %s < ../example/in.pp"
-        masterstr = str % \
-            (python,minnowdir,kbytes,size," ".join(hostnames),python)
+        masterstr = str % (python,minnowdir,pernode,
+                           kbytes,size," ".join(hostnames),python)
 
     iter = miniter
     while 1:
@@ -133,34 +135,35 @@ def pp(which):
       masterstr = "mpirun -rf rankfile -np 2 pingpong %%d %d" % size
     else:
       if which == "mpi":
-        str = "%s ../bait/bait.py -p ../minnow -b mpi-config " + \
+        str = "%s ../bait/bait.py -p %s -b mpi-config -v pernode %s " + \
             "-s memory %d -s numnode 2 -s bindorder 2 " + \
             "-v N %%d -v M %d < ../example/in.pp"
-        str = str % (python,kbytes,size)
+        str = str % (python,minnowdir,pernode,kbytes,size)
         out = commands.getoutput(str)
         lines = out.split('\n')
         str = ' '.join(lines[2:])
         masterstr = "mpirun -rf rankfile %s" % str
       elif which == "pympi":
-        str = "%s ../bait/bait.py -p ../minnow -b mpi-config " + \
+        str = "%s ../bait/bait.py -p %s -b mpi-config -v pernode %s " + \
             "-s memory %d -s numnode 2 -s bindorder 2 " + \
             "-v N %%d -v M %d -x .py -l %s < ../example/in.pp"
-        str = str % (python,kbytes,size,python)
+        str = str % (python,minnowdir,pernode,kbytes,size,python)
         out = commands.getoutput(str)
         lines = out.split('\n')
         str = ' '.join(lines[2:])
         masterstr = "mpirun -rf rankfile %s" % str
       elif which == "zmq":
-        str = "%s ../bait/bait.py -p %s -b zmq " + \
+        str = "%s ../bait/bait.py -p %s -b zmq -v pernode %s " + \
             "-s memory %d -s numnode 2 -s bindorder 2 " + \
             "-v N %%d -v M %d -v hostnames %s < ../example/in.pp"
-        masterstr = str % (python,minnowdir,kbytes,size," ".join(hostnames))
+        masterstr = str % (python,minnowdir,pernode,kbytes,size,
+                           " ".join(hostnames))
       elif which == "pyzmq":
-        str = "%s ../bait/bait.py -p %s -b zmq " + \
+        str = "%s ../bait/bait.py -p %s -b zmq -v pernode %s " + \
             "-s memory %d -s numnode 2 -s bindorder 2 " + \
             "-v N %%d -v M %d -v hostnames %s " + \
             "-x .py -l %s < ../example/in.pp"
-        masterstr = str % (python,minnowdir,kbytes,size,
+        masterstr = str % (python,minnowdir,pernode,kbytes,size,
                            " ".join(hostnames),python)
     
     iter = miniter
@@ -198,35 +201,38 @@ def chain(which):
         masterstr = "mpirun -np %d chain %%d %d %d" % (nprocs,size,safe)
       else:
         if which == "mpi":
-          str = "%s ../bait/bait.py -p ../minnow -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " \
+              "-v pernode %s " + \
               "-s memory %d -v P %d -v N %%d -v M %d < ../example/in.chain"
-          str = str % (python,safe,kbytes,nprocs,size)
+          str = str % (python,minnowdir,safe,pernode,kbytes,nprocs,size)
           out = commands.getoutput(str)
           lines = out.split('\n')
           str = ' '.join(lines[2:])
           masterstr = "mpirun %s" % str
         elif which == "pympi":
-          str = "%s ../bait/bait.py -p ../minnow -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
+              "-v pernode %s " + \
               "-s memory %d -v P %d -v N %%d -v M %d -x .py -l %s < " + \
               "../example/in.chain"
-          str = str % (python,safe,kbytes,nprocs,size,python)
+          str = str % (python,minnowdir,safe,pernode,kbytes,nprocs,size,python)
           out = commands.getoutput(str)
           lines = out.split('\n')
           str = ' '.join(lines[2:])
           masterstr = "mpirun %s" % str
         elif which == "zmq":
-          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b zmq -s safe %d " + \
+              "-v pernode %s " + \
               "-s memory %d -v P %d -v N %%d -v M %d -v hostnames %s " + \
               "< ../example/in.chain"
-          masterstr = str % (python,minnowdir,safe,kbytes,nprocs,size,
+          masterstr = str % (python,minnowdir,safe,pernode,kbytes,nprocs,size,
                              " ".join(hostnames))
         elif which == "pyzmq":
-          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b zmq -s safe %d " + \
+              "-v pernode %s " + \
               "-s memory %d -v P %d -v N %%d -v M %d -v hostnames %s " + \
               "-x .py -l %s < ../example/in.chain"
-          masterstr = str % (python,minnowdir,safe,kbytes,nprocs,size,
+          masterstr = str % (python,minnowdir,safe,pernode,kbytes,nprocs,size,
                              " ".join(hostnames),python)
-        
     
       iter = miniter
       while 1:
@@ -269,33 +275,33 @@ def chain(which):
             (nprocs,size,safe)
       else:
         if which == "mpi":
-          str = "%s ../bait/bait.py -p ../minnow -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
               "-s memory %d -s pernode %d -s bindorder 2 " + \
               "-v P %d -v N %%d -v M %d < ../example/in.chain"
-          str = str % (python,safe,kbytes,pernode,nprocs,size)
+          str = str % (python,minnowdir,safe,kbytes,pernode,nprocs,size)
           out = commands.getoutput(str)
           lines = out.split('\n')
           str = ' '.join(lines[2:])
           masterstr = "mpirun -rf rankfile %s" % str
         elif which == "pympi":
-          str = "%s ../bait/bait.py -p ../minnow -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
               "-s memory %d -s pernode %d -s bindorder 2 " + \
               "-v P %d -v N %%d -v M %d -x .py -l %s < " + \
               "../example/in.chain"
-          str = str % (python,safe,kbytes,pernode,nprocs,size,python)
+          str = str % (python,minnowdir,safe,kbytes,pernode,nprocs,size,python)
           out = commands.getoutput(str)
           lines = out.split('\n')
           str = ' '.join(lines[2:])
           masterstr = "mpirun -rf rankfile %s" % str
         elif which == "zmq":
-          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b zmq -s safe %d " + \
               "-s memory %d -s pernode %d -s bindorder 2 " + \
               "-v P %d -v N %%d -v M %d -v hostnames %s " + \
               "< ../example/in.chain"
           masterstr = str % (python,minnowdir,safe,kbytes,pernode,
                        nprocs,size," ".join(hostnames))
         elif which == "pyzmq":
-          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b zmq -s safe %d " + \
               "-s memory %d -s pernode %d -s bindorder 2 " + \
               "-v P %d -v N %%d -v M %d -v hostnames %s " + \
               "-x .py -l %s < ../example/in.chain"
@@ -340,33 +346,35 @@ def chain(which):
             (nprocs,size,safe)
       else:
         if which == "mpi":
-          str = "%s ../bait/bait.py -p ../minnow -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
               "-s memory %d -s numnode %d -s pernode %d -s bindorder 2 " + \
               "-v P %d -v N %%d -v M %d < ../example/in.chain"
-          str = str % (python,safe,kbytes,numnode,pernode,nprocs,size)
+          str = str % (python,minnowdir,safe,kbytes,numnode,pernode,
+                       nprocs,size)
           out = commands.getoutput(str)
           lines = out.split('\n')
           str = ' '.join(lines[2:])
           masterstr = "mpirun -rf rankfile %s" % str
         elif which == "pympi":
-          str = "%s ../bait/bait.py -p ../minnow -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
               "-s memory %d -s numnode %d -s pernode %d -s bindorder 2 " + \
               "-v P %d -v N %%d -v M %d -x .py -l %s < " + \
               "../example/in.chain"
-          str = str % (python,safe,kbytes,numnode,pernode,nprocs,size,python)
+          str = str % (python,minnowdir,safe,kbytes,numnode,pernode,
+                       nprocs,size,python)
           out = commands.getoutput(str)
           lines = out.split('\n')
           str = ' '.join(lines[2:])
           masterstr = "mpirun -rf rankfile %s" % str
         elif which == "zmq":
-          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b zmq -s safe %d " + \
               "-s memory %d -s numnode %d -s pernode %d -s bindorder 2 " + \
               "-v P %d -v N %%d -v M %d -v hostnames %s " + \
               "< ../example/in.chain"
           masterstr = str % (python,minnowdir,safe,kbytes,numnode,pernode,
                              nprocs,size," ".join(hostnames))
         elif which == "pyzmq":
-          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b zmq -s safe %d " + \
               "-s memory %d -s numnode %d -s pernode %d -s bindorder 2 " + \
               "-v P %d -v N %%d -v M %d -v hostnames %s " + \
               "-x .py -l %s < ../example/in.chain"
@@ -414,35 +422,43 @@ def hash(which):
         masterstr = "mpirun -np %d hash %%d %d %d" % (nprocs,size,safe)
       else:
         if which == "mpi":
-          str = "%s ../bait/bait.py -p ../minnow -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
+              "-v pernode %s " + \
               "-s memory %d -v S %d -v R %d -v N %%d -v M %d " + \
               "< ../example/in.hash"
-          str = str % (python,safe,kbytes,nprocs1,nprocs2,size)
+          str = str % (python,minnowdir,safe,pernode,
+                       kbytes,nprocs1,nprocs2,size)
           out = commands.getoutput(str)
           lines = out.split('\n')
           str = ' '.join(lines[2:])
           masterstr = "mpirun %s" % str
         elif which == "pympi":
-          str = "%s ../bait/bait.py -p ../minnow -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
+              "-v pernode %s " + \
               "-s memory %d -v S %d -v R %d -v N %%d -v M %d " + \
               "-x .py -l %s < ../example/in.hash"
-          str = str % (python,safe,kbytes,nprocs1,nprocs2,size,python)
+          str = str % (python,minnowdir,safe,pernode,kbytes,
+                       nprocs1,nprocs2,size,python)
           out = commands.getoutput(str)
           lines = out.split('\n')
           str = ' '.join(lines[2:])
           masterstr = "mpirun %s" % str
         elif which == "zmq":
-          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b zmq -s safe %d " + \
+              "-v pernode %s " + \
               "-s memory %d " + \
               "-v S %d -v R %d -v N %%d -v M %d -v hostnames %s " + \
               "< ../example/in.hash"
-          masterstr = str % (python,minnowdir,safe,kbytes,nprocs1,nprocs2,size,
+          masterstr = str % (python,minnowdir,safe,pernode,kbytes,
+                             nprocs1,nprocs2,size,
                              " ".join(hostnames))
         elif which == "pyzmq":
-          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b zmq -s safe %d " + \
+              "-v pernode %s " + \
               "-s memory %d -v S %d -v R %d -v N %%d -v M %d " + \
               "-v hostnames %s -x .py -l %s < ../example/in.hash"
-          masterstr = str % (python,minnowdir,safe,kbytes,nprocs1,nprocs2,size,
+          masterstr = str % (python,minnowdir,safe,pernode,kbytes,
+                             nprocs1,nprocs2,size,
                              " ".join(hostnames),python)
           
       iter = miniter
@@ -488,33 +504,35 @@ def hash(which):
             (nprocs,size,safe)
       else:
         if which == "mpi":
-          str = "%s ../bait/bait.py -p ../minnow -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
               "-s memory %d -s pernode %d -s bindorder 2 " + \
               "-v S %d -v R %d -v N %%d -v M %d < ../example/in.hash"
-          str = str % (python,safe,kbytes,pernode,nprocs1,nprocs2,size)
+          str = str % (python,minnowdir,safe,kbytes,pernode,
+                       nprocs1,nprocs2,size)
           out = commands.getoutput(str)
           lines = out.split('\n')
           str = ' '.join(lines[2:])
           masterstr = "mpirun -rf rankfile %s" % str
         elif which == "pympi":
-          str = "%s ../bait/bait.py -p ../minnow -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
               "-s memory %d -s pernode %d -s bindorder 2 " + \
               "-v S %d -v R %d -v N %%d " + \
               "-v M %d -x .py -l %s < ../example/in.hash"
-          str = str % (python,safe,kbytes,pernode,nprocs1,nprocs2,size,python)
+          str = str % (python,minnowdir,safe,kbytes,pernode,
+                       nprocs1,nprocs2,size,python)
           out = commands.getoutput(str)
           lines = out.split('\n')
           str = ' '.join(lines[2:])
           masterstr = "mpirun -rf rankfile %s" % str
         elif which == "zmq":
-          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b zmq -s safe %d " + \
               "-s memory %d -s pernode %d -s bindorder 2 " + \
               "-v S %d -v R %d -v N %%d -v M %d -v hostnames %s " + \
               "< ../example/in.hash"
           masterstr = str % (python,minnowdir,safe,kbytes,pernode,
                              nprocs1,nprocs2,size," ".join(hostnames))
         elif which == "pyzmq":
-          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b zmq -s safe %d " + \
               "-s memory %d -s pernode %d -s bindorder 2 " + \
               "-v S %d -v R %d -v N %%d -v M %d " + \
               "-v hostnames %s -x .py -l %s < ../example/in.hash"
@@ -560,35 +578,35 @@ def hash(which):
             (nprocs,size,safe)
       else:
         if which == "mpi":
-          str = "%s ../bait/bait.py -p ../minnow -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
               "-s memory %d -s numnode %d -s pernode %d -s bindorder 2 " + \
               "-v S %d -v R %d -v N %%d -v M %d < ../example/in.hash"
-          str = str % (python,safe,kbytes,numnode,pernode,
+          str = str % (python,minnowdir,safe,kbytes,numnode,pernode,
                        nprocs1,nprocs2,size)
           out = commands.getoutput(str)
           lines = out.split('\n')
           str = ' '.join(lines[2:])
           masterstr = "mpirun -rf rankfile %s" % str
         elif which == "pympi":
-          str = "%s ../bait/bait.py -p ../minnow -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
               "-s memory %d -s numnode %d -s pernode %d -s bindorder 2 " + \
               "-v S %d -v R %d -v N %%d " + \
               "-v M %d -x .py -l %s < ../example/in.hash"
-          str = str % (python,safe,kbytes,numnode,pernode,
+          str = str % (python,minnowdir,safe,kbytes,numnode,pernode,
                        nprocs1,nprocs2,size,python)
           out = commands.getoutput(str)
           lines = out.split('\n')
           str = ' '.join(lines[2:])
           masterstr = "mpirun -rf rankfile %s" % str
         elif which == "zmq":
-          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b zmq -s safe %d " + \
               "-s memory %d -s numnode %d -s pernode %d -s bindorder 2 " + \
               "-v S %d -v R %d -v N %%d -v M %d -v hostnames %s " + \
               "< ../example/in.hash"
           masterstr = str % (python,minnowdir,safe,kbytes,numnode,pernode,
                              nprocs1,nprocs2,size," ".join(hostnames))
         elif which == "pyzmq":
-          str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
+          str = "%s ../bait/bait.py -p %s -b zmq -s safe %d " + \
               "-s memory %d -s numnode %d -s pernode %d -s bindorder 2 " + \
               "-v S %d -v R %d -v N %%d -v M %d " + \
               "-v hostnames %s -x .py -l %s < ../example/in.hash"

@@ -130,7 +130,7 @@ def generate_bindings():
   # only if no explicit school settings
   # always generate bindings if backend = ZMQ
   # NOTE: ZMQ part is a bit kludgy
-  #       could be handled better if change args to backend school()
+  #       could be handled better if change args passed to backend school()
       
   if (bindorder and not bindflag) or options.backend == "zmq":
     nclist = []
@@ -320,33 +320,32 @@ if options.verbose:
 
 # for MPI, write bind info (if it exists) to file "rankfile"
 #   this is in OpenMPI format for use with mpirun -rf rankfile
-# for ZMQ, bind info is required, create host list for each school
+# for ZMQ, bindlist always exists, create host list for each school
 # NOTE: code for this should be moved to back-end
 
 bindlist = []
 for id,school in sorted(schools.items(), key=lambda x: x[1]["index"]):
   bindlist += school["bind"]
 
-if bindlist and (options.backend == "mpi" or options.backend == "mpi-config"):
-  fp = open("rankfile","w")
-  for i,pair in enumerate(bindlist):
-    print >>fp,"rank %d=+n%d slot=%d" % (i,pair[0],pair[1])
-  fp.close()
+if options.backend == "mpi" or options.backend == "mpi-config":
+  if bindlist:
+    fp = open("rankfile","w")
+    for i,pair in enumerate(bindlist):
+      print >>fp,"rank %d=+n%d slot=%d" % (i,pair[0],pair[1])
+    fp.close()
 
-if bindlist and options.backend == "zmq":
+if options.backend == "zmq":
   if "hostnames" not in variables:
     raise Exception("Hostnames variable is required for ZMQ backend")
   hostnames = variables["hostnames"]
   for id,school in sorted(schools.items(), key=lambda x: x[1]["index"]):
     host = []
     bindpairs = school["bind"]
-    print "BINDPAIRS",bindpairs
     for pair in bindpairs:
       host.append(hostnames[pair[0] % len(hostnames)])
-    print "HOST",host
     school["host"] = host
     
-if not bindlist or not options.backend == "zmq":
+if not options.backend == "zmq":
   for id,school in sorted(schools.items(), key=lambda x: x[1]["index"]):
     school["host"] = school["count"] * [""]
     
