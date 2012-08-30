@@ -326,6 +326,7 @@ if options.verbose:
 bindlist = []
 for id,school in sorted(schools.items(), key=lambda x: x[1]["index"]):
   bindlist += school["bind"]
+print "BINDLIST",bindlist
 
 if options.backend == "mpi" or options.backend == "mpi-config":
   if bindlist:
@@ -343,6 +344,7 @@ if options.backend == "zmq":
     bindpairs = school["bind"]
     for pair in bindpairs:
       host.append(hostnames[pair[0] % len(hostnames)])
+    print "HOST",host
     school["host"] = host
     
 if not options.backend == "zmq":
