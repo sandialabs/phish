@@ -93,7 +93,7 @@ def pp(which):
         str = ' '.join(lines[2:])
         masterstr = "mpirun %s" % str
       elif which == "zmq":
-        str = "%s ../bait/bait.py -p %s -b zmq -v pernode %s " + \
+        str = "%s ../bait/bait.py --verbose -p %s -b zmq -v pernode %s " + \
             "-s memory %d -v N %%d -v M %d -v hostnames %s < ../example/in.pp"
         masterstr = str % (python,minnowdir,pernode,
                            kbytes,size," ".join(hostnames))
