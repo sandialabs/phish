@@ -5,8 +5,8 @@ SHELL = /bin/sh
 # ---------------------------------------------------------------------
 # compiler settings
 
-#CC =		mpic++
-#CCFLAGS =	-O2 -fPIC -xsse4.2 -funroll-loops -fstrict-aliasing
+MPICC =		mpic++
+MPICCFLAGS =	-O2 -fPIC -xsse4.2 -funroll-loops -fstrict-aliasing
 CC =		g++
 CCFLAGS =	-O2 -fPIC
 LIBFLAGS =	-shared
@@ -43,17 +43,18 @@ LIB_BG = libphish-bait-graphviz.so
 LIB_BN = libphish-bait-null.so
 
 mpi:	
-	$(CC) $(CCFLAGS) $(MPI_INC) -c phish-mpi.cpp
-	$(CC) $(CCFLAGS) -c phish-common.cpp
-	$(CC) $(CCFLAGS) -c hash.cpp
-	$(CC) $(LIBFLAGS) -o $(LIB_PM) \
+	$(MPICC) $(CCFLAGS) $(MPI_INC) -c phish-mpi.cpp
+	$(MPICC) $(CCFLAGS) -c phish-common.cpp
+	$(MPICC) $(CCFLAGS) -c hash.cpp
+	$(MPICC) $(LIBFLAGS) -o $(LIB_PM) \
         phish-mpi.o phish-common.o hash.o $(MPI_LIB)
 
 mpizmq:	
-	$(CC) $(CCFLAGS) $(MPI_INC) $(ZMQ_INC) -DPHISH_MPI_ZMQ -c phish-mpi.cpp
-	$(CC) $(CCFLAGS) -c phish-common.cpp
-	$(CC) $(CCFLAGS) -c hash.cpp
-	$(CC) $(LIBFLAGS) -o $(LIB_PMZ) \
+	$(MPICC) $(CCFLAGS) $(MPI_INC) $(ZMQ_INC) -DPHISH_MPI_ZMQ \
+        -c phish-mpi.cpp
+	$(MPICC) $(CCFLAGS) -c phish-common.cpp
+	$(MPICC) $(CCFLAGS) -c hash.cpp
+	$(MPICC) $(LIBFLAGS) -o $(LIB_PMZ) \
         phish-mpi.o phish-common.o hash.o $(MPI_LIB) $(ZMQ_LIB) 
 
 zmq:
@@ -64,17 +65,17 @@ zmq:
         phish-zmq.o phish-common.o hash.o $(ZMQ_LIB) $(ZMQ_RPATH)
 
 baitmpi:	
-	$(CC) $(CCFLAGS) -c phish-bait-mpi.cpp
-	$(CC) $(CCFLAGS) -c phish-bait-mpi-common.cpp
-	$(CC) $(CCFLAGS) -c phish-bait-common.cpp
-	$(CC) $(LIBFLAGS) -o $(LIB_BM) \
+	$(MPICC) $(CCFLAGS) -c phish-bait-mpi.cpp
+	$(MPICC) $(CCFLAGS) -c phish-bait-mpi-common.cpp
+	$(MPICC) $(CCFLAGS) -c phish-bait-common.cpp
+	$(MPICC) $(LIBFLAGS) -o $(LIB_BM) \
         phish-bait-mpi.o phish-bait-mpi-common.o phish-bait-common.o
 
 baitmpiconfig:	
-	$(CC) $(CCFLAGS) -c phish-bait-mpi-config.cpp
-	$(CC) $(CCFLAGS) -c phish-bait-mpi-common.cpp
-	$(CC) $(CCFLAGS) -c phish-bait-common.cpp
-	$(CC) $(LIBFLAGS) -o $(LIB_BMC) \
+	$(MPICC) $(CCFLAGS) -c phish-bait-mpi-config.cpp
+	$(MPICC) $(CCFLAGS) -c phish-bait-mpi-common.cpp
+	$(MPICC) $(CCFLAGS) -c phish-bait-common.cpp
+	$(MPICC) $(LIBFLAGS) -o $(LIB_BMC) \
         phish-bait-mpi-config.o phish-bait-mpi-common.o phish-bait-common.o
 
 baitzmq:	
