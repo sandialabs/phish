@@ -142,7 +142,7 @@ def generate_bindings():
       for icore in range(pernode):
         for inode in range(numnode):
           nclist.append([inode,icore])
-    print "NCLIST",nclist
+    print "NCLIST",nclist,bindorder,numnode,pernode
     offset = 0
     for id,school in schools.items():
       bindlist = []
