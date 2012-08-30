@@ -92,7 +92,8 @@ def pp(which):
             "-s memory %d -v N %%d -v M %d -v hostnames %s " + \
             "-x .py -l %s < ../example/in.pp"
         str = str % (python,minnowdir,kbytes,size," ".join(hostnames),python)
-
+        print "STR",str
+        
       out = commands.getoutput(str)
       print out
       lines = out.split('\n')
