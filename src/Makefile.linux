@@ -76,7 +76,8 @@ baitmpiconfig:
 baitzmq:	
 	$(CC) $(CCFLAGS) -c phish-bait-zmq.cpp
 	$(CC) $(CCFLAGS) -c phish-bait-common.cpp
-	$(CC) $(LIBFLAGS) -o $(LIB_BZ) phish-bait-zmq.o phish-bait-common.o
+	$(CC) $(LIBFLAGS) -o $(LIB_BZ) phish-bait-zmq.o phish-bait-common.o \
+        $(ZMQ_LIB)
 
 baitgraph:	
 	$(CC) $(CCFLAGS) -c phish-bait-graphviz.cpp
