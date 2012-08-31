@@ -10,7 +10,7 @@ CC =		g++
 CCFLAGS =	-g -O -I../src
 LINK =		g++
 LINKFLAGS =	-g -O 
-LIB =		../src/libphish-zmq.a
+LIB =		../src/libphish-zmq.so
 
 # ---------------------------------------------------------------------
 # build rules and dependencies

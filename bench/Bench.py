@@ -13,15 +13,15 @@ import sys,commands,re
 
 # desktop
 
-#python = "python"
-#minnowdir = "../minnow"
-#hostnames = [commands.getoutput("hostname")]
+python = "python"
+minnowdir = "../minnow"
+hostnames = [commands.getoutput("hostname")]
 
 # RedSky
 
-python = "/ascldap/users/tshead/install/python/bin/python2.7"
-minnowdir = "/ascldap/users/sjplimp/phish/minnow"
-hostnames = commands.getoutput("scontrol show hostnames").split()
+#python = "/ascldap/users/tshead/install/python/bin/python2.7"
+#minnowdir = "/ascldap/users/sjplimp/phish/minnow"
+#hostnames = commands.getoutput("scontrol show hostnames").split()
 
 # settings for machine and looping and timing and different test sizes
 
@@ -31,7 +31,7 @@ rankfileflag = 1   # 1 if supports OpenMPI rankfiles
 
 safe = 10000       # applied to chain and hash
 
-mincpu = 30.0      # minimum CPU seconds
+mincpu = 1.0      # minimum CPU seconds
 miniter = 100000   # minimum iterations
 increase = 2       # increase iterations by this factor every time
 repeat = 2         # repeat final run that exceeds mincpu this many times
@@ -41,8 +41,11 @@ ppsizes = [0,64,256,1024,4096,16384]
 chainprocs = [2,4,8,16,32,64,128,256]
 chainsizes = [0,64,256,1024,4096,16384]
 
-hashprocs = [2,4,8,16,32,64,128,256]
-hashsizes = [0,64,256,1024,4096,16384]
+hashprocs = [2,4]
+hashsizes = [0,64]
+
+#hashprocs = [2,4,8,16,32,64,128,256]
+#hashsizes = [0,64,256,1024,4096,16384]
 
 # -------------------------------------------------------------
 
