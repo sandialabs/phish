@@ -69,14 +69,16 @@ int phish_bait_start()
       const minnow& minnow = g_minnows[i];
       const std::string host = school.hosts[minnow.local_id];
 
+      const bool remote = host != "" && host != "localhost" && host != "127.0.0.1";
+
       std::vector<std::string> arguments;
       arguments.insert(arguments.end(), school.arguments.begin(), school.arguments.end());
       arguments.push_back("--phish-backend");
       arguments.push_back("zmq");
       arguments.push_back("--phish-host");
-      arguments.push_back(quoted_string(host));
+      arguments.push_back(remote ? quoted_string(host) : host);
       arguments.push_back("--phish-school-id");
-      arguments.push_back(quoted_string(school.id));
+      arguments.push_back(remote ? quoted_string(school.id) : school.id);
       arguments.push_back("--phish-local-id");
       arguments.push_back(string_cast(minnow.local_id));
       arguments.push_back("--phish-local-count");
@@ -86,9 +88,9 @@ int phish_bait_start()
       arguments.push_back("--phish-global-count");
       arguments.push_back(string_cast(g_minnows.size()));
       arguments.push_back("--phish-control-port");
-      arguments.push_back(quoted_string(zmq_minnows[i].control_port_internal));
+      arguments.push_back(remote ? quoted_string(zmq_minnows[i].control_port_internal) : zmq_minnows[i].control_port_internal);
       arguments.push_back("--phish-input-port");
-      arguments.push_back(quoted_string(zmq_minnows[i].input_port_internal));
+      arguments.push_back(remote ? quoted_string(zmq_minnows[i].input_port_internal) : zmq_minnows[i].input_port_internal);
 
       for(std::map<int, int>::const_iterator incoming = minnow.incoming.begin(); incoming != minnow.incoming.end(); ++incoming)
       {
@@ -99,7 +101,7 @@ int phish_bait_start()
         buffer << port << "+" << count;
 
         arguments.push_back("--phish-input-connections");
-        arguments.push_back(quoted_string(buffer.str()));
+        arguments.push_back(remote ? quoted_string(buffer.str()) : buffer.str());
       }
 
       for(std::vector<connection>::const_iterator connection = minnow.outgoing.begin(); connection != minnow.outgoing.end(); ++connection)
@@ -108,11 +110,14 @@ int phish_bait_start()
         for(std::vector<int>::const_iterator i = connection->input_indices.begin(); i != connection->input_indices.end(); ++i)
           buffer << "+" << zmq_minnows[*i].input_port_external;
 
+        std::ostringstream buffer2;
+        buffer2 << string_cast(connection->output_port) << "+" << connection->send_pattern << "+" << string_cast(connection->input_port) << buffer.str();
+
         arguments.push_back("--phish-output-connection");
-        arguments.push_back(quoted_string(string_cast(connection->output_port) + "+" + connection->send_pattern + "+" + string_cast(connection->input_port) + buffer.str()));
+        arguments.push_back(remote ? quoted_string(buffer2.str()) : buffer2.str());
       }
 
-      if(host != "" && host != "localhost" && host != "127.0.0.1")
+      if(remote)
       {
         arguments.insert(arguments.begin(), host);
         arguments.insert(arguments.begin(), "-x");
