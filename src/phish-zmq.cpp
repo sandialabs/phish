@@ -355,175 +355,184 @@ extern "C"
 
 int phish_init(int* argc, char*** argv)
 {
-  phish_assert_not_initialized();
-  g_initialized = true;
-
-  std::vector<std::string> arguments(*argv, *argv + *argc);
-  std::vector<std::string> kept_arguments;
-
-  g_executable = arguments[0];
-
-  g_context = new zmq::context_t(2);
-  while(arguments.size())
+  try
   {
-    const std::string argument = pop_argument(arguments);
-    if(argument == "--phish-backend")
-    {
-      g_backend = pop_argument(arguments);
-      if(g_backend != "zmq")
-      {
-        std::ostringstream message;
-        message << "Incompatible backend: expected zmq, using " << g_backend << ".";
-        phish_return_error(message.str().c_str(), -1);
-      }
-    }
-    else if(argument == "--phish-host")
-    {
-      g_host = pop_argument(arguments);
-    }
-    else if(argument == "--phish-school-id")
-    {
-      g_school_id = pop_argument(arguments);
-    }
-    else if(argument == "--phish-local-id")
-    {
-      std::istringstream stream(pop_argument(arguments));
-      stream >> g_local_id;
-    }
-    else if(argument == "--phish-local-count")
-    {
-      std::istringstream stream(pop_argument(arguments));
-      stream >> g_local_count;
-    }
-    else if(argument == "--phish-global-id")
-    {
-      std::istringstream stream(pop_argument(arguments));
-      stream >> g_global_id;
-    }
-    else if(argument == "--phish-global-count")
-    {
-      std::istringstream stream(pop_argument(arguments));
-      stream >> g_global_count;
-    }
-    else if(argument == "--phish-control-port")
-    {
-      const std::string address = pop_argument(arguments);
-      g_control_port = new zmq::socket_t(*g_context, ZMQ_REP);
-      g_control_port->bind(address.c_str());
-    }
-    else if(argument == "--phish-input-port")
-    {
-      const std::string address = pop_argument(arguments);
-      g_input_port = new zmq::socket_t(*g_context, ZMQ_PULL);
-      g_input_port->bind(address.c_str());
-    }
-    else if(argument == "--phish-input-connections")
-    {
-      std::string spec = pop_argument(arguments);
-      std::replace(spec.begin(), spec.end(), '+', ' ');
-      int port = 0;
-      int connection_count = 0;
-      std::istringstream stream(spec);
-      stream >> port >> connection_count;
+    phish_assert_not_initialized();
+    g_initialized = true;
 
-      g_input_port_connection_count[port] = connection_count;
+    std::vector<std::string> arguments(*argv, *argv + *argc);
+    std::vector<std::string> kept_arguments;
 
-    }
-    else if(argument == "--phish-output-connection")
+    g_executable = arguments[0];
+
+    g_context = new zmq::context_t(2);
+    while(arguments.size())
     {
-      std::string spec = pop_argument(arguments);
-      std::replace(spec.begin(), spec.end(), '+', ' ');
-      int output_port = 0;
-      std::string pattern;
-      int input_port = 0;
-      std::vector<std::string> recipients;
-      std::istringstream stream(spec);
-      stream >> output_port >> pattern >> input_port;
-      while(true)
+      const std::string argument = pop_argument(arguments);
+      if(argument == "--phish-backend")
       {
-        std::string recipient;
-        stream >> recipient;
-        if(!stream)
-          break;
-        recipients.push_back(recipient);
+        g_backend = pop_argument(arguments);
+        if(g_backend != "zmq")
+        {
+          std::ostringstream message;
+          message << "Incompatible backend: expected zmq, using " << g_backend << ".";
+          phish_return_error(message.str().c_str(), -1);
+        }
       }
+      else if(argument == "--phish-host")
+      {
+        g_host = pop_argument(arguments);
+      }
+      else if(argument == "--phish-school-id")
+      {
+        g_school_id = pop_argument(arguments);
+      }
+      else if(argument == "--phish-local-id")
+      {
+        std::istringstream stream(pop_argument(arguments));
+        stream >> g_local_id;
+      }
+      else if(argument == "--phish-local-count")
+      {
+        std::istringstream stream(pop_argument(arguments));
+        stream >> g_local_count;
+      }
+      else if(argument == "--phish-global-id")
+      {
+        std::istringstream stream(pop_argument(arguments));
+        stream >> g_global_id;
+      }
+      else if(argument == "--phish-global-count")
+      {
+        std::istringstream stream(pop_argument(arguments));
+        stream >> g_global_count;
+      }
+      else if(argument == "--phish-control-port")
+      {
+        const std::string address = pop_argument(arguments);
+        g_control_port = new zmq::socket_t(*g_context, ZMQ_REP);
+        g_control_port->bind(address.c_str());
+      }
+      else if(argument == "--phish-input-port")
+      {
+        const std::string address = pop_argument(arguments);
+        g_input_port = new zmq::socket_t(*g_context, ZMQ_PULL);
+        g_input_port->bind(address.c_str());
+      }
+      else if(argument == "--phish-input-connections")
+      {
+        std::string spec = pop_argument(arguments);
+        std::replace(spec.begin(), spec.end(), '+', ' ');
+        int port = 0;
+        int connection_count = 0;
+        std::istringstream stream(spec);
+        stream >> port >> connection_count;
 
-      if(!g_output_connections.count(output_port))
-        g_output_connections[output_port] = std::vector<output_connection*>();
+        g_input_port_connection_count[port] = connection_count;
 
-      recipients_t recipient_sockets;
-      for(std::vector<std::string>::iterator recipient = recipients.begin(); recipient != recipients.end(); ++recipient)
-      {
-        zmq::socket_t* const socket = new zmq::socket_t(*g_context, ZMQ_PUSH);
-        const uint64_t hwm = 100000;
-        socket->setsockopt(ZMQ_HWM, &hwm, sizeof(hwm));
-        socket->connect(recipient->c_str());
-        recipient_sockets.push_back(socket);
       }
+      else if(argument == "--phish-output-connection")
+      {
+        std::string spec = pop_argument(arguments);
+        std::replace(spec.begin(), spec.end(), '+', ' ');
+        int output_port = 0;
+        std::string pattern;
+        int input_port = 0;
+        std::vector<std::string> recipients;
+        std::istringstream stream(spec);
+        stream >> output_port >> pattern >> input_port;
+        while(true)
+        {
+          std::string recipient;
+          stream >> recipient;
+          if(!stream)
+            break;
+          recipients.push_back(recipient);
+        }
 
-      if(pattern == PHISH_BAIT_SEND_PATTERN_BROADCAST)
-      {
-        g_output_connections[output_port].push_back(new broadcast_connection(input_port, recipient_sockets));
-      }
-      else if(pattern == PHISH_BAIT_SEND_PATTERN_ROUND_ROBIN)
-      {
-        g_output_connections[output_port].push_back(new round_robin_connection(input_port, recipient_sockets));
-      }
-      else if(pattern == PHISH_BAIT_SEND_PATTERN_HASHED)
-      {
-        g_output_connections[output_port].push_back(new hashed_connection(input_port, recipient_sockets));
-      }
-      else if(pattern == PHISH_BAIT_SEND_PATTERN_DIRECT)
-      {
-        g_output_connections[output_port].push_back(new direct_connection(input_port, recipient_sockets));
+        if(!g_output_connections.count(output_port))
+          g_output_connections[output_port] = std::vector<output_connection*>();
+
+        recipients_t recipient_sockets;
+        for(std::vector<std::string>::iterator recipient = recipients.begin(); recipient != recipients.end(); ++recipient)
+        {
+          zmq::socket_t* const socket = new zmq::socket_t(*g_context, ZMQ_PUSH);
+          const uint64_t hwm = 100000;
+          socket->setsockopt(ZMQ_HWM, &hwm, sizeof(hwm));
+          socket->connect(recipient->c_str());
+          recipient_sockets.push_back(socket);
+        }
+
+        if(pattern == PHISH_BAIT_SEND_PATTERN_BROADCAST)
+        {
+          g_output_connections[output_port].push_back(new broadcast_connection(input_port, recipient_sockets));
+        }
+        else if(pattern == PHISH_BAIT_SEND_PATTERN_ROUND_ROBIN)
+        {
+          g_output_connections[output_port].push_back(new round_robin_connection(input_port, recipient_sockets));
+        }
+        else if(pattern == PHISH_BAIT_SEND_PATTERN_HASHED)
+        {
+          g_output_connections[output_port].push_back(new hashed_connection(input_port, recipient_sockets));
+        }
+        else if(pattern == PHISH_BAIT_SEND_PATTERN_DIRECT)
+        {
+          g_output_connections[output_port].push_back(new direct_connection(input_port, recipient_sockets));
+        }
+        else
+        {
+          std::ostringstream message;
+          message << "Unknown send pattern: " << pattern;
+          phish_return_error(message.str().c_str(), -1);
+        }
       }
       else
       {
-        std::ostringstream message;
-        message << "Unknown send pattern: " << pattern;
-        phish_return_error(message.str().c_str(), -1);
+        kept_arguments.push_back(argument);
       }
+    }
+
+    // Do some sanity checking on our command-line arguments ...
+    if(g_backend.empty() || g_host.empty() || g_school_id.empty() || !g_control_port)
+      phish_return_error("Missing required phish arguments.  You must use the phish bait system to execute a minnow.", -1);
+
+    // Setup send and receive buffers ...
+    g_pack_begin = use_datum();
+    pack_count() = 0;
+    g_pack_end = g_pack_begin + sizeof(uint32_t);
+
+    g_unpack_begin = use_datum();
+    g_unpack_current = g_unpack_begin;
+    g_unpack_end = g_unpack_begin;
+
+    // Wait to hear from the school ...
+    zmq::message_t message;
+    g_control_port->recv(&message, 0);
+    const std::string request(reinterpret_cast<char*>(message.data()), message.size());
+    if(request == "start")
+    {
+      zmq::message_t message(const_cast<char*>("ok"), strlen("ok"), 0);
+      g_control_port->send(message, 0);
     }
     else
     {
-      kept_arguments.push_back(argument);
+      std::ostringstream message;
+      message << "Unexpected request: " << request;
+      phish_return_error(message.str().c_str(), -1);
     }
+
+    // Cleanup argc & argv ...
+    *argc = get_argc(kept_arguments);
+    *argv = get_argv(kept_arguments);
+
+    return 0;
   }
-
-  // Do some sanity checking on our command-line arguments ...
-  if(g_backend.empty() || g_host.empty() || g_school_id.empty() || !g_control_port)
-    phish_return_error("Missing required phish arguments.  You must use the phish bait system to execute a minnow.", -1);
-
-  // Setup send and receive buffers ...
-  g_pack_begin = use_datum();
-  pack_count() = 0;
-  g_pack_end = g_pack_begin + sizeof(uint32_t);
-
-  g_unpack_begin = use_datum();
-  g_unpack_current = g_unpack_begin;
-  g_unpack_end = g_unpack_begin;
-
-  // Wait to hear from the school ...
-  zmq::message_t message;
-  g_control_port->recv(&message, 0);
-  const std::string request(reinterpret_cast<char*>(message.data()), message.size());
-  if(request == "start")
-  {
-    zmq::message_t message(const_cast<char*>("ok"), strlen("ok"), 0);
-    g_control_port->send(message, 0);
-  }
-  else
+  catch(std::exception& e)
   {
     std::ostringstream message;
-    message << "Unexpected request: " << request;
+    message << "Uncaught exception: " << e.what();
     phish_return_error(message.str().c_str(), -1);
   }
-
-  // Cleanup argc & argv ...
-  *argc = get_argc(kept_arguments);
-  *argv = get_argv(kept_arguments);
-
-  return 0;
 }
 
 int phish_exit()
