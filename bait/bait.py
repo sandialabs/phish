@@ -303,7 +303,7 @@ for school in schools.values():
         executable = candidate
     else:
       if options.launch == "":
-        raise Exception("Cannot locate executable '%s', you may need to specify --path or --suffix." % executable)
+        raise Exception("Cannot locate executable '%s', you may need to specify --path and/or --suffix." % executable)
 
   school["arguments"][0] = executable
 
