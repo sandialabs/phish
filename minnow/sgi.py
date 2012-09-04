@@ -112,7 +112,7 @@ def edge_again_close():
 # important NOTE:
 #   walk[-1] = vertex owned by this proc
 #   but is possible proc has not yet processed an RMAT edge to store it
-#   so check if walk[1] is in grpah and return if not
+#   so check if walk[1] is in graph and return if not
 #   walk should still be found when edge finally arrives
   
 def extend(nvalues):
