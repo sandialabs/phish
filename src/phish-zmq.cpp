@@ -407,6 +407,11 @@ int phish_init(int* argc, char*** argv)
         std::istringstream stream(pop_argument(arguments));
         stream >> g_global_count;
       }
+      else if(argument == "--phish-memory")
+      {
+        std::istringstream stream(pop_argument(arguments));
+        stream >> g_datum_size;
+      }
       else if(argument == "--phish-control-port")
       {
         const std::string address = pop_argument(arguments);

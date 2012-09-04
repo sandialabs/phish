@@ -87,6 +87,8 @@ int phish_bait_start()
       arguments.push_back(string_cast(i));
       arguments.push_back("--phish-global-count");
       arguments.push_back(string_cast(g_minnows.size()));
+      arguments.push_back("--phish-memory");
+      arguments.push_back(g_settings.count("memory") ? g_settings["memory"] : "1024");
       arguments.push_back("--phish-control-port");
       arguments.push_back(remote ? quoted_string(zmq_minnows[i].control_port_internal) : zmq_minnows[i].control_port_internal);
       arguments.push_back("--phish-input-port");
