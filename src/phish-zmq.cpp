@@ -410,7 +410,10 @@ int phish_init(int* argc, char*** argv)
       else if(argument == "--phish-memory")
       {
         std::istringstream stream(pop_argument(arguments));
-        stream >> g_datum_size;
+        int kilobytes = 1;
+        stream >> kilobytes;
+
+        g_datum_size = kilobytes * 1024;
       }
       else if(argument == "--phish-control-port")
       {
