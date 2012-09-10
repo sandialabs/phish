@@ -2,10 +2,7 @@
 
 SHELL = /bin/bash
 
-# Definitions
-# auto-generates list of minnows from *.cpp and *.c files that contain MINNOW
-# NOTE: what if additional C++ files needed to build a minnow?
-#       need way to add minnow-specific rules
+# Auto-generate list of minnows from *.cpp and *.c files that contain MINNOW
 
 SRCCPP = 	$(shell grep -l MINNOW *.cpp)
 MINNOWCPP =	$(SRCCPP:.cpp=)
