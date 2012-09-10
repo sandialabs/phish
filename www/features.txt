@@ -82,7 +82,7 @@ programs (minnows). :l,ule
 :line
 
 And last but not least, a suite of "phish-related"
-lingo"_doc/Section_intro.html#intro_2 that we use unabashedly:
+lingo"_doc/Section_intro.html#intro_2 that we use without apology:
 
 minnow = a (typically small) stand-alone application, run as an individual process
 school = a set of duplicate minnows, working (swimming) in a coordinated fashion
