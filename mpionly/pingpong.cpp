@@ -1,0 +1,82 @@
+// MPI-only ping-pong
+// reflect messages back and from between sender and receiver
+
+// Syntax: pingpong N M
+//         N = # of messages
+//         M = size of each message
+
+#include "mpi.h"
+#include "stdlib.h"
+#include "stdio.h"
+
+/* ---------------------------------------------------------------------- */
+
+int main(int narg, char **args)
+{
+  MPI_Init(&narg,&args);
+
+  int me,nprocs;
+  MPI_Comm_rank(MPI_COMM_WORLD,&me);
+  MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+
+  // must run on 2 procs
+
+  if (nprocs != 2) {
+    if (me == 0) printf("Must run on 2 processors\n");
+    MPI_Finalize();
+    exit(1);
+  }
+
+  int host_length;
+  char host[MPI_MAX_PROCESSOR_NAME];
+  MPI_Get_processor_name(host,&host_length);
+  host[host_length] = '\0';
+  printf("PHISH host pingpong %d: %s\n",me,host);
+
+  // parse input args
+
+  if (narg != 3) {
+    if (me == 0) printf("Pingpong syntax: pingpong N M\n");
+    MPI_Finalize();
+    exit(1);
+  }
+
+  int n = atoi(args[1]);
+  int m = atoi(args[2]);
+
+  char *buf = new char[m];
+  MPI_Status status;
+
+  // ping processor
+  // sends and receives
+  // prints timing
+
+  if (me == 0) {
+    for (int i = 0; i < m; i++) buf[i] = '\0';
+
+    double time_start = MPI_Wtime();
+
+    for (int i = 0; i < n; i++) {
+      MPI_Send(buf,m,MPI_BYTE,1,0,MPI_COMM_WORLD);
+      MPI_Recv(buf,m,MPI_BYTE,1,0,MPI_COMM_WORLD,&status);
+    }
+
+    double time_stop = MPI_Wtime();
+    printf("Elapsed time for %d pingpong exchanges of %d bytes = %g secs\n",
+	   n,m,time_stop-time_start);
+
+  // pong processor
+  // receives and sends
+
+  } else {
+    for (int i = 0; i < n; i++) {
+      MPI_Recv(buf,m,MPI_BYTE,0,0,MPI_COMM_WORLD,&status);
+      MPI_Send(buf,m,MPI_BYTE,0,0,MPI_COMM_WORLD);
+    }
+  }
+
+  // clean up
+
+  delete [] buf;
+  MPI_Finalize();
+}
