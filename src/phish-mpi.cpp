@@ -20,7 +20,7 @@
 #include "stdint.h"
 #include "phish.h"
 #include "phish-common.h"
-#include "hash.h"
+#include "hashlittle.h"
 
 #include <sstream>
 

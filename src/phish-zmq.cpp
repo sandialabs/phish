@@ -20,7 +20,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "hash.h"
+#include "hashlittle.h"
 #include "phish.h"
 #include "phish-bait-common.h"
 #include "phish-common.h"
