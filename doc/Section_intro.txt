@@ -226,7 +226,7 @@ calculation, assuming you have designed an algorithm that can be
 encoded as a series of computational tasks, interconnected by moving
 data between them.
 
-Build the PHISH library.
+Build the PHISH library
 Write and build one or more minnows that call the PHISH library.
 Write an input script that defines a PHISH net as minnows, schools and communication patterns between them.
 Use the bait.py tool to process and run the input script :ol
@@ -246,6 +246,9 @@ scripts are described in "this section"_Section_bait.html.
 
 Step (4): The bait.py tool, its command-line options, and instructions
 on how to use it, are described in "this section"_Section_bait.html.
+Before using it the first time, one or more backend libraries must be
+built, which are in the src directory.  This can be done as part of
+step (1).
 
 :line
 

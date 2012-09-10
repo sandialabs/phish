@@ -55,6 +55,8 @@ TIM: what would these lines be?
 After editing your shell start-up script, be sure to invoke it,
 e.g. source .cshrc.
 
+TIM: is (2) correct?  Should we even mention it?
+
 (2) Add the Python wrapper to the site-packages directory of your
 installed Python and the PHISH library to a directory the system looks
 in to load shared libraries.

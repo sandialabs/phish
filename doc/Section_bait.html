@@ -32,7 +32,7 @@ PHISH input script is formatted.  The input script commands recognized
 by bait.py have their own doc pages.
 </P>
 <UL><LI>2.1 <A HREF = "#bait_1">Input script commands</A>
-<LI>2.2 <A HREF = "#bait_2">Running bait.py</A>
+<LI>2.2 <A HREF = "#bait_2">Building and running bait.py</A>
 <LI>2.3 <A HREF = "#bait_3">Command-line arguments</A>
 <LI>2.4 <A HREF = "#bait_4">Input script syntax and parsing</A>
 <LI>2.5 <A HREF = "#bait_5">Simple example</A> 
@@ -57,19 +57,59 @@ by bait.py have their own doc pages.
 </UL>
 <HR>
 
-<A NAME = "bait_2"></A><H4>2.2 Running bait.py 
+<A NAME = "bait_2"></A><H4>2.2 Building and running bait.py 
 </H4>
-<P>The bait.py Python script is in the bait directory of the PHISH
-distribution.
+<P>Before using bait.py for the first time, one or more backend libraries
+must be built which bait.py uses for interfacing to MPI and/or ZMQ.
+This creates shared libraries which your Python must also be able to
+find.
 </P>
-<P>Like any Python script you can run it in one of two ways:
+<P>You can build one or more of the backend libraries from the src
+directory of the distribution by typing one or more of these lines:
+</P>
+<PRE>make -f Makefile.machine baitmpi
+make -f Makefile.machine baitmpiconfig
+make -f Makefile.machine baitzmq
+make -f Makefile.machine baitgraph
+make -f Makefile.machine baitnull 
+</PRE>
+<P>where "machine" is the name of one of the Makefiles in the directory.
+These should produce files like libphish-bait-mpi.so or
+libphish-bait-zmq.so.  See the discussion of the --backend
+command-line switch in the next section, for the difference between
+the various backend options.  See the discussion in <A HREF = "Section_library.html#library_2">this
+section</A> if none of the provided
+Makefiles are a match to your machine.
+</P>
+<P>TIM: doc how to do this via cmake?
+</P>
+<P>When you run bait.py, your Python must be able to find the appropriate
+backend shared library.  The simplest way to do this is
+to add a line to your shell start-up script.
+</P>
+<P>For csh or tcsh, add a line like this to your .cshrc file:
+</P>
+<PRE>setenv LD_LIBRARY_PATH $<I>LD_LIBRARY_PATH</I>:/home/sjplimp/phish/src 
+</PRE>
+<P>For bash, add a line like this to your .bashrc file:
+</P>
+<P>TIM: what would this line be?
+</P>
+<P>After editing your shell start-up script, be sure to invoke it,
+e.g. source .cshrc.
+</P>
+<P>See the discussion in <A HREF = "Section_python.html">this section</A> for an
+alternative way to do this.
+</P>
+<P>You are now ready to use the bait.py tool.  It is a Python script in
+the bait directory of the PHISH distribution.  Like any Python script
+you can run it in one of two ways:
 </P>
 <PRE>bait.py --switch value(s) ... < in.script
 python bait.py --switch values ... < in.script 
 </PRE>
-<P>For the first case, you need to insure that the first
-line of bait.py gives the correct path to the Python
-installed on your machine, e.g.
+<P>For the first case, you need to insure that the first line of bait.py
+gives the correct path to the Python installed on your machine, e.g.
 </P>
 <PRE>#!/usr/local/bin/python 
 </PRE>
@@ -77,9 +117,9 @@ installed on your machine, e.g.
 </P>
 <PRE>chmod +x bait.py 
 </PRE>
-<P>Normally you will want to invoke bait.py from the directory
-where your PHISH input script is, so you may need to
-prepend bait.py with a path or make an alias for running it.
+<P>Normally you will want to invoke bait.py from the directory where your
+PHISH input script is, so you may need to prepend bait.py with a path
+or make an alias for running it conveniently.
 </P>
 <P>The switch/value command-line arguments recognized by bait.py are
 discussed in the next section.

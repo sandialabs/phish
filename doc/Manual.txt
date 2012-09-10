@@ -85,7 +85,7 @@ we can improve the PHISH documentation.
   1.6 "Acknowledgments and citations"_intro_6 :ule,b
 "Bait.py Tool"_Section_bait.html :l
   2.1 "Input script commands"_bait_1 :ulb,b
-  2.2 "Running bait.py"_bait_2 :b
+  2.2 "Building and running bait.py"_bait_2 :b
   2.3 "Command-line arguments"_bait_3 :b
   2.4 "Input script syntax and parsing"_bait_4 :b
   2.5 "Simple example"_bait_5 :ule,b
