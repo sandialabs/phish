@@ -59,7 +59,7 @@ README			   this file
 LICENSE			   the BSD License
 bait			   Python setup script
 doc			   documentation
-examples 		   simple PHISH scripts
+example 		   simple PHISH scripts
 minnow			   stand-alone programs which link to the PHISH library
 python			   Python wrapper files on PHISH library
 src			   PHISH library source files
