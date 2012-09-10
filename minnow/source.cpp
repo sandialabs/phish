@@ -1,5 +1,5 @@
 // MINNOW source
-// generate hashed messages for map or reduce
+// generate hashed messages for sink
 
 #include "stdlib.h"
 #include "stdio.h"

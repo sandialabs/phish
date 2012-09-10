@@ -1,5 +1,5 @@
 # MINNOW source
-# generate hashed messages for map or reduce
+# generate hashed messages for sink
 
 import sys,random
 import phish
@@ -8,6 +8,9 @@ args = phish.init(sys.argv)
 phish.input(0,None,None,1)
 phish.output(0)
 phish.check()
+
+idglobal = phish.query("idglobal",0,0)
+print "PHISH host source %d: %s" % (idglobal,phish.host())
 
 if len(args) != 3: phish.error("Source syntax: source N M")
 
