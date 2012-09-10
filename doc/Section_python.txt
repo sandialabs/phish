@@ -13,14 +13,16 @@ distribution.  This allows a minnow written in Python to call the
 PHISH library.  The advantage of using Python is how concise the
 language is, enabling rapid development and debugging of PHISH minnows
 and nets.  The disadvantage is speed, since Python is slower than a
-compiled language.
+compiled language and there is an extra layer of callback functions
+between C++ and Python, when receipt of a datum makes a callback to a
+minnow written in Python.
 
 Before using the PHISH library in a Python script, the Python on your
-machine must be "extended" to include an interface to the PHISH
-library.  This is discussed below.
+machine must be able to find the PHISH library and wrapper.  This is
+discussed below.
 
 The Python interface to the PHISH library is very similar to the C
-interface.  See "this section"_Section_library.html#library_2 of the
+interface.  See "this section"_Section_library.html#library_3 of the
 doc pages for a brief overview.  "Individual library
 function"_Section_library.html#library_1 doc pages give examples of
 how to use the Python interface.
@@ -30,52 +32,61 @@ how to use the Python interface.
 
 [Extending Python with the PHISH library]
 
-The PHISH library has two variants (both have the same API), one that
-uses the MPI message-passing library, the other that uses the socket
-libarary ZMQ.  To use either variant from Python you must have either
-MPI or ZMQ installed on your machine.
+For a Python minnow to use the PHISH library, it must find two files
+at run-time that are part of PHISH.  The first is the PHISH wrapper.
+The second is the PHISH library.  It must also be able to find other
+shared libraries that the PHISH library depends on, e.g. MPI or ZMQ
+libraries, which is discussed in the next section.
 
-From the python directory of the distribution, type
-one of these commands:
+There are two different ways to enable Python to find the two PHISH
+files.
 
-python setup_mpich.py build
-python setup_openmpi.py build
-python setup_zmq.py build :pre
+(1) Add two lines to your shell start-up script.
 
-and then the corresponding version of one of these commands:
+For csh or tcsh, add lines like these to your .cshrc file:
 
-sudo python setup_mpich.py install
-python setup_mpich.py install --home=~/foo :pre
+setenv PYTHONPATH ${PYTHONPATH}:/home/sjplimp/phish/python
+setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/home/sjplimp/phish/src :pre
 
-The "build" command should compile all the needed PHISH C++ files.
-The first "install" command will put the needed files in your Python's
-site-packages sub-directory, so that Python can load them.  For
-example, if you installed Python yourself on a Linux machine, it would
-typically be somewhere like /usr/local/lib/python2.7/site-packages.
-Installing Python packages this way often requires you to be able to
-write to the Python directories, which may require root priveleges,
-hence the "sudo" prefix.  If this is not the case, you can drop the
-"sudo".
+For bash, add lines like these to your .bashrc file:
 
-Alternatively, you can install the PHISH files (or any other Python
-packages) in your own user space.  The second "install" command does
-this, where you should replace "foo" with your directory of choice.
+TIM: what would these lines be?
 
-If these commands are successful, a {phish.py} and {_phish.so} file
-will be put in the appropriate directory.
+After editing your shell start-up script, be sure to invoke it,
+e.g. source .cshrc.
 
-NOTE: say something about needing Python 2.7 for valid ctypes?
+(2) Add the Python wrapper to the site-packages directory of your
+installed Python and the PHISH library to a directory the system looks
+in to load shared libraries.
+
+The site-packages dir is typically something like
+/usr/lib/python/site-packages if you are using the system Python, or
+/usr/local/lib/python/site-packages if you installed Python yourself.
+
+Lines like these will copy the needed files:
+
+% cp -r /home/sjplimp/phish/python/phish /usr/local/lib/python/site-packages
+% cp /home/sjplimp/phish/src/*.so /usr/local/lib :pre
+
+The latter command will copy all the PHISH shared libraries you have
+built, including the "bait.py tool"_Section_bait.html backends.  The
+latter is necessary for using bait.py.
+
+You will need to prefix the lines with "sudo" if you need permission
+to copy into directories owned by root.
 
 :line
 
-[Creating a shared MPI library] :link(shared)
+[Creating a shared MPI or ZMQ library] :link(shared)
 
-A shared library is one that is dynamically loadable, which is what
-Python requires.  On Linux this is a library file that ends in ".so",
-not ".a".  Such a shared library is normally not built if you
-installed MPI yourself, but it is easy to do.  Here is how to do it
-for "MPICH"_mpich, a popular open-source version of MPI, distributed
-by Argonne National Labs.  From within the mpich directory, type
+To use the MPI or ZMQ version of the PHISH library from a Python
+minnow, a shared-library version of MPI or ZMQ must also exist, in a
+place the system can find it.  On Linux this is a library file that
+ends in ".so", not ".a".  Such a shared library may not normally not
+built if you installed MPI or ZMQ yourself, but it is easy to do.
+Here is how to do it for "MPICH"_mpich, a popular open-source version
+of MPI, distributed by Argonne National Labs.  From within the mpich
+directory, type
 
 :link(mpich,http://www-unix.mcs.anl.gov/mpi)
 
@@ -83,39 +94,21 @@ by Argonne National Labs.  From within the mpich directory, type
 make
 make install :pre
 
-You may need to use "sudo make install" in place of the last line.
-The end result should be the file libmpich.so in /usr/local/lib.  Note
-that if the file libmpich.a already existed in /usr/local/lib, you
-will now have both a static and shared MPICH library.  This will be
-fine for Python PHISH since it only uses the shared library.  But if
-you build other codes with libmpich.a, then those builds may fail if
-the linker uses libmpich.so instead, unless other dynamic libraries
-are also linked to.
+You may need to prepend "sudo" to the last line.  The end result
+should be the file libmpich.so put into /usr/local/lib.  As an
+alternative to the final make install, you can add the directory the
+libmpich.so file is in to your LD_LIBRARY_PATH environment variable,
+as illustrated above.
+
+TIM: how to build ZMQ as a shared lib?
 
 :line
 
 [Testing the PHISH library from Python] :link(test)
 
-Before importing the PHISH library in a Python program, one more step
-is needed.  The interface to the library is via Python ctypes, which
-loads the shared PHISH library via a CDLL() call, which in turn is a
-wrapper on the C-library dlopen().  This command is different than a
-normal Python "import" and needs to be able to find the PHISH shared
-library, which is either in the Python site-packages directory or in a
-local directory you specified in the "python setup.py install"
-command, as described above.
+To test if your Python can find all the files it needs to use the
+PHISH library, launch python and type:
 
-The simplest way to do this is add a line like this to your
-.cshrc or other shell start-up file.
+>>> import phish
 
-setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/usr/local/lib/python2.7/site-packages :pre
-
-and then execute the file to insure the path has been updated.  This
-will extend the path that dlopen() uses to look for shared libraries.
-
-To test if the PHISH library has been successfully installed, launch
-python in serial and type
-
->>> import phish :pre
-
-If you get no errors, you're good to go.
+If you don't get an error, you're good to go.

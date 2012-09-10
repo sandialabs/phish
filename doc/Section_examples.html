@@ -10,46 +10,46 @@
 
 <H3>5. Examples 
 </H3>
-<P>Below is the list of PHISH input scripts provided in the examples
-directory of the distribution.  Many of them come in two flavors,
-using minnows written in C++, or minnows written in Python.  The
-scripts can also be edited to use a mixture of C++ and Python minnows
-in the same PHISH net.  See the comment lines at the top of each
-script for instructions on what variables they expect to be defined
-via command-line arguements to the <A HREF = "Section_bait.html">bait.py</A> tool.
+<P>Below is the list of PHISH input scripts provided in the example
+directory of the distribution.  Many of them use minnows which come in
+2 flavors, written in C++ or Python.  The scripts can thus be edited
+to use all C++ or all Python minnows or a mixture of the two in the
+same PHISH net.  See the comment lines at the top of each script for
+instructions on what variables can be defined via command-line
+arguements to the <A HREF = "Section_bait.html">bait.py</A> tool.
 </P>
-<P>As discussed in <A HREF = "Section_intro.html#intro_4">this section</A> of the
-<A HREF = "Section_intro.html">Introduction</A>, the <A HREF = "Section_bait.html">bait.py</A>
-tool produces an output file.  The output file can be launched as a
-parallel job by the MPI commands mpirun or mpiexec, if the minnows
-specified in the input script were built with the MPI version of the
-PHISH library.  Or the output file can be used with the "launch.py"
-tool to run a parallel job if the minnows were built with the socket
-version of the PHISH library.
-</P>
+<UL><LI><A HREF = "#chain">in.chain</A>
+<LI><A HREF = "#filelist">in.filelist</A>
+<LI><A HREF = "#hash">in.hash</A>
+<LI><A HREF = "#hook">in.hook</A>
+<LI><A HREF = "#pingpong">in.pingpong</A>
+<LI><A HREF = "#rmat">in.rmat</A>
+<LI><A HREF = "#sgi">in.sgi</A>
+<LI><A HREF = "#slow">in.slow</A>
+<LI><A HREF = "#tri">in.tri</A>
+<LI><A HREF = "#wordcount">in.wordcount</A>
+<LI><A HREF = "#wrapsink">in.wrapsink</A>
+<LI><A HREF = "#wrapsource">in.wrapsource</A>
+<LI><A HREF = "#wrapsourcefile">in.wrapsourcefile</A>
+<LI><A HREF = "#wrapss">in.wrapss</A> 
+</UL>
 <HR>
 
 <HR>
 
-<H4>in.pp 
-</H4>
-<H4>in.pp.py 
+<H4><A NAME = "pingpong"></A>in.pingpong 
 </H4>
 <P>These scripts ping-pong a message back-and-forth between 2 minnows,
 <A HREF = "ping.html">ping</A> and <A HREF = "pong.html">pong</A>.  Each minnow is connected to
 the other and they exchange a M byte message N times.
 </P>
-<P>Here is an example of how to process the script with bait.py:
+<P>Here is an example of how to run the script with bait.py:
 </P>
-<PRE>../bait/bait.py -v m 1000 -v n 100 -p ../minnow < in.pp 
+<PRE>python ../bait/bait.py -v m 1000 -v n 100 -p ../minnow < in.pp 
 </PRE>
-<P>can M and N be defined with default values in input script?
-</P>
 <HR>
 
-<H4>in.wc 
-</H4>
-<H4>in.wc.py 
+<H4><A NAME = "wordcount"></A>in.wordcount 
 </H4>
 <P>These script perform a word frequency count across a set of input text
 files, similar to a MapReduce operation.  It uses the
@@ -65,7 +65,7 @@ script.  They can process a large corpus of files by specifying one or
 more directory names as arguments to the <A HREF = "filegen.html">filegen</A>
 minnow.
 </P>
-<P>Here is an example of how to process the script with bait.py:
+<P>Here is an example of how to run the script with bait.py:
 </P>
 <PRE>../bait/bait.py -v files in.* -p ../minnow < in.wc 
 </PRE>
@@ -73,9 +73,7 @@ minnow.
 </P>
 <HR>
 
-<H4>in.wrapsink 
-</H4>
-<H4>in.wrapsink.py 
+<H4><A NAME = "wrapsink"></A>in.wrapsink 
 </H4>
 <P>These scripts demonstrate the use of the <A HREF = "wrapsink.html">wrapsink</A>
 minnow which is used to wrap a non-PHISH application.  The program
@@ -88,7 +86,7 @@ copies of <A HREF = "reverse.html">reverse</A> can be launched by changing the s
 of the school of <A HREF = "wrapsink.html">wrapsink</A> minnows in the
 <A HREF = "bait_school.html">school</A> commands within the input script.
 </P>
-<P>Here is an example of how to process the script with bait.py:
+<P>Here is an example of how to run the script with bait.py:
 </P>
 <PRE>../bait/bait.py -v files in.* -p ../minnow < in.wrapsink 
 </PRE>
@@ -96,9 +94,7 @@ of the school of <A HREF = "wrapsink.html">wrapsink</A> minnows in the
 </P>
 <HR>
 
-<H4>in.wrapss 
-</H4>
-<H4>in.wrapss.py 
+<H4><A NAME = "wrappss"></A>in.wrapss 
 </H4>
 <P>These scripts are similar to the preceding in.wrapsink scripts.  They
 reverse each filename in a list of input filenames.  In this case the
@@ -111,7 +107,7 @@ the <A HREF = "print.html">print</A> minnow.  As before, multiple copies of
 school of <A HREF = "wrapss.html">wrapss</A> minnows in the
 <A HREF = "bait_school.html">school</A> commands within the input script.
 </P>
-<P>Here is an example of how to process the script with bait.py:
+<P>Here is an example of how to run the script with bait.py:
 </P>
 <PRE>../bait/bait.py -v files in.* -p ../minnow < in.wrapss 
 </PRE>
@@ -119,9 +115,7 @@ school of <A HREF = "wrapss.html">wrapss</A> minnows in the
 </P>
 <HR>
 
-<H4>in.wrapsource 
-</H4>
-<H4>in.wrapsource.py 
+<H4><A NAME = "wrapsource"></A>in.wrapsource 
 </H4>
 <P>what does this do?
 does it exist?
