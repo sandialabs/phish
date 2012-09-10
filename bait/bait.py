@@ -156,6 +156,9 @@ def generate_bindings():
 # main program
 # parse command-line options
 
+from version import version
+print "PHISH (%s)" % version
+
 parser = optparse.OptionParser()
 parser.add_option("--backend", "-b", default="mpi",
                   help="Specify the backend to use: " +
