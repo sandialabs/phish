@@ -5,92 +5,69 @@
 
 <HR>
 
-<H3>PHISH library pheatures 
+<H3>PHISH Pheatures 
 </H3>
-<UL><LI>The PHISH library is a small piece of code (couple 1000 lines), with a
-compact API (couple dozen functions).  It is written in C++, with a
-C-style interface, so that it can be easily called from programs
-written in a variety of languages (C, C++, Fortran, Python, etc).  The
-library is highly portable and can be compiled on any platform with a
-C++ compiler. 
+<UL><LI>The PHISH library is a small piece of code (few 1000 lines), with a
+compact API (couple dozen functions).  It has a C interface, so that
+it can be easily called from programs written in a variety of
+languages (C, C++, Fortran, Python, etc).  The library can be compiled
+on any platform with a C++ compiler. 
 
 <LI>The PHISH library comes in two flavors with the same API: one based on
-message passing via the MPI library, one based on sockets.  The latter
-uses the open-source ZMQ library.  This means you need one or both of
-these packages (MPI, ZMQ) installed on your machine to build a program
-(minnow) that uses the PHISH library. 
+message passing via the MPI library, the other based on sockets via
+the open-source <A HREF = "http://www.zeromq.org">ZMQ</A> library.  This means you need one or both of
+these packages (MPI, ZMQ) installed on your machine to build a minnow
+(process) that uses the PHISH library. 
 
-<LI>A Python wrapper for the PHISH library is provided, so that programs
-(minnows) that call the PHISH library can be written in Python. 
 
-<LI>The PHISH library encodes data exchanged between processes (minnows)
-with strict data typing rules, so that data can be passed between
-programs written in different languages (e.g. C++ vs Fortran vs
-Python) and running on different machines (4-byte vs 8-byte integers).
-Eventually, we may also allow for data exchange between machines with
-different floating point representations or endian ordering of data
-types. 
 
-<LI>PHISH programs (nets) which involve coordinated computation and data
-exchange between many processes (minnows) can be specified in PHISH
-input scripts, which are text files with a simple command syntax. 
+<LI>PHISH nets (programs) consist of one or more collections of minnows
+(schools), hooked together in defined communication patterns, to
+encode an algorithm or computation, The toplogy of a PHISH net is
+specified in an input script, which is text files with a simple
+command syntax. 
 
-<LI>PHISH input scripts use a <A HREF = "doc/bait_connect.html">connect</A> command
-which allows data to be exchanged in various patterns between
-collections of independent processes (minnows).  This enables
-parallelism in data processing to be easily expressed and
-exploited. 
+<LI>PHISH minnows can define one or more input and output ports for
+sending and receiving datums.  This allows schools of minnows to be
+hooked together in a variety of communication patterns. 
 
-<LI>PHISH input scripts can be converted into launch scripts via a
-provided Bait.py program.  This produces a file suitable for running
-either with MPI or sockets. 
+<LI>PHISH minnows can be written to operate on datums of various types
+(e.g. integers or floating-point values or strings).  This allows
+minnows to be re-used in various PHISH nets. 
 
-<LI>PHISH programs (nets) running on top of MPI are launched via the
-standard mpirun or mpiexec command.  Note that a PHISH net is
-different than the usual MPI program run on P processors where P
-copies of the same executable are launched.  A PHISH net typically
-consists of several different schools of minnows; each minnow is an
-independent executable. 
+<LI>A PHISH wrapper (pun intended) for Python is provided, so that minnows
+that call the PHISH library can be written in Python.  Minnows written
+in different languages (e.g. C++ or Python) can be used
+interchangeably in a PHISH input script. 
 
-<LI>PHISH programs (nets) running on top of sockets are launched via a
-provided Python script, called Launch.py, which mimics the operation
-of mpirun.  It invokes the set of independent processes (minnows) on
-various machines via ssh commands, sets up the socket connections
-between them, and synchrnoizes their launch so that no data is dropped
-as the processes (minnows) begin exchanging data. 
+<LI>The PHISH library exchanges data between minnows with strict data
+typing rules, so that minnows can be written in different languages
+(e.g. C++ vs Fortran vs Python) or run on different machines (4-byte
+vs 8-byte integers).  
 
-<LI>PHISH programs (nets) can be run on a single processor, so long as the
-OS supports multiple processes.  They can be run on a multicore box.
+<LI>PHISH input scripts are processed via a tool called
+<A HREF = "doc/Section_bait.html">bait.py</A> tool which can also run them as an MPI
+or socket-based program. 
+
+<LI>PHISH input scripts use a <A HREF = "doc/bait_hook.html">hook</A> command which
+allows data to be exchanged in various patterns between schools of
+minnows.  This enables parallelism in data processing to be easily
+expressed and exploited. 
+
+<LI>PHISH nets can be run on a single processor, so long as the OS
+supports multiple processes.  They can be run on a multicore box.
 They can be run on any distributed-memory or shared-memory platform
 that supports MPI or sockets.  Or they can be run on a geographically
 dispersed set of machines that support socket connections. 
 
-<LI>A PHISH program (net) can look for incoming data on a socket port.  It
-can likewise export data to a socket port.  This means that two or
-more PHISH programs (nets) can be launched independently and exchange
-data.  This is a mechanism for adding/deleting processes (minnows)
-to/from a calculation on the fly. 
+<LI>A PHISH net can look for incoming data on a socket port.  It can
+likewise export data to a socket port.  This means that two or more
+PHISH nets can be launched independently and exchange data.  This is a
+mechanism for adding/deleting minnows (processes) to/from a
+calculation on the fly. 
 
-<LI>A handful of programs (minnows) that call the PHISH library are
-included in the distribution, as are some example PHISH input scripts
-that encode PHISH programs (nets).  Makefiles are also provided to
-assist in creating and building your own new programs (minnows). 
-
-<LI>Programs (minnows) are included that wrap non-PHISH applications that
-read from stdin and/or write to stdout.  This allows those executables
-to be used in a PHISH program (net) and exchange data with other
-programs (minnows). 
-</UL>
-<HR>
-
-<P>And last but not least, a suite of "phish-related<A HREF = "doc/Section_intro.html#intro_2">
-lingo</A> that we use without apology:
-</P>
-<UL><LI>minnow = a (typically small) stand-alone application, run as an individual process
-<LI>school = a set of duplicate minnows, working (swimming) in a coordinated fashion
-<LI>net(work) = a PHISH program, typically consisting of multiple minnow schools, connected together to perform a calculation, as in the diagram below
-<LI>bait.py = a script for hooking schools of minnows together into a net
-<LI>wrapper = a Python wrapper for the PHISH library, included in the PHISH distribution 
-<LI>tales = the <A HREF = "doc/Manual.html">PHISH manual</A> 
+<LI>PHISH minnows are included that wrap non-PHISH applications that read
+from stdin and/or write to stdout.  This allows such an application to
+be used in a PHISH net and exchange data with other minnows. 
 </UL>
 </HTML>

@@ -3,7 +3,7 @@
 
 :line
 
-Latest Pheatures and Bug Fixes in the PHISH library :h3
+Latest Features and Bug Fixes in the PHISH library :h3
 
 This page is a continuous listing of new features and bug fixes for
 the PHISH library.
@@ -34,8 +34,7 @@ describe the version you have. :ule,l
 :line
 :line
 
-[1 Jun 2012]
+[12 Sep 2012]
 
-This is our target date for the initial public release of PHISH, once
-we get permission from DOE.  NNNN lines of code in src dir.  This
-version supercedes earlier distributed beta versions.
+Initial public release of PHISH.  This version supercedes earlier
+distributed beta versions.
