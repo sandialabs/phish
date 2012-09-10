@@ -5,14 +5,13 @@
 
 PHISH Papers :h3
 
-If you use the PHISH library in one of your publications, please list
-the URL of the "PHISH WWW site"_pws, namely
-http://www.sandia.gov/~sjplimp/phish.html.
+If you use the PHISH library in one of your publications, please cite
+the following paper (once it appears), and list the URL of the "PHISH
+WWW site"_pws, namely http://www.sandia.gov/~sjplimp/phish.html.
 
-A paper is about to be submitted which describes the PHISH library and
-how it can be used for streaming algorithms and informatics
-data-processing problems generally.  Until a full citation is posted
-here, please just cite the PHISH WWW site.
+S. J. Plimpton and T. Shead, "Streaming data analytics via message
+  passing with application to graph algorithms", submitted to J
+  Parallel and Distributed Compuing, 2012.
 
 :line
 

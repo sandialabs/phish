@@ -42,22 +42,22 @@ LIB_BN = libphish-bait-null.so
 mpi:	
 	$(CC) $(CCFLAGS) $(MPI_INC) -c phish-mpi.cpp
 	$(CC) $(CCFLAGS) -c phish-common.cpp
-	$(CC) $(CCFLAGS) -c hash.cpp
-	$(CC) $(LIBFLAGS) -o $(LIB_PM) phish-mpi.o phish-common.o hash.o \
-        $(MPI_LIB)
+	$(CC) $(CCFLAGS) -c hashlittle.cpp
+	$(CC) $(LIBFLAGS) -o $(LIB_PM) \
+        phish-mpi.o phish-common.o hashlittle.o $(MPI_LIB)
 
 mpizmq:	
 	$(CC) $(CCFLAGS) $(MPI_INC) $(ZMQ_INC) -DPHISH_MPI_ZMQ -c phish-mpi.cpp
 	$(CC) $(CCFLAGS) -c phish-common.cpp
-	$(CC) $(CCFLAGS) -c hash.cpp
-	$(CC) $(LIBFLAGS) -o $(LIB_PMZ) phish-mpi.o hash.o
+	$(CC) $(CCFLAGS) -c hashlittle.cpp
+	$(CC) $(LIBFLAGS) -o $(LIB_PMZ) phish-mpi.o hashlittle.o
 
 zmq:
 	$(CC) $(CCFLAGS) $(ZMQ_INC) -c phish-zmq.cpp
 	$(CC) $(CCFLAGS) -c phish-common.cpp
-	$(CC) $(CCFLAGS) -c hash.cpp
-	$(CC) $(LIBFLAGS) -o $(LIB_PZ) phish-zmq.o phish-common.o hash.o \
-        $(ZMQ_LIB)
+	$(CC) $(CCFLAGS) -c hashlittle.cpp
+	$(CC) $(LIBFLAGS) -o $(LIB_PZ) \
+        phish-zmq.o phish-common.o hashlittle.o $(ZMQ_LIB)
 
 baitmpi:	
 	$(CC) $(CCFLAGS) -c phish-bait-mpi.cpp
