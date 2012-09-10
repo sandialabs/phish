@@ -4,64 +4,33 @@ PHISH stands for Parallel Harness for Informatics Stream Hashing.
 
 Copyright (2012) Sandia Corporation.  Under the terms of Contract
 DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
-certain rights in this software.
+certain rights in this software.  This software is distributed under
+the Berkeley Software Distribution (BSD) License.
 
 ----------------------------------------------------------------------
 
-The PHISH package is simple, portable library which, along with a
-Python setup script, allows you to hook together a collection of
-independent stand-alone programs so that they can collectively compute
-something of interest by sending messages to each other.  Often this
-involves processing a large volume of data that arrives in a
-continuous, streaming fashion or is read from an archive of files;
-hence the term "informatics" in the acronym.
+PHISH is a simple, portable library which, along with a setup script
+bait.py, allows you to hook together a collection of independent
+stand-alone programs so that they can collectively process streaming
+or archived data and compute something of interest by sending datums
+to each other.  The PHISH backend can use either the MPI or ZMQ
+(socket) libraries to perform message passing.
 
-The individual programs can be written in any language (e.g. C, C++,
-Fortran, Python) and are linked to the PHISH library so that they can
-receive incoming data from upstream sources, process it, and send new
-data downstream.
-
-A PHISH input script allows specification of the set of programs to
-launch as independent procsses, how many copies of each are inovked,
-and the topology of how they connect to each other as they send and
-receive data.  Thus the input script encodes an algorithm for
-processing continuous data from a stream source or archived data from
-files.  The supported communication topologies include a "hashed" mode
-of messaging where a "key" is hashed to determine what process to send
-data to.  This is a means of exploiting parallelism in a streaming
-context, akin to a MapReduce operation.
-
-The exchange of datums between processes is handled within the PHISH
-library either by calls to the message-passing interface (MPI)
-library, or by sockets via the ZMQ library.  A PHISH tool converts the
-input script into a configuration file that can be launched by either
-mpirun or a shell script.  In the former case, a PHISH program can run
-on any platform that supports MPI.  In the latter case, a PHISH
-program can run on a single desktop machine or across any network of
-(geographically distributed) machines that support socket connections.
-
-The PHISH package and its accompanying software is licensed under the
-Berkeley Software Distribution (BSD) License, which basically means it
-can be used by anyone for any purpose.  See the LICENSE file in this
-directory for details.
-
-The most current version of the library including all bug fixes and
-new featues can be downloaded at
-www.sandia.gov/~sjplimp/download.html.
-
-The authors of PHISH are Steve Plimpton and Tim Shead at Sandia
-National Laboratories who can be contacted at sjplimp, tshead at
-sandia.gov.  Or see www.sandia.gov/~sjplimp.
+The authors of the code are Steve Plimpton and Tim Shead, who can be
+emailed at sjplimp@sandia.gov and tshead@sandia.gov.  The PHISH WWW
+Site at www.sandia.gov/~sjplimp/phish.html has more information about
+the code and its uses.
 
 This PHISH distribution includes the following files and directories:
 
 README			   this file
 LICENSE			   the BSD License
-bait			   Python setup script
+bait			   tool to process and launch PHISH input scripts
 doc			   documentation
 example 		   simple PHISH scripts
 minnow			   stand-alone programs which link to the PHISH library
-python			   Python wrapper files on PHISH library
+mpionly                    MPI-only benchmark programs
+python			   Python wrapper on PHISH library
 src			   PHISH library source files
 
 Point your browser at doc/Manual.html to get started.
