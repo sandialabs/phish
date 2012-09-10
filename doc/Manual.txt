@@ -20,7 +20,7 @@ PHISH Tales :h2,c
 
 Version info: :h4
 
-The PHISH "version" is the date when it was released, such as 1 Sept
+The PHISH "version" is the date when it was released, such as 1 Nov
 2012.  PHISH is updated continuously.  Whenever we fix a bug or add a
 feature, we release it immediately, and post a notice on "this page of
 the WWW site"_bug.  Each dated copy of PHISH contains all the features
@@ -80,7 +80,7 @@ we can improve the PHISH documentation.
   1.1 "Motivation"_intro_1 :ulb,b
   1.2 "PHISH lingo"_intro_2 :b
   1.3 "PHISH pheatures"_intro_3 :b
-  1.4 "Steps to creating and running a PHISH net"_intro_4 :b
+  1.4 "Steps to create and run a PHISH net"_intro_4 :b
   1.5 "Simple example"_intro_5 :b
   1.6 "Acknowledgments and citations"_intro_6 :ule,b
 "Bait.py Tool"_Section_bait.html :l
@@ -94,7 +94,7 @@ we can improve the PHISH documentation.
   3.2 "Code structure of a minnow"_minnow_2 :b
   3.3 "Communication via ports"_minnow_3 :b
   3.4 "Shutting down a minnow"_minnow_4 :b
-  3.5 "Building a minnow"_minnow_5 :ule,b
+  3.5 "Building minnows"_minnow_5 :ule,b
 "PHISH Library"_Section_library.html :l
   4.1 "List of library functions"_library_1 :ulb,b
   4.2 "Building the PHISH library"_library_2 :b

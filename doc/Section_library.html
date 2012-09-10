@@ -10,11 +10,11 @@
 
 <H3>4. PHISH Library 
 </H3>
-<P>This is the API to the PHISH library that PHISH minnows call.  In
-PHISH lingo, a "minnow" is a stand-alone application which makes calls
-to the <A HREF = "Library.html">PHISH library</A>.
+<P>This sections documents the API to the PHISH library that PHISH
+minnows call.  In PHISH lingo, a "minnow" is a stand-alone application
+which makes calls to the PHISH library.
 </P>
-<P>The API for the MPI and socket versions of the PHISH library are
+<P>The API for the MPI and ZMQ (socket) versions of the PHISH library are
 identical.
 </P>
 <P>A general discussion of how and when minnows call PHISH library
@@ -22,18 +22,19 @@ functions is given in the <A HREF = "Minnows.html">Minnows</A> section of the
 manual.
 </P>
 <P>The PHISH library has a C-style API, so it is easy to write minnows in
-any language, e.g. C, C++, Fortran, Python.  A C++-style API is also
-provided, which means a C++ program can use either the C or C++ API.
-A Python wrapper on the C-style API.  The doc pages for individual
-library functions document all 3 APIs; they are very similar.  See the
-section below entitled <A HREF = "#library_2">C vs C++ vs Python interface</A> for a
-quick overview.
+any language, e.g. C, C++, Fortran, Python.  A true C++-style API is
+also provided, which means a C++ program can use either the C or C++
+API.  A <A HREF = "Section_python.html">Python wrapper</A> on the C-style API is
+also provided, which has a slightly different syntax for some
+functions.  The doc pages for individual library functions document
+all 3 APIs.  See the section below entitled <A HREF = "#library_3">C vs C++ vs Python
+interface</A> for a quick overview.
 </P>
 <P>PHISH minnows communicate with other minnows by sending and receiving
 datums.  Before looking at individual library calls, it may be helpful
 to understand how data is stored internally in a datum by the PHISH
 library.  This topic is discussed below, in the section entitled
-<A HREF = "#library_3">Format of a datum</A>.
+<A HREF = "#library_4">Format of a datum</A>.
 </P>
 <UL><LI>4.1 <A HREF = "#library_1">List of library functions</A>
 <LI>4.2 <A HREF = "#library_2">Building the PHISH library</A>
@@ -46,9 +47,9 @@ library.  This topic is discussed below, in the section entitled
 
 <A NAME = "library_1"></A><H4>4.1 List of library functions 
 </H4>
-<P>The PHISH library is not large; there are only a handful of calls.
-They can be grouped into the following categories.  Follow the links
-to see a doc page for each library call.  
+<P>The PHISH library is not large; there are only a handful of calls,
+that can be grouped into the following categories.  Follow the links
+to see a doc page for each library call.
 </P>
 <OL><LI>Library calls for initialization 
 
@@ -168,27 +169,33 @@ to see a doc page for each library call.
 </H4>
 <P>There are two different versions of the PHISH library that can be
 built.  One that calls message-passing functions from the MPI library,
-and one that calls socket functions from the ZMQ library.
+and one that calls socket functions from the ZMQ library.  In either
+case, the library should typically be built as a shared library so it
+can loaded at run-time by each minnow.  This is required if the minnow
+is written in Python.
 </P>
-<P>You can build either version from the src directory
-of the distribution by typing one of these lines:
+<P>TIM: doc how to do this via cmake?
+</P>
+<P>You can build either version from the src directory of the
+distribution by typing one of these lines:
 </P>
 <PRE>make -f Makefile.machine mpi
 make -f Makefile.machine zmq 
 </PRE>
-<P>where "machine" is the name of one of the Makefiles
-in the directory. 
+<P>where "machine" is the name of one of the Makefiles in the directory.
+These should produce the file libphish-mpi.so or libphish-zmq.so.
 </P>
-<P>If none of the provided files work for your machine, then you can use
-of them as a template for creating your own, e.g. Makefile.foo.  Note
-that only the top section for compiler/linker settings need be edited.
-</P>
-<P>This is where you should specify your compiler and any switches it
-uses.  The MPI_INC setting is only needed if you are building the MPI
-version of the library, and the compiler needs to know where to find
-the mpi.h file.  Likewise the ZMQ_INC setting is only needed if you
-are building the ZMQ version of the library, and the compiler needs to
-know where to find the zmq.h file.
+<P>If none of the provided files are a match to your machine, then you
+can use of them as a template for creating your own,
+e.g. Makefile.foo.  Note that only the top section for compiler/linker
+settings need be edited.  This is where you should specify your
+compiler and any switches it uses.  The MPI_INC setting is only needed
+if you are building the MPI version of the library, and the compiler
+needs to know where to find the mpi.h file.  Likewise the ZMQ_INC
+setting is only needed if you are building the ZMQ version of the
+library, and the compiler needs to know where to find the zmq.h file.
+The MPI_LIB and ZMQ_LIB settings are for the MPI and ZMQ library
+themselves and any other auxiliary libraries they require.
 </P>
 <P>If the build is successful, a libphish-mpi.a or libphish-zmq.a file is
 produced.
@@ -197,15 +204,15 @@ produced.
 </P>
 <PRE>make -f Makefile.machine clean 
 </PRE>
-<P>to remove *.o and lib*.a files from the directory.
+<P>to remove *.o and lib*.so files from the directory.
 </P>
 <HR>
 
 <A NAME = "library_3"></A><H4>4.3 C vs C++ vs Python interface 
 </H4>
-<P>As noted above, the APIs to the PHISH library for
-C versus C++ versus Python are very simliar.  A C++ program
-can use either the C or C++ API.
+<P>As noted above, the APIs to the PHISH library for C versus C++ versus
+Python are very simliar.  A C++ program can use either the C or C++
+API.
 </P>
 <P>To use the C interface, a C or C++ program includes the file
 src/phish.h and makes calls to functions as follows:
@@ -225,10 +232,9 @@ phish::error("My error");
 using namespace phish
 error("My error"); 
 </PRE>
-<P>To use the Python interface, the Python PHISH wrapper needs to be
-installed in your machine's Python.  See <A HREF = "Section_python.html">this
-section</A> of the manual for details.
-A Python program can then invoke a library function as
+<P>To use the Python interface, see <A HREF = "Section_python.html">this section</A> of
+the manual for details.  A Python program can invoke a library
+function as
 </P>
 <PRE>import phish
 phish.error("My error") 
@@ -244,13 +250,13 @@ error("My error")
 </H4>
 <P>The chief function of the PHISH library is to facilitate the exchange
 of data between minnows.  This is done through datums, which contain
-one or more fields of data.  Each field is a fundamental data type
-such as a "32-bit integer" or a "vector of doubles" or a
-NULL-terminated character string.
+one or more fields.  Each field is a fundamental data type such as a
+"32-bit integer" or a "vector of doubles" or a NULL-terminated
+character string.
 </P>
 <P>The PHISH library defines a specific explicit type for each
 fundamental data type it recognizes, such as "int32" for 32-bit signed
-integers or "uint64" for 64-bit unsigned integers, or "double" for a
+integers, or "uint64" for 64-bit unsigned integers, or "double" for a
 double-precision value.  This is so that the format of the datum, at
 the byte level, is identical on different machines, and datums can
 thus be exchanged between minnows running on machines with different
@@ -259,10 +265,10 @@ vs Fortran vs Python).
 </P>
 <P>IMPORTANT NOTE: Different endian ordering of fundamental numeric data
 types on different machines breaks this model.  We may address this at
-some future time within the PHISH library.
+some future point within the PHISH library.
 </P>
 <P>This is the byte-level format of datums that are sent and received by
-minnows:
+minnows via the PHISH library:
 </P>
 <UL><LI># of fields in datum (int32_t)
 <LI>type of 1st field (int32_t)
@@ -277,14 +283,14 @@ minnows:
 <LI>data for Nth field (bytes) 
 </UL>
 <P>Integer flags are interleaved with the fundamental data types and the
-flags are all 32-bit signed integers.  This allows minnows that call
-the <A HREF = "phish_pack.html">phish_pack</A> and <A HREF = "phish_unpack.html">phish_unpack</A>
-functions to use the usual C "int" data type as function arguments,
-instead of the int32_t types defined in the function prototypes.  The
-compiler will only give an error if the native "int" on a machine is
-not a 32-bit integer.  See the doc pages for
-<A HREF = "phish_pack.html">phish_pack</A> and <A HREF = "phish_unpack.html">phish_unpack</A> for
-details.
+flags themselves are all 32-bit signed integers.  This allows minnows
+that call the <A HREF = "phish_pack.html">phish_pack</A> and
+<A HREF = "phish_unpack.html">phish_unpack</A> functions to use the usual C "int"
+data type as function arguments, instead of the int32_t types defined
+in the function prototypes.  The compiler will only give an error if
+the native "int" on a machine is not a 32-bit integer.  See the doc
+pages for <A HREF = "phish_pack.html">phish_pack</A> and
+<A HREF = "phish_unpack.html">phish_unpack</A> for details.
 </P>
 <P>The "type" values are one of these settings, as defined in
 src/phish.h:
@@ -335,28 +341,27 @@ as a string of bytes.
 PHISH_STRING (# of bytes including NULL), the ARRAY types (# of
 values), and PHISH_PICKLE (# of bytes).
 </P>
-<P>The field data is packed into the datum in a contiguous manner.
-This means that no attention is paid to alignment of integer
-or floating point values.
+<P>The field data is packed into the datum in a contiguous manner.  This
+means that no attention is paid to alignment of integer or floating
+point values.
 </P>
 <P>The maximum allowed size of an entire datum (in bytes) is set to a
 default value of 1024 bytes or 1 Kbyte.  This can be overridden via
-the <A HREF = "bait_set.html">set memory</A> command in a PHISH input script.
+the <A HREF = "bait_set.html">set memory</A> command in a PHISH input script or
+"--set memory" command-line option.
 </P>
 <P>When a datum is sent to another minnow via the MPI version of the
 PHISH library, MPI flags the message with an MPI "tag".  This tag
 encodes the receiving minnow's input port and also a "done" flag.
 Specifically, if the datum is not a done message, the tag is the
 receiver's input port (0 to Nport-1).  For a done message a value of
-MAXPORT (defined at the top of src/phish.cpp) is added to the tag.
+MAXPORT is added to the tag.  See the discussion of MAXPORT in <A HREF = "Section_minnows.txt#minnow_3">this
+section</A> of the manual.
 </P>
-<P>NOTE: MAXPORT is hardwired, could re-compile - this is
-so all minnows use same setting.
+<P>TIM: How is this encoding of port and done implemented for sockets?
 </P>
 <P>See the <A HREF = "phish_port.html">phish_input</A> doc page for a discussion of
 ports.  See the <A HREF = "Minnows.html#shutdown">shutdown section</A> of the
 <A HREF = "Minnows.html">Minnows</A> doc page for a discussion of "done" messages.
-</P>
-<P>TIM: How is this encoding of port and done implemented for sockets?
 </P>
 </HTML>

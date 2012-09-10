@@ -10,18 +10,18 @@ Documentation</A> - <A HREF = "Section_minnows.html">Next Section</A>
 
 <H3>2. Bait.py Tool 
 </H3>
-<P>Bait.py is a Python program which parses a PHISH input script and uses a
-dynamically-loaded backend to directly run a PHISH net and perform a
-calculation, or create a script that can be used to do the same.  In <A HREF = "Section_intro.html#intro_2">PHISH
-lingo</A>, a "minnow" is a stand-alone application
-which makes calls to the <A HREF = "Library.html">PHISH library</A> to exchange data with
-other PHISH minnows via its input and output ports.  A "net" is collection of
-minnows.
+<P>Bait.py is a Python program which parses a PHISH input script and uses
+a dynamically-loaded backend to directly run a PHISH net and perform a
+calculation, or create a script that can be used to do the same.  In
+<A HREF = "Section_intro.html#intro_2">PHISH lingo</A>, a "minnow" is a stand-alone
+application which makes calls to the <A HREF = "Library.html">PHISH library</A> to
+exchange data with other PHISH minnows via its input and output ports.
+A "net" is collection of schools of minnows.
 </P>
-<P>There are Bait backends for running a PHISH net using MPI, running a PHISH net
-using ZMQ, generating a config file for running a PHISH net using MPI, and
-generating a GraphViz "dotfile" that can be converted into a diagram of a PHISH
-net.
+<P>There are Bait backends for running a PHISH net using MPI, running a
+PHISH net using ZMQ, generating configuraiton files for MPI or ZMQ,
+and generating a GraphViz "dotfile" that can be converted into a
+diagram of a PHISH net.
 </P>
 <P>You can edit the input script or pass it different parameters via
 bait.py command-line arguments to change the calculation.  Re-running
@@ -43,6 +43,8 @@ by bait.py have their own doc pages.
 
 <A NAME = "bait_1"></A><H4>2.1 Input script commands 
 </H4>
+<P>These are the input script commands recognized by bait.py:
+</P>
 <UL><LI><A HREF = "bait_variable.html">variable</A> 
 
 <LI><A HREF = "bait_set.html">set</A> 
@@ -90,65 +92,84 @@ discussed in the next section.
 specified as "-switch value(s)".  Each switch has an abbreviated form;
 several of them have default settings.
 </P>
-<P>-h or --help
--b BACK or --backend BACK
--p PATH1:PATH2:... or --path PATH1:PATH2:...
--s NAME VALUE or --set NAME VALUE
--x SUFFIX or --suffix SUFFIX
--v NAME VALUE or --variable NAME VALUE
---verbose
-</P>
+<UL><LI>-h or --help
+<LI>-b BACK or --backend BACK
+<LI>-l LAUNCHER or --launch LAUNCHER
+<LI>-p PATH1:PATH2:... or --path PATH1:PATH2:...
+<LI>-s NAME VALUE or --set NAME VALUE
+<LI>-x SUFFIX or --suffix SUFFIX
+<LI>-v NAME VALUE or --variable NAME VALUE
+<LI>--verbose 
+</UL>
 <P>Use <I>--help</I> to display a help message and exit.
 </P>
 <P>Use <I>--backend</I> to select the desired bait.py backend.  The choice of
 backend defines how the input script will be interpreted to run a
-PHISH net.  Current choices for the backend include "graphviz", "mpi",
-"mpi-config", "null", and "zmq".
+PHISH net.  Current choices for BACK are "graphviz", "mpi",
+"mpi-config", "null", and "zmq".  We plan to add a "zmq-config"
+option.
 </P>
-<P>The graphviz backend will write a GraphViz file in DOT format to
+<UL><LI>The graphviz backend will write a GraphViz file in DOT format to
 stdout.  You can process this file using any of the GraphViz tools to
 create a diagram of your PHISH net, useful for documentation or
-presentations.
-</P>
-<P>The mpi backend will run your PHISH net immediately using the mpiexec
-command, which must be available somewhere on your system PATH.
-</P>
-<P>The mpi-config backend will write an mpiexec compatible config file to
+presentations. 
+
+<LI>The mpi backend will run your PHISH net immediately using the mpiexec
+command, which must be available somewhere on your system PATH. 
+
+<LI>The mpi-config backend will write an mpiexec compatible config file to
 stdout.  You can then run your PHISH net any time by passing the
-generated file to mpiexec.
-</P>
-<P>The null backend is a do-nothing backend that is useful for
+generated file to mpiexec. 
+
+<LI>The null backend is a do-nothing backend that is useful for
 troubleshooting.  For example, you can combine the --verbose option
 with the null backend to confirm that variables are expanded correctly
-in your PHISH input script.
-</P>
-<P>The zmq backend will run your PHISH net immediately using ZMQ sockets.
+in your PHISH input script. 
+
+<LI>The zmq backend will run your PHISH net immediately using ZMQ
+sockets. 
+</UL>
+<P>The <I>--launch</I> option will use the program LAUNCHER to invoke all the
+minnows.  This is useful if the minnow is a Python script, in which
+case --launch python will launch the minnow using Python.  LAUNCH can
+be multiple words if desired, e.g. --launch python -x.
 </P>
 <P>The <I>--path</I> option specifies a colon-separated list of one or more
-directories, which are added to an internal list stored by bait.py.
-When bait.py processes each minnow, as specified by the
-<A HREF = "bait_minnow.html">minnow</A> command, it looks for the minnow's
-executable file in this list of directories, so that it can write it
-to the launch script with an absolute path name.
+directories as PATH1, PATH2, etc.  When bait.py processes each minnow,
+as specified by the <A HREF = "bait_minnow.html">minnow</A> command, it looks for
+the minnow's executable file in this list of directories, so that it
+can write it to the launch script with an absolute path name.
 </P>
-<P>Use <I>--set</I> to set a backend-specific option, specified as a name
-value pair.
+<P>Use <I>--set</I> to set an option for the input script that is the same as
+if the <A HREF = "bait_set.html">set</A> command had been used in the input script
+with NAME and VALUE.  For example, --set memory 5 is the same as using
+"set memory 5" in the input script to specify the maximum datum size
+to 5 Kbytes.  A value specified in the input script will override a
+command-line setting.
 </P>
-<P>Use <I>--suffix</I> to supply a string that will be appended to the name of
-each minnow executable in your input file.  This is useful when you
-have minnow executables that have been built using different
+<P>Use <I>--suffix</I> to supply a SUFFIX string that will be appended to the
+name of each minnow executable in your input script.  This is useful
+when you have minnow executables that have been built using different
 communication backends - for example, if you have a minnow "foo.c",
 you might link it against the MPI and ZMQ backends to produce two
 executables, "foo-mpi", and "foo-zmq".  Using the <I>--suffix</I> option,
 you can create a single PHISH input script and run it against either
-executable by specifying --suffix=-mpi or --suffix=-zmq.
+executable by specifying --suffix=-mpi or --suffix=-zmq.  It is also
+useful if a minnow is a Python script, ending in ".py", in which case
+you could specify --suffix=.py and use the <I>--launch</I> option to invoke
+the minnow with Python.
 </P>
 <P>The <I>--variable</I> switch defines a variable that can be used within the
-script.  It can be used multiple times to define different variables.
-A <A HREF = "bait_variable.html">variable</A> command can also be used in the input
-script itself.  The variable name and value are any alphanumeric
-string.  A list of strings is assigned to it, e.g. a series of
-filenames.  For example,
+script.  It can be used multiple times to define different variables
+with NAME and VALUE.  A <A HREF = "bait_variable.html">variable</A> command can also
+be used in the input script itself.  The VALUE specified on the
+command-line will override the value of a variable with the same
+NAME in the input script, which allows you to set a default value
+in the input script and overrided it via the command line.
+</P>
+<P>The variable NAME and VALUE are any alphanumeric string.  A list of
+strings can also be assigned to it, e.g. a series of filenames.  For
+example,
 </P>
 <PRE>bait.py --variable files *.cpp < in.phish 
 </PRE>
@@ -158,10 +179,6 @@ in the current directory.
 <P>The <I>--verbose</I> option causes bait.py to produce verbose output while
 processing your input script.  The verbose output will vary depending
 on the backend in use, and will be written to stderr.
-</P>
-<P>When using backends that generate file output, the output normally is
-written to stdout ... use your shell's redirection features to write
-the output to a file.
 </P>
 <HR>
 
@@ -204,9 +221,8 @@ bait.py are <A HREF = "#bait_1">listed above</A>.  Each command has its own synt
 see its doc page for details.
 </P>
 <P>With one exception, commands in a PHISH input script can be listed in
-any order.  The script is converted by bait.py into a launch script
-for running a PHISH program, after the entire script is read.  The
-exception is that a variable cannot be substituted before it is
+any order.  The script is processed by bait.py after the entire script
+is read.  The exception is that a variable cannot be used before it is
 defined.
 </P>
 <HR>
@@ -216,17 +232,17 @@ defined.
 <P><A HREF = "Intro.html#intro_5">This section</A> of the <A HREF = "Intro.html">Introduction</A> doc
 page, discussed this diagram of a PHISH calculation for counting the
 number of times words appear in a corpus of files, performed as a
-streaming MapReduce operation.
+streaming MapReduce operation:
 </P>
 <CENTER><IMG SRC = "JPG/wordcount.jpg">
 </CENTER>
-<P>This is the PHISH input script example/in.wc that represents the
-diagram:
+<P>This is the PHISH input script in example/in.wordcount that represents
+the diagram:
 </P>
 <PRE># word count from files
 # provide list of files or dirs as -v files command-line arg 
 </PRE>
-<PRE>minnow 1 filegen $<I>files</I>
+<PRE>minnow 1 filegen ${files}
 minnow 2 file2words
 minnow 3 count
 minnow 4 sort 10
@@ -244,53 +260,50 @@ school 4 1
 school 5 1 
 </PRE>
 <P>The <A HREF = "bait_minnow.html">minnow</A> commands list the 5 different minnows
-used.  Note the use of the ${files} variable to pass a list
-of filenames or directories to the <I>FileGen</I> minnow.
+used.  Note the use of the ${files} variable to pass a list of
+filenames or directories to the <I>filegen</I> minnow.
 </P>
 <P>The <A HREF = "bait_hook.html">hook</A> commands specify the communication pattern
 used bewteen different schools of minnows.  The key pattern for this
-example is the <I>hashed</I> style, which allows the <I>File2Words</I> minnow to
+example is the <I>hashed</I> style, which allows the <I>file2words</I> minnow to
 pass a "key" (a word) to the PHISH library.  The library hashes the
-word to determine which <I>Count</I> minnow to send the datum to.
+word to determine which <I>count</I> minnow to send the datum to.
 </P>
 <P>The <A HREF = "bait_school.html">school</A> commands specify how many instances of
-each minnow to launch.  Any number of <I>File2Words</I> and <I>Count</I> minnows
+each minnow to launch.  Any number of <I>file2words</I> and <I>count</I> minnows
 could be specified.
 </P>
 <P>When this script is run thru bait.py in the example directory, as
 </P>
 <PRE>../bait/bait.py --backend mpi-config -v files in.* -p ../minnow < in.wc > outfile 
 </PRE>
-<P>then bait.py produces the following lines in outfile
+<P>using -mpi-config as the backend, then bait.py produces the following
+lines in outfile.  (Note that if --backend mpi is used, bait.py
+will launch the parallel job immediately after processing it.)
 </P>
--n 1 ../minnow/filegen in.bottle in.cc in.cc.jon in.filelist in.pp in.rmat in.slow in.wc in.wrapsink in.wrapsource in.wrapsourcefile in.wrapss --phish-backend mpi --phish-minnow filegen 1 1 0 --phish-out 1 0 0 roundrobin 5 1 0 
-
--n 5 ../minnow/file2words --phish-backend mpi --phish-minnow file2words 2 5 1 --phish-in 1 0 0 roundrobin 5 1 0 --phish-out 5 1 0 hashed 3 6 0 
-
--n 3 ../minnow/count --phish-backend mpi --phish-minnow count 3 3 6 --phish-in 5 1 0 hashed 3 6 0 --phish-out 3 6 0 single 1 9 0 
-
--n 1 ../minnow/sort 10 --phish-backend mpi --phish-minnow sort 4 1 9 --phish-in 3 6 0 single 1 9 0 --phish-out 1 9 0 single 1 10 0 
-
-<PRE>-n 1 ../minnow/print --phish-backend mpi --phish-minnow print 5 1 10 --phish-in 1 9 0 single 1 10 0 
+<PRE>-n 1 ../minnow/filegen in.bottle in.cc in.cc.jon in.filelist in.pp in.rmat in.slow in.wc in.wrapsink in.wrapsource in.wrapsourcefile in.wrapss --phish-backend mpi --phish-minnow filegen 1 1 0 --phish-out 1 0 0 roundrobin 5 1 0 : &
+-n 5 ../minnow/file2words --phish-backend mpi --phish-minnow file2words 2 5 1 --phish-in 1 0 0 roundrobin 5 1 0 --phish-out 5 1 0 hashed 3 6 0 : &
+-n 3 ../minnow/count --phish-backend mpi --phish-minnow count 3 3 6 --phish-in 5 1 0 hashed 3 6 0 --phish-out 3 6 0 single 1 9 0 : &
+-n 1 ../minnow/sort 10 --phish-backend mpi --phish-minnow sort 4 1 9 --phish-in 3 6 0 single 1 9 0 --phish-out 1 9 0 single 1 10 0 : & 
+-n 1 ../minnow/print --phish-backend mpi --phish-minnow print 5 1 10 --phish-in 1 9 0 single 1 10 0 
 </PRE>
-<P>which is the format of an mpiexec config file.  There is one line per minnow,
-as defined by the input script.  The "-n N" specifies how many copies of the
-minnow will be invoked.  The next argument is the name of the minnow
-executable, followed by any minnow arguments, followed by backend-specific
-arguments such as "-minnow", "-in", and "-out" that encode the communication
-patterns between the minnows.
+<P>which is the format of an mpiexec config file.  There is one line per
+minnow, as defined by the input script.  The "-n N" specifies how many
+copies of the minnow will be invoked.  The next argument is the name
+of the minnow executable, followed by any minnow arguments, followed
+by backend-specific arguments such as "-minnow", "-in", and "-out"
+that encode the communication patterns between the minnows.
 </P>
-<P>As discussed in <A HREF = "Intro.html#intro_5">this section</A> of the
-<A HREF = "Intro.html">Introduction</A> doc page, this outfile can be launched via
-the mpiexec command as:
+<P>This outfile can be launched via the mpiexec command as:
 </P>
 <PRE>mpiexec -configfile outfile 
 </PRE>
-<P>or
+<P>for MPICH, or as 
 </P>
 <PRE>mpiexec `cat outfile` 
 </PRE>
-<P>depending on your MPI implementation.
+<P>for OpenMPI.  (Note that if --backend mpi is used, bait.py will launch
+the parallel job immediately after processing it.)
 </P>
 <P>This will launch 11 independent processes as an MPI job.  Each process
 will call the PHISH library to exchange datums with other processes in
