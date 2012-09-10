@@ -68,14 +68,14 @@ message in one of the following formats is printed to stderr:
 PHISH MPI ERROR: Minnow str1 ID str2 # N: message
 PHISH SOCKET ERROR: Minnow str1 ID str2 # N: message :pre
 
-MPI means the MPI version of the PHISH library is being used; SOCKET
-means the socket version is being used.  Str1 is the name of the
-minnow executable (e.g. count).  Str2 is the ID of the minnow as
-specified in the PHISH input script via the "minnow" command.  N is
-the global ID of the minnow process.  This is a number from 0 to
-Nglobal-1 where Nglobal = the total number of minnows in the PHISH net
-as specified by the input script.  This information may be useful in
-debugging the minnow or PHISH input script.
+MPI or SOCKET means the MPI or ZMQ version of the PHISH library is
+being used.  Str1 is the name of the minnow executable (e.g. count).
+Str2 is the ID of the minnow as specified in the PHISH input script
+via the "minnow" command.  N is the global ID of the minnow process.
+This is a number from 0 to Nglobal-1 where Nglobal = the total number
+of minnows in the PHISH net as specified by the input script.  This
+information may be useful in debugging the minnow or PHISH input
+script.
 
 If a warning condition is detected, the same format of message is
 printed, with ERROR replaced by WARNING.
@@ -94,10 +94,10 @@ searched for the message text.
 
 Error messages from bait.py :h4,link(error_3)
 
-As discussed in "this section"_Section_bait.html, the bait.py tool is
-used to process PHISH input scripts and optionally run them.  Any
-errors that bait.py encounters in the input script generate error
-messages that should be self-explanatory.
+The "bait.py tool"_Section_bait.html is used to process PHISH input
+scripts and optionally run them.  Any errors that bait.py encounters
+in the input script generate error messages that should be
+self-explanatory.
 
 See the doc page for the "bait.py"_Section_bait.html tool, or the doc
 pages for "individual PHISH input script
