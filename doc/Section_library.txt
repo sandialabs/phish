@@ -303,7 +303,7 @@ encodes the receiving minnow's input port and also a "done" flag.
 Specifically, if the datum is not a done message, the tag is the
 receiver's input port (0 to Nport-1).  For a done message a value of
 MAXPORT is added to the tag.  See the discussion of MAXPORT in "this
-section"_Section_minnows.txt#minnow_3 of the manual.
+section"_Section_minnows.html#minnow_3 of the manual.
 
 TIM: How is this encoding of port and done implemented for sockets?
 
