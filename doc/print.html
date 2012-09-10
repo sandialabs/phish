@@ -34,8 +34,8 @@ minnows.
 </P>
 <P><B>Ports:</B>
 </P>
-<P>The print minnow uses one input port 0 to receive datums.  It does
-not use any output ports.
+<P>The print minnow uses one input port 0 to receive datums.  It does not
+use any output ports.
 </P>
 <P><B>Operation:</B>
 </P>
@@ -47,19 +47,17 @@ space, either to the screen or to <I>outfile</I>.  A trailing newline is
 written after all the fields have been written.
 </P>
 <P>The print minnow shuts down when its input port is closed by receiving
-a sufficient number of "done" messages.  Before shutting
-down it closes <I>outfile</I> if it was specified.
+a sufficient number of "done" messages.  Before shutting down it
+closes <I>outfile</I> if it was specified.
 </P>
 <P><B>Data:</B>
 </P>
-<P>The count minnow can receive datums with any number of fields.
-Any type of field can be printed, except for fields of type
-PHISH_RAW, which are ignored.  Array-type fields are printed
-one value at a time, with trailing spaces.
+<P>The print minnow can receive datums with any number of fields.  Any
+type of field can be printed, except for a field of type PHISH_RAW,
+which is ignored.  Array-type fields are printed one value at a time,
+with trailing spaces.
 </P>
-<P>NOTE: print minnow needs some additional logic for
-various added field types
-<B>Restrictions:</B> none
+<P><B>Restrictions:</B> none
 </P>
 <P><B>Related minnows:</B> none
 </P>

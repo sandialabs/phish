@@ -58,7 +58,10 @@ opens all ports used by the script so that data exchanges can begin :ul
 
 :line
 
-[Restrictions:] none
+[Restrictions:]
+
+This function must be called after input and output ports have been
+defined, and before any datums are received or sent to other minnows.
 
 [Related commands:]
 

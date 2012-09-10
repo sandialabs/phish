@@ -101,15 +101,11 @@ length <I>nbytes</I>, which will be <I>hashed</I> by the PHISH library and
 converted into an index for choosing a specific receiving processor to
 send the datum to.
 </P>
-<P>This form of sending must be used for a <I>hashed</I> connection style.  See
-the PHISH input script <A HREF = "bait_hook.html">hook</A> command for
-details.  If one or more of the connection styles connected to the
-output port is not a <I>hashed</I> style, then the <I>key</I> and <I>nbytes</I>
-arguments are ignored, and the generic phish_send() form is used to
-send the datum.
-</P>
-<P>NOTE: does Python syntax not include len?  or can other non-string
-keys be <I>hashed</I>?
+<P>This form of sending must be used for a <I>hashed</I> connection style.
+See the PHISH input script <A HREF = "bait_hook.html">hook</A> command for details.
+If a connection style to a specific output port is not a <I>hashed</I>
+style, then the <I>key</I> and <I>nbytes</I> arguments are ignored, and the
+generic phish_send() form is used to send the datum.
 </P>
 <HR>
 

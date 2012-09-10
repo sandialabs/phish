@@ -60,14 +60,14 @@ library</A>.  The <I>N</I> setting is in Kbytes, so that
 <I>N</I> = 1, since typical PHISH minnows send and receive small datums.
 </P>
 <P>The <I>self</I> keyword sets the size of a queue used to buffer datums sent
-by a minnow to itself.  In most PHISH input scripts this never
-happens, but it is allowed.  Since messages to self are received with
-the highest priority by PHISH library functions such as phish_loop()
-and phish_probe() that receive messages, it is also typical that this
-queue needs to be no larger than $S$ = 1 message, since $S refers to
-the maximum number of outstanding (sent, but not yet received)
-messages.  But it can be set larger if a minnow may several sends (to
-itself) before receiving a new message.
+by a minnow to itself.  In most PHISH input scripts sending to self
+this never happens, but it is allowed.  Since messages to self are
+received with the highest priority by PHISH library functions such as
+phish_loop() and phish_probe() that receive messages, it is also
+typical that this queue often needs to be no larger than $S$ = 1
+message, since $S refers to the maximum number of outstanding (sent,
+but not yet received) messages.  But it can be set larger if a minnow
+may perform several sends (to itself) before receiving a new message.
 </P>
 <P>The <I>queue</I> keyword sets the size of a queue used to buffer previously
 received datums when a minnow uses the phish_queue() and
@@ -138,12 +138,15 @@ the <I>pernode</I> setting.  If <I>Np</I> is not evenly divisible by <I>pernode<
 then <I>numnode</I> is incremented by one so that <I>numnode</I> * <I>pernode</I> >=
 <I>Np</I>.
 </P>
+<HR>
+
 <P><B>Restrictions:</B> none
 </P>
 <P><B>Related commands:</B>
 </P>
-<P>Any setting can be made in a PHISH input script or via the <I>--set</I> or
-<I>-s</I> command-line arguments of the <A HREF = "Secttion_bait.html">bait.py</A> tool.
+<P>Any setting can be made either in a PHISH input script or via the
+<I>--set</I> command-line argument of the <A HREF = "Secttion_bait.html">bait.py</A>
+tool.
 </P>
 <P><B>Default:</B>
 </P>

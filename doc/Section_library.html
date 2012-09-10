@@ -71,9 +71,9 @@ to see a doc page for each library call.
 <BR></UL>
 <LI>Library calls for receiving datums 
 
-<UL>  <A HREF = "phish_loop.html">phish_loop()</A> 
+<UL>  <A HREF = "phish_recv.html">phish_loop()</A> 
 <BR>
-  <A HREF = "phish_probe.html">phish_probe()</A> 
+  <A HREF = "phish_recv.html">phish_probe()</A> 
 <BR>
   <A HREF = "phish_recv.html">phish_recv()</A> 
 <BR>
@@ -185,8 +185,8 @@ make -f Makefile.machine zmq
 <P>where "machine" is the name of one of the Makefiles in the directory.
 These should produce the file libphish-mpi.so or libphish-zmq.so.
 </P>
-<P>If none of the provided files are a match to your machine, then you
-can use of them as a template for creating your own,
+<P>If none of the provided Makefiles are a match to your machine, then
+you can use of them as a template for creating your own,
 e.g. Makefile.foo.  Note that only the top section for compiler/linker
 settings need be edited.  This is where you should specify your
 compiler and any switches it uses.  The MPI_INC setting is only needed

@@ -60,8 +60,8 @@ Library calls for shutdown :l
   "phish_close()"_phish_shutdown.html :ule,b
 
 Library calls for receiving datums :l
-  "phish_loop()"_phish_loop.html :ulb,b
-  "phish_probe()"_phish_probe.html :b
+  "phish_loop()"_phish_recv.html :ulb,b
+  "phish_probe()"_phish_recv.html :b
   "phish_recv()"_phish_recv.html :b
   "phish_unpack()"_phish_unpack.html :b
   "phish_datum()"_phish_unpack.html :ule,b
@@ -132,8 +132,8 @@ make -f Makefile.machine zmq :pre
 where "machine" is the name of one of the Makefiles in the directory.
 These should produce the file libphish-mpi.so or libphish-zmq.so.
 
-If none of the provided files are a match to your machine, then you
-can use of them as a template for creating your own,
+If none of the provided Makefiles are a match to your machine, then
+you can use of them as a template for creating your own,
 e.g. Makefile.foo.  Note that only the top section for compiler/linker
 settings need be edited.  This is where you should specify your
 compiler and any switches it uses.  The MPI_INC setting is only needed

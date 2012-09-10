@@ -21,7 +21,8 @@ inport = input port datums are read from by receiving minnows (default = 0) :ul
 
 [Examples:]
 
-hook ... :pre
+hook 1 single 2
+hook 2:1 hashed 2:1 :pre
 
 [Description:]
 
@@ -63,8 +64,8 @@ can define and use ports.
 
 The specified {sendID} and {outport} are the minnows which will send
 datums through their output port {outport}.  If {outport} is not
-specified with a colon following the {sendID}, then a default
-output port of 0 is assumed.
+specified with a colon following the {sendID}, then a default output
+port of 0 is assumed.
 
 The specified {recvID} and {inport} are the minnows which will receive
 the sent datums through their input port {inport}.  If {inport} is not
@@ -74,13 +75,13 @@ port of 0 is assumed.
 Both {sendID} and {recvID} must be the IDs of minnows previously
 defined by a "minnow"_bait_minnow.html command.
 
-Note that there can be multiple hook commands which hook the
-same {sendID} and same (or different) {outport} to different
+Note that there can be multiple hook commands which hook the same
+{sendID} and same (or different) {outport} to different
 {recvID:inport} minnows.  Likewise, there can be multiple hook
-commands which hook the same {recvID} and same (or different)
-{inport} to different {sendID:outport} minnows.  There can even be
-multiple hook commands which hook the same {sendID} and same (or
-different) {outport} to the same {recvID:inport} minnows.
+commands which hook the same {recvID} and same (or different) {inport}
+to different {sendID:outport} minnows.  There can even be multiple
+hook commands which hook the same {sendID} and same (or different)
+{outport} to the same {recvID:inport} minnows.
 
 Also note that for all of the styles (except as noted below), the
 {sendID} and {recvID} can be the same, meaning a set of minnows will
@@ -176,13 +177,13 @@ and likewise multiple processes can subscribe to the same physical
 socket.  In the latter case, each receiving process reads the same
 published datum.
 
-NOTE: how does the PHISH library check the socket and return
-if there is no datum?
-
-NOTE: how does the read from the socket delimit the PHISH datum,
-so the minnow knows how much to read?
+TIM: how does the PHISH library check the socket and return
+if there is no datum, e.g. for phish_loop ?  or do you
+have to use phish_probe() ?
 
 [Restrictions:]
+
+TIM: is this true?
 
 The {publish} and {subscribe} styles are only supported by the socket
 version of the PHISH library, not the MPI version.

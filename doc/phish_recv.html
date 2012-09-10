@@ -75,6 +75,11 @@ by defining a port-specific callback function via the
 datum was received on via the <A HREF = "phish_unpack.html">phish_datum</A>
 function.
 </P>
+<P>Note that datums sent by a minnow to itself are always processed first
+by all of these functions.  For datums sent from another minnow, they
+are processed in the order they are received, i.e. first-come,
+first-served.
+</P>
 <HR>
 
 <P>The phish_loop() function turns control over to the PHISH library.  It

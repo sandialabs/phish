@@ -79,18 +79,17 @@ Note that in the Python version of phish.init(), the full argument
 list is passed as an argument, and the truncated argument list is
 returned.
 
-Following are some sample switches and arguments that the MPI version of the
-PHISH library looks for and processes.  These are generated automatically by
-the "bait.py"_Section_bait.html tool when it processes a PHISH input script so
-you don't need to think about these arguments, but it may be helpful in
-understanding how PHISH works.  Note that the following arguments may change at
-any time.
+Following are some sample switches and arguments that the MPI version
+of the PHISH library looks for and processes.  These are generated
+automatically by the "bait.py"_Section_bait.html tool when it
+processes a PHISH input script so you don't need to think about these
+arguments, but it may be helpful in understanding how PHISH works.
+Note that these arguments are normally invisible to the user; their
+format and number may be changed in future versions of PHISH.
 
 --phish-backend mpi
 --phish-minnow ID Nlocal Nprev
 --phish-memory N
---phish-safe M
---phish-self S
 --phish-in sprocs sfirst sport style rprocs rfirst rport
 --phish-out sprocs sfirst sport style rprocs rfirst rport :ul
 
@@ -104,31 +103,14 @@ script.  The {Nlocal} argument was explained above.  {Nprev} is the total
 number of minnows in sets of minnows previous to this one.  It is used to infer
 the {local-ID} value discussed above.
 
-The {--phish-memory} and {--phish-safe} and switches change default
-settings within the PHISH library.
+The {--phish-memory} switch changes a default setting within the PHISH
+library.  There is a similar command for each keyword supported by the
+"bait.py set"_bait_set.html command.
 
 The {--phish-memory} value {N} sets the maximum size of the buffers
 used to send and receive datums.  See the "set"_bait_set.html command
 of the "bait.py"_Section_bait.html tool for more information on the
 settings of this switch.
-
-The {--phish-safe} switch forces the MPI version of the PHISH library
-to use MPI_SSend() calls every {M} messages it sends, instead of the
-standard MPI_Send() when {M} is nonzero.  These are "safer" in the
-sense they insure messages are not dropped due to a minnow not keeping
-up with its incoming messages.  See the "set"_bait_set.html command of
-the "bait.py"_Section_bait.html tool for more information on the
-settings of this switch.
-
-The {--phish-self} switch sets the size of the buffer used by the MPI
-version of the PHISH library to perform non-blocking buffered sends
-via the MPI_BSend() call.  These calls are only made when a minnow
-sends a message to itself, e.g. in a looping fashion as specified by a
-"hook"_bait_hook.html command in a PHISH input script.  {S} specifies
-the number of maximum-size self messages that can be queued before the
-minnow receives them.  See the "set"_bait_set.html command of the
-"bait.py"_Section_bait.html tool for more information on the settings
-of this switch.
 
 The {--phish-in} switch appears once for every connection the minnow
 has with other minnows, where it is a receiver of datums.  See the

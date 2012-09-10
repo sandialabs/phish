@@ -55,7 +55,7 @@ This function provides a portable means to time operations within
 a minnow.  For the MPI version of the PHISH library, the function
 is a wrapper on MPI_Wtime().
 
-NOTE: how does this work for socket version?
+TIM: how does this work for socket version?
 
 The function returns the current time in CPU seconds.  To calculated
 an elapsed time, you need to bracket a section of code with 2 calls to

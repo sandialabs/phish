@@ -55,14 +55,14 @@ library"_Section_library.html.  The {N} setting is in Kbytes, so that
 {N} = 1, since typical PHISH minnows send and receive small datums.
 
 The {self} keyword sets the size of a queue used to buffer datums sent
-by a minnow to itself.  In most PHISH input scripts this never
-happens, but it is allowed.  Since messages to self are received with
-the highest priority by PHISH library functions such as phish_loop()
-and phish_probe() that receive messages, it is also typical that this
-queue needs to be no larger than $S$ = 1 message, since $S refers to
-the maximum number of outstanding (sent, but not yet received)
-messages.  But it can be set larger if a minnow may several sends (to
-itself) before receiving a new message.
+by a minnow to itself.  In most PHISH input scripts sending to self
+this never happens, but it is allowed.  Since messages to self are
+received with the highest priority by PHISH library functions such as
+phish_loop() and phish_probe() that receive messages, it is also
+typical that this queue often needs to be no larger than $S$ = 1
+message, since $S refers to the maximum number of outstanding (sent,
+but not yet received) messages.  But it can be set larger if a minnow
+may perform several sends (to itself) before receiving a new message.
 
 The {queue} keyword sets the size of a queue used to buffer previously
 received datums when a minnow uses the phish_queue() and
@@ -133,12 +133,15 @@ the {pernode} setting.  If {Np} is not evenly divisible by {pernode},
 then {numnode} is incremented by one so that {numnode} * {pernode} >=
 {Np}.
 
+:line
+
 [Restrictions:] none
 
 [Related commands:]
 
-Any setting can be made in a PHISH input script or via the {--set} or
-{-s} command-line arguments of the "bait.py"_Secttion_bait.html tool.
+Any setting can be made either in a PHISH input script or via the
+{--set} command-line argument of the "bait.py"_Secttion_bait.html
+tool.
 
 [Default:]
 

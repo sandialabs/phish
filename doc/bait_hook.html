@@ -24,7 +24,8 @@
 </UL>
 <P><B>Examples:</B>
 </P>
-<PRE>hook ... 
+<PRE>hook 1 single 2
+hook 2:1 hashed 2:1 
 </PRE>
 <P><B>Description:</B>
 </P>
@@ -66,8 +67,8 @@ can define and use ports.
 </P>
 <P>The specified <I>sendID</I> and <I>outport</I> are the minnows which will send
 datums through their output port <I>outport</I>.  If <I>outport</I> is not
-specified with a colon following the <I>sendID</I>, then a default
-output port of 0 is assumed.
+specified with a colon following the <I>sendID</I>, then a default output
+port of 0 is assumed.
 </P>
 <P>The specified <I>recvID</I> and <I>inport</I> are the minnows which will receive
 the sent datums through their input port <I>inport</I>.  If <I>inport</I> is not
@@ -77,13 +78,13 @@ port of 0 is assumed.
 <P>Both <I>sendID</I> and <I>recvID</I> must be the IDs of minnows previously
 defined by a <A HREF = "bait_minnow.html">minnow</A> command.
 </P>
-<P>Note that there can be multiple hook commands which hook the
-same <I>sendID</I> and same (or different) <I>outport</I> to different
+<P>Note that there can be multiple hook commands which hook the same
+<I>sendID</I> and same (or different) <I>outport</I> to different
 <I>recvID:inport</I> minnows.  Likewise, there can be multiple hook
-commands which hook the same <I>recvID</I> and same (or different)
-<I>inport</I> to different <I>sendID:outport</I> minnows.  There can even be
-multiple hook commands which hook the same <I>sendID</I> and same (or
-different) <I>outport</I> to the same <I>recvID:inport</I> minnows.
+commands which hook the same <I>recvID</I> and same (or different) <I>inport</I>
+to different <I>sendID:outport</I> minnows.  There can even be multiple
+hook commands which hook the same <I>sendID</I> and same (or different)
+<I>outport</I> to the same <I>recvID:inport</I> minnows.
 </P>
 <P>Also note that for all of the styles (except as noted below), the
 <I>sendID</I> and <I>recvID</I> can be the same, meaning a set of minnows will
@@ -179,13 +180,13 @@ and likewise multiple processes can subscribe to the same physical
 socket.  In the latter case, each receiving process reads the same
 published datum.
 </P>
-<P>NOTE: how does the PHISH library check the socket and return
-if there is no datum?
-</P>
-<P>NOTE: how does the read from the socket delimit the PHISH datum,
-so the minnow knows how much to read?
+<P>TIM: how does the PHISH library check the socket and return
+if there is no datum, e.g. for phish_loop ?  or do you
+have to use phish_probe() ?
 </P>
 <P><B>Restrictions:</B>
+</P>
+<P>TIM: is this true?
 </P>
 <P>The <I>publish</I> and <I>subscribe</I> styles are only supported by the socket
 version of the PHISH library, not the MPI version.

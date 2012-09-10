@@ -49,14 +49,6 @@ the top {N} results as datums to its ouput port 0.  Each datum
 contains two fields. The first field is the count, the second is the
 string.
 
-NOTE: would really be OK if received any kind of int?
-Is there some way to check for this, so code doesn't
-have to be too specific?
-
-NOTE: Could type of its 2nd value be ignored?
-      Is a C++ vector issue, might also need way
-      to copy single arbitrary field from recv buffer to input buffer
-
 [Data:]
 
 The sort minnow must receive two-field datums of type (PHSIH_INT32,

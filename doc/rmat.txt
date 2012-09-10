@@ -13,10 +13,12 @@ rmat minnow :h3
 rmat N Nlevel a b c d fraction seed :pre
 
 N = # of matrix elements or edges to generate
-Nlevel = order of RMAT matrix = 2^Nlevel
+Nlevel = order of R-MAT matrix = 2^Nlevel
 a,b,c,d = quadrant weighting factors which sum to 1.0
 fraction = twiddle factor
 seed = random number generator seed (positive integer) :ul
+
+NOTE: there are now additional optional args for how the egde is emitted
 
 [Examples:]
 
@@ -30,8 +32,8 @@ lingo, a "minnow" is a stand-alone application which makes calls to
 the "PHISH library"_Library.html to exchange data with other PHISH
 minnows via its input and output ports.
 
-The rmat minnow generates $N$ elements from an RMAT matrix of order
-2^{Nlevel} in a random recursive fashion.  An RMAT matrix is a
+The rmat minnow generates {N} elements from an R-MAT matrix of order
+2^{Nlevel} in a random recursive fashion.  An R-MAT matrix is a
 randomized sparse matrix whose structure can be tailored by the input
 parameters {a}, {b}, {c}, and {d}.  The matrix is of order 2^{Nlevel}
 and an element is represented by the I,J indices of the row and column
@@ -39,8 +41,8 @@ it is in.  The I,J values can also be interpreted as an edge in a
 sparse graph between vertices I and J, where the vertices are numbered
 from 1 to 2^{Nlevel} inclusive.
 
-The utility of RMAT matrices for describing graphs of various
-kinds is discussed in "(Smith)"_#Smith.
+The utility of R-MAT matrices for describing graphs of various kinds is
+discussed in "(Chakrabarti)"_#Chakrabarti.
 
 [Ports:]
 
@@ -65,11 +67,11 @@ adjust {a}, {b}, {c}, and {d} by a random fractional amount while
 keeping the sum of the 4 values = 1.0.  This has the effect of further
 randomizing the distribution of generated matrix elements.
 
-NOTE: better def of twiddle and is it 0 to 1?
+NOTE: Need a better defintion of twiddle and is it 0 to 1?
 
 [Data:]
 
-Each datum the rmat minnow sends has a two fields each of type
+Each datum the rmat minnow sends has two fields, each of type
 PHISH_UINT64.
 
 [Restrictions:] none
@@ -78,4 +80,6 @@ PHISH_UINT64.
 
 :line
 
-NOTE: give citation for RMAT
+:link(Chakrabarti)
+[(Chakrabarti)] Chakrabarti, Zhan, and Faloutsos, R-MAT: A Recursive
+Model for Graph Mining, SIAM Data Mining, 2004.
