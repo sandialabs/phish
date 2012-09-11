@@ -16,8 +16,8 @@ below, and re-build PHISH from scratch.
 
 What version of the PHISH library do you have? :h4,link(version)
 
-A PHISH "version" is the date when it was released, such as 1 Sept
-2010.  PHISH is updated continuously.  Every time we fix a bug or add
+A PHISH "version" is the date when it was released, such as 1 Nov
+2012.  PHISH is updated continuously.  Every time we fix a bug or add
 a feature, we release it immediately, as listed below.  Each dated
 copy of PHISH contains all the features and bug-fixes up to and
 including that version date.  Each time you use the
@@ -34,7 +34,7 @@ describe the version you have. :ule,l
 :line
 :line
 
-[12 Sep 2012]
+[13 Sep 2012]
 
 Initial public release of PHISH.  This version supercedes earlier
 distributed beta versions.
