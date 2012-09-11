@@ -42,22 +42,12 @@ distribution.  Each has its own doc page.  Some are written in C++
 languages, their operation is identical, with any exceptions noted in
 the minnow doc page:
 
-"chain"_chain.html
 "count"_count.html
 "file2words"_file2words.html
 "filegen"_filegen.html
-"ping"_ping.html
-"pong"_pong.html
 "print"_print.html
-"rmat"_rmat.html
-"sgi"_sgi.html
-"sgi_stats"_sgi_stats.html
-"sink"_sink.html
 "slowdown"_slowdown.html
-"sort"_sort.html
-"source"_source.html
-"tri"_tri.html
-"tri_stats"_tri_stats.html :ul
+"sort"_sort.html :ul
 
 These are also 3 special minnows which can wrap stand-alone non-PHISH
 applications which read from stdin and write to stdout, so that they

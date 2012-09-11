@@ -67,8 +67,8 @@ discussed on the <A HREF = "Bait.html">bait.py</A> doc page.
 <P>A minnnow can define and use multiple input and output ports, to send
 and receive datums of different kinds to different sets of minnows.
 Both input and output ports are numbered from 0 to Pmax-1, where Pmax
-= the maximum allowed ports, which is a hard-coded value in
-src/phish.cpp.  It is currently set to 16; most minnows use 1 or 2.
+= the maximum allowed ports, which is a hard-coded value for MAXPORT
+in src/phish.cpp.  It is currently set to 16; most minnows use 1 or 2.
 Note that a single port can be used to send or receive datums to many
 other minnows (processors), depending on the connection style.  See
 the <A HREF = "bait_hook.html">hook</A> command for details.

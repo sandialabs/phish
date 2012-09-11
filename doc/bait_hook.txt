@@ -144,6 +144,8 @@ the first and last minnows.  {N} > 1 is required.  The {sendID} must
 also be the same as the {recvID}, since the same set of minnows is
 sending and receiving.
 
+TIM: are these enabled yet for any of the backends?
+
 The {publish} and {subscribe} styles are different in that they do not
 hook two sets of minnows to each other.  Instead they hook one
 set of minnows to an external socket, either for writing or reading

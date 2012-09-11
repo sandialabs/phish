@@ -18,8 +18,8 @@ A "net" is collection of schools of minnows.
 
 There are Bait backends for running a PHISH net using MPI, running a
 PHISH net using ZMQ, generating configuraiton files for MPI or ZMQ,
-and generating a GraphViz "dotfile" that can be converted into a
-diagram of a PHISH net.
+and generating a dotfile that can be converted into a diagram of a
+PHISH net via the "GraphViz tool"_http://www.graphviz.org.
 
 You can edit the input script or pass it different parameters via
 bait.py command-line arguments to change the calculation.  Re-running
@@ -142,10 +142,10 @@ PHISH net.  Current choices for BACK are "graphviz", "mpi",
 "mpi-config", "null", and "zmq".  We plan to add a "zmq-config"
 option.
 
-The graphviz backend will write a GraphViz file in DOT format to
-stdout.  You can process this file using any of the GraphViz tools to
-create a diagram of your PHISH net, useful for documentation or
-presentations. :ulb,l
+The graphviz backend will write a file in DOT format to stdout.  You
+can process this file using any of the "GraphViz
+tools"_http://www.graphviz.org to create a diagram of your PHISH net,
+useful for documentation or presentations. :ulb,l
 
 The mpi backend will run your PHISH net immediately using the mpiexec
 command, which must be available somewhere on your system PATH. :l
