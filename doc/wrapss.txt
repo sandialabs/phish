@@ -17,7 +17,8 @@ program = shell command for launching executable program :ul
 [Examples:]
 
 wrapsource "myexe"
-wrapsource "myexe -n 3 -o outfile < in.script" :pre
+wrapsource "myexe -n 3 -o outfile < in.script"
+wrapsource "echo" :pre
 
 [Description:]
 
@@ -41,10 +42,11 @@ output port 0 to send datums.
 
 When the wrapss minnow starts, the {program} argument is treated as a
 string that is executed as a command by the shell.  As in the examples
-above {program} can be any string with flags or redirection operators.
-If the string contains spaces, it should be enclosed in quotes in the
-PHISH input script so that it is treated as a single argument when the
-script is read by the "bait.py"_Section_bait.html tool.
+above {program} can be an executable program name or a shell command.
+It can include flags or redirection operators.  If the string contains
+spaces, it should be enclosed in quotes in the PHISH input script so
+that it is treated as a single argument when the script is read by the
+"bait.py"_Section_bait.html tool.
 
 After the wrapss minnow launches the {program} command, it calls the
 "phish_probe"_phish_recv.html function.  Each time an input datum is
@@ -59,7 +61,7 @@ to its output port 0.
 Note that there is no requirement that the running {program} produce a
 line of output for every line of input it reads.  It may for example,
 read all of its input, compute for a while, then produce all of its
-output.  Or it may produce output in bursts of lines, after reading
+output.  Or it may produce output as bursts of lines, after reading
 multiple input lines.
 
 The wrapss minnow shuts down when its input port is closed by

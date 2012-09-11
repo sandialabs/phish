@@ -22,6 +22,8 @@
 </P>
 <PRE>wrapsource "myexe"
 wrapsource "myexe -n 3 -o outfile < in.script"
+wrapsource "ls *"
+wrapsource -f "wc %s"
 wrapsource -f "myexe -n 3 -o outfile < %s" 
 </PRE>
 <P><B>Description:</B>
@@ -48,11 +50,11 @@ specified, otherwise it uses no input ports.  It uses one output port
 the -f flag is specified.  In either case, the <I>program</I> argument is
 treated as a string that is executed as a command by the shell.
 </P>
-<P>As in the examples above <I>program</I> can be any string with flags or
-redirection operators.  If the string contains spaces, it should be
-enclosed in quotes in the PHISH input script so that it is treated as
-a single argument when the script is read by the
-<A HREF = "Section_bait.html">bait.py</A> tool.
+<P>As in the examples above <I>program</I> can be an executable program name
+or a shell command.  It can include flags or redirection operators.
+If the string contains spaces, it should be enclosed in quotes in the
+PHISH input script so that it is treated as a single argument when the
+script is read by the <A HREF = "Section_bait.html">bait.py</A> tool.
 </P>
 <P>If no -f flag is specified, the wrapsouce minnow launches a single
 instance of the <I>program</I> command and reads the output it writes to

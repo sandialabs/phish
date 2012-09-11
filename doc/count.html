@@ -40,7 +40,7 @@ output port 0 to send datums.
 </P>
 <P>When it starts, the count minnow calls the
 <A HREF = "phish_recv.html">phish_loop</A> function.  Each time a datum is received
-on input port 0, its first field is a string.  Unique strings are
+on input port 0, its first field must be a string.  Unique strings are
 stored in an internal table, using the string as a "key".  This is
 done via an STL "map" in the C++ version of count, and via a
 "dictionary" in the Python version of count.  The value associated
@@ -56,7 +56,7 @@ first field is the count, the second is the string.
 <P><B>Data:</B>
 </P>
 <P>The count minnow must receive single field datums of type
-PHISH_STRING.  It send two-field datums of type (PHISH_INT32,
+PHISH_STRING.  It sends two-field datums of type (PHISH_INT32,
 PHISH_STRING).
 </P>
 <P><B>Restrictions:</B> none

@@ -27,12 +27,12 @@ application which makes calls to the "PHISH library"_Library.html to
 exchange data with other PHISH minnows via its input and output ports.
 
 The filegen minnow generates a list of filenames from the filenames
-and directory names given to it as arguments.  Each directory
-is opened (recursively) and scanned to generate filenames.
+and directory names given to it as arguments.  Each directory is
+opened (recursively) and scanned to generate filenames.
 
 [Ports:]
 
-The ping minnow uses no input ports.  It uses one output port 0 to
+The filegen minnow uses no input ports.  It uses one output port 0 to
 send datums.
 
 [Operation:]
