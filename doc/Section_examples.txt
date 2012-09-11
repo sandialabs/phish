@@ -8,13 +8,14 @@
 
 5. Examples :h3
 
-Below is the list of PHISH input scripts provided in the example
+This is the list of PHISH input scripts provided in the example
 directory of the distribution.  Many of them use minnows which come in
-2 flavors, written in C++ or Python.  The scripts can thus be edited
-to use all C++ or all Python minnows or a mixture of the two in the
-same PHISH net.  See the comment lines at the top of each script for
-instructions on what variables can be defined via command-line
-arguements to the "bait.py"_Section_bait.html tool.
+2 flavors in the minnow directory, written in C++ or Python.  The
+scripts can thus be edited to use all C++ or all Python minnows or a
+mixture of the two in the same PHISH net.  See the comment lines at
+the top of each script for instructions on what variables can be
+defined via command-line arguements to the "bait.py"_Section_bait.html
+tool.
 
 "in.chain"_#chain
 "in.filelist"_#filelist
