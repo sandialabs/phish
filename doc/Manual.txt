@@ -104,7 +104,8 @@ we can improve the PHISH documentation.
 "Python Interface to PHISH"_Section_python.html :l
 "Errors"_Section_errors.html :l
   7.1 "Debugguing PHISH nets"_error_1 :ulb,b
-  7.2 "Error and warning messages from the PHISH library"_error_2 :ule,b
+  7.2 "Error and warning messages from the PHISH library"_error_2 :b
+  7.3 "Error messages from bait.py"_error_3 :ule,b
 :ole
 
 :link(intro_1,Section_intro.html#intro_1)
