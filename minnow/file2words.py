@@ -1,3 +1,8 @@
+#!/usr/local/bin/python
+
+# MINNOW file2words
+# read file and emit words
+
 import sys
 import phish
 

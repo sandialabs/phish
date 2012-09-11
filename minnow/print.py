@@ -1,3 +1,8 @@
+#!/usr/local/bin/python
+
+# MINNOW print
+# print datums to screen or file
+
 import sys
 import phish
 

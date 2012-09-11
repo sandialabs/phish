@@ -1,3 +1,5 @@
+#!/usr/local/bin/python
+
 # MINNOW sort
 # sort datums, emit top N
 

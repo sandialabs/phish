@@ -1,6 +1,10 @@
-import os
+#!/usr/local/bin/python
+
+# MINNOW filegen
+# emit filenames from list of files & dirs, scanned recursively
+
+import os,sys
 import phish
-import sys
 
 argv = phish.init(sys.argv)
 phish.output(0)

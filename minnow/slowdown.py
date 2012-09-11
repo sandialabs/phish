@@ -1,3 +1,8 @@
+#!/usr/local/bin/python
+
+# MINNOW slowdown
+# read datum and emit it with slowdown delay
+
 import sys,time
 import phish
 
@@ -5,8 +10,7 @@ def send(nvalues):
   global time_previous,delta
   elapsed = phish.timer() - time_previous
   if elapsed < delta: time.sleep(delta-elapsed)
-  iport,buf,len = phish.datum()
-  phish.pack_datum(buf,len)
+  phish.repack()
   phish.send(0)
   time_previous = phish.timer()
 

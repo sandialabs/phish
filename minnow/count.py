@@ -1,3 +1,5 @@
+#!/usr/local/bin/python
+
 # MINNOW count
 # count instances of strings
 
