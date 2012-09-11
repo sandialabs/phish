@@ -1,8 +1,6 @@
-# Demonstrates all the hook styles
-#
-# Process this file with bait.py -b graphviz to generate a dotfile
-# that can be processed by graphviz to produce a diagram of the
-# minnow connections
+# draw a diagram of all the hook styles
+# process with bait.py -b graphviz to generate a dotfile
+# dotfile can be visualized by graphviz to produce a diagram
 
 minnow a a
 minnow b b

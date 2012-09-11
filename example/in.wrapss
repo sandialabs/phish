@@ -1,4 +1,4 @@
-# test of writing and reading to a duplex pipe via wrapss
+# write and read to a duplex pipe via wrapss
 # echo or reverse each filename in a list of filenames
 # provide list of files or dirs as -v files command-line arg
 

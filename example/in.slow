@@ -1,10 +1,13 @@
-# test MPI backup due to slowdown in receiver
+# insert a slowdown in the stream of datums
 # provide list of files or dirs as -v files command-line arg
+
+variable N 1
+variable delta 0.1
 
 minnow 1 filegen ${files}
 minnow 2 file2words
-#minnow 3 slowdown 0.1
-minnow 3 slowdown.py 0.0
+#minnow 3 slowdown ${delta}
+minnow 3 slowdown.py ${delta}
 minnow 4 print
 
 hook 1 roundrobin 2
@@ -12,6 +15,6 @@ hook 2 single 3
 hook 3 single 4
 
 school 1 1
-school 2 5
+school 2 $N
 school 3 1
 school 4 1

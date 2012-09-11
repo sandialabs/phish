@@ -1,6 +1,8 @@
-# test of reading from a pipe via wrapsource with file input
-# wc % counts lines in files, note need to use %s to substitute filename
+# read from a pipe via wrapsource with file input
+# wc %s counts lines in files, %s used to substitute filename
 # provide list of files or dirs as -v files command-line arg
+
+variable N 2
 
 minnow 1 filegen ${files}
 minnow 2 wrapsource -f wc %s
@@ -10,5 +12,5 @@ hook 1 roundrobin 2
 hook 2 single 3
 
 school 1 1
-school 2 4
+school 2 $N
 school 3 1

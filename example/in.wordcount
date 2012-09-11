@@ -1,5 +1,8 @@
-# word count from files
+# word frequency count from files
 # provide list of files or dirs as -v files command-line arg
+
+variable N 4
+variable M 3
 
 minnow filegen filegen ${files}
 minnow file2words file2words
@@ -13,7 +16,7 @@ hook count single sort
 hook sort single print
 
 school filegen 1
-school file2words 4
-school count 3
+school file2words $N
+school count $M
 school sort 1
 school print 1
