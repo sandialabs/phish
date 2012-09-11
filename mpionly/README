@@ -1,0 +1,30 @@
+This directory contains MPI-only versions of minnows
+useful for benchmarking purposes.  These are essentially
+single-file versions of 3 PHISH inputs scripts, meant
+to be run without PHISH, as standard MPI programs, via
+mpirun.
+
+pingpong.cpp            pingpong benchmark, see example/in.pingpong
+chain.cpp               chain benchmark, see example/in.chain
+hash.cpp                hash benchmark, see example/in.hash
+
+You can build all 3 of the benchmarks by typing
+
+make -f Makefile.linux
+
+with the appopriate Makefile for your system.  You can edit the top
+portion of one of the Makefiles if none are a match to your machine.
+
+You can run them as follows.  See the top of each of the 3 files for a
+description of the arguments each one takes.
+
+% mpirun -np 2 pingpong 1000 16
+% mpirun -np 8 chain 1000 16 0
+% mpirun -np 8 hash 1000 16 0
+
+The pingpong benchmark must be run on 2 procesors.  The chain
+benchmark must be run on >= 2 processors.  The hash benchmark must be
+run on an even number of processors.
+
+
+
