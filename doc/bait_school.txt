@@ -178,9 +178,13 @@ other 2 methods must be used.
 ID is ignored.
 
 (3) The node ID is converted to a machine hostname.  The set of
-possible hostnames is determined by the "variable hostnames" command.
-As described on that doc page, a hostname can be a machine name
-(foo.localnet.gov) or a node name on a parallel machine (rs2001).
+possible hostnames is determined by the "variable
+hostnames"_bait_variable.html command which must be specified either
+in the input script or as a "command-line
+option"_Section_bait.html#bait_3 to the bait.py tool.  As described on
+the "variable"_bait_variable.html doc page, a hostname can be a
+machine name (foo.localnet.gov) or a node name on a parallel machine
+(rs2001).
 
 The ZMQ backend launches each minnow on a specific hostname.  If the
 host is a multi-core node, then it may launch multiple minnows on the

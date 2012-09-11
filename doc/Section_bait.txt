@@ -159,8 +159,10 @@ troubleshooting.  For example, you can combine the --verbose option
 with the null backend to confirm that variables are expanded correctly
 in your PHISH input script. :l
 
-The zmq backend will run your PHISH net immediately using ZMQ
-sockets. :ule,l
+The zmq backend will run your PHISH net immediately using ZMQ sockets.
+Note that there is a variable called "hostnames" that must be set to
+use the ZMQ backend; see the "variable"_bait_variable.html doc page
+for details. :ule,l
 
 The {--launch} option will use the program LAUNCHER to invoke all the
 minnows.  This is useful if the minnow is a Python script, in which
@@ -208,6 +210,10 @@ bait.py --variable files *.cpp < in.phish :pre
 
 creates the variable named "files" containing a list of all CPP files
 in the current directory.
+
+Note that there is a variable called "hostnames" that must be set to
+use the ZMQ backend; see the "variable"_bait_variable.html doc page
+for details.
 
 The {--verbose} option causes bait.py to produce verbose output while
 processing your input script.  The verbose output will vary depending
