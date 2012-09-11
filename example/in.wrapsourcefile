@@ -5,7 +5,7 @@
 variable N 2
 
 minnow 1 filegen ${files}
-minnow 2 wrapsource -f wc %s
+minnow 2 wrapsource -f "wc %s"
 minnow 3 print
 
 hook 1 roundrobin 2

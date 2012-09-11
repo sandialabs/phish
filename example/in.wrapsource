@@ -1,7 +1,7 @@
 # read from a pipe via wrapsource
 # ls * just produces a list of files in this dir
 
-minnow 1 wrapsource ls *
+minnow 1 wrapsource "ls *"
 minnow 2 print
 
 hook 1 single 2
