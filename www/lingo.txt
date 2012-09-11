@@ -9,7 +9,7 @@ This phish-related lingo is used, without apology, throughout the
 "manual"_doc/Manual.html and WWW site:
 
 minnow = a (typically small) stand-alone application, run as a process
-school = a set of duplicate minnows, swimming together in a coordinated fashion
+school = a set of duplicate minnows, swimming (working) together in coordinated fashion
 hook = a connection between two schools in a defined communication pattern
 net(work) = a PHISH program, consisting of one or more schools, hooked together to perform a calculation
 bait.py = a tool for creating PHISH nets from an input script
