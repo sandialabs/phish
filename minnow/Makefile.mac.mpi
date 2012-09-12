@@ -11,14 +11,15 @@ CCFLAGS =	-g -O -DMPICH_IGNORE_CXX_SEEK -I../src
 LINK =		mpic++
 LINKFLAGS =	-g -O 
 LIB =		../src/libphish-mpi.a
-SYSLIB =
 
 # ---------------------------------------------------------------------
 # build rules and dependencies
 # no need to edit this section
 
-$(EXE):		$(EXE).o
-	$(LINK) $(LINKFLAGS) $(EXTRA_PATH) $(EXE).o $(LIB) $(SYSLIB) -o $(EXE)
+OBJ = $(EXE).o
+
+$(EXE): $(OBJ)
+	$(LINK) $(LINKFLAGS) $(OBJ) $(LIB) -o $(EXE)-mpi
 
 # Rules
 

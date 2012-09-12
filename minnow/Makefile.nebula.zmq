@@ -11,14 +11,15 @@ CCFLAGS =	-O
 LINK =		/opt/openmpi-gnu-1.3.2/bin/mpiCC
 LINKFLAGS =	-O 
 LIB =		libphish-zmq.a
-SYSLIB =	
 
 # ---------------------------------------------------------------------
 # build rules and dependencies
 # no need to edit this section
 
-$(EXE):		$(EXE).o
-	$(LINK) $(LINKFLAGS) $(EXTRA_PATH) $(EXE).o $(LIB) $(SYSLIB) -o $(EXE)
+OBJ = $(EXE).o
+
+$(EXE): $(OBJ)
+	$(LINK) $(LINKFLAGS) $(OBJ) $(LIB) -o $(EXE)-zmq
 
 # Rules
 

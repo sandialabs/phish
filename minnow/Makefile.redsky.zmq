@@ -21,7 +21,7 @@ LIB_RPATH =     -Wl,-rpath,/ascldap/users/sjplimp/phish/src:/ascldap/users/tshea
 OBJ = $(EXE).o
 
 $(EXE): $(OBJ)
-	$(LINK) $(LINKFLAGS) $(OBJ) $(LIB) -o $(EXE) $(LIB_RPATH)
+	$(LINK) $(LINKFLAGS) $(OBJ) $(LIB) -o $(EXE)-zmq $(LIB_RPATH)
 
 # Rules
 
