@@ -19,7 +19,7 @@ LIB =		../src/libphish-mpi.a
 OBJ = $(EXE).o
 
 $(EXE): $(OBJ)
-	$(LINK) $(LINKFLAGS) $(OBJ) $(LIB) -o $(EXE)-mpi
+	$(LINK) $(LINKFLAGS) $(OBJ) $(LIB) -o $(EXE)
 
 # Rules
 

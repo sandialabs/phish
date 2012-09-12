@@ -21,7 +21,7 @@ LIB_RPATH =     -Wl,-rpath,/home/sjplimp/phish/src
 OBJ = $(EXE).o
 
 $(EXE): $(OBJ)
-	$(LINK) $(LINKFLAGS) $(OBJ) $(LIB) -o $(EXE)-zmq $(LIB_RPATH)
+	$(LINK) $(LINKFLAGS) $(OBJ) $(LIB) -o $(EXE) $(LIB_RPATH)
 
 # Rules
 

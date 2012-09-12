@@ -19,7 +19,7 @@ LIB =		../src/libphish-zmq.a
 OBJ = $(EXE).o
 
 $(EXE): $(OBJ)
-	$(LINK) $(LINKFLAGS) $(OBJ) $(LIB) -o $(EXE)-zmq
+	$(LINK) $(LINKFLAGS) $(OBJ) $(LIB) -o $(EXE)
 
 # Rules
 
