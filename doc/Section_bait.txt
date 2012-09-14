@@ -86,7 +86,9 @@ setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/home/sjplimp/phish/src :pre
 
 For bash, add a line like this to your .bashrc file:
 
-TIM: what would this line be?
+export LD_LIBRARY_PATH ${LD_LIBRAY_PATH}:/home/tshead/build/phish/src :pre
+
+For OSX systems, use DYLD_LIBRARY_PATH instead of LD_LIBRARY_PATH.
 
 After editing your shell start-up script, be sure to invoke it,
 e.g. source .cshrc.
