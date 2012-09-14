@@ -50,12 +50,13 @@ setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/home/sjplimp/phish/src :pre
 
 For bash, add lines like these to your .bashrc file:
 
-TIM: what would these lines be?
+export PYTHONPATH ${PYTHONPATH}:/home/tshead/src/phish/python
+export LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/home/tshead/build/phish/src :pre
 
 After editing your shell start-up script, be sure to invoke it,
 e.g. source .cshrc.
 
-TIM: is (2) correct?  Should we even mention it?
+Note: On OSX systems, use DYLD_LIBRARY_PATH instead of LD_LIBRARY_PATH.
 
 (2) Add the Python wrapper to the site-packages directory of your
 installed Python and the PHISH library to a directory the system looks
@@ -102,7 +103,8 @@ alternative to the final make install, you can add the directory the
 libmpich.so file is in to your LD_LIBRARY_PATH environment variable,
 as illustrated above.
 
-TIM: how to build ZMQ as a shared lib?
+To build ZMQ as a shared library, you may need to specify --enable-shared
+during the configuration process, which is the default.
 
 :line
 
