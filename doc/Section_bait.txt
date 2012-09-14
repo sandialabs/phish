@@ -57,7 +57,23 @@ must be built which bait.py uses for interfacing to MPI and/or ZMQ.
 This creates shared libraries which your Python must also be able to
 find.
 
-You can build one or more of the backend libraries from the src
+The easiest way to build all of PHISH, including the bait backend libraries,
+is to use the cross-platform "CMake"_http://www.cmake.org build system.  We
+recommend building PHISH with a separate build directory:
+
+$ tar xzvf phish.tar.gz -C ~/src
+$ mkdir ~/build/phish
+$ cd ~/build/phish
+$ ccmake ~/src/phish-14sep12 :pre
+
+Then, in the CMake curses interface, configure the build, generate makefiles,
+and build phish:
+
+$ make :pre
+
+:line
+
+You can also build one or more of the backend libraries from the src
 directory of the distribution by typing one or more of these lines:
 
 make -f Makefile.machine baitmpi
@@ -73,8 +89,6 @@ command-line switch in the next section, for the difference between
 the various backend options.  See the discussion in "this
 section"_Section_library.html#library_2 if none of the provided
 Makefiles are a match to your machine.
-
-TIM: doc how to do this via cmake?
 
 When you run bait.py, your Python must be able to find the appropriate
 backend shared library.  The simplest way to do this is

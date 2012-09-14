@@ -327,10 +327,28 @@ added to the minnow directory of the PHISH distribution and built in
 the following manner; minnows written in Python do not need to be
 built.
 
-TIM: add instructions for using cmake?
+The easiest way to build all of PHISH, including the PHISH minnows,
+is to use the cross-platform "CMake"_http://www.cmake.org build system.  We
+recommend building PHISH with a separate build directory:
 
-Typing the following from the minnow directory will build all C and
-C++ minnows:
+$ tar xzvf phish.tar.gz -C ~/src
+$ mkdir ~/build/phish
+$ cd ~/build/phish
+$ ccmake ~/src/phish-14sep12 :pre
+
+Then, in the CMake curses interface, configure the build, generate makefiles,
+and build phish:
+
+$ make :pre
+
+Note that if you add a new minnow to the minnow directory, simply re-run ccmake
+regenerate makefiles, and build - your minnow will automatically be
+incorporated into the build.
+
+:line
+
+Alternatively, typing the following from the minnow directory will build all C
+and C++ minnows:
 
 make machine :pre
 

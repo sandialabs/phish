@@ -121,9 +121,23 @@ case, the library should typically be built as a shared library so it
 can loaded at run-time by each minnow.  This is required if the minnow
 is written in Python.
 
-TIM: doc how to do this via cmake?
+The easiest way to build all of PHISH, including the PHISH libraries,
+is to use the cross-platform "CMake"_http://www.cmake.org build system.  We
+recommend building PHISH with a separate build directory:
 
-You can build either version from the src directory of the
+$ tar xzvf phish.tar.gz -C ~/src
+$ mkdir ~/build/phish
+$ cd ~/build/phish
+$ ccmake ~/src/phish-14sep12 :pre
+
+Then, in the CMake curses interface, configure the build, generate makefiles,
+and build phish:
+
+$ make :pre
+
+:line
+
+Alternatively, you can build either version from the src directory of the
 distribution by typing one of these lines:
 
 make -f Makefile.machine mpi
