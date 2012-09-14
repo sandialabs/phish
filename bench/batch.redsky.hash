@@ -1,5 +1,0 @@
-#!/bin/csh -f
-
-cd /home/sjplimp/phish/bench
-
-python Bench.py log.redsky.hash hash zmq pyzmq
