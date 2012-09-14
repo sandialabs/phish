@@ -162,7 +162,7 @@ int phish_init(int *argc, char ***argv)
 
   // default settings
 
-  maxdatum = 1;
+  maxdatum = 1 * KBYTE;
   maxself = 8;
   maxhold = 8;
   safe = 0;
