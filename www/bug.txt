@@ -34,6 +34,16 @@ describe the version you have. :ule,l
 :line
 :line
 
+[15 Sept 2012]
+
+Added some CMake files and documentation so that CMake can be
+optionally used as well as regular Makefiles.
+
+This is the "list of changed files"_patches/files.15Sep12 from the 14
+Sep 2012 version.
+
+:line
+
 [14 Sept 2012]
 
 Used wrong version of LICENSE file in original release.
