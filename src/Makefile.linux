@@ -46,6 +46,8 @@ mpi:
 	$(CC) $(LIBFLAGS) -o $(LIB_PM) \
         phish-mpi.o phish-common.o hashlittle.o $(MPI_LIB)
 
+# temporary target
+
 mpinew:	
 	$(CC) $(CCFLAGS) $(MPI_INC) -c phish-mpi-new.cpp
 	$(CC) $(CCFLAGS) -c phish-common.cpp
