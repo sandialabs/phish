@@ -13,3 +13,8 @@ add_subdirectory(src)
 add_subdirectory(minnow)
 add_subdirectory(perf)
 add_subdirectory(test)
+
+mark_as_advanced(CMAKE_OSX_ARCHITECTURES)
+mark_as_advanced(CMAKE_OSX_DEPLOYMENT_TARGET)
+mark_as_advanced(CMAKE_OSX_SYSROOT)
+mark_as_advanced(file_cmd)
