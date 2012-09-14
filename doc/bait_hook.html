@@ -147,7 +147,9 @@ the first and last minnows.  <I>N</I> > 1 is required.  The <I>sendID</I> must
 also be the same as the <I>recvID</I>, since the same set of minnows is
 sending and receiving.
 </P>
-<P>TIM: are these enabled yet for any of the backends?
+<HR>
+
+<P>The following hook styles will be supported in future versions of PHISH:
 </P>
 <P>The <I>publish</I> and <I>subscribe</I> styles are different in that they do not
 hook two sets of minnows to each other.  Instead they hook one
@@ -177,21 +179,15 @@ socket.  The receiver simply checks if a datum is available and reads
 it.  If a new datum arrives before the receiver is ready to read it,
 the datum is lost.
 </P>
-<P>Note that multple processes can publish to the same physical socket,
+<P>Note that multiple processes can publish to the same physical socket,
 and likewise multiple processes can subscribe to the same physical
 socket.  In the latter case, each receiving process reads the same
 published datum.
 </P>
-<P>TIM: how does the PHISH library check the socket and return
-if there is no datum, e.g. for phish_loop ?  or do you
-have to use phish_probe() ?
-</P>
 <P><B>Restrictions:</B>
 </P>
-<P>TIM: is this true?
-</P>
-<P>The <I>publish</I> and <I>subscribe</I> styles are only supported by the socket
-version of the PHISH library, not the MPI version.
+<P>The <I>publish</I> and <I>subscribe</I> styles have not been implemented yet
+by any of the PHISH library versions.
 </P>
 <P><B>Related commands:</B>
 </P>
