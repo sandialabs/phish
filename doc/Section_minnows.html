@@ -191,13 +191,13 @@ shut down procedures.
 which a minnow receives datums from an upstream minnow or sends datums
 to a downstream minnow.
 </P>
-<P>TIM: is this discussion of MAXPORT still correct for all backends?
-</P>
-<P>Any minnow can define and use up to MAXPORT number of input ports and
-MAXPORT number of output ports.  MAXPORT is a hardwired value in
-src/phish-mpi.cpp which is set to 16.  It can be changed if needed,
-but note that all minnows which use the PHISH library must be re-built
-since they must all use a consistent value of MAXPORT when run
+<P>The number of ports that can be configured by a minnow varies between PHISH
+library backends.  The ZMQ version of the library supports an unlimited number
+of input and output ports, while the MPI version of the library supports up to
+MAXPORT number of input ports and MAXPORT number of output ports.  MAXPORT is a
+hardwired value in src/phish-mpi.cpp which is set to 16.  It can be changed if
+needed, but note that all minnows which use the MPI version of the library must
+be re-built since they must all use a consistent value of MAXPORT when run
 together in a PHISH net.
 </P>
 <P>Note that a PHISH input script may connect a particular minnow to
@@ -276,14 +276,11 @@ and receiving processes to avoid dropping messages.
 
 <A NAME = "minnow_4"></A><H4>3.4 Shutting down a minnow 
 </H4>
-<P>PHISH minnows can be designed to process a finite or infinite stream
-of data.  In the infininte case, the PHISH net of minnows is typically
-shut down by the user killing one or more of the processes.  Note that
-if you do this while running with ZMQ (sockets), there is no guarantee
-that all processes will be shut-down cleanly.  You may need to kill
-some of the procsses manually.
-</P>
-<P>TIM: was this discussion of ZMQ and Ctrl-C correct?
+<P>PHISH minnows can be designed to process a finite or infinite stream of data.
+In the infininte case, the PHISH net of minnows is typically shut down by the
+user killing one or more of the processes.  Note that the current ZMQ version
+of PHISH cannot guarantee that all processes will be shut-down cleanly.  You
+may need to kill some of the procsses manually.
 </P>
 <P>In the finite case, you typically want each minnow in the net to shut
 down cleanly.
