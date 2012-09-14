@@ -116,12 +116,12 @@ a different.  If the receivers are numbered 0 to M-1, a sender will
 send its first datum to 0, its 2nd to 1, its Mth to M-1, its M+1 datum
 to 0, etc.
 
-The {direct} style hooks {N} sending minnows to {M} receiving
-minnows.  {N} does not have to equal {M}, and either or both of {N},
-{M} = 1 is allowed.  When any of the {N} minnows sends a datum, it
-must also choosed a specific one of the {M} receiving minnows to sent
-to.  See the doc page for the "phish_send_direct()"_phish_send.html
-library function for more explanation of how this is done.
+The {direct} style hooks {N} sending minnows to {M} receiving minnows.
+{N} does not have to equal {M}, and either or both of {N}, {M} = 1 is
+allowed.  When any of the {N} minnows sends a datum, it must also
+choosed a specific one of the {M} receiving minnows to send to.  See
+the doc page for the "phish_send_direct()"_phish_send.html library
+function for more explanation of how this is done.
 
 The {bcast} style hooks {N} sending minnows to {M} receiving
 minnows.  {N} does not have to equal {M}, and either or both of {N},
