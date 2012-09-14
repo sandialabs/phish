@@ -54,15 +54,10 @@ application.  In <A HREF = "Section_intro.html#intro_2">PHISH lingo</A>, a "minn
 is a stand-alone application which makes calls to the <A HREF = "Library.html">PHISH
 library</A>.
 </P>
-<P>This function provides a portable means to time operations within
-a minnow.  For the MPI version of the PHISH library, the function
-is a wrapper on MPI_Wtime().
-</P>
-<P>TIM: how does this work for socket version?
-</P>
-<P>The function returns the current time in CPU seconds.  To calculated
-an elapsed time, you need to bracket a section of code with 2 calls to
-phish_timer() and calcualte the difference between the 2 returned
+<P>This function provides a portable means to time operations within a minnow.
+The function returns the current wallclock time as a timestamp measured in
+seconds.  To calculate an elapsed time, you need to bracket a section of code
+with 2 calls to phish_timer() and compute the difference between the 2 returned
 times, as in the example above.
 </P>
 <P><B>Restrictions:</B> none
