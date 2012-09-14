@@ -91,11 +91,11 @@ corresponding input port.  Each minnow keeps a count of the total # of
 minnows that send to that port, so it will know when the requisite
 number of done messages have been received to close the input port.
 </P>
-<P>In the MPI version of the library, the final step is performed by
-invoking MPI_Finalize(), which means no further MPI calls can be made
-by the minnow.
+<P>In the MPI version of the library, the final step is to invoke MPI_Finalize(),
+which means no further MPI calls can be made by the minnow.
 </P>
-<P>TIM: how is this done for the sockets version?
+<P>In the ZMQ version of the library, the final step is to close any open ZMQ
+context(s), so no further ZMQ calls can be made by the minnow.
 </P>
 <P>Note that this function is often called directly by the most upstream
 minnow(s) in a PHISH school, when they are done with their task
