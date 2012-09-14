@@ -358,7 +358,8 @@ receiver's input port (0 to Nport-1).  For a done message a value of
 MAXPORT is added to the tag.  See the discussion of MAXPORT in <A HREF = "Section_minnows.html#minnow_3">this
 section</A> of the manual.
 </P>
-<P>TIM: How is this encoding of port and done implemented for sockets?
+<P>Similarly, the ZMQ version of the PHISH library prepends a "done" flag and port
+number to each datum.
 </P>
 <P>See the <A HREF = "phish_port.html">phish_input</A> doc page for a discussion of
 ports.  See the <A HREF = "Minnows.html#shutdown">shutdown section</A> of the
