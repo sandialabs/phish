@@ -39,6 +39,13 @@ LIB_BZ = libphish-bait-zmq.so
 LIB_BG = libphish-bait-graphviz.so
 LIB_BN = libphish-bait-null.so
 
+mpi:	
+	$(CC) $(CCFLAGS) $(MPI_INC) -c phish-mpi.cpp
+	$(CC) $(CCFLAGS) -c phish-common.cpp
+	$(CC) $(CCFLAGS) -c hashlittle.cpp
+	$(CC) $(LIBFLAGS) -o $(LIB_PM) \
+        phish-mpi.o phish-common.o hashlittle.o $(MPI_LIB)
+
 mpinew:	
 	$(CC) $(CCFLAGS) $(MPI_INC) -c phish-mpi-new.cpp
 	$(CC) $(CCFLAGS) -c phish-common.cpp
@@ -46,13 +53,6 @@ mpinew:
 	$(CC) $(CCFLAGS) -c hashlittle.cpp
 	$(CC) $(LIBFLAGS) -o $(LIB_PM) \
         phish-mpi-new.o phish-common.o phish-data.o hashlittle.o $(MPI_LIB)
-
-mpi:	
-	$(CC) $(CCFLAGS) $(MPI_INC) -c phish-mpi.cpp
-	$(CC) $(CCFLAGS) -c phish-common.cpp
-	$(CC) $(CCFLAGS) -c hashlittle.cpp
-	$(CC) $(LIBFLAGS) -o $(LIB_PM) \
-        phish-mpi.o phish-common.o hashlittle.o $(MPI_LIB)
 
 mpizmq:	
 	$(CC) $(CCFLAGS) $(MPI_INC) $(ZMQ_INC) -DPHISH_MPI_ZMQ -c phish-mpi.cpp
