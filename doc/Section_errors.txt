@@ -62,26 +62,28 @@ are being sent and received as expected. :l,ule
 Error and warning messages from the PHISH library :h4,link(error_2)
 
 When a minnow makes a call to the PHISH library, various error and
-warning conditions are checked for.  If an error is encoutered, a
-message in one of the following formats is printed to stderr:
+warning conditions are checked for.  If an error is encountered, a
+message in the following format is printed to stderr:
 
-PHISH MPI ERROR: Minnow str1 ID str2 # N: message
-PHISH SOCKET ERROR: Minnow str1 ID str2 # N: message :pre
+PHISH ERROR: Minnow executable ID school-id # global-id: message :pre
 
-MPI or SOCKET means the MPI or ZMQ version of the PHISH library is
-being used.  Str1 is the name of the minnow executable (e.g. count).
-Str2 is the ID of the minnow as specified in the PHISH input script
-via the "minnow" command.  N is the global ID of the minnow process.
-This is a number from 0 to Nglobal-1 where Nglobal = the total number
-of minnows in the PHISH net as specified by the input script.  This
-information may be useful in debugging the minnow or PHISH input
-script.
+where "executable" is the name of executable minnow file (not the full path,
+just the filename), "school-id" is the ID of the minnow as specified in the
+PHISH input script, "global-id" is the global-ID of the minnow, and message is
+the error message.  Each minnow has a global ID from 0 to Nglobal-1, where
+Nglobal is the total number of minnows in the net specified by the PHISH input
+script.  This supplementary information is helpful in debugging which minnow
+generated the error message.
 
-If a warning condition is detected, the same format of message is
+If a warning condition is detected, a similarly-formatted message is
 printed, with ERROR replaced by WARNING.
 
-TIM: say something about whether errors cause an exit or a return flag
-to the calling minnow
+Note that by default, an error condition will cause an abort, shutting-down the
+entire PHISH net.  However, it is possible for a minnow to explicitly cancel
+the abort.  In this case, the PHISH library call that triggered the error will
+return a non-zero integer error code to indicate that an error occurred.  See
+the documentation for "phish_abort()"_phish_error.html for more information on
+how to cancel an abort.
 
 The messages should be self-explanatory.  See the doc page for the
 "PHISH library"_Section_library.html, or the doc pages for "individual
