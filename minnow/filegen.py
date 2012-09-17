@@ -11,7 +11,7 @@ phish.output(0)
 phish.check()
 
 files = []
-for path in argv:
+for path in argv[1:]:
   if os.path.isdir(path):
     for directory, directories, files in os.walk(path):
       files += [os.path.join(directory, file) for file in files]
