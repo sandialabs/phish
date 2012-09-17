@@ -101,7 +101,7 @@ class output_connection
 {
 public:
   output_connection(int input_port, const recipients_t& recipients);
-  ~output_connection();
+  virtual ~output_connection();
   virtual void send() = 0;
   virtual void send_hashed(char* key, int key_length) = 0;
   virtual void send_direct(int destination) = 0;
@@ -725,7 +725,8 @@ int phish_loop()
           g_unpack_end = g_unpack_begin + datum_message.size();
         }
 
-        g_input_port_message_callback[port](unpack_count());
+        if(g_input_port_message_callback[port])
+          g_input_port_message_callback[port](unpack_count());
       }
     }
     catch(std::exception& e)
@@ -799,7 +800,8 @@ int phish_probe(void (*idle_callback)())
             g_unpack_end = g_unpack_begin + datum_message.size();
           }
 
-          g_input_port_message_callback[port](unpack_count());
+          if(g_input_port_message_callback[port])
+            g_input_port_message_callback[port](unpack_count());
         }
       }
       else if(errno == EAGAIN)
@@ -877,7 +879,8 @@ int phish_recv()
           g_unpack_end = g_unpack_begin + datum_message.size();
         }
 
-        g_input_port_message_callback[port](unpack_count());
+        if(g_input_port_message_callback[port])
+          g_input_port_message_callback[port](unpack_count());
       }
     }
     else if(errno == EAGAIN)
@@ -894,6 +897,8 @@ int phish_recv()
     phish_warn(e.what());
     return -1;
   }
+
+  return 0;
 }
 
 void phish_send(int port)
