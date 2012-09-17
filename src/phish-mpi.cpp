@@ -212,15 +212,13 @@ int phish_init(int *argc, char ***argv)
       if (arguments.size() < 1)
         phish_return_error("Invalid command-line args in phish_init", -1);
       maxself = atoi(pop_argument(arguments).c_str());
-      if (maxself < 0)
-        phish_return_error("Invalid command-line args in phish_init", -1);
+      if (maxself < 0) maxself = 8;
 
     } else if(argument == "--phish-queue") {
       if (arguments.size() < 1)
         phish_return_error("Invalid command-line args in phish_init", -1);
       maxhold = atoi(pop_argument(arguments).c_str());
-      if (maxhold < 0)
-        phish_return_error("Invalid command-line args in phish_init", -1);
+      if (maxhold < 0) maxhold = 8;
 
     } else if(argument == "--phish-safe") {
       if (arguments.size() < 1)

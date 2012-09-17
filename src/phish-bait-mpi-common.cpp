@@ -6,8 +6,8 @@ std::vector<std::string> get_mpiexec_arguments()
   std::vector<std::string> arguments;
 
   std::string memory = "1";
-  std::string self = "8";
-  std::string queue = "8";
+  std::string self = "-1";
+  std::string queue = "-1";
   std::string safe = "0";
 
   if (g_settings.count("memory"))
