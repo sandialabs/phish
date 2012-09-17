@@ -13,6 +13,10 @@ add_subdirectory(src)
 add_subdirectory(minnow)
 add_subdirectory(test)
 
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/bench")
+  add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/bench")
+endif()
+
 mark_as_advanced(CMAKE_OSX_ARCHITECTURES)
 mark_as_advanced(CMAKE_OSX_DEPLOYMENT_TARGET)
 mark_as_advanced(CMAKE_OSX_SYSROOT)
