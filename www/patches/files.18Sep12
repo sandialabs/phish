@@ -1,0 +1,10 @@
+15Sep12 version files changed by 18Sep12 upgrade:
+
+CMakeLists.txt
+bait/bait.py
+bait/version.py
+doc/Manual.pdf
+minnow/filegen.py
+src/phish-bait-mpi-common.cpp
+src/phish-mpi.cpp
+src/phish-zmq.cpp

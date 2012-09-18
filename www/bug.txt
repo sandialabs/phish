@@ -38,7 +38,7 @@ describe the version you have. :ule,l
 
 Corrected an error in the CMake build.
 
-This is the "list of changed files"_patches/files.18Sep12 from the 18
+This is the "list of changed files"_patches/files.18Sep12 from the 15
 Sep 2012 version.
 
 :line
