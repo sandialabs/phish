@@ -298,16 +298,16 @@ for school in schools.values():
 # assumes executable is 1st arg
 
 for school in schools.values():
-  executable = school["arguments"][0]
+  exe = school["arguments"][0]
+  executable = ""
   for path in paths:
-    candidate = os.path.join(path, executable)
-    if os.path.exists(candidate):
-      if os.access(candidate, os.F_OK):
-        executable = candidate
-    else:
-      if options.launch == "":
-        raise Exception("Cannot locate executable '%s', you may need to specify --path and/or --suffix." % executable)
-
+    exepath = os.path.join(path,exe)
+    if os.path.exists(exepath):
+      executable = exepath
+      break
+  if not executable:
+    raise Exception(("Cannot locate executable '%s', " +
+                    "may need to specify --path and/or --suffix") % exe)
   school["arguments"][0] = executable
 
 # prepend launch string to school executables
