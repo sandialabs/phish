@@ -34,6 +34,15 @@ describe the version you have. :ule,l
 :line
 :line
 
+[18 Sept 2012]
+
+Corrected an error in the CMake build.
+
+This is the "list of changed files"_patches/files.18Sep12 from the 18
+Sep 2012 version.
+
+:line
+
 [15 Sept 2012]
 
 Added some CMake files and documentation so that CMake can be
