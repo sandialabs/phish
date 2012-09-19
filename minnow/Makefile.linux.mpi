@@ -10,7 +10,9 @@ CC =		g++
 CCFLAGS =	-g -O -DMPICH_IGNORE_CXX_SEEK -I../src
 LINK =		g++
 LINKFLAGS =	-g -O 
-LIB =		../src/libphish-mpi.so
+#LIB =		../src/libphish-mpi.so
+LIB =		/home/sjplimp/phish/src/libphish-mpi.so
+LIB_RPATH =     -Wl,-rpath,/home/sjplimp/phish/src
 
 # ---------------------------------------------------------------------
 # build rules and dependencies
@@ -19,7 +21,7 @@ LIB =		../src/libphish-mpi.so
 OBJ = $(EXE).o
 
 $(EXE): $(OBJ)
-	$(LINK) $(LINKFLAGS) $(OBJ) $(LIB) -o $(EXE)
+	$(LINK) $(LINKFLAGS) $(OBJ) $(LIB) -o $(EXE) $(LIB_RPATH)
 
 # Rules
 
