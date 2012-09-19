@@ -16,7 +16,8 @@ import sys,commands,re
 # desktop
 
 python = "python"
-minnowdir = "/home/sjplimp/phish/minnow"
+#minnowdir = "/home/sjplimp/phish/minnow"
+minnowdir = "/Users/tshead/build/phish/bench"
 #hostnames = [commands.getoutput("hostname")]
 hostnames = ["localhost"]
 #hostnames = ["singsing"]
@@ -35,7 +36,7 @@ rankfileflag = 1   # 1 if supports OpenMPI rankfiles
 
 safe = 1000        # applied to chain and hash
 
-mincpu = 1.0      # minimum CPU seconds
+mincpu = 4.0      # minimum CPU seconds
 miniter = 100000   # minimum iterations
 increase = 2       # increase iterations by this factor every time
 repeat = 2         # repeat final run that exceeds mincpu this many times
@@ -48,8 +49,8 @@ chainsizes = [0]
 chainprocs = [4,16]
 #chainsizes = [0,64,256,1024,4096,16384]
 
-hashprocs = [4,16]
-#hashsizes = [0,1024]
+hashprocs = [32]
+hashsizes = [0,1024]
 
 #hashprocs = [2,4,8,16,32,64,128,256]
 #hashsizes = [0,64,256,1024,4096,16384]
@@ -437,7 +438,7 @@ def hash(which):
           str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
               "-s pernode %s " + \
               "-s memory %d -v S %d -v R %d -v N %%d -v M %d -x -mpi " + \
-              "< ../example/in.hash"
+              "< in.hash"
           str = str % (python,minnowdir,safe,pernode,
                        kbytes,nprocs1,nprocs2,size)
           out = commands.getoutput(str)
@@ -448,7 +449,7 @@ def hash(which):
           str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
               "-s pernode %s " + \
               "-s memory %d -v S %d -v R %d -v N %%d -v M %d " + \
-              "-x .py -l %s < ../example/in.hash"
+              "-x .py -l %s < in.hash"
           str = str % (python,minnowdir,safe,pernode,kbytes,
                        nprocs1,nprocs2,size,python)
           out = commands.getoutput(str)
@@ -460,7 +461,7 @@ def hash(which):
               "-s pernode %s " + \
               "-s memory %d " + \
               "-v S %d -v R %d -v N %%d -v M %d -x -zmq -v hostnames %s " + \
-              "< ../example/in.hash"
+              "< in.hash"
           masterstr = str % (python,minnowdir,safe,pernode,kbytes,
                              nprocs1,nprocs2,size,
                              " ".join(hostnames))
@@ -468,7 +469,7 @@ def hash(which):
           str = "%s ../bait/bait.py -p %s -b zmq -s safe %d " + \
               "-s pernode %s " + \
               "-s memory %d -v S %d -v R %d -v N %%d -v M %d " + \
-              "-v hostnames %s -x .py -l %s < ../example/in.hash"
+              "-v hostnames %s -x .py -l %s < in.hash"
           masterstr = str % (python,minnowdir,safe,pernode,kbytes,
                              nprocs1,nprocs2,size,
                              " ".join(hostnames),python)
@@ -518,7 +519,7 @@ def hash(which):
         if which == "mpi":
           str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
               "-s memory %d -s pernode %d -s bindorder 2 " + \
-              "-v S %d -v R %d -v N %%d -v M %d -x -mpi < ../example/in.hash"
+              "-v S %d -v R %d -v N %%d -v M %d -x -mpi < in.hash"
           str = str % (python,minnowdir,safe,kbytes,pernode,
                        nprocs1,nprocs2,size)
           out = commands.getoutput(str)
@@ -529,7 +530,7 @@ def hash(which):
           str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
               "-s memory %d -s pernode %d -s bindorder 2 " + \
               "-v S %d -v R %d -v N %%d " + \
-              "-v M %d -x .py -l %s < ../example/in.hash"
+              "-v M %d -x .py -l %s < in.hash"
           str = str % (python,minnowdir,safe,kbytes,pernode,
                        nprocs1,nprocs2,size,python)
           out = commands.getoutput(str)
@@ -540,14 +541,14 @@ def hash(which):
           str = "%s ../bait/bait.py -p %s -b zmq -s safe %d " + \
               "-s memory %d -s pernode %d -s bindorder 2 " + \
               "-v S %d -v R %d -v N %%d -v M %d -x -zmq -v hostnames %s " + \
-              "< ../example/in.hash"
+              "< in.hash"
           masterstr = str % (python,minnowdir,safe,kbytes,pernode,
                              nprocs1,nprocs2,size," ".join(hostnames))
         elif which == "pyzmq":
           str = "%s ../bait/bait.py -p %s -b zmq -s safe %d " + \
               "-s memory %d -s pernode %d -s bindorder 2 " + \
               "-v S %d -v R %d -v N %%d -v M %d " + \
-              "-v hostnames %s -x .py -l %s < ../example/in.hash"
+              "-v hostnames %s -x .py -l %s < in.hash"
           masterstr = str % (python,minnowdir,safe,kbytes,pernode,
                              nprocs1,nprocs2,size," ".join(hostnames),python)
 
@@ -592,7 +593,7 @@ def hash(which):
         if which == "mpi":
           str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
               "-s memory %d -s numnode %d -s pernode %d -s bindorder 2 " + \
-              "-v S %d -v R %d -v N %%d -v M %d -x -mpi < ../example/in.hash"
+              "-v S %d -v R %d -v N %%d -v M %d -x -mpi < in.hash"
           str = str % (python,minnowdir,safe,kbytes,numnode,pernode,
                        nprocs1,nprocs2,size)
           out = commands.getoutput(str)
@@ -603,7 +604,7 @@ def hash(which):
           str = "%s ../bait/bait.py -p %s -b mpi-config -s safe %d " + \
               "-s memory %d -s numnode %d -s pernode %d -s bindorder 2 " + \
               "-v S %d -v R %d -v N %%d " + \
-              "-v M %d -x .py -l %s < ../example/in.hash"
+              "-v M %d -x .py -l %s < in.hash"
           str = str % (python,minnowdir,safe,kbytes,numnode,pernode,
                        nprocs1,nprocs2,size,python)
           out = commands.getoutput(str)
@@ -614,14 +615,14 @@ def hash(which):
           str = "%s ../bait/bait.py -p %s -b zmq -s safe %d " + \
               "-s memory %d -s numnode %d -s pernode %d -s bindorder 2 " + \
               "-v S %d -v R %d -v N %%d -v M %d -x -zmq -v hostnames %s " + \
-              "< ../example/in.hash"
+              "< in.hash"
           masterstr = str % (python,minnowdir,safe,kbytes,numnode,pernode,
                              nprocs1,nprocs2,size," ".join(hostnames))
         elif which == "pyzmq":
           str = "%s ../bait/bait.py -p %s -b zmq -s safe %d " + \
               "-s memory %d -s numnode %d -s pernode %d -s bindorder 2 " + \
               "-v S %d -v R %d -v N %%d -v M %d " + \
-              "-v hostnames %s -x .py -l %s < ../example/in.hash"
+              "-v hostnames %s -x .py -l %s < in.hash"
           masterstr = str % (python,minnowdir,safe,kbytes,numnode,pernode,
                        nprocs1,nprocs2,size," ".join(hostnames),python)
 
