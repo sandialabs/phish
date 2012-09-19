@@ -365,6 +365,8 @@ int phish_init(int* argc, char*** argv)
 
     g_executable = arguments[0];
 
+    uint64_t high_water_mark = 1000;
+
     g_context = new zmq::context_t(2);
     while(arguments.size())
     {
@@ -414,6 +416,11 @@ int phish_init(int* argc, char*** argv)
         stream >> kilobytes;
 
         g_datum_size = kilobytes * 1024;
+      }
+      else if(argument == "--phish-high-water-mark")
+      {
+        std::istringstream stream(pop_argument(arguments));
+        stream >> high_water_mark;
       }
       else if(argument == "--phish-control-port")
       {
@@ -465,8 +472,7 @@ int phish_init(int* argc, char*** argv)
         for(std::vector<std::string>::iterator recipient = recipients.begin(); recipient != recipients.end(); ++recipient)
         {
           zmq::socket_t* const socket = new zmq::socket_t(*g_context, ZMQ_PUSH);
-          const uint64_t hwm = 100000;
-          socket->setsockopt(ZMQ_HWM, &hwm, sizeof(hwm));
+          socket->setsockopt(ZMQ_HWM, &high_water_mark, sizeof(high_water_mark));
           socket->connect(recipient->c_str());
           recipient_sockets.push_back(socket);
         }

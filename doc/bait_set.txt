@@ -29,6 +29,8 @@ keyword = {memory} or {self} or {queue} or {safe} or {port} or {pernode} or {num
     B = 0 = no bind order is imposed
     B = 1 = perform binding by looping over cores, then over nodes
     B = 2 = perform binding by looping over nodes, then over cores :pre
+  {high-water-mark} value = N
+    N = maximum number of outgoing messages to queue to a recipient
 :ule
 
 [Examples:]
@@ -132,6 +134,16 @@ number of minnow instances {Np} in a PHISH input script, divided by
 the {pernode} setting.  If {Np} is not evenly divisible by {pernode},
 then {numnode} is incremented by one so that {numnode} * {pernode} >=
 {Np}.
+
+The {high-water-mark} keyword only applies to the ZMQ version of PHISH.
+It sets the maximum number of outgoing messages that can be queued to
+a given recipient.  Messages are queued when a recipient is receiving
+messages more slowly than the sender is sending them.  Once the number
+of queued messages reaches the high water mark, the sender will block
+until the queue begins to empty.  Note that messages are queued on a
+per-recipient rather than a per-port basis, so the memory used for
+queuing can vary dramatically depending on the size of the downstream
+school.
 
 :line
 
