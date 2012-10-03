@@ -32,7 +32,6 @@ int phish_bait_start()
   try
   {
     const bool verbose = (g_settings.count("verbose") != 0) && (g_settings["verbose"] == "true");
-
     int next_port = 5555;
 
     // Setup temporary storage for zmq-specific information
@@ -63,6 +62,9 @@ int phish_bait_start()
     std::vector<pid_t> processes;
 
     // Create each of the minnow processes ...
+    if(verbose)
+      std::cerr << "BAIT ZMQ: Creating minnows." << std::endl;
+
     for(int i = 0; i != zmq_minnows.size(); ++i)
     {
       const school& school = g_schools[g_minnows[i].school_index];
@@ -154,12 +156,19 @@ int phish_bait_start()
         default:
         {
           processes.push_back(pid);
+
+          // Horrible hack to prevent remote hosts from thinking that our ssh connections are a DoS attack.
+          ::sleep(1);
+
           continue;
         }
       }
     }
 
     // Tell each minnow to begin processing ...
+    if(verbose)
+      std::cerr << "BAIT ZMQ: Starting minnows." << std::endl;
+
     zmq::context_t context(2);
     for(int i = 0; i != processes.size(); ++i)
     {
@@ -174,6 +183,9 @@ int phish_bait_start()
       if(response != "ok")
         throw std::runtime_error("Minnow failed to start.");
     }
+    if(verbose)
+      std::cerr << "BAIT ZMQ: Minnows started." << std::endl;
+
 
     // Wait for processes to terminate ...
     for(int i = 0; i != processes.size(); ++i)

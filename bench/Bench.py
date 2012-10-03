@@ -15,17 +15,17 @@ import sys,commands,re
 
 # desktop
 
-python = "python"
-minnowdir = "/home/sjplimp/phish/minnow"
+#python = "python"
+#minnowdir = "/home/sjplimp/phish/minnow"
 #hostnames = [commands.getoutput("hostname")]
-hostnames = ["localhost"]
+#hostnames = ["localhost"]
 #hostnames = ["singsing"]
 
 # RedSky
 
-#python = "/ascldap/users/tshead/install/python/bin/python2.7"
-#minnowdir = "/ascldap/users/sjplimp/phish/minnow"
-#hostnames = commands.getoutput("scontrol show hostnames").split()
+python = "/ascldap/users/tshead/install/python/bin/python2.7"
+minnowdir = "/ascldap/users/tshead/build/phish/bench"
+hostnames = commands.getoutput("scontrol show hostnames").split()
 
 # settings for machine and looping and timing and different test sizes
 
@@ -48,11 +48,11 @@ chainsizes = [0]
 chainprocs = [4,16]
 #chainsizes = [0,64,256,1024,4096,16384]
 
-hashprocs = [4,16]
+#hashprocs = [4,16]
 #hashsizes = [0,1024]
 
-#hashprocs = [2,4,8,16,32,64,128,256]
-#hashsizes = [0,64,256,1024,4096,16384]
+hashprocs = [2,4,8,16,32,64,128,256]
+hashsizes = [0,64,256,1024,4096,16384]
 
 # -------------------------------------------------------------
 
