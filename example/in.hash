@@ -4,7 +4,7 @@
 
 variable S 1
 variable R 1
-variable N 10000000
+variable N 100000
 variable M 0
 
 minnow 1 source $N $M
