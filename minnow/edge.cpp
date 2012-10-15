@@ -75,10 +75,9 @@ void edge_once(int nvalues)
   uint64_t vj = *((uint64_t *) buf);
   if (vi == vj) return;
 
-  if(!graph.count(vi))
+  if (!graph.count(vi))
     graph[vi] = std::tr1::unordered_set<uint64_t>();
-  if(!graph[vi].count(vj))
-  {
+  if (!graph[vi].count(vj)) {
     graph[vi].insert(vj);
     ++nedge;
   }
@@ -100,13 +99,11 @@ void edge_first(int nvalues)
   uint64_t vj = *((uint64_t *) buf);
   if (vi == vj) return;
 
-  if(!graph.count(vi))
+  if (!graph.count(vi))
     graph[vi] = std::tr1::unordered_set<uint64_t>();
-  if(!graph[vi].count(vj))
-  {
+  if (!graph[vi].count(vj)) {
     graph[vi].insert(vj);
     ++nedge;
-
     phish_pack_uint64(vj);
     phish_pack_uint64(vi);
     phish_send_key(1,(char *) &vj,sizeof(uint64_t));
@@ -126,10 +123,9 @@ void edge_second(int nvalues)
   type = phish_unpack(&buf,&tmp);
   uint64_t vj = *((uint64_t *) buf);
 
-  if(!graph.count(vi))
+  if (!graph.count(vi))
     graph[vi] = std::tr1::unordered_set<uint64_t>();
-  if(!graph[vi].count(vj))
-  {
+  if (!graph[vi].count(vj)) {
     graph[vi].insert(vj);
     ++nedge;
   }
@@ -141,4 +137,3 @@ void edge_close()
 {
   phish_close(1);
 }
-
