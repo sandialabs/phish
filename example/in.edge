@@ -1,0 +1,18 @@
+# edge generation/storage test
+# P RMAT minnows, Q edge minnows
+# generate N edges from RMAT matrix of order M
+
+variable P 1
+variable Q 1
+variable N 10
+variable M 20
+variable mode 0
+
+minnow 1 rmat $N $M 0.25 0.25 0.25 0.25 0.0 12345 -o hash
+minnow 2 edge ${mode}
+
+hook 1 hashed 2
+hook 2:1 hashed 2:1
+
+school 1 $P
+school 2 $Q
