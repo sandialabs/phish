@@ -98,6 +98,6 @@ phish.loop()
 
 time_stop = phish.timer()
 str = "Elapsed time for edge storage of %d edges on %d procs = %g secs\n"
-print str % (nedge,nlocal,time_stop-time_start,nedge)
+print str % (nedge,nlocal,time_stop-time_start)
 
 phish.exit()
