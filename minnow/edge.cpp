@@ -52,7 +52,7 @@ int main(int narg, char **args)
   phish_loop();
 
   double time_stop = phish_timer();
-  printf("Elapsed time for edge on %d procs = %g secs, stored %d edges",
+  printf("Elapsed time for edge on %d procs = %g secs, stored %d edges\n",
          nlocal,time_stop-time_start,nedge);
 
   phish_exit();
