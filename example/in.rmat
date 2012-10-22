@@ -1,9 +1,9 @@
 # RMAT generation test
 # P RMAT minnows
-# each minnow generates N edges from RMAT matrix of order M
+# generate N edges from RMAT matrix of order M
 
 variable P 1
-variable N 10
+variable N 10000
 variable M 20
 
 minnow 1 rmat $N $M 0.25 0.25 0.25 0.25 0.0 12345 -o hash
