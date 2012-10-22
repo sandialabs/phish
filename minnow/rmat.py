@@ -28,6 +28,9 @@ phish.check()
 
 # mandatory args
 
+idglobal = phish.query("idglobal",0,0)
+print "PHISH host rmat %d: %s" % (idglobal,phish.host())
+
 if len(args) < 9: error()
 
 ngenerate = int(args[1]) 
@@ -70,10 +73,16 @@ if vlabel < 0: phish.error("Invalid -v value")
 if elabel < 0: phish.error("Invalid -e value")
 
 # perturb seed for each minnow in case running multiple minnows
+# divide ngenerate by multiple minnows
 
-idglobal = phish.query("idglobal",0,0)
+idlocal = phish.query("idlocal",0,0)
+nlocal = phish.query("nlocal",0,0)
+
 random.seed(seed+idglobal)
 order = 1 << nlevels
+
+nme = ngenerate / nlocal;
+if idlocal < ngenerate % nlocal: nme += 1
 
 # generate edges = (Vi,Vj)
 # append vertex and edge labels if requested: (Vi,Vj,Li,Lj,Lij)
@@ -82,10 +91,9 @@ order = 1 << nlevels
 # hashed = send edge once, hashed on Vi
 # double = send edge twice, hashed on Vi and on Vj
 
-nlocal = phish.query("nlocal",0,0)
 time_start = phish.timer()
 
-for m in xrange(ngenerate):
+for m in xrange(nme):
   delta = order >> 1
   a1 = a; b1 = b; c1 = c; d1 = d
   i = j = 0
@@ -145,7 +153,7 @@ for m in xrange(ngenerate):
       phish.send_key(0,long(j))
 
 time_stop = phish.timer()
-str = "Elapsed time for rmat on %d procs = %g secs"
-print str % (nlocal,time_stop-time_start)
+str = "Elapsed time for rmat of %d edges on %d procs = %g secs"
+if idlocal == 0: print str % (ngenerate,nlocal,time_stop-time_start)
 
 phish.exit()

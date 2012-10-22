@@ -31,6 +31,9 @@ int main(int narg, char **args)
   phish_output(0);
   phish_check();
 
+  int idglobal = phish_query("idglobal",0,0);
+  printf("PHISH host rmat %d: %s\n",idglobal,phish_host());
+
   if (narg < 9) error();
 
   uint64_t ngenerate = atol(args[1]); 
@@ -75,10 +78,16 @@ int main(int narg, char **args)
   if (elabel < 0) phish_error("Invalid -e value");
 
   // perturb seed for each minnow in case running multiple minnows
+  // divide ngenerate by multiple minnows
 
-  int idglobal = phish_query("idglobal",0,0);
+  int idlocal = phish_query("idlocal",0,0);
+  int nlocal = phish_query("nlocal",0,0);
+
   srand48(seed+idglobal);
   uint64_t order = 1L << nlevels;
+
+  uint64_t nme = ngenerate / nlocal;
+  if (idlocal < ngenerate % nlocal) nme++;
 
   // generate edges = (Vi,Vj)
   // append vertex and edge labels if requested: (Vi,Vj,Li,Lj,Lij)
@@ -91,10 +100,9 @@ int main(int narg, char **args)
   int ilevel,ilabel,jlabel,ijlabel;
   double a1,b1,c1,d1,total,rn;
 
-  int nlocal = phish_query("nlocal",0,0);
   double time_start = phish_timer();
 
-  for (uint64_t m = 0; m < ngenerate; m++) {
+  for (uint64_t m = 0; m < nme; m++) {
     delta = order >> 1;
     a1 = a; b1 = b; c1 = c; d1 = d;
     i = j = 0;
@@ -160,8 +168,9 @@ int main(int narg, char **args)
   }
   
   double time_stop = phish_timer();
-  printf("Elapsed time for rmat on %d procs = %g secs\n",
-         nlocal,time_stop-time_start);
+  if (idlocal == 0)
+    printf("Elapsed time for rmat of %ld edges on %d procs = %g secs\n",
+           ngenerate,nlocal,time_stop-time_start);
 
   phish_exit();
 }

@@ -25,6 +25,9 @@ int main(int narg, char **args)
 {
   phish_init(&narg,&args);
 
+  int idglobal = phish_query("idglobal",0,0);
+  printf("PHISH host edge %d: %s\n",idglobal,phish_host());
+
   if (narg != 2) phish_error("Edge syntax: edge 0/1/2");
   int mode = atoi(args[1]);
   if (mode < 0 or mode > 2) phish_error("Edge syntax: edge 0/1/2");
@@ -52,8 +55,8 @@ int main(int narg, char **args)
   phish_loop();
 
   double time_stop = phish_timer();
-  printf("Elapsed time for edge on %d procs = %g secs, stored %d edges\n",
-         nlocal,time_stop-time_start,nedge);
+  printf("Elapsed time for edge storage of %d edges on %d procs = %g secs\n",
+         nedge,nlocal,time_stop-time_start);
 
   phish_exit();
 }
