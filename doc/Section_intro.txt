@@ -128,7 +128,7 @@ fault-tolerance on top of a parallel file system like HDFS.  PHISH has
 many conceptual similarities to Storm, though PHISH has fewer
 features, such as no support for fault tolerance.
 
-:link(titan,http://titan.html)
+:link(titan,http://titan.sandia.gov)
 :link(ibm,http://www-01.ibm.com/software/data/infosphere/stream-computing)
 :link(storm,http://storm-project.net)
 :link(hadoop,http://hadoop.apache.org)
