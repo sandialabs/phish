@@ -103,7 +103,6 @@ int main(int narg, char **args)
   double time_start = phish_timer();
 
   for (uint64_t m = 0; m < nme; m++) {
-    if (m % 1000000 == 0) printf("RMAT %d: %ld\n",idlocal,m);
     delta = order >> 1;
     a1 = a; b1 = b; c1 = c; d1 = d;
     i = j = 0;
