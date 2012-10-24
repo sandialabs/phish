@@ -100,13 +100,9 @@ int main(int narg, char **args)
   int ilevel,ilabel,jlabel,ijlabel;
   double a1,b1,c1,d1,total,rn;
 
-  printf("RMAT start-up %d: %ld\n",idlocal,nme);
-
   double time_start = phish_timer();
 
   for (uint64_t m = 0; m < nme; m++) {
-    if (m % 1000000 == 0) printf("RMAT %d: %ld\n",idlocal,m);
-
     delta = order >> 1;
     a1 = a; b1 = b; c1 = c; d1 = d;
     i = j = 0;
