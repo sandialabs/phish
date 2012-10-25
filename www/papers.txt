@@ -9,9 +9,11 @@ If you use the PHISH library in one of your publications, please cite
 the following paper (once it appears), and list the URL of the "PHISH
 WWW site"_pws, namely http://www.sandia.gov/~sjplimp/phish.html.
 
-S. J. Plimpton and T. Shead, "Streaming data analytics via message
-  passing with application to graph algorithms", submitted to J
-  Parallel and Distributed Compuing, 2012.
+[Streaming data analytics via message passing with application to
+graph algorithms], S. J. Plimpton and T. Shead, submitted to J
+Parallel and Distributed Computing, 2012.
+("abstract"_../abstracts/jpdc12.html) ("PDF
+pre-print"_../doc/phish_preprint_Oct12.pdf)
 
 :line
 
