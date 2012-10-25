@@ -13,7 +13,7 @@ WWW site"_pws, namely http://www.sandia.gov/~sjplimp/phish.html.
 graph algorithms], S. J. Plimpton and T. Shead, submitted to J
 Parallel and Distributed Computing, 2012.
 ("abstract"_../abstracts/jpdc12.html) ("PDF
-pre-print"_../doc/phish_preprint_Oct12.pdf)
+pre-print"_../docs/phish_preprint_Oct12.pdf)
 
 :line
 
