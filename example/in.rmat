@@ -7,5 +7,9 @@ variable N 10000
 variable M 20
 
 minnow 1 rmat $N $M 0.25 0.25 0.25 0.25 0.0 12345 -o hash
+minnow 2 print
+
+hook 1 hashed 2
 
 school 1 $P
+school 2 1
