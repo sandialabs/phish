@@ -157,7 +157,7 @@ def generate_bindings():
 # parse command-line options
 
 from version import version
-print "PHISH (%s)" % version
+sys.stderr.write("PHISH (%s)\n" % version)
 
 parser = optparse.OptionParser()
 parser.add_option("--backend", "-b", default="mpi",
