@@ -20,7 +20,7 @@ for n in range(options.message_count):
   phish.pack_string(message)
   phish.send_direct(0, options.receiver)
 
-phish.pack_string("done")
+phish.pack_string("stop")
 phish.send_direct(0, options.receiver)
 
 phish.close(0)
