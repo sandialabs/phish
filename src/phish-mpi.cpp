@@ -619,9 +619,7 @@ int phish_close(int iport)
       if (selfflag && me == oc->recvone) {
         nsbytes = 0;
         send_self(tag);
-      } else if (safe && g_sent_count % safe == 0) 
-	MPI_Ssend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
-      else MPI_Send(NULL,0,MPI_BYTE,oc->recvone,tag,world);
+      } else MPI_Send(NULL,0,MPI_BYTE,oc->recvone,tag,world);
       break;
 
     case HASHED:
@@ -632,9 +630,7 @@ int phish_close(int iport)
         if (selfflag && me == oc->recvfirst+i) {
           nsbytes = 0;
           send_self(tag);
-        } else if (safe && g_sent_count % safe == 0)
-	  MPI_Ssend(NULL,0,MPI_BYTE,oc->recvfirst+i,tag,world);
-        else MPI_Send(NULL,0,MPI_BYTE,oc->recvfirst+i,tag,world);
+        } else MPI_Send(NULL,0,MPI_BYTE,oc->recvfirst+i,tag,world);
       break;
 
     case CHAIN:
@@ -642,9 +638,7 @@ int phish_close(int iport)
 	if (selfflag && me == oc->recvone) {
           nsbytes = 0;
           send_self(tag);
-        } else if (safe && g_sent_count % safe == 0) 
-	  MPI_Ssend(NULL,0,MPI_BYTE,oc->recvone,tag,world);
-	else MPI_Send(NULL,0,MPI_BYTE,oc->recvone,tag,world);
+	} else MPI_Send(NULL,0,MPI_BYTE,oc->recvone,tag,world);
       }
       break;
     }
@@ -943,7 +937,7 @@ void phish_send_key(int iport, char *key, int keybytes)
 	int tag = oc->recvport;
 	int offset = hashlittle(key,keybytes,oc->nrecv) % oc->nrecv;
         if (selfflag && me == oc->recvfirst+offset) send_self(tag);
-	else if (safe && g_sent_count % safe == 0) 
+	else if (safe && g_sent_count % safe == 0)
 	  MPI_Ssend(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+offset,tag,world);
 	else MPI_Send(sbuf,nsbytes,MPI_BYTE,oc->recvfirst+offset,tag,world);
       }

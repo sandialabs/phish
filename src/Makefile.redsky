@@ -49,6 +49,16 @@ mpi:
 	$(MPICC) $(LIBFLAGS) -o $(LIB_PM) \
         phish-mpi.o phish-common.o hashlittle.o $(MPI_LIB)
 
+# temporary target
+
+mpinew:	
+	$(MPICC) $(CCFLAGS) $(MPI_INC) -c phish-mpi-new.cpp
+	$(MPICC) $(CCFLAGS) -c phish-common.cpp
+	$(MPICC) $(CCFLAGS) -c phish-data.cpp
+	$(MPICC) $(CCFLAGS) -c hashlittle.cpp
+	$(MPICC) $(LIBFLAGS) -o $(LIB_PM) \
+        phish-mpi-new.o phish-common.o phish-data.o hashlittle.o $(MPI_LIB)
+
 mpizmq:	
 	$(MPICC) $(CCFLAGS) $(MPI_INC) $(ZMQ_INC) -DPHISH_MPI_ZMQ \
         -c phish-mpi.cpp
