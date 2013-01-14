@@ -1,0 +1,26 @@
+18Sep12 version files changed by 14Jan13 upgrade:
+
+bait/bait.py
+bait/version.py
+doc/Manual.pdf
+doc/Section_intro.html
+doc/Section_intro.txt
+doc/bait_set.html
+doc/bait_set.txt
+example/in.edge
+example/in.hash
+example/in.ring
+example/in.rmat
+example/in.wrap-udp
+minnow/Makefile.linux.mpi
+minnow/edge.cpp
+minnow/edge.py
+minnow/ring-source.py
+minnow/ring-worker.py
+minnow/rmat.cpp
+minnow/rmat.py
+minnow/wrap-udp.cpp
+src/Makefile.redsky
+src/phish-bait-zmq.cpp
+src/phish-mpi.cpp
+src/phish-zmq.cpp
