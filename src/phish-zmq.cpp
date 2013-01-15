@@ -24,7 +24,7 @@
 #include "phish.h"
 #include "phish-bait-common.h"
 #include "phish-common.h"
-#include "zmq.hpp"
+#include "zmq.h"
 
 #define phish_return_error(message, code) { phish_error(message); return code; }
 
@@ -32,9 +32,9 @@
 // Internal state
 
 // ZMQ context and incoming sockets ...
-static zmq::context_t* g_context = 0;
-static zmq::socket_t* g_control_port = 0;
-static zmq::socket_t* g_input_port = 0;
+static void* g_context = 0;
+static void* g_control_port = 0;
+static void* g_input_port = 0;
 
 // Input port configuration ...
 
@@ -95,7 +95,7 @@ inline uint32_t& unpack_count()
 static bool g_running = false;
 
 /// Defines a collection of message recipients (zmq sockets).
-typedef std::vector<zmq::socket_t*> recipients_t;
+typedef std::vector<void*> recipients_t;
 /// Abstract interface for classes that route messages to their destination(s).
 class output_connection
 {
@@ -109,7 +109,7 @@ public:
 protected:
   const int m_input_port;
   const recipients_t m_recipients;
-  void raw_send(zmq::socket_t& recipient);
+  void raw_send(void* recipient);
 };
 
 static std::map<int, std::vector<output_connection*> > g_output_connections;
@@ -181,11 +181,13 @@ enum message_frame
   CLOSE_MESSAGE = 0x80
 };
 
+/*
 void zmq_assert(int rc)
 {
   if(rc < 0)
     throw std::runtime_error(zmq_strerror(errno));
 }
+*/
 
 // output_connection implementation.
 output_connection::output_connection(int input_port, const recipients_t& recipients) :
@@ -196,37 +198,31 @@ output_connection::output_connection(int input_port, const recipients_t& recipie
 
 output_connection::~output_connection()
 {
+  const uint8_t frame = (m_input_port & PORT_MASK) | CLOSE_MESSAGE;
   for(recipients_t::const_iterator recipient = m_recipients.begin(); recipient != m_recipients.end(); ++recipient)
   {
-    zmq::message_t frame(1);
-    reinterpret_cast<uint8_t*>(frame.data())[0] = ((m_input_port & PORT_MASK) | CLOSE_MESSAGE);
-    zmq_assert((*recipient)->send(frame));
+    zmq_send(*recipient, &frame, sizeof(frame), 0);
   }
 
-/* Don't close the zmq sockets, see https://zeromq.jira.com/browse/LIBZMQ-229
+/* Don't close the zmq sockets, see https://zeromq.jira.com/browse/LIBZMQ-229 */
 
   for(recipients_t::const_iterator recipient = m_recipients.begin(); recipient != m_recipients.end(); ++recipient)
   {
-    delete *recipient;
+    zmq_close(*recipient);
   }
-*/
 }
 
-void output_connection::raw_send(zmq::socket_t& recipient)
+void output_connection::raw_send(void* recipient)
 {
-  zmq::message_t frame(1);
-  reinterpret_cast<uint8_t*>(frame.data())[0] = (m_input_port & PORT_MASK);
+  const uint8_t frame = (m_input_port & PORT_MASK);
   if(pack_count())
   {
-    zmq_assert(recipient.send(frame, ZMQ_SNDMORE));
-
-    zmq::message_t message(g_pack_end - g_pack_begin);
-    ::memcpy(message.data(), g_pack_begin, g_pack_end - g_pack_begin);
-    zmq_assert(recipient.send(message, 0));
+    zmq_send(recipient, &frame, sizeof(frame), ZMQ_SNDMORE);
+    zmq_send(recipient, g_pack_begin, g_pack_end - g_pack_begin, 0);
   }
   else
   {
-    zmq_assert(recipient.send(frame, 0));
+    zmq_send(recipient, &frame, sizeof(frame), 0);
   }
 }
 
@@ -244,7 +240,7 @@ public:
   {
     for(recipients_t::const_iterator recipient = m_recipients.begin(); recipient != m_recipients.end(); ++recipient)
     {
-      raw_send(**recipient);
+      raw_send(*recipient);
     }
   }
 
@@ -274,9 +270,9 @@ public:
 
   void send()
   {
-    zmq::socket_t* const recipient = m_recipients[m_index];
+    void* const recipient = m_recipients[m_index];
     m_index = (m_index + 1) % m_recipients.size();
-    raw_send(*recipient);
+    raw_send(recipient);
   }
 
   void send_hashed(char* key, int key_length)
@@ -308,8 +304,8 @@ public:
   void send_hashed(char* key, int key_length)
   {
     int index = hashlittle(key, key_length, 0) % m_recipients.size();
-    zmq::socket_t* const recipient = m_recipients[index];
-    raw_send(*recipient);
+    void* const recipient = m_recipients[index];
+    raw_send(recipient);
   }
 
   void send_direct(int destination)
@@ -341,8 +337,8 @@ public:
   void send_direct(int destination)
   {
     int index = destination % m_recipients.size();
-    zmq::socket_t* const recipient = m_recipients[index];
-    raw_send(*recipient);
+    void* const recipient = m_recipients[index];
+    raw_send(recipient);
   }
 };
 
@@ -367,7 +363,7 @@ int phish_init(int* argc, char*** argv)
 
     uint64_t high_water_mark = 1000;
 
-    g_context = new zmq::context_t(2);
+    g_context = zmq_init(2);
     while(arguments.size())
     {
       const std::string argument = pop_argument(arguments);
@@ -425,14 +421,15 @@ int phish_init(int* argc, char*** argv)
       else if(argument == "--phish-control-port")
       {
         const std::string address = pop_argument(arguments);
-        g_control_port = new zmq::socket_t(*g_context, ZMQ_REP);
-        g_control_port->bind(address.c_str());
+        g_control_port = zmq_socket(g_context, ZMQ_REP);
+        zmq_bind(g_control_port, address.c_str());
       }
       else if(argument == "--phish-input-port")
       {
         const std::string address = pop_argument(arguments);
-        g_input_port = new zmq::socket_t(*g_context, ZMQ_PULL);
-        g_input_port->bind(address.c_str());
+        g_input_port = zmq_socket(g_context, ZMQ_PULL);
+        zmq_setsockopt(g_input_port, ZMQ_RCVHWM, &high_water_mark, sizeof(high_water_mark));
+        zmq_bind(g_input_port, address.c_str());
       }
       else if(argument == "--phish-input-connections")
       {
@@ -471,9 +468,9 @@ int phish_init(int* argc, char*** argv)
         recipients_t recipient_sockets;
         for(std::vector<std::string>::iterator recipient = recipients.begin(); recipient != recipients.end(); ++recipient)
         {
-          zmq::socket_t* const socket = new zmq::socket_t(*g_context, ZMQ_PUSH);
-          socket->setsockopt(ZMQ_HWM, &high_water_mark, sizeof(high_water_mark));
-          socket->connect(recipient->c_str());
+          void* const socket = zmq_socket(g_context, ZMQ_PUSH);
+          zmq_setsockopt(socket, ZMQ_SNDHWM, &high_water_mark, sizeof(high_water_mark));
+          zmq_connect(socket, recipient->c_str());
           recipient_sockets.push_back(socket);
         }
 
@@ -520,13 +517,11 @@ int phish_init(int* argc, char*** argv)
     g_unpack_end = g_unpack_begin;
 
     // Wait to hear from the school ...
-    zmq::message_t message;
-    g_control_port->recv(&message, 0);
-    const std::string request(reinterpret_cast<char*>(message.data()), message.size());
+    std::string request(5, '\0');
+    zmq_recv(g_control_port, &request[0], request.size(), 0);
     if(request == "start")
     {
-      zmq::message_t message(const_cast<char*>("ok"), strlen("ok"), 0);
-      g_control_port->send(message, 0);
+      zmq_send(g_control_port, "ok", strlen("ok"), 0);
     }
     else
     {
@@ -563,11 +558,11 @@ int phish_exit()
   g_running = false;
 
   // Delete input port ...
-  delete g_input_port;
+  zmq_close(g_input_port);
   g_input_port = 0;
 
   // Delete control port ...
-  delete g_control_port;
+  zmq_close(g_control_port);
   g_control_port = 0;
 
   std::ostringstream message;
@@ -583,6 +578,7 @@ int phish_exit()
 /* Don't try to shutdown zmq, see https://zeromq.jira.com/browse/LIBZMQ-229
   delete g_context;
 */
+  //zmq_term(g_context);
   ::sleep(5);
   g_context = 0;
 
@@ -687,9 +683,8 @@ int phish_loop()
   {
     try
     {
-      zmq::message_t frame_message;
-      zmq_assert(g_input_port->recv(&frame_message, 0));
-      const uint8_t frame = reinterpret_cast<uint8_t*>(frame_message.data())[0];
+      uint8_t frame = 0;
+      zmq_recv(g_input_port, &frame, sizeof(frame), 0);
       const int port = (frame & PORT_MASK);
 
       if((frame & TYPE_MASK) == CLOSE_MESSAGE)
@@ -720,15 +715,13 @@ int phish_loop()
 
         int64_t more_parts = 0;
         size_t more_parts_size = sizeof(more_parts);
-        g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size);
+        zmq_getsockopt(g_input_port, ZMQ_RCVMORE, &more_parts, &more_parts_size);
         if(more_parts)
         {
-          zmq::message_t datum_message;
-          zmq_assert(g_input_port->recv(&datum_message, 0));
-          if(datum_message.size() > g_datum_size)
+          const int received = zmq_recv(g_input_port, g_unpack_begin, g_datum_size, 0);
+          if(received > g_datum_size)
             phish_return_error("Receive buffer overflow.", -1);
-          ::memcpy(g_unpack_begin, datum_message.data(), datum_message.size());
-          g_unpack_end = g_unpack_begin + datum_message.size();
+          g_unpack_end = g_unpack_begin + received;
         }
 
         if(g_input_port_message_callback[port])
@@ -760,11 +753,10 @@ int phish_probe(void (*idle_callback)())
   {
     try
     {
-      zmq::message_t frame_message;
-      const int rc = g_input_port->recv(&frame_message, ZMQ_NOBLOCK);
-      if(0 == rc)
+      uint8_t frame = 0;
+      const int received = zmq_recv(g_input_port, &frame, sizeof(frame), ZMQ_NOBLOCK);
+      if(1 == received)
       {
-        const uint8_t frame = reinterpret_cast<uint8_t*>(frame_message.data())[0];
         const int port = (frame & PORT_MASK);
 
         if((frame & TYPE_MASK) == CLOSE_MESSAGE)
@@ -795,15 +787,13 @@ int phish_probe(void (*idle_callback)())
 
           int64_t more_parts = 0;
           size_t more_parts_size = sizeof(more_parts);
-          g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size);
+          zmq_getsockopt(g_input_port, ZMQ_RCVMORE, &more_parts, &more_parts_size);
           if(more_parts)
           {
-            zmq::message_t datum_message;
-            zmq_assert(g_input_port->recv(&datum_message, 0));
-            if(datum_message.size() > g_datum_size)
+            const int received = zmq_recv(g_input_port, g_unpack_begin, g_datum_size, 0);
+            if(received > g_datum_size)
               phish_return_error("Receive buffer overflow.", -1);
-            ::memcpy(g_unpack_begin, datum_message.data(), datum_message.size());
-            g_unpack_end = g_unpack_begin + datum_message.size();
+            g_unpack_end = g_unpack_begin + received;
           }
 
           if(g_input_port_message_callback[port])
@@ -813,10 +803,6 @@ int phish_probe(void (*idle_callback)())
       else if(errno == EAGAIN)
       {
         idle_callback();
-      }
-      else
-      {
-        zmq_assert(rc);
       }
     }
     catch(std::exception& e)
@@ -838,11 +824,10 @@ int phish_recv()
 
   try
   {
-    zmq::message_t frame_message;
-    const int rc = g_input_port->recv(&frame_message, ZMQ_NOBLOCK);
-    if(0 == rc)
+    uint8_t frame = 0;
+    const int received = zmq_recv(g_input_port, &frame, sizeof(frame), ZMQ_NOBLOCK);
+    if(1 == received)
     {
-      const uint8_t frame = reinterpret_cast<uint8_t*>(frame_message.data())[0];
       const int port = (frame & PORT_MASK);
 
       if((frame & TYPE_MASK) == CLOSE_MESSAGE)
@@ -874,15 +859,13 @@ int phish_recv()
 
         int64_t more_parts = 0;
         size_t more_parts_size = sizeof(more_parts);
-        g_input_port->getsockopt(ZMQ_RCVMORE, &more_parts, &more_parts_size);
+        zmq_getsockopt(g_input_port, ZMQ_RCVMORE, &more_parts, &more_parts_size);
         if(more_parts)
         {
-          zmq::message_t datum_message;
-          zmq_assert(g_input_port->recv(&datum_message, 0));
-          if(datum_message.size() > g_datum_size)
+          const int received = zmq_recv(g_input_port, g_unpack_begin, g_datum_size, 0);
+          if(received > g_datum_size)
             phish_return_error("Receive buffer overflow.", -1);
-          ::memcpy(g_unpack_begin, datum_message.data(), datum_message.size());
-          g_unpack_end = g_unpack_begin + datum_message.size();
+          g_unpack_end = g_unpack_begin + received;
         }
 
         if(g_input_port_message_callback[port])
@@ -892,10 +875,6 @@ int phish_recv()
     else if(errno == EAGAIN)
     {
       return 0;
-    }
-    else
-    {
-      zmq_assert(rc);
     }
   }
   catch(std::exception& e)

@@ -1,7 +1,7 @@
 #include "phish-bait.h"
 #include "phish-bait-common.h"
 
-#include "zmq.hpp"
+#include <zmq.h>
 
 #include <iostream>
 #include <iterator>
@@ -169,19 +169,18 @@ int phish_bait_start()
     if(verbose)
       std::cerr << "BAIT ZMQ: Starting minnows." << std::endl;
 
-    zmq::context_t context(2);
+    void* const context = zmq_init(2);
     for(int i = 0; i != processes.size(); ++i)
     {
-      zmq::socket_t socket(context, ZMQ_REQ);
-      socket.connect(zmq_minnows[i].control_port_external.c_str());
-      zmq::message_t request_message(const_cast<char*>("start"), strlen("start"), 0);
-      socket.send(request_message, 0);
+      void* const socket = zmq_socket(context, ZMQ_REQ);
+      zmq_connect(socket, zmq_minnows[i].control_port_external.c_str());
+      zmq_send(socket, "start", strlen("start"), 0);
 
-      zmq::message_t response_message;
-      socket.recv(&response_message, 0);
-      const std::string response(reinterpret_cast<char*>(response_message.data()), response_message.size());
+      std::string response(2, '\0');
+      zmq_recv(socket, &response[0], response.size(), 0);
       if(response != "ok")
         throw std::runtime_error("Minnow failed to start.");
+      zmq_close(socket);
     }
     if(verbose)
       std::cerr << "BAIT ZMQ: Minnows started." << std::endl;
@@ -194,6 +193,7 @@ int phish_bait_start()
       int options = 0;
       ::waitpid(processes[i], &status, options);
     }
+    zmq_term(context);
   }
   catch(std::exception& e)
   {
