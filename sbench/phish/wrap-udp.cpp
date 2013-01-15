@@ -48,8 +48,8 @@ int main(int argc, char* argv[])
       buffer[bytes] = 0;
       //std::cerr << bytes << std::endl;
       //std::cerr << std::string(&buffer[0], bytes) << std::endl;
-      //phish::pack(&buffer[0]);
-      //phish::send();
+      phish::pack(&buffer[0]);
+      phish::send();
     }
 
     ::close(socket);
