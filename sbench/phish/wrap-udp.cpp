@@ -29,6 +29,11 @@ int main(int argc, char* argv[])
     if(socket == -1)
       throw std::runtime_error(std::string("socket(): ") + ::strerror(errno));
 
+    int socket_buffer_size = 1024 * 1024;
+    socklen_t socket_buffer_size_size = sizeof(socket_buffer_size);
+    ::setsockopt(socket, SOL_SOCKET, SO_RCVBUF, 
+                 &socket_buffer_size, socket_buffer_size_size);
+
     struct sockaddr_in6 address;
     ::memset(&address, 0, sizeof(address));
     address.sin6_family = AF_INET6;
@@ -38,19 +43,23 @@ int main(int argc, char* argv[])
                     sizeof(address)))
       throw std::runtime_error(std::string("bind(): ") + ::strerror(errno));
 
-    // 1 megabyte, unless you're a disk vendor
+    // 1 megabyte buffer, unless you're a disk vendor
 
     std::vector<char> buffer(1024 * 1024); 
+
+    //int nframe = 0;
+
     while(true)
     {
       const int bytes = ::recv(socket, &buffer[0], buffer.size() - 1, 0);
       if (bytes == 0) break;
       buffer[bytes] = 0;
-      //std::cerr << bytes << std::endl;
-      //std::cerr << std::string(&buffer[0], bytes) << std::endl;
+      //nframe++;
       phish::pack(&buffer[0]);
       phish::send();
     }
+
+    //printf("WRAP-UPD frame recv count %d\n",nframe);
 
     ::close(socket);
     phish::exit();
@@ -61,4 +70,3 @@ int main(int argc, char* argv[])
     phish::error(e.what());
   }
 }
-
