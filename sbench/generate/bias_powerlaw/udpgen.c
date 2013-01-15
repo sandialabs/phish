@@ -35,7 +35,8 @@ int init_peer(char * peer) {
      }
      else {
           int len = sep - peer;
-          hostname = strndup(peer, len);
+          hostname = strdup(peer);
+          hostname[len] = '\0';
           port = atoi(sep + 1);
      }
 
