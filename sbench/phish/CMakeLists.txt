@@ -1,0 +1,20 @@
+include_directories(${CMAKE_SOURCE_DIR}/src)
+
+if(BUILD_MPI_BACKEND)
+  file(GLOB CPP_FILES *.cpp)
+  foreach(CPP_FILE ${CPP_FILES})
+   get_filename_component(MINNOW ${CPP_FILE} NAME_WE)
+    add_executable(${MINNOW}-mpi ${CPP_FILE})
+    target_link_libraries(${MINNOW}-mpi phish-mpi)
+  endforeach(CPP_FILE)
+endif(BUILD_MPI_BACKEND)
+
+
+if(BUILD_ZMQ_BACKEND)
+  file(GLOB CPP_FILES *.cpp)
+  foreach(CPP_FILE ${CPP_FILES})
+   get_filename_component(MINNOW ${CPP_FILE} NAME_WE)
+    add_executable(${MINNOW}-zmq ${CPP_FILE})
+    target_link_libraries(${MINNOW}-zmq phish-zmq)
+  endforeach(CPP_FILE)
+endif(BUILD_ZMQ_BACKEND)

@@ -1,0 +1,30 @@
+# mac.zmq = Mac, mpic++, PHISH ZMQ lib
+
+SHELL = /bin/sh
+
+# ---------------------------------------------------------------------
+# compiler/linker settings
+# specify flags and libraries needed for your compiler
+
+CC =		mpic++
+CCFLAGS =	-g -O -DMPICH_IGNORE_CXX_SEEK -I../src
+LINK =		mpic++
+LINKFLAGS =	-g -O 
+LIB =		../src/libphish-zmq.a
+
+# ---------------------------------------------------------------------
+# build rules and dependencies
+# no need to edit this section
+
+OBJ = $(EXE).o
+
+$(EXE): $(OBJ)
+	$(LINK) $(LINKFLAGS) $(OBJ) $(LIB) -o $(EXE)
+
+# Rules
+
+%.o:%.cpp
+	$(CC) $(CCFLAGS) -c $<
+
+%.o:%.c
+	$(CC) $(CCFLAGS) -c $<
