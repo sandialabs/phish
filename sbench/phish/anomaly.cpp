@@ -40,10 +40,8 @@ std::tr1::unordered_map<uint64_t, std::pair<int,int> > kv;
 int main(int narg, char **args)
 {
   phish_init(&narg,&args);
-  phish_input(0,frame,stats,1);
+  phish_input(0,frame,NULL,1);
   phish_check();
-
-  signal(SIGINT, interrupt_handler);
 
   phish_loop();
   phish_exit();
