@@ -7,7 +7,7 @@ SHELL = /bin/sh
 # specify flags and libraries needed for your compiler
 
 CC =		g++
-CCFLAGS =	-g -O -I../src
+CCFLAGS =	-g -O -I../../src
 LINK =		g++
 LINKFLAGS =	-g -O 
 #LIB =		../src/libphish-zmq.so
