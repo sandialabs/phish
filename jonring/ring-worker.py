@@ -2,6 +2,7 @@ import optparse
 import phish
 import random
 import os.path
+import Queue
 import sys
 import time
 import threading
@@ -22,6 +23,8 @@ options, arguments = parser.parse_args()
 message = "-" * options.message_size
 random.seed(options.seed)
 
+file_queue = Queue.Queue()
+
 def read_file():
   try:
     os.remove(options.file)
@@ -36,27 +39,37 @@ def read_file():
       time.sleep(0.1)
 
   while True:
-    recipient_id = input_file.readline()
-    if recipient_id == "":
-      break
+    while True:
+      file_index = input_file.readline()
+      if file_index != "":
+        break
+    while True:
+      recipient_id = input_file.readline()
+      if recipient_id != "":
+        break
     recipient_id = int(recipient_id)
-    content = input_file.readline()
-    if content == "":
-      break
+    while True:
+      content = input_file.readline()
+      if content != "":
+        break
     content = content.strip()
-    sys.stderr.write("%s %s\n" % (recipient_id, content))
+    file_queue.put((file_index, recipient_id, content))
+    #sys.stderr.write("put %s\n" % file_index)
 
 if my_id == head_id:
   thread = threading.Thread(target = read_file)
+  thread.daemon = True
   thread.start()
 
 output_file = None
+file_index = 0
 def send_message(recipient_id, content):
   if my_id == tail_id:
-    global output_file
+    global output_file, file_index
     if output_file is None:
       output_file = open(options.file, "w+")
-    output_file.write("%s\n%s\n" % (recipient_id, content))
+    output_file.write("%s\n%s\n%s\n" % (file_index, recipient_id, content))
+    file_index += 1
     output_file.flush()
   else:
     phish.pack_int32(recipient_id)
@@ -65,13 +78,11 @@ def send_message(recipient_id, content):
 
 def source_message(field_count):
   content = phish.unpack()[1]
+  #sys.stderr.write("%s %s\n" % (my_id, content))
   send_message(my_id, content)
 
-def loop_message(field_count):
-  recipient_id = phish.unpack()[1]
-  content = phish.unpack()[1]
-
-  #print my_id, content
+def handle_loop_message(recipient_id, content):
+  #sys.stderr.write("%s %s %s\n" % (my_id, recipient_id, content))
 
   if content == "stop":
     options.probability = 0
@@ -86,6 +97,9 @@ def loop_message(field_count):
   if random.random() < options.probability:
     send_message(my_id, message)
 
+def loop_message(field_count):
+  handle_loop_message(phish.unpack()[1], phish.unpack()[1])
+
 def loop_done():
   phish.close(0)
 
@@ -95,6 +109,13 @@ phish.output(0)
 phish.check()
 
 while True:
+  try:
+    while True:
+      file_index, recipient_id, content = file_queue.get_nowait()
+      #sys.stderr.write("%s %s %s %s\n" % (my_id, file_index, recipient_id, content))
+      handle_loop_message(recipient_id, content)
+  except:
+    pass
   if -1 == phish.recv():
     break
 
