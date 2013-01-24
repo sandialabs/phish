@@ -816,71 +816,61 @@ int phish_probe(void (*idle_callback)())
 
 int phish_recv()
 {
+  phish_assert_initialized();
+  phish_assert_checked();
+
   if(g_running)
   {
     phish_warn("Cannot call phish_recv() while a loop is running.");
-    return -1;
+    return 0;
   }
 
-  try
+  uint8_t frame = 0;
+  if(zmq_recv(g_input_port, &frame, sizeof(frame), ZMQ_NOBLOCK) > 0)
   {
-    uint8_t frame = 0;
-    const int received = zmq_recv(g_input_port, &frame, sizeof(frame), ZMQ_NOBLOCK);
-    if(1 == received)
+    const int port = (frame & PORT_MASK);
+
+    if((frame & TYPE_MASK) == CLOSE_MESSAGE)
     {
-      const int port = (frame & PORT_MASK);
-
-      if((frame & TYPE_MASK) == CLOSE_MESSAGE)
+      g_input_port_connection_count[port] -= 1;
+      if(g_input_port_connection_count[port] == 0)
       {
-        g_input_port_connection_count[port] -= 1;
-        if(g_input_port_connection_count[port] == 0)
+        g_input_port_connection_count.erase(port);
+        if(g_input_port_closed_callback.count(port) && g_input_port_closed_callback[port])
         {
-          g_input_port_connection_count.erase(port);
-          if(g_input_port_closed_callback.count(port))
-          {
-            g_input_port_closed_callback[port]();
-          }
-          if(g_input_port_connection_count.size() == 0)
-          {
-            g_running = false;
-            if(g_all_input_ports_closed)
-              g_all_input_ports_closed();
-          }
+          g_input_port_closed_callback[port]();
         }
-        return -1;
-      }
-      else
-      {
-        g_received_count += 1;
-
-        unpack_count() = 0;
-        g_unpack_current = g_unpack_begin + sizeof(uint32_t);
-        g_unpack_end = g_unpack_begin + sizeof(uint32_t);
-
-        int64_t more_parts = 0;
-        size_t more_parts_size = sizeof(more_parts);
-        zmq_getsockopt(g_input_port, ZMQ_RCVMORE, &more_parts, &more_parts_size);
-        if(more_parts)
+        if(g_input_port_connection_count.size() == 0)
         {
-          const int received = zmq_recv(g_input_port, g_unpack_begin, g_datum_size, 0);
-          if(received > g_datum_size)
-            phish_return_error("Receive buffer overflow.", -1);
-          g_unpack_end = g_unpack_begin + received;
+          if(g_all_input_ports_closed)
+            g_all_input_ports_closed();
+          return -1;
         }
-
-        if(g_input_port_message_callback[port])
-          g_input_port_message_callback[port](unpack_count());
       }
     }
-    else if(errno == EAGAIN)
+    else
     {
-      return 0;
+      g_received_count += 1;
+
+      unpack_count() = 0;
+      g_unpack_current = g_unpack_begin + sizeof(uint32_t);
+      g_unpack_end = g_unpack_begin + sizeof(uint32_t);
+
+      int64_t more_parts = 0;
+      size_t more_parts_size = sizeof(more_parts);
+      zmq_getsockopt(g_input_port, ZMQ_RCVMORE, &more_parts, &more_parts_size);
+      if(more_parts)
+      {
+        const int received = zmq_recv(g_input_port, g_unpack_begin, g_datum_size, 0);
+        if(received > g_datum_size)
+          phish_return_error("Receive buffer overflow.", -1);
+        g_unpack_end = g_unpack_begin + received;
+      }
+
+      if(g_input_port_message_callback[port])
+        g_input_port_message_callback[port](unpack_count());
+      return unpack_count();
     }
-  }
-  catch(std::exception& e)
-  {
-    phish_warn(e.what());
-    return -1;
   }
 
   return 0;

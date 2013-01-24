@@ -64,6 +64,7 @@ def init(args):
 
   # phish_timer() returns a double
   _library.phish_timer.restype = c_double
+  _library.phish_recv.restype = c_int
 
   argc = pointer(c_int(len(args)))
 
