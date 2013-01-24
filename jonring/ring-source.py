@@ -9,7 +9,7 @@ sys.argv = phish.init(sys.argv)
 
 parser = optparse.OptionParser()
 parser.add_option("--receiver", type="int", default=0, help="Message recipient.  Default: %default.")
-parser.add_option("--message-count", "-n", type="int", default=1000000, help="Message count.  Default: %default.")
+parser.add_option("--message-count", "-n", type="int", default=5, help="Message count.  Default: %default.")
 parser.add_option("--message-size", "-m", type="int", default=80, help="Message size.  Default: %default.")
 parser.add_option("--delay", type="float", default=0, help="Delay in seconds between messages.  Default: %default.")
 options, arguments = parser.parse_args()
