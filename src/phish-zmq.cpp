@@ -20,11 +20,13 @@
 #include <stdexcept>
 #include <vector>
 
+#include <string.h>
+#include <zmq.h>
+
 #include "hashlittle.h"
 #include "phish.h"
 #include "phish-bait-common.h"
 #include "phish-common.h"
-#include "zmq.h"
 
 #define phish_return_error(message, code) { phish_error(message); return code; }
 
