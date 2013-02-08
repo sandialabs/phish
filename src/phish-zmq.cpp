@@ -108,6 +108,8 @@ public:
   virtual void send_hashed(char* key, int key_length) = 0;
   virtual void send_direct(int destination) = 0;
 
+  int recipient_count();
+
 protected:
   const int m_input_port;
   const recipients_t m_recipients;
@@ -212,6 +214,11 @@ output_connection::~output_connection()
   {
     zmq_close(*recipient);
   }
+}
+
+int output_connection::recipient_count()
+{
+  return m_recipients.size();
 }
 
 void output_connection::raw_send(void* recipient)
@@ -1197,6 +1204,20 @@ int phish_query(const char* kw, int flag1, int flag2)
     return g_global_id;
   else if(keyword == "nglobal")
     return g_global_count;
+  else if(keyword == "outport/connections")
+  {
+    if(0 == g_output_connections.count(flag1))
+      phish_return_error("Invalid phish_query flags", -3);
+    return g_output_connections[flag1].size(); 
+  }
+  else if(keyword == "outport/nminnows")
+  {
+    if(0 == g_output_connections.count(flag1))
+      phish_return_error("Invalid phish_query port", -3);
+    if(flag2 < 0 || flag2 >= g_output_connections[flag1].size())
+      phish_return_error("Invalid phish_query connection", -3);
+    return g_output_connections[flag1][flag2]->recipient_count();
+  }
   else
     phish_return_error("Invalid phish_query keyword.", -1);
 }
