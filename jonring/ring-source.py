@@ -26,6 +26,7 @@ def tick_message(field_count):
   elif tick_count == options.message_count:
     phish.pack_string("stop")
     phish.send_direct(0, options.receiver)
+    phish.close(0)
   tick_count += 1
 
 phish.input(1, tick_message, None, True)

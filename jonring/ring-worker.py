@@ -8,7 +8,7 @@ my_id = phish.query("idlocal", 0, 0)
 worker_count = phish.query("nlocal", 0, 0)
 
 parser = optparse.OptionParser()
-parser.add_option("--tick-factor", "-t", type="int", default=2, help="Tick multiplier.  Default: %default.")
+parser.add_option("--ticks", "-t", type="int", default=20, help="Number of simultaneous ticks.  Default: %default.")
 parser.add_option("--message-size", "-m", type="int", default=80, help="Message size.  Default: %default.")
 parser.add_option("--seed", type="int", default=my_id, help="Random seed.  Default: %default.")
 options, arguments = parser.parse_args()
@@ -18,7 +18,7 @@ random.seed(options.seed)
 stopped = False
 
 if my_id == 0:
-  for n in range(worker_count * options.tick_factor):
+  for n in range(options.ticks):
     phish.pack_int32(my_id)
     phish.pack_string("tick")
     phish.send(2)
@@ -78,6 +78,8 @@ def stop_message(recipient_id, content):
   phish.pack_int32(recipient_id)
   phish.pack_string(content)
   phish.send(2)
+  phish.close(1)
+  phish.close(2)
 
 phish.input(0, source_message, None, True)
 phish.input(2, loop_message, None, True)
