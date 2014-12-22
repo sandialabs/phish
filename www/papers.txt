@@ -6,13 +6,13 @@
 PHISH Papers :h3
 
 If you use the PHISH library in one of your publications, please cite
-the following paper (once it appears), and list the URL of the "PHISH
-WWW site"_pws, namely http://www.sandia.gov/~sjplimp/phish.html.
+the following paper and list the URL of the "PHISH WWW site"_pws,
+namely http://www.sandia.gov/~sjplimp/phish.html.
 
 [Streaming data analytics via message passing with application to
-graph algorithms], S. J. Plimpton and T. Shead, submitted to J
-Parallel and Distributed Computing, 2012.
-("abstract"_../abstracts/jpdc12.html) ("PDF
+graph algorithms], S. J. Plimpton and T. Shead, J Parallel and
+Distributed Computing, 74, 2687-2698 (2014).
+("abstract"_../abstracts/jpdc14.html) ("PDF
 pre-print"_../docs/phish_preprint_Oct12.pdf)
 
 :line
