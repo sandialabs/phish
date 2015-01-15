@@ -46,7 +46,9 @@ void print(int nvalues)
   for (int i = 0; i < nvalues; i++) {
     int type = phish_unpack(&value,&len);
     switch (type) {
-    case PHISH_RAW:
+    case PHISH_RAW:    // assume it's a string, append '\0' and print
+      value[len] = '\0';
+      fprintf(fp,"%s ",value);
       break;
     case PHISH_INT8:
       fprintf(fp,"%c ",*value);
