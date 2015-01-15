@@ -1,0 +1,14 @@
+14Jan13 version files changed by 15Jan15 upgrade:
+
+CMakeLists.txt
+bait/version.py
+doc/Manual.pdf
+example/in.ring
+example/in.wrap-udp
+minnow/print.cpp
+minnow/ring-source.py
+minnow/ring-worker.py
+minnow/wrap-udp.cpp
+python/phish/__init__.py
+src/phish-bait-zmq.cpp
+src/phish-zmq.cpp

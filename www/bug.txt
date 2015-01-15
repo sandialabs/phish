@@ -34,6 +34,15 @@ describe the version you have. :ule,l
 :line
 :line
 
+[15 Jan 2015]
+
+A few more minor changes.
+
+This is the "list of changed files"_patches/files.15Jan15 from the 14
+Jan 2013 version.
+
+:line
+
 [14 Jan 2013]
 
 A few minor changes in flagging errors and the safe send options.
