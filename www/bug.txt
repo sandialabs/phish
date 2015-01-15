@@ -34,6 +34,15 @@ describe the version you have. :ule,l
 :line
 :line
 
+[16 Jan 2015]
+
+Added some minnows and example scripts used in the PHISH paper listed
+as a citation on the "papers
+webpage"_http://www.sandia.gov/~sjplimp/phish/papers.html.
+
+This is the "list of changed files"_patches/files.16Jan15 from the 15
+Jan 2015 version.
+
 [15 Jan 2015]
 
 A few more minor changes.

@@ -1,0 +1,6 @@
+15Jan15 version files changed by 16Jan15 upgrade:
+
+bait/version.py
+doc/Manual.pdf
+minnow/ring-source.py
+minnow/ring-worker.py
