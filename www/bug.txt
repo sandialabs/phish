@@ -36,7 +36,7 @@ describe the version you have. :ule,l
 
 [17 Feb 2015]
 
-Added some MPI program to the mpionly directory which implement the
+Added some MPI programs to the mpionly directory which implement the
 benchmarks used in the PHISH paper listed as a citation on the "papers
 webpage"_http://www.sandia.gov/~sjplimp/phish/papers.html.
 
