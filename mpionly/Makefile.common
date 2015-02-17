@@ -1,0 +1,15 @@
+# All targets
+
+all:	pingpong chain hashed
+
+# MPI stand-alone programs
+
+pingpong:     pingpong.o
+	$(LINK) $(LINKFLAGS) pingpong.o $(SYSLIB) -o pingpong
+
+chain:   chain.o
+	$(LINK) $(LINKFLAGS) chain.o $(SYSLIB) -o chain
+
+hashed: hashed.o hash.o
+	$(LINK) $(LINKFLAGS) hashed.o hash.o $(SYSLIB) -o hashed
+

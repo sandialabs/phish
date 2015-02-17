@@ -6,7 +6,7 @@ mpirun.
 
 pingpong.cpp            pingpong benchmark, see example/in.pingpong
 chain.cpp               chain benchmark, see example/in.chain
-hash.cpp                hash benchmark, see example/in.hash
+hashed.cpp              hash benchmark, see example/in.hash
 
 You can build all 3 of the benchmarks by typing
 
@@ -20,11 +20,15 @@ description of the arguments each one takes.
 
 % mpirun -np 2 pingpong 1000 16
 % mpirun -np 8 chain 1000 16 0
-% mpirun -np 8 hash 1000 16 0
+% mpirun -np 8 hashed 1000 16 0
 
 The pingpong benchmark must be run on 2 procesors.  The chain
-benchmark must be run on >= 2 processors.  The hash benchmark must be
-run on an even number of processors.
+benchmark must be run on >= 2 processors.  The hashed benchmark must
+be run on an even number of processors.
 
+These benchmarks and their PHISH couterparts are discussed in
+this paper about PHISH:
 
-
+Streaming data analytics via message passing with application to graph
+algorithms, S. J. Plimpton and T. Shead, J Parallel and Distributed
+Computing, 74, 2687-2698 (2014).
