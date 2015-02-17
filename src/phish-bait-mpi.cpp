@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <sys/wait.h>
 
+#include <unistd.h>
 #include <errno.h>
 
 extern "C"
