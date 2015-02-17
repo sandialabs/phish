@@ -34,6 +34,22 @@ describe the version you have. :ule,l
 :line
 :line
 
+[17 Feb 2015]
+
+Added some MPI program to the mpionly directory which implement the
+benchmarks used in the PHISH paper listed as a citation on the "papers
+webpage"_http://www.sandia.gov/~sjplimp/phish/papers.html.
+
+Also added some include file headres and make fixes for building PHISH
+programs on different platforms.
+
+This is the "list of changed files"_patches/files.17Feb15 from the 16
+Jan 2015 version.
+
+Thanks to Dave Love for the build tips.
+
+:line
+
 [16 Jan 2015]
 
 Added some minnows and example scripts used in the PHISH paper listed
