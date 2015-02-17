@@ -11,7 +11,6 @@ enable_testing()
 
 add_subdirectory(src)
 add_subdirectory(minnow)
-add_subdirectory(sbench)
 
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/bench")
   add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/bench")

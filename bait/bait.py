@@ -173,12 +173,12 @@ parser.add_option("--suffix", "-x", default="",
                   help="Add a suffix to all minnow names")
 parser.add_option("--launch", "-l", default="",
                   help="Add a launch prefix to all minnows")
-parser.add_option("--variable", "-v", action="callback",
+parser.add_option("--variable", "-v", action="callback", nargs=2,
                   callback=variable_callback, dest="variable", default=[],
                   metavar="NAME VALUE", help="Specify value of a variable")
 parser.add_option("--verbose", default=False, action="store_true",
                   help="Verbose output, Default: %default")
-options, arguments = parser.parse_args()
+options,arguments = parser.parse_args()
 
 paths = options.path.split(":")
 settings = dict(options.set)

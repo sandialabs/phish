@@ -12,7 +12,7 @@
 ------------------------------------------------------------------------- */
 
 #include <iostream>
-#include <iterator>
+#include <cstring>
 #include <map>
 #include <algorithm>
 #include <set>

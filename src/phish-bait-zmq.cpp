@@ -4,6 +4,7 @@
 #include <zmq.h>
 
 #include <iostream>
+#include <cstring>
 #include <iterator>
 #include <map>
 #include <stdexcept>
