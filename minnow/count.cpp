@@ -15,7 +15,7 @@ void dump();
 /* ---------------------------------------------------------------------- */
 
 typedef map<string, int> Hash;
-Hash hash;
+Hash counts;
 
 /* ---------------------------------------------------------------------- */
 
@@ -45,15 +45,15 @@ void count(int nvalues)
   if (type != PHISH_STRING) phish_error("Count processes string values");
 
   string str(buf,len);
-  ++hash[str];
+  ++counts[str];
 }
 
 /* ---------------------------------------------------------------------- */
 
 void dump()
 {
-  Hash::const_iterator end = hash.end(); 
-  for (Hash::const_iterator i = hash.begin(); i != end; i++) {
+  Hash::const_iterator end = counts.end(); 
+  for (Hash::const_iterator i = counts.begin(); i != end; i++) {
     phish_pack_int32(i->second);
     phish_pack_string((char *) i->first.c_str());
     phish_send(0);

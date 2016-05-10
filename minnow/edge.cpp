@@ -8,11 +8,11 @@
 #include "stdio.h"
 #include "phish.h"
 
-#include <tr1/unordered_map>
-#include <tr1/unordered_set>
+#include <unordered_map>
+#include <unordered_set>
 
 int nedge;
-std::tr1::unordered_map<uint64_t, std::tr1::unordered_set<uint64_t> > graph;
+std::unordered_map<uint64_t, std::unordered_set<uint64_t> > graph;
 
 void edge_once(int);
 void edge_first(int);
@@ -79,7 +79,7 @@ void edge_once(int nvalues)
   if (vi == vj) return;
 
   if (!graph.count(vi))
-    graph[vi] = std::tr1::unordered_set<uint64_t>();
+    graph[vi] = std::unordered_set<uint64_t>();
   if (!graph[vi].count(vj)) {
     graph[vi].insert(vj);
     ++nedge;
@@ -103,7 +103,7 @@ void edge_first(int nvalues)
   if (vi == vj) return;
 
   if (!graph.count(vi))
-    graph[vi] = std::tr1::unordered_set<uint64_t>();
+    graph[vi] = std::unordered_set<uint64_t>();
   if (!graph[vi].count(vj)) {
     graph[vi].insert(vj);
     ++nedge;
@@ -127,7 +127,7 @@ void edge_second(int nvalues)
   uint64_t vj = *((uint64_t *) buf);
 
   if (!graph.count(vi))
-    graph[vi] = std::tr1::unordered_set<uint64_t>();
+    graph[vi] = std::unordered_set<uint64_t>();
   if (!graph[vi].count(vj)) {
     graph[vi].insert(vj);
     ++nedge;

@@ -21,6 +21,7 @@
 #include <vector>
 
 #include <string.h>
+#include <unistd.h>
 #include <zmq.h>
 
 #include "hashlittle.h"
