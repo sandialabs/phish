@@ -1,8 +1,8 @@
 <HEAD>
 <TITLE>PHISH Documentation</TITLE>
-<META NAME="docnumber" CONTENT="http://www.sandia.gov/~sjplimp/phish.html">
-<META NAME="author" CONTENT="Sandia National Laboratories, Copyright (2012) Sandia Corporation">
-<META NAME="copyright" CONTENT="This software and manual is distributed under the modified Berkeley Software Distribution (BSD) License.">
+<META NAME="docnumber" CONTENT="17 Feb 2015 version">
+<META NAME="author" CONTENT="http://www.sandia.gov/~sjplimp/phish.html- Sandia National Laboratories">
+<META NAME="copyright" CONTENT="Copyright (2018) Sandia Corporation.  This software and manual is distributed under the Berkeley Software Distribution (BSD) License.">
 </HEAD>
 
 <BODY>
@@ -17,6 +17,7 @@
 
 PHISH Tales :h2,c
 (documentation for the PHISH library) :h2,c
+17 Feb 2015 version :c,h4
 
 Version info: :h4
 
