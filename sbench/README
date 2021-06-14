@@ -1,6 +1,0 @@
-Streaming benchmark files for work with Karl
-
-doc = doc files
-generate = stream generator
-serial = serial stream analysis
-phish = PHISH-based stream analysis
