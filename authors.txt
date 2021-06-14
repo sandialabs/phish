@@ -1,0 +1,30 @@
+"PHISH WWW Site"_pws :c
+:link(pws,../phish.html)
+
+:line
+
+PHISH Authors :h3
+
+The authors of the PHISH library are "Steve Plimpton"_sjp (sjplimp at
+sandia.gov) and Tim Shead (tshead at sandia.gov).
+
+:link(sjp,http://www.sandia.gov/~sjplimp)
+
+You can send us email regarding any of these issues:
+
+If you use PHISH for something interesting, we'd like to hear about
+it. :ulb,l
+
+If you encounter a bug or have a question about using the software,
+send us an email. :l
+
+If you write a paper using the PHISH library, we can post a citation
+to it on "this page"_papers.html. :l
+
+If you write a program (minnow) which calls the library, that others
+would be interested in, you can send it and we'll include it in the
+distribution.  Ditto for a PHISH input script that performs an
+interesting calculation.  :l
+
+If you enhance the library itself or have ideas for doing so, we can
+discuss including the improvements in future releases. :l,ule

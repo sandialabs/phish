@@ -1,0 +1,22 @@
+"PHISH WWW Site"_pws :c
+:link(pws,../phish.html)
+
+:line
+
+PHISH Papers :h3
+
+If you use the PHISH library in one of your publications, please cite
+the following paper and list the URL of the "PHISH WWW site"_pws,
+namely http://www.sandia.gov/~sjplimp/phish.html.
+
+[Streaming data analytics via message passing with application to
+graph algorithms], S. J. Plimpton and T. Shead, J Parallel and
+Distributed Computing, 74, 2687-2698 (2014).
+("abstract"_../abstracts/jpdc14.html) ("PDF
+pre-print"_../docs/phish_preprint_Oct12.pdf)
+
+:line
+
+If you write a paper using the PHISH library, "send us an
+email"_authors.html, and we'd be happy to post a citation to it on
+this page.

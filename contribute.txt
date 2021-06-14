@@ -1,0 +1,32 @@
+"PHISH WWW Site"_pws :c
+:link(pws,../phish.html)
+
+:line
+
+Contributing to the PHISH library :h3
+
+In the spirit of an open-source code, there are various ways you can
+contribute to making the PHISH library better.  You can send email on
+any of these items to the developers listed on the "PHISH WWW
+site"_pws.
+
+Point prospective users to the PHISH WWW site.  Mention it in talks
+or link to it from your own WWW site. :ulb,l
+
+If you find an error or omission in the PHISH documentation, or have a
+suggestion for something to clarify or include, let us know. :l
+
+If you find a bug, please send us an email with details of how
+to reproduce it. :l
+
+If you publish a paper using PHISH, send the citation to us and we can
+add it to the Publications page. :l
+
+Contribute a program or minnow which calls the PHISH library to be
+added to the minnow directory in the distribution.  Or contribute a
+PHISH input script that does something interesting, which we acn add
+to the example directory. :l
+
+Cash. Small denominations, unmarked bills preferred. Leave in paper
+sack on author's desk. VISA also accepted. Chocolate chip cookies
+encouraged. :ule,l

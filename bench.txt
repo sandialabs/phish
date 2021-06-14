@@ -1,0 +1,10 @@
+"PHISH WWW Site"_pws :c
+:link(pws,../phish.html)
+
+:line
+
+PHISH Benchmarks :h3
+
+This page is still under construction.  We plan to add some benchmark
+data and plots for streaming kernels and graph algorithms discussed in
+the paper mentioned on "this page"_papers.html.
