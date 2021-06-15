@@ -44,16 +44,16 @@ This is the home page for the PHISH library, which is the chief
 component of a simple framework for processing large volumes of data,
 either in a real-time streaming context or from files.
 
-"Pheatures"_phish/features.html,
-"Lingo"_phish/lingo.html,
-"Documentation"_phish/doc/Manual.html,
-"Benchmarks"_phish/bench.html,
-"Download"_download.html,
-"Publications"_phish/papers.html,
-"Latest features & bug fixes"_phish/bug.html,
-"Contribute"_phish/contribute.html,
-"Open source"_phish/open_source.html,
-"Authors"_phish/authors.html :tb(c=5,ea=c,a=c)
+"Pheatures"_features.html,
+"Lingo"_lingo.html,
+"Documentation"_doc/Manual.html,
+"Benchmarks"_bench.html,
+"Download"_https://www.sandia.gov/~sjplimp/download.html,
+"Publications"_papers.html,
+"Latest features & bug fixes"_bug.html,
+"Contribute"_contribute.html,
+"Open source"_open_source.html,
+"Authors"_authors.html :tb(c=5,ea=c,a=c)
 
 PHISH stands for Parallel Harness for Informatic Stream Hashing.  The
 phishy metaphor is meant to evoke the image of many small minnows
@@ -82,11 +82,6 @@ page"_phish/open_source.html for more details.
 
 The authors of PHISH are "Steve Plimpton"_sjp and Tim Shead, who can
 be contacted at sjplimp at sandia.gov and tshead at sandia.gov.
-
-The PHISH WWW site is hosted by Sandia, which has this "Privacy and
-Security statement"_security.
-
-:link(security,http://www.sandia.gov/general/privacy-security/index.html)
 
 :link(snl,http://www.sandia.gov)
 :link(doe,http://www.doe.gov)
