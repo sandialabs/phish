@@ -1,0 +1,114 @@
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
+
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+phish_error() function :h3
+phish_warn() function :h3
+phish_abort() function :h3
+
+[C syntax:]
+
+#include "phish.h"
+void phish_error(char *str)
+void phish_warn(char *str)
+void phish_abort() :pre
+
+[C examples:]
+
+phish_error("Bad datum received");
+phish_warn("May overflow internal buffer");
+phish_abort();
+
+[C++ syntax:]
+
+void phish::error(char *str)
+void phish::warn(char *str)
+void phish::abort() :pre
+
+[C++ examples:]
+
+#include "phish.hpp"
+phish::error("Bad datum received");
+phish::warn("May overflow internal buffer");
+phish::abort(); :pre
+
+[Python syntax:]
+
+def error(str)
+def warn(str)
+def abort() :pre
+
+[Python examples:]
+
+import phish
+phish.error("Bad datum received")
+phish.warn("May overflow internal buffer")
+phish.abort() :pre
+
+[Description:]
+
+These are PHISH library functions which can be called from a minnow
+application.  In "PHISH lingo"_Section_intro.html#intro_2, a "minnow"
+is a stand-alone application which makes calls to the "PHISH
+library"_Library.html.
+
+These functions print error or warning messages.  The phish_error()
+and phish_abort() functions also cause a PHISH program and all of its
+minnows to exit.
+
+These functions can be called by a minnow, but are also called
+internally by the PHISH library when error conditions are encountered.
+
+Also note that unlike calling "phish_exit"_phish_exit.html, these
+functions do not close a minnow's input or output ports, or
+trigger "done" messages to be sent to downstream minnows.  This means
+that no other minnows are explicitly told about the failed minnow.
+However, see the discussion below about the phish_abort() function and
+its effect on other minnows.
+
+:line
+
+The phish_error() function prints the specified character string to
+the screen, then calls phish_abort().
+
+The error message is printed with the following format:
+
+PHISH ERROR: Minnow executable ID school-id # global-id: message :pre
+
+where "executable" is the name of executable minnow file (not the full path,
+just the filename), "school-id" is the ID of the minnow as specified in the
+PHISH input script, "global-id" is the global-ID of the minnow, and message is
+the error message.  Each minnow has a global ID from 0 to Nglobal-1, where
+Nglobal is the total number of minnows in the net specified by the PHISH input
+script.  This supplementary information is helpful in debugging which minnow
+generated the error message.
+
+:line
+
+The phish_warn() function prints the specified character string to the screen,
+in the same format as phish_error(), execpt ERROR is replaced by WARNING.
+phish_abort() is not invoked and control is simply returned to the calling
+minnow which can continue executing.
+
+:line
+
+The phish_abort() function invokes the user-specified abort callback function
+defined via "phish_callback"_phish_callback.html.  If the callback function
+does not cancel the abort, the minnow exits.
+
+For the MPI version of the PHISH library, phish_abort() invokes MPI_Abort(),
+which should force all minnows in the PHISH school to exit, along with the
+"mpirun" or "mpiexec" command that launched the net.
+
+For the ZMQ version of the PHISH library, phish_abort() behavior is undefined.
+We intend that in future versions of PHISH, all minnows in the net will exit.
+
+[Restrictions:] none
+
+[Related commands:]
+
+"phish_exit"_phish_exit.html

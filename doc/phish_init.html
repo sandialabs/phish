@@ -1,0 +1,177 @@
+<HTML>
+<CENTER><A HREF = "http://www.sandia.gov/~sjplimp/phish.html">PHISH WWW Site</A> - <A HREF = "Manual.html">PHISH Documentation</A> - <A HREF = "Bait.html">Bait.py Commands</A> 
+</CENTER>
+
+
+
+
+
+
+<HR>
+
+<H3>phish_init() function 
+</H3>
+<P><B>C syntax:</B>
+</P>
+<PRE>int phish_init(int *argc, char ***argv) 
+</PRE>
+<P><B>C examples:</B>
+</P>
+<PRE>phish_init(&argc,&argv); 
+</PRE>
+<P><B>C++ syntax:</B>
+</P>
+<PRE>void init(int& argc, char*& argv) 
+</PRE>
+<P><B>C++ examples:</B>
+</P>
+<PRE>phish::init(argc, argv); 
+</PRE>
+<P><B>Python syntax:</B>
+</P>
+<PRE>def init(argv) 
+</PRE>
+<P><B>Python examples:</B>
+</P>
+<PRE>import phish
+argv = phish.init(sys.argv) 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>This is a PHISH library function which can be called from a minnow
+application.  In <A HREF = "Section_intro.html#intro_2">PHISH lingo</A>, a "minnow"
+is a stand-alone application which makes calls to the <A HREF = "Library.html">PHISH
+library</A>.
+</P>
+<P>A PHISH program typically includes one or more schools of minnows, as
+specified in a PHISH input script.  Each minnow in each school is an
+individual process.  Locally, each minnow has a local-ID from
+0 to Nlocal-1 within its school, where <I>Nlocal</I> is the number of minnows
+in the school.  Globally, each minnow has a global-ID from 0 to
+Nglobal-1, where <I>Nglobal</I> is the total number of minnows in the net.  The
+global-IDs are ordered by school, so that minnows within each school have
+consecutive IDs.  These IDs enable the PHISH library to orchestrate
+communication of datums between minnows in different schools.  E.g. when
+running the MPI version of the PHISH library, the global-ID
+corresponsds to the rank ID of an MPI process, used in MPI_Send() and
+MPI_Recv() function calls.
+</P>
+<P>See the <A HREF = "phish_query.html">phish_query</A> function for how a minnow can
+find out these values from the PHISH library.
+</P>
+<HR>
+
+<P>The phish_init() function must be the first call to the PHISH library
+made by a minnow.  Since it alters the command-line arguments passed
+to the minnow, it is typically the first executable line of a minnow
+program.
+</P>
+<P>It's purpose is to initialize the library using special command-line
+arguments passed to the minnow when it was launched, typically by the
+the <A HREF = "Bait.html">bait.py</A> tool that parses a PHISH input script.
+</P>
+<P>The two arguments to phish_init() are pointers to the number of
+command-line arguments, and a pointer to the arguments themselves as
+an array of strings.  These are passed as pointers, because the PHISH
+library reads and removes the PHISH-specific arguments.  It then
+returns the remaining minnow-specific arguments, which the minnow can
+read and process.  As is standard with C programs, the returned value
+of argv includes argv[0] which is the name of the minnow executable.
+</P>
+<P>Note that in the Python version of phish.init(), the full argument
+list is passed as an argument, and the truncated argument list is
+returned.
+</P>
+<P>Following are some sample switches and arguments that the MPI version
+of the PHISH library looks for and processes.  These are generated
+automatically by the <A HREF = "Section_bait.html">bait.py</A> tool when it
+processes a PHISH input script so you don't need to think about these
+arguments, but it may be helpful in understanding how PHISH works.
+Note that these arguments are normally invisible to the user; their
+format and number may be changed in future versions of PHISH.
+</P>
+<UL><LI>--phish-backend mpi
+<LI>--phish-minnow ID Nlocal Nprev
+<LI>--phish-memory N
+<LI>--phish-in sprocs sfirst sport style rprocs rfirst rport
+<LI>--phish-out sprocs sfirst sport style rprocs rfirst rport 
+</UL>
+<P>The <I>--phish-backend</I> switch appears once, and is followed by the version of the
+PHISH library specified by bait.py.  This allows the PHISH library to detect
+incompatible runtime environments, e.g. mixing minnows linked against the socket
+version of the PHISH library with minnows using the MPI version.
+</P>
+<P>The <I>--phish-minnow</I> switch appears once.  ID is the school ID in the PHISH input
+script.  The <I>Nlocal</I> argument was explained above.  <I>Nprev</I> is the total
+number of minnows in sets of minnows previous to this one.  It is used to infer
+the <I>local-ID</I> value discussed above.
+</P>
+<P>The <I>--phish-memory</I> switch changes a default setting within the PHISH
+library.  There is a similar command for each keyword supported by the
+<A HREF = "bait_set.html">bait.py set</A> command.
+</P>
+<P>The <I>--phish-memory</I> value <I>N</I> sets the maximum size of the buffers
+used to send and receive datums.  See the <A HREF = "bait_set.html">set</A> command
+of the <A HREF = "Section_bait.html">bait.py</A> tool for more information on the
+settings of this switch.
+</P>
+<P>The <I>--phish-in</I> switch appears once for every connection the minnow
+has with other minnows, where it is a receiver of datums.  See the
+<A HREF = "bait_hook.html">hook</A> command in PHISH input scripts processed by the
+<A HREF = "Bait.html">bait.py</A> tool, for more information.
+</P>
+<P><I>Sprocs</I>, <I>sfirst</I>, and <I>sport</I> refer to the set of minnows sending to
+this minnow.  They are respectively, the number of minnows in the set,
+the global ID of the first minnow in the set, and the output port used
+by those minnows.  <I>Rprocs</I>, <I>rfirst</I>, and <I>rport</I> refer to the set of
+minnows receivng the datums, i.e. the set of minnows this minnow
+belongs to.  They are respectively, the number of minnows in the set,
+the global ID of the first minnow in the set, and the input port used
+by those minnows.  <I>Style</I> is the connection style, as specified by
+the <A HREF = "bait_hook.html">hook</A> command in the PHISH input script processed
+by the <A HREF = "Bait.html">bait.py</A> tool.  E.g. <I>style</I> is a word like "single"
+or "hashed".  If it is "subscribe", then extra info about the external
+host and its TCP port is appended to the <I>style</I>,
+e.g. "subscribe/www.foo.com:25".
+</P>
+<P>The <I>--phish-out</I> switch appears once for every connection the minnow has
+with other minnows, where it is a sender of datums.  See the
+<A HREF = "bait_hook.html">hook</A> command in PHISH input scripts processed
+by the <A HREF = "Bait.html">bait.py</A> tool, for more information.
+</P>
+<P><I>Sprocs</I>, <I>sfirst</I>, and <I>sport</I> refer to the set of minnows sending
+datums, i.e. the set of minnows this minnow belongs to.  They are
+respectively, the number of minnows in the set, the global ID of the
+first minnow in the set, and the output port used by those minnows.
+<I>Rprocs</I>, <I>rfirst</I>, and <I>rport</I> refer to the set of minnows receivng
+the datums.  They are respectively, the number of minnows in the set,
+the global ID of the first minnow in the set, and the input port used
+by those minnows.  <I>Style</I> is the connection style, as specified by
+the <A HREF = "bait_hook.html">hook</A> command in the PHISH input script
+processed by the <A HREF = "Bait.html">bait.py</A> tool.  E.g. <I>style</I> is a word
+like "single" or "hashed".  If it is "publish", then extra info about
+the TCP port is appended to the <I>style</I>, e.g. "publish/25".
+</P>
+<P>The PHISH library ignores any remaining arguments, returning them to to the
+minnow caller, including the name of the minnow executable in argv[0].
+</P>
+<P>The phish_init() function also flags each specified input port and
+output port with a CLOSED status, instead of UNUSED.  See the
+<A HREF = "bait_hook.html">hook</A> command for the <A HREF = "Bait.html">bait.py</A> tool
+for more info about communication ports.  See the
+<A HREF = "phish_input.html">phish_input</A> and <A HREF = "phish_output.html">phish_output</A>
+functions for more info about port status.
+</P>
+<P>The "C" binding to phish_init() returns a nonzero value if there were errors,
+otherwise zero.  The "C++" binding to phish::init() throws an exception if
+there were errors.
+</P>
+<HR>
+
+<P><B>Restrictions:</B> none
+</P>
+<P><B>Related commands:</B>
+</P>
+<P><A HREF = "phish_query.html">phish_query</A>
+</P>
+</HTML>

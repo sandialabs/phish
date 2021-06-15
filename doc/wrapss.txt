@@ -1,0 +1,91 @@
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
+
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+wrapss minnow :h3
+
+[Syntax:]
+
+wrapss -f "program" :pre
+
+program = shell command for launching executable program :ul
+
+[Examples:]
+
+wrapsource "myexe"
+wrapsource "myexe -n 3 -o outfile < in.script"
+wrapsource "echo" :pre
+
+[Description:]
+
+Wrapss is a PHISH minnow that can be used in a PHISH program.  In
+"PHISH lingo"_Section_intro.html#intro_2, a "minnow" is a stand-alone
+application which makes calls to the "PHISH library"_Library.html to
+exchange data with other PHISH minnows.
+
+The wrapss minnow is used to wrap a non-PHISH application so that
+datums can be sent to it from other PHISH minnows as lines it reads
+from stdin, and lines it writes to stdout can be sent as datums to
+other minnows.  It is a mechanism for using non-PHISH applications as
+minnows in a PHISH net.
+
+[Ports:]
+
+The wrapss minnow uses one input port 0 to receive datums and one
+output port 0 to send datums.
+
+[Operation:]
+
+When the wrapss minnow starts, the {program} argument is treated as a
+string that is executed as a command by the shell.  As in the examples
+above {program} can be an executable program name or a shell command.
+It can include flags or redirection operators.  If the string contains
+spaces, it should be enclosed in quotes in the PHISH input script so
+that it is treated as a single argument when the script is read by the
+"bait.py"_Section_bait.html tool.
+
+After the wrapss minnow launches the {program} command, it calls the
+"phish_probe"_phish_recv.html function.  Each time an input datum is
+received, its single string field is written to the running {program}
+with a trailing newline, so that the {program} reads it as a line of
+input from stdin. When no input datum is available, "phish_probe"
+returns control to the wrapss minnow which checks if there is any
+output that the running {program} has written to stdout.  If there is,
+the wrapss minnow sends it as a string (without the trailing newline)
+to its output port 0.
+
+Note that there is no requirement that the running {program} produce a
+line of output for every line of input it reads.  It may for example,
+read all of its input, compute for a while, then produce all of its
+output.  Or it may produce output as bursts of lines, after reading
+multiple input lines.
+
+The wrapss minnow shuts down when its input port is closed by
+receiving a sufficient number of "done" messages.  When this occurs,
+it closes the stdin pipe the running {program} is reading from, which
+should cause it to exit.  The wrapss minnow reads all the final output
+produced by the running program until it exits and converts it into
+datums that it sends to its output port 0.  It then calls
+"phish_exit"_phish_exit.html.
+
+[Data:]
+
+The wrapss minnow must receive single field datums of type
+PHISH_STRING.  It also sends single-field datums of type PHISH_STRING.
+
+[Restrictions:]
+
+The C++ version of the wrapss minnow allocates a buffer of size
+MAXLINE = 1024 bytes for both converting the PHISH_STRING fields of
+received datums into lines of input read from stdin by the wrapped
+program, and for reading lines of output written to stdout by the
+wrapped program.  This can be changed (by editing minnow/wrapss.cpp)
+if longer lines are needed.
+
+[Related minnows:]
+
+"wrapsink"_wrapsink.html, "wrapsource"_wrapsource.html

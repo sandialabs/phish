@@ -1,0 +1,429 @@
+<HTML>
+<CENTER><A HREF = "Manual.html">Previous Section</A> - <A HREF = "http://www.sandia.gov/~sjplimp/phish.html">PHISH WWW Site</A> -
+<A HREF = "Manual.html">PHISH Documentation</A> - <A HREF = "Section_bait.html">Next Section</A> 
+</CENTER>
+
+
+
+
+<HR>
+
+<H3>1. Introduction 
+</H3>
+<P>This section explains what the PHISH software package is and why we
+created it.  It outlines the steps to creating your own PHISH program,
+and gives a simple example of using PHISH to perform a parallel
+calculation.  These are the topics discussed:
+</P>
+<UL><LI>1.1 <A HREF = "#intro_1">Motivation</A>
+<LI>1.2 <A HREF = "#intro_2">PHISH lingo</A>
+<LI>1.3 <A HREF = "#intro_3">PHISH pheatures</A>
+<LI>1.4 <A HREF = "#intro_4">Steps to create and run a PHISH net</A>
+<LI>1.5 <A HREF = "#intro_5">Simple example</A>
+<LI>1.6 <A HREF = "#intro_6">Acknowledgments and citations</A> 
+</UL>
+<HR>
+
+<HR>
+
+<A NAME = "intro_1"></A><H4>1.1 Motivation 
+</H4>
+<P>Informatics is data-driven computing and is becoming more prevalent,
+even on large-scale parallel machines traditionally used to run
+scientific simulations.  It can involve processing large archives of
+stored data or data that arrives on-the-fly in real time.  The latter
+is often referred to as "streaming" data.  Common attributes of
+streaming data are that it arrives continuously in a never-ending
+stream, its fast incoming rate requires it be processed as it arrives
+which may limit the computational effort per datum that can be
+expended, and its high volume means it cannot be stored permanently so
+that individual datums are examined and discarded.
+</P>
+<P>A powerful paradigm for processing streaming data is to use a
+collection of programs, running as independent processes, connected
+together in a specified communication topology.  Each process receives
+datums continuously, either from the stream itself, or read from a
+file, or sent to it from other processes.  It performs calculations on
+each datum and may choose to store "state" internally about the stream
+it has seen thus far.  It can send the datum on to one or more other
+processes, either as-is or in an altered form.
+</P>
+<P>In this model, a data-processing algorithm can be expressed by
+choosing a set of processes (programs) and connecting them together in
+an appropriate fashion.  If written flexibly. individual programs can
+be re-used in different algorithms.
+</P>
+<P>PHISH is a small software package to make the task of designing and
+developing such algorithms easier, and allowing the resulting program
+to be run in parallel, either on distributed memory platforms that
+support MPI message passing, or on a collection of computers that
+support socket connections between them.
+</P>
+<P>PHISH stands for Parallel Harness for Informatic Stream Hashing.
+</P>
+<P>Here is what these words mean, in the PHISH context.  "Parallelism"
+can be achieved by using multiple copies of processes, each working on
+a part of the stream, or by using the memory of multiple processes to
+store state about the stream of data.  It is a framework or "harness"
+for connecting processes in a variety of simple, yet powerful, ways
+that enable parallel data processing.  While it is designed with
+"streaming" "informatics" data in mind, it can also be used to process
+archived data from files or in a general sense to perform a
+computation in stages, using internally generated data of any type or
+size.  "Hashing" refers to sending datums to specific target processes
+based on the result of a hash operation, which is one means of
+achieving parallelism.
+</P>
+<P>It is important to note that PHISH does not replace or even automate
+the task of writing code for the individual programs needed to process
+data, or of designing an appropriate parallel algorithm to perform a
+desired computation.  It is simply a library that processes can call
+to exchange datums with other processes, and a setup tool that
+converts an input script into a runnable program that can be easily
+launched in parallel.
+</P>
+<P>Our goal in developing PHISH was to make it easier to process data,
+particularly streaming data, in parallel, on distributed-memory or
+geographically-distributed platforms.  And to provide a framework to
+quickly experiment with parallel informatics algorithms, either for
+streaming or archived data.  Our own interest is in graph algorithms
+but various kinds of statistical, data mining, machine learning, and
+anomaly detection algorithms can be formulated for streaming data, in
+the context of the model described above.  We hope PHISH can be a
+useful tool in those settings as well.
+</P>
+<HR>
+
+<A NAME = "intro_2"></A><H4>1.2 PHISH lingo 
+</H4>
+<P>The name PHISH was also chosen because it evokes the image of fish
+(programs) swimming in a stream (of data).  This unavoidably gives
+rise to the following PHISH lingo, which we use without apology
+throughout the rest of the documentation:
+</P>
+<UL><LI>minnow = a (typically small) stand-alone application, run as a process
+<LI>school = a set of duplicate minnows, swimming (working) together in coordinated fashion
+<LI>hook = a connection between two schools in a defined communication pattern
+<LI>net(work) = a PHISH program, consisting of one or more schools, hooked together to perform a calculation
+<LI>bait.py = a tool for creating PHISH nets from an input script
+<LI>wrapper = a wrapper of the PHISH library for Python
+<LI>tales = the <A HREF = "Manual.html">PHISH manual</A> 
+</UL>
+<HR>
+
+<A NAME = "intro_3"></A><H4>1.3 PHISH pheatures 
+</H4>
+<P>The model described above is not unique to PHISH.  Many programs
+provide a framework for enabling data to flow between computational
+tasks interconnected by "pipes" in a dataflow kind of paradigm.
+Visualization programs often use this model to process data and
+provide a GUI framework for building a processing pipeline by
+connecting the outputs of each computational node to the inputs of
+others.  The open source <A HREF = "http://titan.sandia.gov">Titan package</A>, built on top of VTK,
+is one example, which provides a rich suite of computation methods,
+both for visualization and data processing.  The commercial
+<A HREF = "http://www-01.ibm.com/software/data/infosphere/stream-computing">InfoSpheres tool from IBM</A> uses a similar dataflow model, and is
+designed for processing streaming data at high rates.  Twitter
+recently released an open-source package called "Twitter Storm" which
+has been advertised as <A HREF = "http://hadoop.apache.org">Hadoop</A> for streaming data, since it
+enables streaming MapReduce-style computations and runs with
+fault-tolerance on top of a parallel file system like HDFS.  PHISH has
+many conceptual similarities to Storm, though PHISH has fewer
+features, such as no support for fault tolerance.
+</P>
+
+
+
+
+
+
+
+
+<P>Dataflow frameworks like these are often designed to run as a single
+process or in parallel on a shared memory machine.  The computational
+nodes in the processing pipeline are functions called as needed by a
+master process, or launched as threads running in parallel.
+</P>
+<P>By contrast, PHISH minnows (computational nodes in the processing
+pipeline), are independent processes and the PHISH library moves data
+between them via "messages" which requires copying the data, either
+using the MPI message-passing library or sockets.  This allows PHISH
+programs to be run on a broader range of hardware, notably
+distributed-memory parallel platforms, but also incurs a higher
+overhead for moving data from process to process.
+</P>
+<P>The following list highlights additional PHISH pheatures:
+</P>
+<UL><LI>The PHISH package is open-source software, distributed under the
+Berkeley Software Development (BSD) license.  This effectively means
+that anyone can use the software for any purpose, including commercial
+redistribution. 
+
+<LI>The PHISH library is a small piece of code (few 1000 lines), with a
+compact API (couple dozen functions).  It has a C interface, so that
+it can be easily called from programs written in a variety of
+languages (C, C++, Fortran, Python, etc).  The library can be compiled
+on any platform with a C++ compiler. 
+
+<LI>The PHISH library comes in two flavors with the same API: one based on
+message passing via the MPI library, the other based on sockets via
+the open-source <A HREF = "http://www.zeromq.org">ZMQ</A> library.  This means you need one or both of
+these packages (MPI, ZMQ) installed on your machine to build a minnow
+(process) that uses the PHISH library. 
+
+
+
+<LI>PHISH nets (programs) consist of one or more collections of minnows
+(schools), hooked together in defined communication patterns, to
+encode an algorithm or computation, The toplogy of a PHISH net is
+specified in an input script, which is text files with a simple
+command syntax. 
+
+<LI>PHISH minnows can define one or more input and output ports for
+sending and receiving datums.  This allows schools of minnows to be
+hooked together in a variety of communication patterns. 
+
+<LI>PHISH minnows can be written to operate on datums of various types
+(e.g. integers or floating-point values or strings).  This allows
+minnows to be re-used in various PHISH nets. 
+
+<LI>A PHISH wrapper (pun intended) for Python is provided, so that minnows
+that call the PHISH library can be written in Python.  Minnows written
+in different languages (e.g. C++ or Python) can be used
+interchangeably in a PHISH input script. 
+
+<LI>The PHISH library exchanges data between minnows with strict data
+typing rules, so that minnows can be written in different languages
+(e.g. C++ vs Fortran vs Python) or run on different machines (4-byte
+vs 8-byte integers).  
+
+<LI>PHISH input scripts are processed via a tool called
+<A HREF = "Section_bait.html">bait.py</A> tool which can also run them as an MPI
+or socket-based program. 
+
+<LI>PHISH input scripts use a <A HREF = "bait_hook.html">hook</A> command which
+allows data to be exchanged in various patterns between schools of
+minnows.  This enables parallelism in data processing to be easily
+expressed and exploited. 
+
+<LI>PHISH nets can be run on a single processor, so long as the OS
+supports multiple processes.  They can be run on a multicore box.
+They can be run on any distributed-memory or shared-memory platform
+that supports MPI or sockets.  Or they can be run on a geographically
+dispersed set of machines that support socket connections. 
+
+<LI>A PHISH net can look for incoming data on a socket port.  It can
+likewise export data to a socket port.  This means that two or more
+PHISH nets can be launched independently and exchange data.  This is a
+mechanism for adding/deleting minnows (processes) to/from a
+calculation on the fly. 
+
+<LI>PHISH minnows are included that wrap non-PHISH applications that read
+from stdin and/or write to stdout.  This allows such an application to
+be used in a PHISH net and exchange data with other minnows. 
+</UL>
+<HR>
+
+<A NAME = "intro_4"></A><H4>1.4 Steps to create and run a PHISH net 
+</H4>
+<P>The PHISH package contains a library and a tool for defining and
+running PHISH nets.  These are the steps typically used to perform a
+calculation, assuming you have designed an algorithm that can be
+encoded as a series of computational tasks, interconnected by moving
+data between them.
+</P>
+<OL><LI>Build the PHISH library
+<LI>Write and build one or more minnows that call the PHISH library.
+<LI>Write an input script that defines a PHISH net as minnows, schools and communication patterns between them.
+<LI>Use the bait.py tool to process and run the input script 
+</OL>
+<P>Step (1): An overview of the PHISH library and instructions for building
+it are given in <A HREF = "Section_library.html">this section</A>.
+</P>
+<P>Step (2): A minnow is a stand-alone program which makes calls to the
+PHISH library.  An overview of minnows, their code structure, and how
+to build them, is given in <A HREF = "Section_minnows.html">this section</A>.  The
+API for the PHISH library is given in <A HREF = "Section_library.html">this
+section</A>, with links to a doc page for each
+function in the library.
+</P>
+<P>Step (3): The syntax and meaning of commands used in PHISH input
+scripts are described in <A HREF = "Section_bait.html">this section</A>.
+</P>
+<P>Step (4): The bait.py tool, its command-line options, and instructions
+on how to use it, are described in <A HREF = "Section_bait.html">this section</A>.
+Before using it the first time, one or more backend libraries must be
+built, which are in the src directory.  This can be done as part of
+step (1).
+</P>
+<HR>
+
+<A NAME = "intro_5"></A><H4>1.5 Simple example 
+</H4>
+<P>The steps outlined in the preceding section are somewhat abstract.
+Here is a concrete example of using a PHISH program to count the
+number of times different words appear in a corpus of text files.
+This is effectively a MapReduce operation, where individual minnow
+processes perform the map() and reduce() functions.  This is a diagram
+of how 5 different kinds of minnows can be connected together to
+perform the computation:
+</P>
+<CENTER><IMG SRC = "JPG/wordcount.jpg">
+</CENTER>
+<P>Code for all 5 of these minnows is in the example directory of the
+PHISH distribution, both in C++ and Python.  The <I>filegen</I> minnow
+takes a list of files and/or directories as user input, searches them
+recursively, and generates a series of filenames.  The filenames are
+sent one-at-a-time to one of several <I>file2words</I> minnows.  Each
+receives a filename as input, opens and reads the content, and parses
+it into words.  Each word is hashed and sent to a specific <I>count</I>
+minnow, as indicated by the all-to-all green arrows.  The key point is
+that each <I>count</I> minnow will receive all occurrences of a subset of
+possible words.  It uses an internal hash table to count the
+occurrences of each word it receives.  Note that parallelism is
+enabled by invoking multiple copies of the <I>file2words</I> and <I>count</I>
+minnows.
+</P>
+<P>When the <I>filegen</I> minnow sends the last filename, it sends a "done"
+message to each of the <I>file2words</I> minnows.  When they receive a
+"done" message, they in turn send a "done" message to each <I>count</I>
+minnow.  When a <I>count</I> minnow has received a "done" message from all
+the <I>file2words</I> minnows, it sends its entire list of unique words and
+associated counts to the <I>sort</I> minnow, followed by a "done" message.
+When the <I>sort</I> minnow has received "done" message from all the
+upstream <I>count</I> minnows, it knows it has received all the unique
+words in the corpus of documents, and the count for each one.  It
+sorts the list by count and sends the top <I>N</I> to the <I>print</I> minnow,
+followed by a "done" message.  <I>N</I> is a user-defined parameter.  The
+<I>print</I> minnow echoes each datum it receives to the screen or a file,
+until if receives a "done" message.  At this point all minnows in the
+school have been shut down.
+</P>
+<P>More details about this example are discussed in subsequent sections
+of the manual:
+</P>
+<UL><LI>In <A HREF = "Section_bait.html#bait_4">this section</A> of the bait.py tool doc
+page, the PHISH input script that encodes the minnows and
+communication connections of the above diagram is discussed, and its
+processing by the <A HREF = "Section_bait.html">bait.py</A> tool. 
+
+<LI>In <A HREF = "Section_minnows.html#minnow_1">this section</A> of the PHISH Minnows
+doc page, the code for the <I>count</I> minnow is discussed in detail, to
+illustrate what calls it makes to the <A HREF = "Library.html">PHISH library</A> to
+send and receive datums. 
+
+<LI>In <A HREF = "Section_library.html#datum">this section</A> of the PHISH Library doc
+page, the format of datums exchanged between minnows is
+discussed. 
+</UL>
+<P>Note that like a MapReduce, the PHISH program runs in parallel, since
+there can be N <I>file2words</I> minnows and M <I>count</I> minnows where N >=
+1, M >= 1, and N = M is not required.  This is similar to the option
+in <A HREF = "http://hadoop.apache.org">Hadoop</A> to vary the numbers of mappers and reducers.
+</P>
+<P>However, there are also some differences between how this PHISH
+program works as compared to a traditional MapReduce, e.g. as
+typically performed via <A HREF = "http://hadoop.apache.org">Hadoop</A> or the <A HREF = "http://mapreduce.sandia.gov">MapReduce-MPI
+library</A>.
+</P>
+
+
+<P>In a traditional MapReduce, the "map" stage (performed by the
+<I>file2words</I> minnows) creates a huge list of all the words, including
+duplicates, found in the corpus of documents, which is stored
+internally (in memory or on disk) until the "mapper" process is
+finished with all the files it processes.  Each mapper then sends
+chunks of the list to each "reduce" process (performed by the <I>count</I>
+minnows).  This is the "shuffle" phase of a Hadoop MapReduce.  The
+reducer performs a merge sort of all the words in the chunks it
+receives (one from each mapper).  It can then calculate the count for
+each unique word.
+</P>
+<P>In contrast, the PHISH program operates in a more fine-grainded
+fashion, streaming the data (words in this case) through the minnows,
+without ever storing the full data set.  Only a small list of unique
+words is stored (by the <I>count</I> minnows), each with a running counter.
+PHISH exchanges data between minnows via many tiny messages (one word
+per message), whereas a traditional MapReduce would aggregate the data
+into a few large messages.
+</P>
+<P>This is a simplistic explanation; a fuller description is more
+complex.  <A HREF = "http://hadoop.apache.org">Hadoop</A>, for example, can operate in streaming mode
+for some forms of MapReduce operations, which include this wordcount
+example (MapReduce operations where the "reducer" needs all data
+associated with a key at one time, are not typically amenable to a
+streaming mode of operation.)  The PHISH minnows used in this school
+could be modified so as to aggregate data into larger and fewer
+messages.  Likewise, in a traditional MapReduce, large intermediate
+data sets can be stored out-of-core.  PHISH does have the capability
+to do that unless a minnow is written that writes information to disk
+and retrieves it.
+</P>
+<P>However the fundamental attributes of the PHISH program are important
+to understand.  Data moves continuously, in small chunks, through a
+school of minnows.  Each minnow may store "state" information about
+the data it has previously seen, but typically not all the data
+itself.  "State" is typically limited to information that can be
+stored in-memory, not on disk.  This is because for streaming data,
+too much data arrives too quickly, for a minnow to perform much
+computation before discarding it or sending it on to another minnow.
+</P>
+<P>Here is a diagram of a variant of the wordcount operation that
+illustrates how PHISH can be used to process continuous, streaming
+data.  The PHISH program in this case might run for days or weeks,
+without using the "done" messages described above.
+</P>
+<CENTER><IMG SRC = "JPG/wordcount2.jpg">
+</CENTER>
+<P>In this case the <I>filegen</I> minnow is continuously seeing new files
+appear in directories it monitors.  The words in those files are
+processed as they appear.  A <I>Trigger</I> minnow has been added which
+accepts user queries, e.g. via a keyboard or a socket connection.
+When the user makes a request (hits a key), a message is sent to each
+of the <I>count</I> minnows on a different input port than it receives
+words from the <I>file2words</I> minnows; see <A HREF = "Minnows.html#minnow_2">this
+section</A> of the <A HREF = "Minnows.html">PHISH Minnows</A> doc
+page for a discussion of ports.  The message triggers the <I>count</I>
+minnows to send their current unique word/count list to the <I>sort</I>
+minnow which is sorted and printed via the <I>print</I> minnow.
+</P>
+<P>The PHISH job now runs continuously and a user can query the current
+top N words as often as desired.  The <I>filegen</I>, <I>count</I>, and <I>sort</I>
+minnows would have to be modified, but only in small ways, to work in
+this mode.  Additional logic could be added (e.g. another user
+request) to re-initialize counts or accumulate counts in a
+time-windowed fashion.
+</P>
+<HR>
+
+<A NAME = "intro_6"></A><H4>1.6 Acknowledgments and citations 
+</H4>
+<P>PHISH development has been funded by the US Department of Energy (DOE),
+through its LDRD program at Sandia National Laboratories.
+</P>
+<P>The following paper describes the basic ideas in PHISH.  If you use
+PHISH in your published work, please cite this paper and include a
+pointer to the PHISH WWW Site
+(http://www.sandia.gov/~sjplimp/phish.html):
+</P>
+<P>S. J. Plimpton and T. Shead, "Streaming data analytics via message
+  passing with application to graph algorithms", submitted to J
+  Parallel and Distributed Compuing, 2012.
+</P>
+<P>PHISH was developed by the following individuals at Sandia:
+</P>
+<UL><LI>Steve Plimpton, sjplimp at sandia.gov
+<LI>Tim Shead, tshead at sandia.gov 
+</UL>
+<P>PHISH comes with no warranty of any kind. As each source file states
+in its header, it is a copyrighted code that is distributed free-of-
+charge, under the terms of the Berkeley Softward Distribution (BSD)
+License.
+</P>
+<P>Source code for PHISH is freely available for download from the <A HREF = "http://www.sandia.gov/~sjplimp/phish.html">PHISH
+web site</A> and is licensed under the modified <A HREF = "bsd">Berkeley Software
+Distribution (BSD) License</A>.  This basically means it can be used
+by anyone for any purpose.  See the LICENSE file provided with the
+distribution for more details.
+</P>
+</HTML>

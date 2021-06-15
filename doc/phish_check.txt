@@ -1,0 +1,68 @@
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
+
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+phish_check() function :h3
+
+[C syntax:]
+
+void phish_check() :pre
+
+[C examples:]
+
+phish_check(); :pre
+
+[C++ syntax:]
+
+void check() :pre
+
+[C++ examples:]
+
+phish::check(); :pre
+
+[Python syntax:]
+
+def check() :pre
+
+[Python examples:]
+
+import phish
+phish.check() :pre
+
+[Description:]
+
+This is a PHISH library function which can be called from a minnow
+application.  In "PHISH lingo"_Section_intro.html#intro_2, a "minnow"
+is a stand-alone application which makes calls to the "PHISH
+library"_Library.html.
+
+This function is typically the final function called by a minnow
+during its setup phase, after the minnow has defined its input and
+output ports via the "phish_input"_phish_input.html and
+"phish_output"_phish_output.html functions.  It must be called before
+any datums are received or sent to other minnows.
+
+The function checks that the input and output ports defined by the
+minnow are consistent with their usage in the PHISH input script, as
+processed by the "bait.py"_Bait.html tool.
+
+Specifically, it does the following:
+
+checks that required input ports are used by the script
+checks that no ports used by the script are undefined by the minnow
+opens all ports used by the script so that data exchanges can begin :ul
+
+:line
+
+[Restrictions:]
+
+This function must be called after input and output ports have been
+defined, and before any datums are received or sent to other minnows.
+
+[Related commands:]
+
+"phish_input"_phish_input.html, "phish_output"_phish_output.html

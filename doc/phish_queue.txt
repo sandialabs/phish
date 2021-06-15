@@ -1,0 +1,87 @@
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
+
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+phish_queue() function :h3
+phish_dequeue() function :h3
+phish_nqueue() function :h3
+
+[C syntax:]
+
+int phish_queue() :pre
+int phish_dequeue(int n) :pre
+int phish_nqueue() :pre
+
+[C examples:]
+
+nq = phish_queue();
+nvalues = phish_dequeue(0);
+nq = phish_nqueue(); :pre
+
+[Python syntax:]
+
+def queue() :pre
+def dequeue(n) :pre
+def nqueue() :pre
+
+[Python examples:]
+
+import phish
+nq = phish.queue()
+nvalues = phish.dequeue(0)
+nq = phish.nqueue() :pre
+
+[Description:]
+
+These are PHISH library functions which can be called from a minnow
+application.  In "PHISH lingo"_Section_intro.html#intro_2, a "minnow"
+is a stand-alone application which makes calls to the "PHISH
+library"_Library.html.
+
+These functions are used to store and retrieve datums in an internal
+queue maintained by the PHISH library.  This can be useful if a minnow
+receives a datum but wishes to process it later.
+
+:line
+
+The phish_queue() function stores the most recently received datum in
+the internal queue.  It returns the number of datums in the queue,
+which includes the one just stored.
+
+The phish_queue() function does not conflict with
+"phish_unpack"_phish_unpack.html or "phish_datum"_phish_unpack.html
+functions.  They can be called before or after a phish_queue() call.
+
+:line
+
+The phish_dequeue() function retrieves a stored datum from the
+internal queue and copies it into the receive buffer, as if it had
+just been received.  The datum is deleted from the queue, though it
+can be requeued via a subsequent call to phish_queue.
+
+After a call to phish_dequeue, the datum can be unpacked or its
+attributes queried via the "phish_unpack"_phish_unpack.html or
+"phish_datum"_phish_unpack.html functions, as if it just
+been received.
+
+The input parameter "n" for phish_dequeue is the index of the datum to
+retrieve.  N can be any value from 0 to Nqueue-1 inclusive, where
+Nqueue is the number of datums in the queue.  Thus you can easily
+retrieve the oldest or newest datum in the queue.
+
+:line
+
+The phish_nqueue() function returns the number of datums currently
+held in the internal queue.
+
+:line
+
+[Restrictions:] none
+
+[Related commands:]
+
+"phish_recv"_phish_recv.html, "phish_datum"_phish_unpack.html

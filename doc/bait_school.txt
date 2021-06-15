@@ -1,0 +1,210 @@
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
+
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+school command :h3
+
+[Syntax:]
+
+school minnow-ID Np keyword value ... :pre
+
+minnow-ID = ID of minnow :ulb,l
+Np = # of instances of this minnow to launch :l
+zero or more keyword/value pairs can be appended :l
+possible keywords = {bind}
+  {bind} values = N1,C1 N2,C2 ...
+    N1,C1 = node ID, core ID for first minnow
+    N2,C2 = node ID, core ID for second minnow, etc
+    see discussion below for wildcard format :pre
+
+:ule
+
+[Examples:]
+
+school 3 10
+school countapp 1
+school countapp 1 host foo.locallan.gov
+school myApp 5 bind *,0
+school myApp 2 bind 0,0 3,2
+school myApp 5 bind 0*1,* 2,0 :pre
+
+[Description:]
+
+School is a command that can be used in a PHISH input script which is
+recognized by the "bait.py"_Section_bait.html setup program.  It
+determines how a minnow application will be launched when the PHISH
+program is run.  In "PHISH lingo"_Section_intro.html#intro_2, a
+"minnow" is a stand-alone application which makes calls to the "PHISH
+library"_Library.html to exchange data with other PHISH minnows.
+
+The {minnow-ID} is the ID of the minnow, as previously defined
+by a "minnow"_bait_minnow.html command.
+
+{Np} is the number of instances of this minnow that will be launched
+when the PHISH program is run.
+
+:line
+
+The {bind} keyword allows you to control what machine or what nodes
+and cores of a multi-core machine that each instance of a minnow will
+run on.
+
+There are 3 ways to do this assignment in PHISH; each is discussed
+below.
+
+via the mpirun command (only possible for the MPI backends of
+"bait.py"_Section_bait.html") :ulb,l
+
+via the {bindorder}, {pernode}, and {numnode} settings of the "bait.py
+set"_bait_set.html command or bait.py {--set} or {-s} "command-line
+switches"_Section_bait.html :l
+
+via the {bind} options of the bait.py school command, as illustrated
+above :l,ule
+
+The examples below use a PHISH input script with 2 schools of minnows,
+the first with a school {Np} setting of 12, the second with 8, for a
+total of 20 minnows or processes.
+
+:line
+
+Here is how binding works for the MPI backends to the bait.py command.
+
+If {bindorder} is unset (or set to 0) and no {bind} keywords are used
+with the school command, then minnows will be assigned to the nodes by
+the mpirun command.  By default this is typically first by core, then
+by node.  E.g. on a machine with quad-core nodes, the 12 instances of
+the first minnow would run on the 12 cores of the first 3 nodes, and
+the 8 instances of the second minnow on the 8 cores of the last 2
+nodes, since your job will be allocated 5 nodes when mpirun requests
+20 processes for the entire PHISH program.  The mpirun commands for
+different versions of MPI have options that can be used to control the
+assignment, e.g. to assign first by node, then by core.  See the man
+pages for mpirun for details.
+
+The other 2 methods of assignment will override any options to the
+mpirun command.
+
+If {bindorder} is set to 1 or 2, and no {bind} keywords are used with
+the school command, then minnows are assigned to cores in the
+following manner, using the {pernode} and {numnode} settings of the
+"bait.py set"_bait_set.html command.
+
+If {bindorder} is set to 1, then minnows are assigned in a double
+loop, with the inner loop over cores from 0 to pernode-1 and the
+outer loop over nodes from 0 to numnode-1.  E.g. on a machine with
+quad-core nodes, the 12 instances of the first minnow would run on the
+12 cores of the first 3 nodes, and the 8 instances of the second
+minnow on the 8 cores of the last 2 nodes, since your job will be
+allocated 5 nodes when mpirun requests 20 processes for the entire
+PHISH program.  This assumes that you have set {pernode} to 4 and
+{numnode} to 5; the latter is the default.
+
+If {bindorder} is set to 2, then minnows are assigned in a double
+loop, with the inner loop over nodes from 0 to numnode-1 and the outer
+loop over cores from 0 to pernode-1.  E.g. on a machine with quad-core
+nodes, the 12 instances of the first minnow would be spread across all
+5 nodes (3 on the first 2, 2 on the last 3), as would the 8 instances
+of the second minnow (1 on the last 2, 2 on the last 3), since your
+job will be allocated 5 nodes when mpirun requests 20 processes for
+the entire PHISH program.  This again assumes that you have set
+{pernode} to 4 and {numnode} to 5.
+
+But if you were allocated 12 nodes and are only running 20 minnows,
+you could set {numnode} to 12 and {bindorder} to 2.  The 12 instances
+of the first minnow would be spread across all 12 nodes (1 each), and
+the 8 instances of the second minnow would be spread across the first
+8 nodes (1 each).
+
+If the {bind} keyword is used with any school command, it must be used
+with all of them.  If it is used, then each minnow is assigned
+explicitly to a specific node and core, so that the methods of
+assignment just described are overridden.  However if wildcards are
+used in the explicit assignments, then the {bindorder}, {pernode}, and
+{numnode} settings are used, as explained below.
+
+The {bind} keyword takes one or more node/core ID pairs as values.
+Node IDs must be from 0 to {numnode}-1 inclusive.  Core IDs must be
+from 0 to {pernode}-1 inclusive.  Each node and core ID can represent
+a range of consecutive node and core IDs if it is specified using a
+wildcard.  This takes the form "*" or "*n" or "n*" or "m*n".  If N =
+{numnode} or {pernode} for node or core count, then an asterisk with
+no numeric values means all IDs from 0 to N-1 (inclusive).  A leading
+asterisk means all IDs from 0 to n (inclusive).  A trailing asterisk
+means all IDs from n to N-1 (inclusive).  A middle asterisk means all
+IDs from m to n (inclusive).  Specifying an ID that is < 0 or >= N is
+an error.
+
+For each {bind} value an ordered list of explicit node/core IDs is
+generated, expanding each value with wildcards as needed.  If both the
+node and core ID have a wildcard then the value is expanded in a
+double loop.  The ordering of the double loop is controlled by the
+{bindorder} setting as explained above: inner/outer = core/node for
+bindorder 1, inner/outer = node/core for bindorder 2.
+
+For example, on a machine with 4 cores per node ({pernode} = 4), and 3
+nodes allocated for your PHISH run ({numnode} = 3), this command
+
+school myApp 5 bind 1*,* 0,2* :pre
+
+would generate the following list of 10 node/core ID pairs:
+
+(1,0), (1,1) (1,2) (1,3) (2,0) (2,1) (2,2) (2,3) (0,2) (0,3) :pre
+
+The minnow instances are assigned to this list in order.  I.e. the
+first minnow instance will run on the 1st node/core ID, the 2nd
+instance of the minnow on the 2nd node/core ID, etc.
+
+If the number of instances Ni < the length of the list, then only the
+first Ni node/core ID pairs are used.  If Ni > length of the list,
+then the list is looped over until all minnow instances are assigned.
+Note that this can result in multiple minnows being assigned to the
+same core.
+
+:line
+
+Binding for the ZMQ backends to the bait.py command works the
+same way as for the MPI backends, with 3 differences.
+
+(1) The first method described above, i.e. letting the mpirun command
+assign minnows to physical processors, is not an option.  One of the
+other 2 methods must be used.
+
+(2) Once a minnow has been assigned to a node ID and core ID, the core
+ID is ignored.
+
+(3) The node ID is converted to a machine hostname.  The set of
+possible hostnames is determined by the "variable
+hostnames"_bait_variable.html command which must be specified either
+in the input script or as a "command-line
+option"_Section_bait.html#bait_3 to the bait.py tool.  As described on
+the "variable"_bait_variable.html doc page, a hostname can be a
+machine name (foo.localnet.gov) or a node name on a parallel machine
+(rs2001).
+
+The ZMQ backend launches each minnow on a specific hostname.  If the
+host is a multi-core node, then it may launch multiple minnows on the
+node, relying on the node operating system to distribute the minnow
+processes efficiently across cores.
+
+As described above each node ID is a value {N} from 0 to {numnode}-1
+inclusive.  This value is used to index into the list of hostnames.
+If the list length {L} is smaller than {N}, then the index = {N} mod
+{L}.  E.g. if the node ID {N} is 10 and the hostname list is of length
+4, then the node maps to the 3rd hostname in the list (index = 2).
+
+[Restrictions:] none
+
+[Related commands:]
+
+"minnow"_bait_minnow.html, "set"_bait_set.html
+
+[Default:]
+
+If a school command is not specified for a particular minnow, then Np
+is assumed to be 1, so that one instance of the minnow is launched
+when the PHISH program is run.

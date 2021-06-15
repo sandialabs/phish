@@ -1,0 +1,184 @@
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
+
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+phish_unpack() function :h3
+phish_datum() function :h3
+
+[C syntax:]
+
+int phish_unpack(char **buf, int32_t *len)
+int phish_datum(int flag) :pre
+
+[C examples:]
+
+#include "phish.h"
+char *buf;
+int len;
+int type = phish_unpack(&buf,&len);
+int iport = phish_datum(1); :pre
+
+[C++ syntax:]
+
+int unpack(char **buf, int32_t *len)
+int datum(int flag) :pre
+
+[C++ examples:]
+
+#include "phish.hpp"
+char *buf;
+int len;
+int type = phish::unpack(&buf,&len);
+int iport = phish::datum(1); :pre
+
+[Python syntax:]
+
+def unpack()
+def datum(flag) :pre
+
+[Python examples:]
+
+import phish
+type,value,len = phish.unpack()
+iport = phish.datum(1) :pre
+
+[Description:]
+
+These are PHISH library functions which can be called from a minnow
+application.  In "PHISH lingo"_Section_intro.html#intro_2, a "minnow"
+is a stand-alone application which makes calls to the "PHISH
+library"_Library.html.
+
+These functions are used to unpack a datum after it has been received
+from another minnow or query other info about the datum.
+
+As discussed in "this section"_Library.html#datum of the "PHISH
+Library"_Library.html doc page, datums sent and recived by the PHISH
+library contain one or more fields.  A field is a fundamental data
+type, such as an "32-bit integer" or "vector of doubles" or a
+NULL-terminated character string.  These fields are
+"packed"_phish_pack.html into a contiguous byte string when then are
+sent, using integer flags to indicate what type and length of data
+comes next.  These unpack functions allow the minnow to extract data
+from the datum, one field at a time.
+
+Note that these functions return pointers to the internal buffer
+holding the datum within the PHISH library.  The buffer will be
+overwritten when the minnow returns control to the PHISH library and
+the next datum is received.  Typically this occurs when a callback
+function in the minnow returns.  This means that if you want the data
+to persist within the minnow, you must make a copy.  It is OK to
+unpack several fields from the same datum before making copies of the
+fields.  It is also OK to pack one or more received fields for sending
+and wait to send it until after another datum is received.  This is
+because calls to "phish_pack" functions copy data into a separate send
+buffer.
+
+:line
+
+The phish_unpack() function returns the next field and its length,
+from the most recently received datum.  Note that {len} is typed as a
+pointer to int32_t which is a 32-bit integer.  In C or C++, the minnow
+can simply declare {len} to be a pointer to "int" and the function
+will work as expected.  The only case where this will fail (with a
+compile-time error) is if the native "int" on a machine is not a
+32-bit int.
+
+Phish_unpack returns an integer flag set to one of these values
+(defined in src/phish.h):
+
+PHISH_CHAR = 0
+PHISH_INT8 = 1
+PHISH_INT16 = 2
+PHISH_INT32 = 3
+PHISH_INT64 = 4
+PHISH_UINT8 = 5
+PHISH_UINT16 = 6
+PHISH_UINT32 = 7
+PHISH_UINT64 = 8
+PHISH_FLOAT = 9
+PHISH_DOUBLE = 10
+PHISH_RAW = 11
+PHISH_STRING = 12
+PHISH_INT8_ARRAY = 13
+PHISH_INT16_ARRAY = 14
+PHISH_INT32_ARRAY = 15
+PHISH_INT64_ARRAY = 16
+PHISH_UINT8_ARRAY = 17
+PHISH_UINT16_ARRAY = 18
+PHISH_UINT32_ARRAY = 19
+PHISH_UINT64_ARRAY = 20
+PHISH_FLOAT_ARRAY = 21
+PHISH_DOUBLE_ARRAY = 22
+PHISH_PICKLE = 23 :ul
+
+PHISH_CHAR, PHISH_INT*, PHISH_UINT*, PHISH_FLOAT, and PHISH_DOUBLE are
+a single character, a signed integer (of length 8,16,32,64 bits), an
+unsigned integer (of length 8,16,32,64 bits), a float (typically 4
+bytes), and a double (typically 8 bytes).
+
+PHISH_RAW is a string of raw bytes which can store whatever the
+sending minnow put into its send buffer, e.g. a C data structure
+containing a collection of various C primitive data types.
+
+PHISH_RAW is a string of raw bytes which minnows can format in any
+manner, e.g. a C data structure containing a collection of various C
+primitive data types.  PHISH_STRING is a standard C-style
+NULL-terminated C-string.  The NULL is included in the field.
+
+The ARRAY types are contiguous sequences of int*, uint*, float, or
+double values, packed one after the other.
+
+PHISH_PICKLE is an option available when using the Python wrapper on
+the PHISH library to encode arbitrary Python objects in pickled form
+as a string of bytes.  It should not normally be used in a minnow
+written in C or C++.
+
+Phish_unpack also returns {buf} and {len}.  {Buf} is a char pointer to
+where the field starts.  You will need to cast this to the appropriate
+data type before accessing the data if it is not a character string.
+{Len} is the length of the field, with the following meanings:
+
+PHISH_CHAR: len = 1
+PHISH_INT*: len = 1
+PHISH_UINT*: len = 1
+PHISH_FLOAT: len = 1
+PHISH_DOUBLE: len = 1
+PHISH_RAW: len = # of bytes
+PHISH_STRING: len = # of bytes, including the trailing NULL
+PHISH_INT*_ARRAY: len = # of int8 or int16 or int32 or int64 values
+PHISH_UINT*_ARRAY: len = # of uint8 or uint16 or uint32 or uint64 values
+PHISH_FLOAT_ARRAY: len = # of float values
+PHISH_DOUBLE_ARRAY: len = # of double values
+PHISH_PICKLE = len = # of bytes :ul
+
+:line
+
+The phish_datum() function returns information about the most recently
+received datum.
+
+If {flag} is set to 0, phish_datum returns the number of fields in the
+datum.  This value is also passed as an argument to the callback
+function invovked by the "phish_loop"_phish_recv.html and
+"phish_probe"_phish_recv.html functions, so a minnow typically does
+not need to use phish_datum to retrieve this info.
+
+If {flag} is set to 1, phish_datum returns the input port the datum
+was received on.  See the "phish_port"_phish_port.html functions for a
+discussion of ports.
+
+The phish_datum() function does not conflict with the phish_unpack()
+function.  Phish_datum() can be called before or after or in between a
+series of phish_unpack() calls.
+
+:line
+
+[Restrictions:] none
+
+[Related commands:]
+
+"phish_recv"_phish_recv.html, "phish_pack"_phish_pack.html

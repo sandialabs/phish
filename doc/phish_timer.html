@@ -1,0 +1,67 @@
+<HTML>
+<CENTER><A HREF = "http://www.sandia.gov/~sjplimp/phish.html">PHISH WWW Site</A> - <A HREF = "Manual.html">PHISH Documentation</A> - <A HREF = "Bait.html">Bait.py Commands</A> 
+</CENTER>
+
+
+
+
+
+
+<HR>
+
+<H3>phish_timer() function 
+</H3>
+<P><B>C syntax:</B>
+</P>
+<PRE>double phish_timer() 
+</PRE>
+<P><B>C examples:</B>
+</P>
+<PRE>#include "phish.h"
+double t1 = phish_timer();
+...
+double t2 = phish_timer();
+printf("Elapsed time = %g\n",t2-t1); 
+</PRE>
+<P><B>C++ syntax:</B>
+</P>
+<PRE>double timer() 
+</PRE>
+<P><B>C++ examples:</B>
+</P>
+<PRE>#include "phish.hpp"
+double t1 = phish::timer();
+...
+double t2 = phish::timer();
+printf("Elapsed time = %g\n",t2-t1); 
+</PRE>
+<P><B>Python syntax:</B>
+</P>
+<PRE>def timer() 
+</PRE>
+<P><B>Python examples:</B>
+</P>
+<PRE>import phish
+t1 = phish.timer();
+...
+t2 = phish.timer();
+print "Elapsed time =",t2-t1 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>This is a PHISH library function which can be called from a minnow
+application.  In <A HREF = "Section_intro.html#intro_2">PHISH lingo</A>, a "minnow"
+is a stand-alone application which makes calls to the <A HREF = "Library.html">PHISH
+library</A>.
+</P>
+<P>This function provides a portable means to time operations within a minnow.
+The function returns the current wallclock time as a timestamp measured in
+seconds.  To calculate an elapsed time, you need to bracket a section of code
+with 2 calls to phish_timer() and compute the difference between the 2 returned
+times, as in the example above.
+</P>
+<P><B>Restrictions:</B> none
+</P>
+<P><B>Related commands:</B> none
+</P>
+</HTML>

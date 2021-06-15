@@ -1,0 +1,162 @@
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
+
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+set command :h3
+
+[Syntax:]
+
+set keyword value
+
+keyword = {memory} or {self} or {queue} or {safe} or {port} or {pernode} or {numnode} or {bindorder} :ulb,l
+  {memory} value = N
+    N = max size of datum in Kbytes
+  {self} value = S
+    S = allow queueing of this many messages to self
+  {queue} value = Q
+    Q = allow queueing of this many previously received messages
+  {safe} value = M
+    M = send a datum "safely" every this many sends
+  {pernode} value = Nc
+    Nc = # of cores per node to use when binding minnows to processors
+  {numnode} value = Nn
+    Nn = # of nodes to use when binding minnows to processors
+  {bindorder} value = B
+    B = 0 = no bind order is imposed
+    B = 1 = perform binding by looping over cores, then over nodes
+    B = 2 = perform binding by looping over nodes, then over cores :pre
+  {high-water-mark} value = N
+    N = maximum number of outgoing messages to queue to a recipient
+:ule
+
+[Examples:]
+
+set memory 1024
+set self 20
+set safe 10
+set bindorder 2 :pre
+
+[Description:]
+
+Set is a command that can be used in a PHISH input script which is
+recognized by the "bait.py"_Bait.html setup program.  It resets
+default values that are used by the bait.py program as it reads and
+processes commands from the PHISH input script.
+
+:line
+
+The {memory} keyword sets the maximum length of datums that are
+exchanged by minnows when a PHISH program runs.  Send and receive
+buffers for datums are allocated by the "PHISH
+library"_Section_library.html.  The {N} setting is in Kbytes, so that
+{N} = 1024 is 1 Mbyte, and {N} = 1048576 is 1 Gbyte.  The default is
+{N} = 1, since typical PHISH minnows send and receive small datums.
+
+The {self} keyword sets the size of a queue used to buffer datums sent
+by a minnow to itself.  In most PHISH input scripts sending to self
+this never happens, but it is allowed.  Since messages to self are
+received with the highest priority by PHISH library functions such as
+phish_loop() and phish_probe() that receive messages, it is also
+typical that this queue often needs to be no larger than $S$ = 1
+message, since $S refers to the maximum number of outstanding (sent,
+but not yet received) messages.  But it can be set larger if a minnow
+may perform several sends (to itself) before receiving a new message.
+
+The {queue} keyword sets the size of a queue used to buffer previously
+received datums when a minnow uses the phish_queue() and
+phish_dequeue() library calls, so that it can process a received datum
+later, after receiving other datums.  The $Q$ setting determines the
+maximum number of datums that can be queued at one time in this
+manner.
+
+These 3 settings determine how much memory PHISH allocates.  There are
+always 2 buffers of size {memory} = $N$, one for sending, one for
+receiving.  There are at most {self} = $S$ buffers, each of size $N$,
+allocated for self messages, and likewise at most {queue} = $Q$
+buffers, each of size $N$, allocated for queued messages.  These
+buffers for self and queued messages are only allocated if they are
+needed as the PHISH script runs and messages are processed. Thus the
+overall memory footprint of the PHISH library is typically tiny,
+unless you set these parameters to large values.
+
+:line
+
+The {safe} keyword is only relevant for the MPI version of the PHISH
+library.  It causes the library to use a "safe" MPI_Ssend() call every
+Mth time it sends a datum, rather than the normal MPI_Send() function.
+If M = 0, "safe" sends are never performed.
+
+Safe in this context refers to messages being dropped if the receiving
+process is backed up.  This can happen if a minnow in a PHISH school
+of minnows is significantly slower to process datums than all the
+others, and a large number of datums are being continually sent to it.
+When a safe send is done, an extra handshake is performed between the
+sender and receiver to insure the receiver is ready for the datum.
+Doing this often enough should effectively throttle the incoming
+messages to a slow minnow, so an overflow does not occur.  Note that
+the extra handshaking between the MPI processes slows down the rate at
+which small messages are exchanged, so you should not normally use
+this setting unless MPI errors arise, e.g. due to "too many unexpected
+messages".  A good setting for M depends on how many minnows are
+sending to the overflowing minnow.  Typical MPI implementations allow
+tens of thousands of small incoming messages to be queued, so M = 1000
+or 10000 is fine if a single minnow is sending to the minnow.  If 10
+minnows are sending to the overflowing minnow, then M should be
+reduced by a factor of 10.
+
+The {self} keyword is only relevant for the MPI version of the PHISH.
+A PHISH net described by an input script can include
+"hook"_bait_hook.html commands that route datums from a school back to
+itself, e.g. in some kind of looping fashion.  This means that a
+procesor can send messages to itself.  When this occurs the PHISH
+library uses a buffered MPI_Bsend() call.  This avoids a possible hang
+due to a blocking send, which can happen in some MPI implementations.
+The value of {S} determines how big a buffer is reserved for the
+buffered send operations.  It effectively means how many messsages (of
+maximum size, as determined by the memory keyword above), can be sent
+to self and buffered before they are received.  In most cases the
+small default setting is sufficient, but if a minnow can send many
+messages to itself before reading and processing them, you may need to
+boost this setting to avoid an MPI error or hang.
+
+The {pernode}, (numnode}, and {bindorder} keywords are used to tailor
+the assignment of minnows to physical processors when the PHISH
+program is run.  See the discussion of the {bind} option for the
+"bait.py school"_bait_school.html command for more details on this
+topic.
+
+Note that the default setting of {numnode} is equal to the total
+number of minnow instances {Np} in a PHISH input script, divided by
+the {pernode} setting.  If {Np} is not evenly divisible by {pernode},
+then {numnode} is incremented by one so that {numnode} * {pernode} >=
+{Np}.
+
+The {high-water-mark} keyword only applies to the ZMQ version of PHISH.
+It sets the maximum number of outgoing messages that can be queued to
+a given recipient.  Messages are queued when a recipient is receiving
+messages more slowly than the sender is sending them.  Once the number
+of queued messages reaches the high water mark, the sender will block
+until the queue begins to empty.  Note that messages are queued on a
+per-recipient rather than a per-port basis, so the memory used for
+queuing can vary dramatically depending on the size of the downstream
+school.
+
+:line
+
+[Restrictions:] none
+
+[Related commands:]
+
+Any setting can be made either in a PHISH input script or via the
+{--set} command-line argument of the "bait.py"_Secttion_bait.html
+tool.
+
+[Default:]
+
+The default settings are memory = 1 (1 Kbyte), self = 8, queue = 8,
+safe = 0, pernode = 1, numnode = # of minnows / pernode, and bindorder
+= 0.

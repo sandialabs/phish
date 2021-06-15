@@ -1,0 +1,172 @@
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
+
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+phish_init() function :h3
+
+[C syntax:]
+
+int phish_init(int *argc, char ***argv) :pre
+
+[C examples:]
+
+phish_init(&argc,&argv); :pre
+
+[C++ syntax:]
+
+void init(int& argc, char*& argv) :pre
+
+[C++ examples:]
+
+phish::init(argc, argv); :pre
+
+[Python syntax:]
+
+def init(argv) :pre
+
+[Python examples:]
+
+import phish
+argv = phish.init(sys.argv) :pre
+
+[Description:]
+
+This is a PHISH library function which can be called from a minnow
+application.  In "PHISH lingo"_Section_intro.html#intro_2, a "minnow"
+is a stand-alone application which makes calls to the "PHISH
+library"_Library.html.
+
+A PHISH program typically includes one or more schools of minnows, as
+specified in a PHISH input script.  Each minnow in each school is an
+individual process.  Locally, each minnow has a local-ID from
+0 to Nlocal-1 within its school, where {Nlocal} is the number of minnows
+in the school.  Globally, each minnow has a global-ID from 0 to
+Nglobal-1, where {Nglobal} is the total number of minnows in the net.  The
+global-IDs are ordered by school, so that minnows within each school have
+consecutive IDs.  These IDs enable the PHISH library to orchestrate
+communication of datums between minnows in different schools.  E.g. when
+running the MPI version of the PHISH library, the global-ID
+corresponsds to the rank ID of an MPI process, used in MPI_Send() and
+MPI_Recv() function calls.
+
+See the "phish_query"_phish_query.html function for how a minnow can
+find out these values from the PHISH library.
+
+:line
+
+The phish_init() function must be the first call to the PHISH library
+made by a minnow.  Since it alters the command-line arguments passed
+to the minnow, it is typically the first executable line of a minnow
+program.
+
+It's purpose is to initialize the library using special command-line
+arguments passed to the minnow when it was launched, typically by the
+the "bait.py"_Bait.html tool that parses a PHISH input script.
+
+The two arguments to phish_init() are pointers to the number of
+command-line arguments, and a pointer to the arguments themselves as
+an array of strings.  These are passed as pointers, because the PHISH
+library reads and removes the PHISH-specific arguments.  It then
+returns the remaining minnow-specific arguments, which the minnow can
+read and process.  As is standard with C programs, the returned value
+of argv includes argv\[0\] which is the name of the minnow executable.
+
+Note that in the Python version of phish.init(), the full argument
+list is passed as an argument, and the truncated argument list is
+returned.
+
+Following are some sample switches and arguments that the MPI version
+of the PHISH library looks for and processes.  These are generated
+automatically by the "bait.py"_Section_bait.html tool when it
+processes a PHISH input script so you don't need to think about these
+arguments, but it may be helpful in understanding how PHISH works.
+Note that these arguments are normally invisible to the user; their
+format and number may be changed in future versions of PHISH.
+
+--phish-backend mpi
+--phish-minnow ID Nlocal Nprev
+--phish-memory N
+--phish-in sprocs sfirst sport style rprocs rfirst rport
+--phish-out sprocs sfirst sport style rprocs rfirst rport :ul
+
+The {--phish-backend} switch appears once, and is followed by the version of the
+PHISH library specified by bait.py.  This allows the PHISH library to detect
+incompatible runtime environments, e.g. mixing minnows linked against the socket
+version of the PHISH library with minnows using the MPI version.
+
+The {--phish-minnow} switch appears once.  ID is the school ID in the PHISH input
+script.  The {Nlocal} argument was explained above.  {Nprev} is the total
+number of minnows in sets of minnows previous to this one.  It is used to infer
+the {local-ID} value discussed above.
+
+The {--phish-memory} switch changes a default setting within the PHISH
+library.  There is a similar command for each keyword supported by the
+"bait.py set"_bait_set.html command.
+
+The {--phish-memory} value {N} sets the maximum size of the buffers
+used to send and receive datums.  See the "set"_bait_set.html command
+of the "bait.py"_Section_bait.html tool for more information on the
+settings of this switch.
+
+The {--phish-in} switch appears once for every connection the minnow
+has with other minnows, where it is a receiver of datums.  See the
+"hook"_bait_hook.html command in PHISH input scripts processed by the
+"bait.py"_Bait.html tool, for more information.
+
+{Sprocs}, {sfirst}, and {sport} refer to the set of minnows sending to
+this minnow.  They are respectively, the number of minnows in the set,
+the global ID of the first minnow in the set, and the output port used
+by those minnows.  {Rprocs}, {rfirst}, and {rport} refer to the set of
+minnows receivng the datums, i.e. the set of minnows this minnow
+belongs to.  They are respectively, the number of minnows in the set,
+the global ID of the first minnow in the set, and the input port used
+by those minnows.  {Style} is the connection style, as specified by
+the "hook"_bait_hook.html command in the PHISH input script processed
+by the "bait.py"_Bait.html tool.  E.g. {style} is a word like "single"
+or "hashed".  If it is "subscribe", then extra info about the external
+host and its TCP port is appended to the {style},
+e.g. "subscribe/www.foo.com:25".
+
+The {--phish-out} switch appears once for every connection the minnow has
+with other minnows, where it is a sender of datums.  See the
+"hook"_bait_hook.html command in PHISH input scripts processed
+by the "bait.py"_Bait.html tool, for more information.
+
+{Sprocs}, {sfirst}, and {sport} refer to the set of minnows sending
+datums, i.e. the set of minnows this minnow belongs to.  They are
+respectively, the number of minnows in the set, the global ID of the
+first minnow in the set, and the output port used by those minnows.
+{Rprocs}, {rfirst}, and {rport} refer to the set of minnows receivng
+the datums.  They are respectively, the number of minnows in the set,
+the global ID of the first minnow in the set, and the input port used
+by those minnows.  {Style} is the connection style, as specified by
+the "hook"_bait_hook.html command in the PHISH input script
+processed by the "bait.py"_Bait.html tool.  E.g. {style} is a word
+like "single" or "hashed".  If it is "publish", then extra info about
+the TCP port is appended to the {style}, e.g. "publish/25".
+
+The PHISH library ignores any remaining arguments, returning them to to the
+minnow caller, including the name of the minnow executable in argv\[0\].
+
+The phish_init() function also flags each specified input port and
+output port with a CLOSED status, instead of UNUSED.  See the
+"hook"_bait_hook.html command for the "bait.py"_Bait.html tool
+for more info about communication ports.  See the
+"phish_input"_phish_input.html and "phish_output"_phish_output.html
+functions for more info about port status.
+
+The "C" binding to phish_init() returns a nonzero value if there were errors,
+otherwise zero.  The "C++" binding to phish::init() throws an exception if
+there were errors.
+
+:line
+
+[Restrictions:] none
+
+[Related commands:]
+
+"phish_query"_phish_query.html

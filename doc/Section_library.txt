@@ -1,0 +1,327 @@
+"Previous Section"_Section_minnows.html - "PHISH WWW Site"_pws -
+"PHISH Documentation"_pd - "Next Section"_Section_examples.html :c
+
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
+:link(pd,Manual.html)
+
+:line
+
+4. PHISH Library :h3
+
+This sections documents the API to the PHISH library that PHISH
+minnows call.  In PHISH lingo, a "minnow" is a stand-alone application
+which makes calls to the PHISH library.
+
+The API for the MPI and ZMQ (socket) versions of the PHISH library are
+identical.
+
+A general discussion of how and when minnows call PHISH library
+functions is given in the "Minnows"_Minnows.html section of the
+manual.
+
+The PHISH library has a C-style API, so it is easy to write minnows in
+any language, e.g. C, C++, Fortran, Python.  A true C++-style API is
+also provided, which means a C++ program can use either the C or C++
+API.  A "Python wrapper"_Section_python.html on the C-style API is
+also provided, which has a slightly different syntax for some
+functions.  The doc pages for individual library functions document
+all 3 APIs.  See the section below entitled "C vs C++ vs Python
+interface"_#library_3 for a quick overview.
+
+PHISH minnows communicate with other minnows by sending and receiving
+datums.  Before looking at individual library calls, it may be helpful
+to understand how data is stored internally in a datum by the PHISH
+library.  This topic is discussed below, in the section entitled
+"Format of a datum"_#library_4.
+
+4.1 "List of library functions"_#library_1
+4.2 "Building the PHISH library"_#library_2
+4.3 "C vs C++ vs Python interface"_#library_3
+4.4 "Format of a datum"_#library_4 :ul
+
+:line
+:line
+
+4.1 List of library functions :link(library_1),h4
+
+The PHISH library is not large; there are only a handful of calls,
+that can be grouped into the following categories.  Follow the links
+to see a doc page for each library call.
+
+Library calls for initialization :olb,l
+  "phish_init()"_phish_init.html :ulb,b
+  "phish_input()"_phish_port.html :b
+  "phish_output()"_phish_port.html :b
+  "phish_callback()"_phish_callback.html :b
+  "phish_check()"_phish_check.html :ule,b
+
+Library calls for shutdown :l
+  "phish_exit()"_phish_shutdown.html :ulb,b
+  "phish_close()"_phish_shutdown.html :ule,b
+
+Library calls for receiving datums :l
+  "phish_loop()"_phish_recv.html :ulb,b
+  "phish_probe()"_phish_recv.html :b
+  "phish_recv()"_phish_recv.html :b
+  "phish_unpack()"_phish_unpack.html :b
+  "phish_datum()"_phish_unpack.html :ule,b
+
+Library calls for sending datums :l
+  "phish_send()"_phish_send.html :ulb,b
+  "phish_send_key()"_phish_send.html :b
+  "phish_send_direct()"_phish_send.html :b
+  "phish_repack()"_phish_pack.html :b
+  "phish_pack_raw()"_phish_pack.html :b
+  "phish_pack_char()"_phish_pack.html :b
+  "phish_pack_int8()"_phish_pack.html :b
+  "phish_pack_int16()"_phish_pack.html :b
+  "phish_pack_int32()"_phish_pack.html :b
+  "phish_pack_int64()"_phish_pack.html :b
+  "phish_pack_uint8()"_phish_pack.html :b
+  "phish_pack_uint16()"_phish_pack.html :b
+  "phish_pack_uint32()"_phish_pack.html :b
+  "phish_pack_uint64()"_phish_pack.html :b
+  "phish_pack_float()"_phish_pack.html :b
+  "phish_pack_double()"_phish_pack.html :b
+  "phish_pack_string()"_phish_pack.html :b
+  "phish_pack_int8_array()"_phish_pack.html :b
+  "phish_pack_int16_array()"_phish_pack.html :b
+  "phish_pack_int32_array()"_phish_pack.html :b
+  "phish_pack_int64_array()"_phish_pack.html :b
+  "phish_pack_uint8_array()"_phish_pack.html :b
+  "phish_pack_uint16_array()"_phish_pack.html :b
+  "phish_pack_uint32_array()"_phish_pack.html :b
+  "phish_pack_uint64_array()"_phish_pack.html :b
+  "phish_pack_float_array()"_phish_pack.html :b
+  "phish_pack_double_array()"_phish_pack.html :b
+  "phish_pack_pickle()"_phish_pack.html :ule,b
+
+Library calls for queueing datums :l
+  "phish_queue()"_phish_queue.html :ulb,b
+  "phish_dequeue()"_phish_queue.html :b
+  "phish_nqueue()"_phish_queue.html :ule,b
+
+Miscellaneous library calls :l
+  "phish_query()"_phish_info.html :ulb,b
+  "phish_set()"_phish_info.html :b
+  "phish_error()"_phish_error.html :b
+  "phish_warn()"_phish_error.html :b
+  "phish_abort()"_phish_error.html :b
+  "phish_timer()"_phish_timer.html :ule,b
+:ole
+
+:line
+
+4.2 Building the PHISH library :link(library_2),h4
+
+There are two different versions of the PHISH library that can be
+built.  One that calls message-passing functions from the MPI library,
+and one that calls socket functions from the ZMQ library.  In either
+case, the library should typically be built as a shared library so it
+can loaded at run-time by each minnow.  This is required if the minnow
+is written in Python.
+
+The easiest way to build all of PHISH, including the PHISH libraries,
+is to use the cross-platform "CMake"_http://www.cmake.org build system.  We
+recommend building PHISH with a separate build directory:
+
+$ tar xzvf phish.tar.gz -C ~/src
+$ mkdir ~/build/phish
+$ cd ~/build/phish
+$ ccmake ~/src/phish-14sep12 :pre
+
+Then, in the CMake curses interface, configure the build, generate makefiles,
+and build phish:
+
+$ make :pre
+
+:line
+
+Alternatively, you can build either version from the src directory of the
+distribution by typing one of these lines:
+
+make -f Makefile.machine mpi
+make -f Makefile.machine zmq :pre
+
+where "machine" is the name of one of the Makefiles in the directory.
+These should produce the file libphish-mpi.so or libphish-zmq.so.
+
+If none of the provided Makefiles are a match to your machine, then
+you can use of them as a template for creating your own,
+e.g. Makefile.foo.  Note that only the top section for compiler/linker
+settings need be edited.  This is where you should specify your
+compiler and any switches it uses.  The MPI_INC setting is only needed
+if you are building the MPI version of the library, and the compiler
+needs to know where to find the mpi.h file.  Likewise the ZMQ_INC
+setting is only needed if you are building the ZMQ version of the
+library, and the compiler needs to know where to find the zmq.h file.
+The MPI_LIB and ZMQ_LIB settings are for the MPI and ZMQ library
+themselves and any other auxiliary libraries they require.
+
+If the build is successful, a libphish-mpi.a or libphish-zmq.a file is
+produced.
+
+You can also type 
+
+make -f Makefile.machine clean :pre
+
+to remove *.o and lib*.so files from the directory.
+
+:line
+
+4.3 C vs C++ vs Python interface :link(library_3),h4
+
+As noted above, the APIs to the PHISH library for C versus C++ versus
+Python are very simliar.  A C++ program can use either the C or C++
+API.
+
+To use the C interface, a C or C++ program includes the file
+src/phish.h and makes calls to functions as follows:
+
+#include "phish.h"
+phish_error("My error"); :pre
+
+The C++ interface in src/phish.hpp encloses the PHISH API in the
+namespace "phish", so functions can be invoked as
+
+#include "phish.hpp"
+phish::error("My error"); :pre
+
+or as
+
+#include "phish.hpp"
+using namespace phish
+error("My error"); :pre
+
+To use the Python interface, see "this section"_Section_python.html of
+the manual for details.  A Python program can invoke a library
+function as
+
+import phish
+phish.error("My error") :pre
+
+or 
+
+from phish import *
+error("My error") :pre
+
+:line
+
+4.4 Format of a datum :link(library_4),h4
+
+The chief function of the PHISH library is to facilitate the exchange
+of data between minnows.  This is done through datums, which contain
+one or more fields.  Each field is a fundamental data type such as a
+"32-bit integer" or a "vector of doubles" or a NULL-terminated
+character string.
+
+The PHISH library defines a specific explicit type for each
+fundamental data type it recognizes, such as "int32" for 32-bit signed
+integers, or "uint64" for 64-bit unsigned integers, or "double" for a
+double-precision value.  This is so that the format of the datum, at
+the byte level, is identical on different machines, and datums can
+thus be exchanged between minnows running on machines with different
+word lengths or between minnows written in different languages (e.g. C
+vs Fortran vs Python).
+
+IMPORTANT NOTE: Different endian ordering of fundamental numeric data
+types on different machines breaks this model.  We may address this at
+some future point within the PHISH library.
+
+This is the byte-level format of datums that are sent and received by
+minnows via the PHISH library:
+
+# of fields in datum (int32_t)
+type of 1st field (int32_t)
+size of 1st field (optional int32_t)
+data for 1st field (bytes)
+type of 2nd field (int32_t)
+size of 2nd field (optional int32_t)
+data for 2nd field (bytes)
+...
+type of Nth field (int32_t)
+size of Nth field (optional int32_t)
+data for Nth field (bytes) :ul
+
+Integer flags are interleaved with the fundamental data types and the
+flags themselves are all 32-bit signed integers.  This allows minnows
+that call the "phish_pack"_phish_pack.html and
+"phish_unpack"_phish_unpack.html functions to use the usual C "int"
+data type as function arguments, instead of the int32_t types defined
+in the function prototypes.  The compiler will only give an error if
+the native "int" on a machine is not a 32-bit integer.  See the doc
+pages for "phish_pack"_phish_pack.html and
+"phish_unpack"_phish_unpack.html for details.
+
+The "type" values are one of these settings, as defined in
+src/phish.h:
+
+PHISH_CHAR = 0
+PHISH_INT8 = 1
+PHISH_INT16 = 2
+PHISH_INT32 = 3
+PHISH_INT64 = 4
+PHISH_UINT8 = 5
+PHISH_UINT16 = 6
+PHISH_UINT32 = 7
+PHISH_UINT64 = 8
+PHISH_FLOAT = 9
+PHISH_DOUBLE = 10
+PHISH_RAW = 11
+PHISH_STRING = 12
+PHISH_INT8_ARRAY = 13
+PHISH_INT16_ARRAY = 14
+PHISH_INT32_ARRAY = 15
+PHISH_INT64_ARRAY = 16
+PHISH_UINT8_ARRAY = 17
+PHISH_UINT16_ARRAY = 18
+PHISH_UINT32_ARRAY = 19
+PHISH_UINT64_ARRAY = 20
+PHISH_FLOAT_ARRAY = 21
+PHISH_DOUBLE_ARRAY = 22
+PHISH_PICKLE = 23 :ul
+
+PHISH_CHAR, PHISH_INT*, PHISH_UINT*, PHISH_FLOAT, and PHISH_DOUBLE are
+a single character, a signed integer (of length 8,16,32,64 bits), an
+unsigned integer (of length 8,16,32,64 bits), a float (typically 4
+bytes), and a double (typically 8 bytes).
+
+PHISH_RAW is a string of raw bytes which minnows can format in any
+manner, e.g. a C data structure containing a collection of various C
+primitive data types.  PHISH_STRING is a standard C-style
+NULL-terminated C-string.  The NULL is included in the field.
+
+The ARRAY types are contiguous sequences of int*, uint*, float, or
+double values, packed one after the other.
+
+PHISH_PICKLE is an option available when using the Python wrapper on
+the PHISH library to encode arbitrary Python objects in pickled form
+as a string of bytes.
+
+The "size" values are only included for PHISH_RAW (# of bytes),
+PHISH_STRING (# of bytes including NULL), the ARRAY types (# of
+values), and PHISH_PICKLE (# of bytes).
+
+The field data is packed into the datum in a contiguous manner.  This
+means that no attention is paid to alignment of integer or floating
+point values.
+
+The maximum allowed size of an entire datum (in bytes) is set to a
+default value of 1024 bytes or 1 Kbyte.  This can be overridden via
+the "set memory"_bait_set.html command in a PHISH input script or
+"--set memory" command-line option.
+
+When a datum is sent to another minnow via the MPI version of the
+PHISH library, MPI flags the message with an MPI "tag".  This tag
+encodes the receiving minnow's input port and also a "done" flag.
+Specifically, if the datum is not a done message, the tag is the
+receiver's input port (0 to Nport-1).  For a done message a value of
+MAXPORT is added to the tag.  See the discussion of MAXPORT in "this
+section"_Section_minnows.html#minnow_3 of the manual.
+
+Similarly, the ZMQ version of the PHISH library prepends a "done" flag and port
+number to each datum.
+
+See the "phish_input"_phish_port.html doc page for a discussion of
+ports.  See the "shutdown section"_Minnows.html#shutdown of the
+"Minnows"_Minnows.html doc page for a discussion of "done" messages.

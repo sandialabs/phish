@@ -1,0 +1,82 @@
+<HTML>
+<CENTER><A HREF = "http://www.sandia.gov/~sjplimp/phish.html">PHISH WWW Site</A> - <A HREF = "Manual.html">PHISH Documentation</A> - <A HREF = "Bait.html">Bait.py Commands</A> 
+</CENTER>
+
+
+
+
+
+
+<HR>
+
+<H3>wrapsink minnow 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>wrapsink "program" 
+</PRE>
+<UL><LI>program = shell command for launching executable program 
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>wrapsink "myexe"
+wrapsource "myexe -n 3 -o outfile < in.script"
+wrapsink "ls *" 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>Wrapsink is a PHISH minnow that can be used in a PHISH program.  In
+<A HREF = "Section_intro.html#intro_2">PHISH lingo</A>, a "minnow" is a stand-alone
+application which makes calls to the <A HREF = "Library.html">PHISH library</A> to
+exchange data with other PHISH minnows.
+</P>
+<P>The wrapsink minnow is used to wrap a non-PHISH application so that
+datums can be sent to it from other PHISH minnows as lines it reads
+from stdin.  It is a mechanism for using non-PHISH applications as
+minnows in a PHISH net.
+</P>
+<P><B>Ports:</B>
+</P>
+<P>The wrapsink minnow uses one input port 0 and no output ports.
+</P>
+<P><B>Operation:</B>
+</P>
+<P>When the wrapsink minnow starts, the <I>program</I> argument is treated as
+a string that is executed as a command by the shell.  As in the
+examples above <I>program</I> can be an executable program name or a shell
+command.  It can include flags or redirection operators.  If the
+string contains spaces, it should be enclosed in quotes in the PHISH
+input script so that it is treated as a single argument when the
+script is read by the <A HREF = "Section_bait.html">bait.py</A> tool.
+</P>
+<P>After the wrapsink minnow launches the <I>program</I> command, it calls the
+<A HREF = "phish_recv.html">phish_loop</A> function.  Each time an input datum is
+received, its single string field is written to the running <I>program</I>
+with a trailing newline, so that the <I>program</I> reads it as a line of
+input from stdin.  The <I>program</I> may write to the screen or a file as
+often as it chooses, but its output is not captured by the wrapsink
+minnow.
+</P>
+<P>The wrapsource minnow shuts down when its input port is closed by
+receiving a sufficient number of "done" messages.  When this occurs,
+it closes the stdin pipe the running <I>program</I> is reading from, which
+should cause it to exit.
+</P>
+<P><B>Data:</B>
+</P>
+<P>The wrapsink minnow must receive single field datums of type
+PHISH_STRING.
+</P>
+<P><B>Restrictions:</B>
+</P>
+<P>The C++ version of the wrapsink minnow allocates a buffer of size
+MAXLINE = 1024 bytes for converting the PHISH_STRING fields of
+received datums into lines of input read from stdin by the wrapped
+program.  This can be changed (by editing minnow/wrapsink.cpp) if
+longer lines are needed.
+</P>
+<P><B>Related minnows:</B>
+</P>
+<P><A HREF = "wrapsource.html">wrapsource</A>, <A HREF = "wrapss.html">wrapss</A>
+</P>
+</HTML>

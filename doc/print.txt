@@ -1,0 +1,59 @@
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
+
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+print minnow :h3
+
+[Syntax:]
+
+print -f filename :pre
+
+-f = optional switch for writing to a file
+filename = name of file to write to :ul
+
+[Examples:]
+
+print
+print -f outfile :pre
+
+[Description:]
+
+Print is a PHISH minnow that can be used in a PHISH program.  In PHISH
+lingo, a "minnow" is a stand-alone application which makes calls to
+the "PHISH library"_Library.html to exchange data with other PHISH
+minnows.
+
+The print minnow prints the datums it receives to stdout or to a file.
+
+[Ports:]
+
+The print minnow uses one input port 0 to receive datums.  It does not
+use any output ports.
+
+[Operation:]
+
+When it starts, the print minnow opens {outfile} if it has been
+specified.  It then calls the "phish_loop"_phish_recv.html function.
+Each time a datum is received on input port 0, its fields are looped
+over.  Each field is written in the appropriate format with a trailing
+space, either to the screen or to {outfile}.  A trailing newline is
+written after all the fields have been written.
+
+The print minnow shuts down when its input port is closed by receiving
+a sufficient number of "done" messages.  Before shutting down it
+closes {outfile} if it was specified.
+
+[Data:]
+
+The print minnow can receive datums with any number of fields.  Any
+type of field can be printed, except for a field of type PHISH_RAW,
+which is ignored.  Array-type fields are printed one value at a time,
+with trailing spaces.
+
+[Restrictions:] none
+
+[Related minnows:] none

@@ -1,0 +1,95 @@
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
+
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+wrapsource minnow :h3
+
+[Syntax:]
+
+wrapsource -f "program" :pre
+
+-f = optional flag for substituting input datums into "program"
+program = shell command for launching executable program :ul
+
+[Examples:]
+
+wrapsource "myexe"
+wrapsource "myexe -n 3 -o outfile < in.script"
+wrapsource "ls *"
+wrapsource -f "wc %s"
+wrapsource -f "myexe -n 3 -o outfile < %s" :pre
+
+[Description:]
+
+Wrapsource is a PHISH minnow that can be used in a PHISH program.  In
+"PHISH lingo"_Section_intro.html#intro_2, a "minnow" is a stand-alone
+application which makes calls to the "PHISH library"_Library.html to
+exchange data with other PHISH minnows.
+
+The wrapsource minnow is used to wrap a non-PHISH application so that
+the lines it writes to stdout can be sent as datums to other PHISH
+minnows.  It is a mechanism for using non-PHISH applications as
+minnows in a PHISH net.
+
+[Ports:]
+
+The wrapsource minnow uses one input port 0 if the -f flag is
+specified, otherwise it uses no input ports.  It uses one output port
+0 to send datums.
+
+[Operation:]
+
+The wrapsource minnow has two modes of operation, depending on whether
+the -f flag is specified.  In either case, the {program} argument is
+treated as a string that is executed as a command by the shell.
+
+As in the examples above {program} can be an executable program name
+or a shell command.  It can include flags or redirection operators.
+If the string contains spaces, it should be enclosed in quotes in the
+PHISH input script so that it is treated as a single argument when the
+script is read by the "bait.py"_Section_bait.html tool.
+
+If no -f flag is specified, the wrapsouce minnow launches a single
+instance of the {program} command and reads the output it writes to
+stdout a line at a time.
+
+If the -f flag is specified, the wrapsouce minnow calls the
+"phish_loop"_phish_recv.html function.  Each time an input datum is
+received, its single string field is inserted in the {program} string,
+as a replacement for a "%s" that it is presumed to contain.  This can
+be used, for example, to substitute a filename into the {program}
+string.  The wrapsource minnow then launches the modified {program}
+command and reads the output it generates.  When the program exits,
+control returns to "phish_loop"_phish_loop.html, and a new datum can
+be received.  Thus over time, the wrapsource minnow may launch many
+instances of {program}.
+
+Each time a line of output is read from the running {program} the
+wrapsource minnow sends it as a string (without the trailing newline)
+to its output port 0.
+
+If no -f flag is specified, the wrapsource minnow calls
+"phish_exit"_phish_exit.html after the launched program exits.  If -f
+is specified, the wrapsource minnow shuts down when its input port is
+closed by receiving a sufficient number of "done" messages.
+
+[Data:]
+
+If the -f flag is specified, the count minnow must receive single
+field datums of type PHISH_STRING.  It sends single-field datums of
+type PHISH_STRING.
+
+[Restrictions:]
+
+The C++ version of the wrapsouce minnow allocates a buffer of size
+MAXLINE = 1024 bytes for reading lines of output written to stdout by
+the wrapped program.  This can be changed (by editing
+minnow/wrapsource.cpp) if longer lines are needed.
+
+[Related minnows:]
+
+"wrapsink"_wrapsink.html, "wrapss"_wrapss.html

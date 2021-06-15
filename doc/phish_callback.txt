@@ -1,0 +1,120 @@
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
+
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+phish_callback() function :h3
+
+[C syntax:]
+
+void phish_callback(void (*alldonefunc)(), void (*abortfunc)(int*)) :pre
+
+[C examples:]
+
+#include "phish.h"
+phish_callback(mydone,NULL);
+phish_callback(NULL,myabort);
+phish_callback(mydone,myabort); :pre
+
+[C++ syntax:]
+
+void callback(void (*alldonefunc)(), void (*abortfunc)(int*)) :pre
+
+[C++ examples:]
+
+#include "phish.hpp"
+phish::callback(mydone,NULL);
+phish::callback(NULL,myabort);
+phish::callback(mydone,myabort); :pre
+
+[Python syntax:]
+
+def callback(alldonefunc, abortfunc) :pre
+
+[Python examples:]
+
+import phish
+phish.callback(mydone,None)
+phish.callback(None,myabort)
+phish.callback(mydone,myabort) :pre
+
+[Description:]
+
+This is a PHISH library function which can be called from a minnow
+application.  In "PHISH lingo"_Section_intro.html#intro_2, a "minnow"
+is a stand-alone application which makes calls to the "PHISH
+library"_Library.html.
+
+This function allows you to define 2 callback functions which the
+PHISH library will use to call back to the minnow under specific
+conditions.  If they are not set, which is the NULL default, then the
+PHISH library does not make a callback.
+
+:line
+
+The alldonefunc() function is used to specify a callback function
+invoked by the PHISH library when all the minnow's input ports have
+been closed.  The callback function should have the following form:
+
+void alldonefunc() \{ \} :pre
+
+or
+
+def alldonefunc() :pre
+
+in Python,
+
+where "alldonefunc" is replaced by a function name of your choice.  A
+minnow might use the function to print out some final statistics
+before the PHISH library exits.  See the
+"phish_close"_phish_close.html function and "shutdown
+section"_Minnows.html#shutdown of the "Minnows"_Minnows.html doc page,
+for more discussion of how a school of minnows closes ports and shuts
+down.
+
+:line
+
+The abortfunc() function is used to specify a callback function that
+invoked by the PHISH library when "phish_abort"_phish_error.html is
+called, either by the minnow, or internally by the PHISH library.
+
+The callback function should have the following form in C or C++:
+
+void abortfunc(int* cancel) \{ \} :pre
+
+or
+
+def abortfunc(cancel) :pre
+
+in Python,
+
+where "abortfunc" is replaced by a function name of your choice.
+
+As explained on the "phish_error"_phish_error.html doc page, the
+phish_abort() function may be called by the minnow directly, or implicitly
+by a call to phish_error(), and causes the minnow
+itself and the entire school of PHISH minnows to exit.  If this
+callback is defined, the PHISH library will call the function before
+exiting.  This can be useful if the minnow wishes to close files or
+otherwise clean-up.  The function should not make additional calls to
+the PHISH library, as it may be in an invalid state, depending on the
+error condition.
+
+The callback function may optionally set the "cancel" flag to a
+nonzero value to prevent the PHISH library from aborting the process.
+
+:line
+
+[Restrictions:]
+
+This function can be called anytime.  It is the only PHISH library
+function that can be called before "phish_init"_phish_check.html,
+which can be useful to perform needed clean-up via abortfunc() if
+phish_init() encounters an error.
+
+[Related commands:]
+
+"phish_error"_phish_error.html, "phish_abort"_phish_error.html

@@ -1,0 +1,252 @@
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
+
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+phish_repack :h3
+phish_pack_raw :h3
+phish_pack_char :h3
+phish_pack_int8 :h3
+phish_pack_int16 :h3
+phish_pack_int32 :h3
+phish_pack_int64 :h3
+phish_pack_uint8 :h3
+phish_pack_uint16 :h3
+phish_pack_uint32 :h3
+phish_pack_uint64 :h3
+phish_pack_float :h3
+phish_pack_double :h3
+phish_pack_string :h3
+phish_pack_int8_array :h3
+phish_pack_int16_array :h3
+phish_pack_int32_array :h3
+phish_pack_int64_array :h3
+phish_pack_uint8_array :h3
+phish_pack_uint16_array :h3
+phish_pack_uint32_array :h3
+phish_pack_uint64_array :h3
+phish_pack_float_array :h3
+phish_pack_double_array :h3
+phish_pack_pickle :h3
+
+[C syntax:]
+
+void phish_repack();
+void phish_pack_raw(char *buf, int32_t n);
+void phish_pack_char(char value);
+void phish_pack_int8(int8_t value);
+void phish_pack_int16(int16_t value);
+void phish_pack_int32(int32_t value);
+void phish_pack_int64(int64_t value);
+void phish_pack_uint8(uint8_t value);
+void phish_pack_uint16(uint16_t value);
+void phish_pack_uint32(uint32_t value);
+void phish_pack_uint64(uint64_t value);
+void phish_pack_float(float value);
+void phish_pack_double(double value);
+void phish_pack_string(char *str);
+void phish_pack_int8_array(int8_t *vec, int32_t n);
+void phish_pack_int16_array(int16_t *vec, int32_t n);
+void phish_pack_int32_array(int32_t *vec, int32_t n);
+void phish_pack_int64_array(int64_t *vec, int32_t n);
+void phish_pack_int8_array(int8_t *vec, int32_t n);
+void phish_pack_int16_array(int16_t *vec, int32_t n);
+void phish_pack_int32_array(int32_t *vec, int32_t n);
+void phish_pack_int64_array(int64_t *vec, int32_t n);
+void phish_pack_float_array(float *vec, int32_t n);
+void phish_pack_double_array(double *vec, int32_t n);
+void phish_pack_pickle(char *buf, int32_t n); :pre
+
+[C examples:]
+
+#include "phish.h"
+int n;
+uint64_t nlarge;
+phish_repack();
+phish_pack_char('a');
+phish_pack_int32(n);
+phish_pack_uint64(nlarge);
+phish_pack_string("this is my data");
+phish_pack_double_array(vec,n); :pre
+
+[C++ syntax:]
+
+void repack();
+void pack(const char *buf, int32_t n);
+void pack(char value);
+void pack(int8_t value);
+void pack(int16_t value);
+void pack(int32_t value);
+void pack(int64_t value);
+void pack(uint8_t value);
+void pack(uint16_t value);
+void pack(uint32_t value);
+void pack(uint64_t value);
+void pack(float value);
+void pack(double value);
+void pack(const char *str);
+void pack(const std::string& str);
+void pack(int8_t *vec, int32_t n);
+void pack(int16_t *vec, int32_t n);
+void pack(int32_t *vec, int32_t n);
+void pack(int64_t *vec, int32_t n);
+void pack(int8_t *vec, int32_t n);
+void pack(int16_t *vec, int32_t n);
+void pack(int32_t *vec, int32_t n);
+void pack(int64_t *vec, int32_t n);
+void pack(float *vec, int32_t n);
+void pack(double *vec, int32_t n); :pre
+
+[C++ examples:]
+
+#include "phish.hpp"
+int n;
+uint64_t nlarge;
+phish::repack();
+phish::pack('a');
+phish::pack(n);
+phish::pack(nlarge);
+phish::pack("this is my data");
+phish::pack(vec,n); :pre
+
+[Python syntax:]
+
+def repack()
+def pack_raw(buf,n)
+def pack_char(value)
+def pack_int8(value)
+def pack_int16(value)
+def pack_int32(value)
+def pack_int64(value)
+def pack_uint8(value)
+def pack_uint16(value)
+def pack_uint32(value)
+def pack_uint64(value)
+def pack_float(value)
+def pack_double(value)
+def pack_string(str)
+def pack_int8_array(vec)
+def pack_int16_array(vec)
+def pack_int32_array(vec)
+def pack_int64_array(vec)
+def pack_int8_array(vec)
+def pack_int16_array(vec)
+def pack_int32_array(vec)
+def pack_int64_array(vec)
+def pack_float_array(vec)
+def pack_double_array(vec)
+def pack_pickle(obj) :pre
+
+[Python examples:]
+
+import phish
+phish.repack()
+phish.pack_char('a')
+phish.pack_int32(n)
+phish.pack_uint64(nlarge)
+phish.pack_string("this is my data")
+phish.pack_double_array(vec)
+phish.pack_int32_array([1,10,20,4])
+phish.pack_pickle(59899.984)
+phish.pack_pickle([1,10,20,4])
+foo1 = [[1,2,3],"flag",[7.0,10.0]]
+phish.pack_pickle(foo1)
+foo2 = {"key1" : "value1", "dog" : "cat"}
+phish.pack_pickle(foo2) :pre
+
+[Description:]
+
+These are PHISH library functions which can be called from a minnow
+application.  In "PHISH lingo"_Section_intro.html#intro_2, a "minnow"
+is a stand-alone application which makes calls to the "PHISH
+library"_Library.html.
+
+These functions are used to pack individual values into a datum as
+fields before sending the datum to another minnow.
+
+As discussed in "this section"_Library.html#datum of the "PHISH
+Library"_Library.html doc page, datums sent and recived by the PHISH
+library contain one or more fields.  A field is a fundamental data
+type, such as a "32-bit integer" or "vector of doubles" or a
+NULL-terminated character string.  Except for phish_repack, these pack
+functions add a single field to a datum by packing the data into a
+buffer, using integer flags to indicate what type and length of data
+comes next.  "Unpack"_phish_unpack.html functions allow the minnow to
+extract data from the datum, one field at a time.
+
+Once data has been packed, the minnow may re-use the variables that
+store the data; the pack functions copy the data into an internal send
+buffer inside the PHISH library.
+
+:line
+
+The repack() function packs all the fields of the most recently
+received datum for sending.  This is a mechanism for sending an entire
+dataum as-is to another minnow.
+
+The repack() function can be used in conjunction with other pack
+functions.  E.g. pack functions can be used before or after the
+repack() function to prepend or append additional fields to a received
+datum.
+
+:line
+
+The various pack functions correspond one-to-one with the kinds of
+fundamental data that can be packed into a PHISH datum:
+
+phish_pack_raw() = pack a string of raw bytes of length {n}
+phish_pack_char() = pack a single character
+phish_pack_int*() = pack a single int of various sizes (8,16,32,64 bits)
+phish_pack_uint*() = pack a single unsigned int of various sizes (8,16,32,64 bits)
+phish_pack_float() = pack a single double
+phish_pack_double() = pack a single double
+phish_pack_string() = pack a C-style NULL-terminated string of bytes, including the NULL
+phish_pack_int*_array() = pack {n} int values from {vec}
+phish_pack_uint*_array() = pack {n} uint64 values from {vec}
+phish_pack_float_array() = pack {n} float values from {vec}
+phish_pack_double_array() = pack {n} double values from {vec} :ul
+
+Note that for the array functions, {n} is typed as an int32_t which is
+a 32-bit integer.  In C or C++, the minnow can simply declare {n} to
+be an "int" and any needed casting will be performed automatically.
+The only case where this will fail (with a compile-time error) is if
+the native "int" on a machine is a 64-bit int.
+
+Phish_pack_raw() can be used with whatever string of raw bytes the
+minnow puts into its own buffer, pointed to by the {buf} argument,
+e.g. a C data structure containing a collection of various C primitive
+data types.  The "int*" data type refers to signed integers of various
+lengths.  The "uint*" data type refers to unsigned integers of various
+lengths.  Phish_pack_string() will pack a standard C-style
+NULL-terminated string of bytes and include the NULL.  The array pack
+functions expect a {vec} pointer to point to a contiguous vector of
+"int*" or "uint*" or floating point values.
+
+Note that the Python interface to the pack functions is slightly
+different than the C or C++ interface.
+
+The array pack functions do not take a length argument {n}.  This is
+because Python can query the length of the vector itself.
+
+The pack_pickle() function is unique to Python, it should not normally
+called from C or C++.  It will take any Python object as an argument,
+a fundamental data type like an integer or floating-point value or
+sting, or a more complex Python object like a list, or dictionary, or
+list of arbitrary objects.  Python converts the object into a string
+of bytes via its "pickling" capability, before it is packed into the
+PHISH library send buffer.  When that field in the datum is unpacked,
+via a call to the "phish_unpack"_phish_unpack.html function, the bytes
+are "unpickled" and the Python object is recreated with its internal
+structure intact.  Thus minnows written in Python can exchange Python
+objects transparenlty.
+
+:line
+
+[Restrictions:] none
+
+[Related commands:]
+
+"phish_send"_phish_send.html, "phish_unpack"_phish_unpack.html

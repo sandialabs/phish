@@ -1,0 +1,65 @@
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
+
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+file2words minnow :h3
+
+[Syntax:]
+
+file2words :pre
+
+this minnow takes no arguments :ul
+
+[Examples:]
+
+file2words :pre
+
+[Description:]
+
+File2words is a PHISH minnow that can be used in a PHISH program.  In
+"PHISH lingo"_Section_intro.html#intro_2, a "minnow" is a stand-alone
+application which makes calls to the "PHISH library"_Library.html to
+exchange data with other PHISH minnows via its input and output ports.
+
+The file2words minnow open a file, reads its contents, parses it into
+words separated by whitespace, and outputs each word.
+
+[Ports:]
+
+The file2words minnow uses one input port 0 to receive datums and one
+output port 0 to send datums.
+
+[Operation:]
+
+When it starts, the file2words minnow calls the
+"phish_loop"_phish_recv.html function.  Each time a datum is received
+on input port 0, its first field is treated as a filename.  The file
+is opened and its contents are read a line at a time.  Each line is
+parsed into words, separated by whitespace.  Each word is sent as an
+individual datum to its output port 0.  The file is closed when it has
+all been read.
+
+The filewords minnow shuts down when its input port is closed by
+receiving a sufficient number of "done" messages.
+
+[Data:]
+
+The file2words minnow msut receive single field datums of type
+PHISH_STRING.  It also sends single field datums of type PHISH_STRING.
+
+[Restrictions:]
+
+The C++ version of the file2words minnow allocates a buffer of size
+MAXLINE = 1024 bytes for reading a line from a file.  This can be
+changed (by editing minnow/file2words.cpp) if longer lines are needed.
+
+It also assumes the filenames it receives are for text files, so that
+"whitespace" as defined in C or Python makes sense as a separator.
+
+[Related minnows:]
+
+"filegen"_filegen.html

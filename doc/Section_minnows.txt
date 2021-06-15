@@ -1,0 +1,399 @@
+"Previous Section"_Section_bait.html - "PHISH WWW Site"_pws - "PHISH
+Documentation"_pd - "Next Section"_Section_library.html :c
+
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
+:link(pd,Manual.html)
+
+:line
+
+3. PHISH Minnows :h3
+
+In "PHISH lingo"_Section_intro.html#intro_2, a "minnow" is a
+stand-alone application which makes calls to the "PHISH
+library"_Library.html.  Minnows are typically small programs which
+perform a single task, e.g. they parse a string searcing for keywords
+and store statistics about those keywords.  But they can also be large
+programs which perform sophisticated computations and make only
+occasional calls to the PHISH library.  In which case they should
+probably be called "sharks" or "whales" ...
+
+An individual minnow is part of a "school" of one or more duplicate
+minnows.  One or more schools form a PHISH "net(work)" which compute
+in a coordinated fashion to perform a calculation.  Minnows
+communicate with each other to exchange data via calls to the PHISH
+library.
+
+This doc page covers the following topics:
+
+3.1 "List of minnows"_#minnow_1
+3.2 "Code structure of a minnow"_#minnow_2
+3.3 "Communication via ports"_#minnow_3
+3.4 "Shutting down a minnow"_#minnow_4
+3.5 "Building minnows"_#minnow_5 :ul
+
+:line
+:line
+
+3.1 List of minnows :link(minnow_1),h4
+
+This is a list of minnows in the minnow directory of the PHISH
+distribution.  Each has its own doc page.  Some are written in C++
+(*.cpp), some in Python (*.py), some in both.  If provided in both
+languages, their operation is identical, with any exceptions noted in
+the minnow doc page:
+
+"count"_count.html
+"file2words"_file2words.html
+"filegen"_filegen.html
+"print"_print.html
+"slowdown"_slowdown.html
+"sort"_sort.html :ul
+
+These are also 3 special minnows which can wrap stand-alone non-PHISH
+applications which read from stdin and write to stdout, so that they
+can be used as minnows in a PHISH net and communicate with other
+minnows:
+
+"wrapsink"_wrapsink.html
+"wrapsource"_wrapsource.html
+"wrapss"_wrapss.html :ul
+
+These are also two simple codes which can be compiled into stand-alone
+non-PHISH executables.  They are provided as examples of applications
+that can be wrapped by the "wrap" minnows:
+
+"echo"_echo.html
+"reverse"_reverse.html :ul
+
+:line
+
+3.2 Code structure of a minnow :link(minnow_2),h4
+
+The easiest way to understand how a minnow works with the PHISH
+library, is to examine a few simple files in the minnow directory.
+Here we list the count.py minnow, which is written in Python.  There
+is a also a count.cpp minnow, written in C++, which does the same
+thing.  The purpose of this minnow is to count occurrences of strings
+that it receives as datums:
+
+1   #!/usr/local/bin/python as path to Python if desired
+2
+3   import sys
+4   import phish
+5
+6   def count(nvalues):
+7     if nvalues != 1: phish.error("Count processes one-value datums")
+8     type,str,tmp = phish.unpack()
+9     if type != phish.STRING:
+10      phish.error("Count processes string values")
+11    if hash.has_key(str): hash[str] = hash[str] + 1
+12    else: hash[str] = 1
+13
+14  def dump():
+16    for key,value in hash.items():
+17      phish.pack_int(value)
+18      phish.pack_string(key)
+19      phish.send(0)
+20
+21  args = phish.init(sys.argv)
+22  phish.input(0,count,dump,1)
+23  phish.output(0)
+24  phish.check()
+25
+26  if len(args) != 0: phish.error("Count syntax: count")
+27
+28  hash = {}
+29  
+30  phish.loop()
+31  phish.exit() :pre
+
+On line 4, the Python minnow imports the phish module, which is
+provided with the PHISH distribution.  Instructions on how to use this
+module, which wraps the C-interface to the PHISH library, are given in
+"this section"_Section_python.html of the documentation.
+
+The main program begins on line 21.  The call to the
+"phish.init"_phish_init.html is typically the first line of a PHISH
+minnow.  When the minnow is launched, extra PHISH library command-line
+arguments are added which describe how the minnow will communicate
+with other minnows.  These are stripped off by the
+"phish.init"_phish_init.html function, and the remaining
+minnow-specific arguments are returned as "args".  The
+"phish.input"_phish.input.html and "phish.output"_phish.output.html
+functions setup the input and output ports used by the minnow.  A port
+is a communication channel by which datums arrive from other minnows
+or can be sent to other minnows.  The PHISH input script sets up these
+connections, but from the minnow's perspective, it simply receives
+datums on its input port(s) and writes datums to its output port(s).
+See the "next section"_#minnow_3 for more discussion of ports.
+
+There should be one call to "phish.input"_phish.input.html for each
+input port the minnow uses.  And one call to
+"phish.output"_phish.output.html for each output port it uses. The
+call to the "phish.check"_phish.check.html function on line 24 insures
+that the minnow as written is compatible with the way it is used in
+the PHISH input script, i.e. that the necessary input and output ports
+have been defined with valid "hook styles"_bait_hook.html.
+
+The "phish.input"_phish.input.html call specifies a callback function
+that the PHISH library will invoke when a datum arrives on that input
+port.  In this case, the count minnow defines a count() callback
+function which stores a received string in a hash table (Python
+dictionary) with an associated count of the number of times it has
+been received.
+
+On line 28, an empty hash table is initialized, and then the
+"phish.loop"_phish.loop.html function is called.  This gives control
+to the PHISH library, which will wait for datums to be received,
+invoking the appropriate callback function each time one arrives.
+
+The call to "phish.input"_phish.input.html also defines a callback to
+the dump() function which is invoked when input port 0 is closed.
+This occurs when upstream minnows send the requisite number of "done"
+messages to the port.  The dump() function sends the contents of the
+hash table to output port 0, one datum at a time.  Each datum contains
+a unique string and its count.
+
+The "phish.loop"_phish.loop.html function returns after invoking
+dump() and when all input ports are closed.  The count minnow then
+calls the "phish.exit"_phish.exit.html function which will close its
+output port(s), and send "done" messages to downstream minnows
+connected to those ports.
+
+This code structure is typical of many minnows:
+
+A beginnning section with a call to "phish.init"_phish.init.html,
+definitions of input/output ports, and a call to
+"phish.check"_phish.check.html.  Then a call to
+"phish.loop"_phish.loop.html or "phish.probe"_phish.probe.html or
+"phish.recv"_phish.recv.html to receive datums.  This is unnecessary
+if the minnow only generates datums, i.e. it is a source of data, but
+not a consumer of data. :ulb,l
+
+One or more callback functions unpack datums via the
+"phish.unpack"_phish.unpack.html function, process their content,
+store state, and send messsages via "phish.pack"_phish.pack.html and
+"phish.send"_phish.send.html functions. :l
+
+After "phish.loop"_phish.loop.html exits, the minnow shuts down via a
+call to "phish.close"_phish.close.html or "phish.exit"_phish.exit.html
+and terminates. See "this section"_#minnow_4 for more discussion of
+shut down procedures. :ule,l
+
+:line
+
+3.3 Communication via ports :link(minnow_3),h4
+
+As discussed above, ports are input/output communication channels by
+which a minnow receives datums from an upstream minnow or sends datums
+to a downstream minnow.
+
+The number of ports that can be configured by a minnow varies between PHISH
+library backends.  The ZMQ version of the library supports an unlimited number
+of input and output ports, while the MPI version of the library supports up to
+MAXPORT number of input ports and MAXPORT number of output ports.  MAXPORT is a
+hardwired value in src/phish-mpi.cpp which is set to 16.  It can be changed if
+needed, but note that all minnows which use the MPI version of the library must
+be re-built since they must all use a consistent value of MAXPORT when run
+together in a PHISH net.
+
+Note that a PHISH input script may connect a particular minnow to
+other minnows in a variety of ways.  This applies to both the "styles
+of hooks"_bait_hook.html that are specified and the number of minnows
+on the other end of each hook.  Thus it is possible for the user to
+specify hooks in the input script which the minnow does not support or
+even define.  Similarly, the input script may cause other minnows to
+send datums to the minnow which it does not expect or is unable to
+interpret.  This means a minnow should be coded to follow these rules:
+
+It should define each input port it receives datums on as "required"
+or "optional", via the "phish.input"_phish.input.html function.  This
+will generate erros if the PHISH input script is incompatible with the
+minnow. :ulb,l
+
+It should define each output port it sends datums to, via the
+"phish.output"_phish.output.html function.  This will also generate
+errors for incompatible PHISH input scripts, though the use of output
+ports by a script is always optional. :l
+
+The minnow should check the number of fields and data type of each
+field it receives, if it expects to receive datums of a specified
+structure and data type. :l
+
+If feasible, the minnow should be coded in a general manner to work
+with different kinds of datums and data types, so that it can be used
+in a variety of PHISH input scripts :l
+
+Which port a datum arrived on is the only attribute of a received
+datum that a minnow can query (other than the format and content of
+the datum itself); see the "phish.datum"_phish.datum.html function.
+It cannot query which minnow sent it via what output port or which
+connection to the input port it arrived by.  This is because these are
+really settings determined by the PHISH input script, and the minnow
+should not depend on them.  If such info is really necessary for the
+minnow to know, then it can be encoded as a field in the datum itself,
+so the minnow can extract it. :l,ule
+
+Here are other flexible attributes of input and output ports to note,
+all enabled by the "hook"_bait_hook.html command in a PHISH input
+script:
+
+A single input port can receive datums from multiple other schools of
+minnows and multiple output ports. :ulb,l
+
+A single output port can send datums to multiple other schools of
+minnows and multiple input ports.  This means an individual datum may
+be sent multiple times to different minnows. :l
+
+A minnow can send datums via its output port to its own input
+port. :ule,l
+
+All of these scenarios can be setup by appropriate use of
+"hook"_bait.html commands in a PHISH input script.
+
+An additional issue to consider is whether a communication channel can
+be saturated or drop datums.  Imagine a PHISH net where one minnow
+sends datums at a high rate to a receiving minnow, which cannot
+process them as fast as they are sent.  Over time, the receiving
+minnow is effectively a bottleneck in processing a stream of data.
+The PHISH library will not lose messages in this scenario, rather the
+overall processing pipeline naturally throttles itself to the rate of
+the bottlenecking minnow.  This is handled by the underlying MPI or
+socket message passing protocols.  ZMQ handles this naturally.  In the
+case of MPI, the sending and receiving processes coordinate data
+exchanges.  By default this is done via MPI_Send() and MPI_Recv()
+calls.  If you get a run-time MPI error about dropping messages, then
+you should use occasionally use the "safe" mode of data exchange which
+can be enabled by the "set safe"_bait_set.html command in a PHISH
+input script or "--set safe" command-line option.  This will use
+MPI_Ssend() calls which enforce extra handshaking between the sending
+and receiving processes to avoid dropping messages.
+
+:line
+
+3.4 Shutting down a minnow :link(minnow_4),h4
+
+PHISH minnows can be designed to process a finite or infinite stream of data.
+In the infininte case, the PHISH net of minnows is typically shut down by the
+user killing one or more of the processes.  Note that the current ZMQ version
+of PHISH cannot guarantee that all processes will be shut-down cleanly.  You
+may need to kill some of the procsses manually.
+
+In the finite case, you typically want each minnow in the net to shut
+down cleanly.
+
+The PHISH library sends special "done" messages when a minnow closes
+one of its output ports.  This is triggered by a call to the
+"phish_close"_phish_close.html function, which closes a single port,
+or the "phish_exit"_phish_exit.html function which closes all output
+ports.  A "done message is sent to each receiving minnow of each input
+port connected to the corresponding output port.  The receiving minnow
+counts these messages as they arrive.  When it has received one "done"
+message from every minnow that connects to one of its input ports, it
+closes the input port and the library calls back to the minnow (if a
+callback function was defined by the "phish_input"_phish_input.html
+function).  When all its input ports have been closed it makes an
+additional callback to the minnow (if a callback function was defined
+by the "phish_callback"_phish_callback.html function).
+
+This mechanism is often sufficient to trigger an orderly shutdown of
+an entire PHISH net by all its minnows, if the most upstream minnow
+initiates the process by closing its output ports via a call to
+"phish_exit"_phish_exit.html.  Exceptions are when a school of minnows
+exchanges data in a "ring" style of commuication as setup by the "hook
+ring"_bait_hook.html command in a PHISH input script.
+
+In case of the ring, if the first minnow in the ring invokes the
+phish_exit function, it will no longer be receiving datums when the
+last minnow in the ring attempts to send it a "done" message.  In this
+case, the first minnow should instead invoke
+"phish_close"_phish_close.html on the output port for the ring, then
+wait to receive its final "done" message before calling
+"phish_exit"_phish_exit.html.
+
+Another exception is when minnows send datums to themselves in a
+looping fashion.  In this case, you typically to include code in
+callback functions invoked when "done" messages are received to handle
+the shutdown logic.  See the minnow/tri.py for an example of how this
+can be done.
+
+:line
+
+3.5 Building minnows :link(minnow_5),h4
+
+Minnows are stand-alone programs which simply need to be linked with
+the PHISH library.  New single-file minnows written in C or C++ can be
+added to the minnow directory of the PHISH distribution and built in
+the following manner; minnows written in Python do not need to be
+built.
+
+The easiest way to build all of PHISH, including the PHISH minnows,
+is to use the cross-platform "CMake"_http://www.cmake.org build system.  We
+recommend building PHISH with a separate build directory:
+
+$ tar xzvf phish.tar.gz -C ~/src
+$ mkdir ~/build/phish
+$ cd ~/build/phish
+$ ccmake ~/src/phish-14sep12 :pre
+
+Then, in the CMake curses interface, configure the build, generate makefiles,
+and build phish:
+
+$ make :pre
+
+Note that if you add a new minnow to the minnow directory, simply re-run ccmake
+regenerate makefiles, and build - your minnow will automatically be
+incorporated into the build.
+
+:line
+
+Alternatively, typing the following from the minnow directory will build all C
+and C++ minnows:
+
+make machine :pre
+
+where machine is the suffix of one of the provided Makefiles,
+e.g. linux.mpi or linux.zmq.  Type "make" to see a list of the
+different files and what compiler and MPI options they support.
+
+The ".mpi" or ".zmq" suffix of the make target and associated
+Makefile refer to which version of the PHISH library will
+be linked against, either the MPI or ZMQ version.
+
+The make command also builds non-PHISH C or C++ programs which are
+intended to be wrapped with one of the "wrap" minnows discussed above
+so they can be used as a minnow.  Examples are the "echo"_echo.html
+and "reverse"_reverse.html programs in the minnow directory.
+
+If none of the provided Makefiles are a match to your machine, you can
+use one of them as a template and create your own.  Note that only the
+top section for compiler/linker settings need be edited.  This is
+where you should specify your compiler and linker and any switches
+they use.  For the LIB setting, be sure to use the appropriate version
+of the PHISH library you are linking to, i.e. libphish-mpi.so or
+libphish-zmq.so.
+
+IMPORTANT NOTE: When adding a new minnow that is a single file to the
+minnow directory, you should insure the string "MINNOW" appears
+somewhere in the *.cpp or *.c file.  This is how the top-level
+minnow/Makefile includes it in the build list.  It will then be
+automatically built with the other minnows.
+
+IMPORTANT NOTE: If you wish to switch the PHISH library used with your
+minnows (MPI vs ZMQ), you should type "make clean-all" and then
+re-compile and re-link all the minnows.  You can also type "make
+clean" to simply delete all object files.
+
+If your new minnow is complex enough to consist of multiple files, you
+can add a specific rule for how to build it to the Makefile.machine
+you use, e.g. that defines a new target with a list of OBJ files that
+it depends on.  Or you can build it in a separate directory with your
+own custom Makefile, so long as you link to the PHISH library, similar
+to how the Makefiles in the minnow directory perform the final link
+step.
+
+Your executable minnow files do not need to be added to the minnow
+directory.  See the "--path command-line
+switch"_Section_bait.html#bait_3 for the "bait.py"_Section_bait.html
+tool for how to access minnows from other directories when running a
+PHISH net.

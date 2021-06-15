@@ -1,0 +1,70 @@
+<HTML>
+<CENTER><A HREF = "http://www.sandia.gov/~sjplimp/phish.html">PHISH WWW Site</A> - <A HREF = "Manual.html">PHISH Documentation</A> - <A HREF = "Bait.html">Bait.py Commands</A> 
+</CENTER>
+
+
+
+
+
+
+<HR>
+
+<H3>file2words minnow 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>file2words 
+</PRE>
+<UL><LI>this minnow takes no arguments 
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>file2words 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>File2words is a PHISH minnow that can be used in a PHISH program.  In
+<A HREF = "Section_intro.html#intro_2">PHISH lingo</A>, a "minnow" is a stand-alone
+application which makes calls to the <A HREF = "Library.html">PHISH library</A> to
+exchange data with other PHISH minnows via its input and output ports.
+</P>
+<P>The file2words minnow open a file, reads its contents, parses it into
+words separated by whitespace, and outputs each word.
+</P>
+<P><B>Ports:</B>
+</P>
+<P>The file2words minnow uses one input port 0 to receive datums and one
+output port 0 to send datums.
+</P>
+<P><B>Operation:</B>
+</P>
+<P>When it starts, the file2words minnow calls the
+<A HREF = "phish_recv.html">phish_loop</A> function.  Each time a datum is received
+on input port 0, its first field is treated as a filename.  The file
+is opened and its contents are read a line at a time.  Each line is
+parsed into words, separated by whitespace.  Each word is sent as an
+individual datum to its output port 0.  The file is closed when it has
+all been read.
+</P>
+<P>The filewords minnow shuts down when its input port is closed by
+receiving a sufficient number of "done" messages.
+</P>
+<P><B>Data:</B>
+</P>
+<P>The file2words minnow msut receive single field datums of type
+PHISH_STRING.  It also sends single field datums of type PHISH_STRING.
+</P>
+<P><B>Restrictions:</B>
+</P>
+<P>The C++ version of the file2words minnow allocates a buffer of size
+MAXLINE = 1024 bytes for reading a line from a file.  This can be
+changed (by editing minnow/file2words.cpp) if longer lines are needed.
+</P>
+<P>It also assumes the filenames it receives are for text files, so that
+"whitespace" as defined in C or Python makes sense as a separator.
+</P>
+<P><B>Related minnows:</B>
+</P>
+<P><A HREF = "filegen.html">filegen</A>
+</P>
+</HTML>

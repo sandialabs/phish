@@ -1,0 +1,98 @@
+<HTML>
+<CENTER><A HREF = "http://www.sandia.gov/~sjplimp/phish.html">PHISH WWW Site</A> - <A HREF = "Manual.html">PHISH Documentation</A> - <A HREF = "Bait.html">Bait.py Commands</A> 
+</CENTER>
+
+
+
+
+
+
+<HR>
+
+<H3>phish_queue() function 
+</H3>
+<H3>phish_dequeue() function 
+</H3>
+<H3>phish_nqueue() function 
+</H3>
+<P><B>C syntax:</B>
+</P>
+<PRE>int phish_queue() 
+</PRE>
+<PRE>int phish_dequeue(int n) 
+</PRE>
+<PRE>int phish_nqueue() 
+</PRE>
+<P><B>C examples:</B>
+</P>
+<PRE>nq = phish_queue();
+nvalues = phish_dequeue(0);
+nq = phish_nqueue(); 
+</PRE>
+<P><B>Python syntax:</B>
+</P>
+<PRE>def queue() 
+</PRE>
+<PRE>def dequeue(n) 
+</PRE>
+<PRE>def nqueue() 
+</PRE>
+<P><B>Python examples:</B>
+</P>
+<PRE>import phish
+nq = phish.queue()
+nvalues = phish.dequeue(0)
+nq = phish.nqueue() 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>These are PHISH library functions which can be called from a minnow
+application.  In <A HREF = "Section_intro.html#intro_2">PHISH lingo</A>, a "minnow"
+is a stand-alone application which makes calls to the <A HREF = "Library.html">PHISH
+library</A>.
+</P>
+<P>These functions are used to store and retrieve datums in an internal
+queue maintained by the PHISH library.  This can be useful if a minnow
+receives a datum but wishes to process it later.
+</P>
+<HR>
+
+<P>The phish_queue() function stores the most recently received datum in
+the internal queue.  It returns the number of datums in the queue,
+which includes the one just stored.
+</P>
+<P>The phish_queue() function does not conflict with
+<A HREF = "phish_unpack.html">phish_unpack</A> or <A HREF = "phish_unpack.html">phish_datum</A>
+functions.  They can be called before or after a phish_queue() call.
+</P>
+<HR>
+
+<P>The phish_dequeue() function retrieves a stored datum from the
+internal queue and copies it into the receive buffer, as if it had
+just been received.  The datum is deleted from the queue, though it
+can be requeued via a subsequent call to phish_queue.
+</P>
+<P>After a call to phish_dequeue, the datum can be unpacked or its
+attributes queried via the <A HREF = "phish_unpack.html">phish_unpack</A> or
+<A HREF = "phish_unpack.html">phish_datum</A> functions, as if it just
+been received.
+</P>
+<P>The input parameter "n" for phish_dequeue is the index of the datum to
+retrieve.  N can be any value from 0 to Nqueue-1 inclusive, where
+Nqueue is the number of datums in the queue.  Thus you can easily
+retrieve the oldest or newest datum in the queue.
+</P>
+<HR>
+
+<P>The phish_nqueue() function returns the number of datums currently
+held in the internal queue.
+</P>
+<HR>
+
+<P><B>Restrictions:</B> none
+</P>
+<P><B>Related commands:</B>
+</P>
+<P><A HREF = "phish_recv.html">phish_recv</A>, <A HREF = "phish_unpack.html">phish_datum</A>
+</P>
+</HTML>

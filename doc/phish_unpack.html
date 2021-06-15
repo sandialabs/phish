@@ -1,0 +1,190 @@
+<HTML>
+<CENTER><A HREF = "http://www.sandia.gov/~sjplimp/phish.html">PHISH WWW Site</A> - <A HREF = "Manual.html">PHISH Documentation</A> - <A HREF = "Bait.html">Bait.py Commands</A> 
+</CENTER>
+
+
+
+
+
+
+<HR>
+
+<H3>phish_unpack() function 
+</H3>
+<H3>phish_datum() function 
+</H3>
+<P><B>C syntax:</B>
+</P>
+<PRE>int phish_unpack(char **buf, int32_t *len)
+int phish_datum(int flag) 
+</PRE>
+<P><B>C examples:</B>
+</P>
+<PRE>#include "phish.h"
+char *buf;
+int len;
+int type = phish_unpack(&buf,&len);
+int iport = phish_datum(1); 
+</PRE>
+<P><B>C++ syntax:</B>
+</P>
+<PRE>int unpack(char **buf, int32_t *len)
+int datum(int flag) 
+</PRE>
+<P><B>C++ examples:</B>
+</P>
+<PRE>#include "phish.hpp"
+char *buf;
+int len;
+int type = phish::unpack(&buf,&len);
+int iport = phish::datum(1); 
+</PRE>
+<P><B>Python syntax:</B>
+</P>
+<PRE>def unpack()
+def datum(flag) 
+</PRE>
+<P><B>Python examples:</B>
+</P>
+<PRE>import phish
+type,value,len = phish.unpack()
+iport = phish.datum(1) 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>These are PHISH library functions which can be called from a minnow
+application.  In <A HREF = "Section_intro.html#intro_2">PHISH lingo</A>, a "minnow"
+is a stand-alone application which makes calls to the <A HREF = "Library.html">PHISH
+library</A>.
+</P>
+<P>These functions are used to unpack a datum after it has been received
+from another minnow or query other info about the datum.
+</P>
+<P>As discussed in <A HREF = "Library.html#datum">this section</A> of the <A HREF = "Library.html">PHISH
+Library</A> doc page, datums sent and recived by the PHISH
+library contain one or more fields.  A field is a fundamental data
+type, such as an "32-bit integer" or "vector of doubles" or a
+NULL-terminated character string.  These fields are
+<A HREF = "phish_pack.html">packed</A> into a contiguous byte string when then are
+sent, using integer flags to indicate what type and length of data
+comes next.  These unpack functions allow the minnow to extract data
+from the datum, one field at a time.
+</P>
+<P>Note that these functions return pointers to the internal buffer
+holding the datum within the PHISH library.  The buffer will be
+overwritten when the minnow returns control to the PHISH library and
+the next datum is received.  Typically this occurs when a callback
+function in the minnow returns.  This means that if you want the data
+to persist within the minnow, you must make a copy.  It is OK to
+unpack several fields from the same datum before making copies of the
+fields.  It is also OK to pack one or more received fields for sending
+and wait to send it until after another datum is received.  This is
+because calls to "phish_pack" functions copy data into a separate send
+buffer.
+</P>
+<HR>
+
+<P>The phish_unpack() function returns the next field and its length,
+from the most recently received datum.  Note that <I>len</I> is typed as a
+pointer to int32_t which is a 32-bit integer.  In C or C++, the minnow
+can simply declare <I>len</I> to be a pointer to "int" and the function
+will work as expected.  The only case where this will fail (with a
+compile-time error) is if the native "int" on a machine is not a
+32-bit int.
+</P>
+<P>Phish_unpack returns an integer flag set to one of these values
+(defined in src/phish.h):
+</P>
+<UL><LI>PHISH_CHAR = 0
+<LI>PHISH_INT8 = 1
+<LI>PHISH_INT16 = 2
+<LI>PHISH_INT32 = 3
+<LI>PHISH_INT64 = 4
+<LI>PHISH_UINT8 = 5
+<LI>PHISH_UINT16 = 6
+<LI>PHISH_UINT32 = 7
+<LI>PHISH_UINT64 = 8
+<LI>PHISH_FLOAT = 9
+<LI>PHISH_DOUBLE = 10
+<LI>PHISH_RAW = 11
+<LI>PHISH_STRING = 12
+<LI>PHISH_INT8_ARRAY = 13
+<LI>PHISH_INT16_ARRAY = 14
+<LI>PHISH_INT32_ARRAY = 15
+<LI>PHISH_INT64_ARRAY = 16
+<LI>PHISH_UINT8_ARRAY = 17
+<LI>PHISH_UINT16_ARRAY = 18
+<LI>PHISH_UINT32_ARRAY = 19
+<LI>PHISH_UINT64_ARRAY = 20
+<LI>PHISH_FLOAT_ARRAY = 21
+<LI>PHISH_DOUBLE_ARRAY = 22
+<LI>PHISH_PICKLE = 23 
+</UL>
+<P>PHISH_CHAR, PHISH_INT*, PHISH_UINT*, PHISH_FLOAT, and PHISH_DOUBLE are
+a single character, a signed integer (of length 8,16,32,64 bits), an
+unsigned integer (of length 8,16,32,64 bits), a float (typically 4
+bytes), and a double (typically 8 bytes).
+</P>
+<P>PHISH_RAW is a string of raw bytes which can store whatever the
+sending minnow put into its send buffer, e.g. a C data structure
+containing a collection of various C primitive data types.
+</P>
+<P>PHISH_RAW is a string of raw bytes which minnows can format in any
+manner, e.g. a C data structure containing a collection of various C
+primitive data types.  PHISH_STRING is a standard C-style
+NULL-terminated C-string.  The NULL is included in the field.
+</P>
+<P>The ARRAY types are contiguous sequences of int*, uint*, float, or
+double values, packed one after the other.
+</P>
+<P>PHISH_PICKLE is an option available when using the Python wrapper on
+the PHISH library to encode arbitrary Python objects in pickled form
+as a string of bytes.  It should not normally be used in a minnow
+written in C or C++.
+</P>
+<P>Phish_unpack also returns <I>buf</I> and <I>len</I>.  <I>Buf</I> is a char pointer to
+where the field starts.  You will need to cast this to the appropriate
+data type before accessing the data if it is not a character string.
+<I>Len</I> is the length of the field, with the following meanings:
+</P>
+<UL><LI>PHISH_CHAR: len = 1
+<LI>PHISH_INT*: len = 1
+<LI>PHISH_UINT*: len = 1
+<LI>PHISH_FLOAT: len = 1
+<LI>PHISH_DOUBLE: len = 1
+<LI>PHISH_RAW: len = # of bytes
+<LI>PHISH_STRING: len = # of bytes, including the trailing NULL
+<LI>PHISH_INT*_ARRAY: len = # of int8 or int16 or int32 or int64 values
+<LI>PHISH_UINT*_ARRAY: len = # of uint8 or uint16 or uint32 or uint64 values
+<LI>PHISH_FLOAT_ARRAY: len = # of float values
+<LI>PHISH_DOUBLE_ARRAY: len = # of double values
+<LI>PHISH_PICKLE = len = # of bytes 
+</UL>
+<HR>
+
+<P>The phish_datum() function returns information about the most recently
+received datum.
+</P>
+<P>If <I>flag</I> is set to 0, phish_datum returns the number of fields in the
+datum.  This value is also passed as an argument to the callback
+function invovked by the <A HREF = "phish_recv.html">phish_loop</A> and
+<A HREF = "phish_recv.html">phish_probe</A> functions, so a minnow typically does
+not need to use phish_datum to retrieve this info.
+</P>
+<P>If <I>flag</I> is set to 1, phish_datum returns the input port the datum
+was received on.  See the <A HREF = "phish_port.html">phish_port</A> functions for a
+discussion of ports.
+</P>
+<P>The phish_datum() function does not conflict with the phish_unpack()
+function.  Phish_datum() can be called before or after or in between a
+series of phish_unpack() calls.
+</P>
+<HR>
+
+<P><B>Restrictions:</B> none
+</P>
+<P><B>Related commands:</B>
+</P>
+<P><A HREF = "phish_recv.html">phish_recv</A>, <A HREF = "phish_pack.html">phish_pack</A>
+</P>
+</HTML>

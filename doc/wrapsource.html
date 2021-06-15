@@ -1,0 +1,100 @@
+<HTML>
+<CENTER><A HREF = "http://www.sandia.gov/~sjplimp/phish.html">PHISH WWW Site</A> - <A HREF = "Manual.html">PHISH Documentation</A> - <A HREF = "Bait.html">Bait.py Commands</A> 
+</CENTER>
+
+
+
+
+
+
+<HR>
+
+<H3>wrapsource minnow 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>wrapsource -f "program" 
+</PRE>
+<UL><LI>-f = optional flag for substituting input datums into "program"
+<LI>program = shell command for launching executable program 
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>wrapsource "myexe"
+wrapsource "myexe -n 3 -o outfile < in.script"
+wrapsource "ls *"
+wrapsource -f "wc %s"
+wrapsource -f "myexe -n 3 -o outfile < %s" 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>Wrapsource is a PHISH minnow that can be used in a PHISH program.  In
+<A HREF = "Section_intro.html#intro_2">PHISH lingo</A>, a "minnow" is a stand-alone
+application which makes calls to the <A HREF = "Library.html">PHISH library</A> to
+exchange data with other PHISH minnows.
+</P>
+<P>The wrapsource minnow is used to wrap a non-PHISH application so that
+the lines it writes to stdout can be sent as datums to other PHISH
+minnows.  It is a mechanism for using non-PHISH applications as
+minnows in a PHISH net.
+</P>
+<P><B>Ports:</B>
+</P>
+<P>The wrapsource minnow uses one input port 0 if the -f flag is
+specified, otherwise it uses no input ports.  It uses one output port
+0 to send datums.
+</P>
+<P><B>Operation:</B>
+</P>
+<P>The wrapsource minnow has two modes of operation, depending on whether
+the -f flag is specified.  In either case, the <I>program</I> argument is
+treated as a string that is executed as a command by the shell.
+</P>
+<P>As in the examples above <I>program</I> can be an executable program name
+or a shell command.  It can include flags or redirection operators.
+If the string contains spaces, it should be enclosed in quotes in the
+PHISH input script so that it is treated as a single argument when the
+script is read by the <A HREF = "Section_bait.html">bait.py</A> tool.
+</P>
+<P>If no -f flag is specified, the wrapsouce minnow launches a single
+instance of the <I>program</I> command and reads the output it writes to
+stdout a line at a time.
+</P>
+<P>If the -f flag is specified, the wrapsouce minnow calls the
+<A HREF = "phish_recv.html">phish_loop</A> function.  Each time an input datum is
+received, its single string field is inserted in the <I>program</I> string,
+as a replacement for a "%s" that it is presumed to contain.  This can
+be used, for example, to substitute a filename into the <I>program</I>
+string.  The wrapsource minnow then launches the modified <I>program</I>
+command and reads the output it generates.  When the program exits,
+control returns to <A HREF = "phish_loop.html">phish_loop</A>, and a new datum can
+be received.  Thus over time, the wrapsource minnow may launch many
+instances of <I>program</I>.
+</P>
+<P>Each time a line of output is read from the running <I>program</I> the
+wrapsource minnow sends it as a string (without the trailing newline)
+to its output port 0.
+</P>
+<P>If no -f flag is specified, the wrapsource minnow calls
+<A HREF = "phish_exit.html">phish_exit</A> after the launched program exits.  If -f
+is specified, the wrapsource minnow shuts down when its input port is
+closed by receiving a sufficient number of "done" messages.
+</P>
+<P><B>Data:</B>
+</P>
+<P>If the -f flag is specified, the count minnow must receive single
+field datums of type PHISH_STRING.  It sends single-field datums of
+type PHISH_STRING.
+</P>
+<P><B>Restrictions:</B>
+</P>
+<P>The C++ version of the wrapsouce minnow allocates a buffer of size
+MAXLINE = 1024 bytes for reading lines of output written to stdout by
+the wrapped program.  This can be changed (by editing
+minnow/wrapsource.cpp) if longer lines are needed.
+</P>
+<P><B>Related minnows:</B>
+</P>
+<P><A HREF = "wrapsink.html">wrapsink</A>, <A HREF = "wrapss.html">wrapss</A>
+</P>
+</HTML>

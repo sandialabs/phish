@@ -1,0 +1,67 @@
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
+
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+echo program :h3
+
+[Syntax:]
+
+echo :pre
+
+this program takes no arguments :ul
+
+[Examples:]
+
+wrapsink "echo"
+wrapss "echo" :pre
+
+[Description:]
+
+Echo is a stand-along non-PHISH program that can be wrapped with a
+PHISH minnow so it can be used in a PHISH program.  In "PHISH
+lingo"_Section_intro.html#intro_2, a "minnow" is a stand-alone
+application which makes calls to the "PHISH library"_Library.html to
+exchange data with other PHISH minnows.
+
+The echo program simply reads lines from stdin and echoes them to
+stdout.  PHISH minnows that can wrap the echo program include the
+"wrapsink"_wrapsink.html and "wrapss"_wrapss.html, which convert
+stdin/stdout into the receiving and sending of datums.
+
+[Ports:]
+
+The echo program does not call the PHISH library and thus does not use
+PHISH ports directly.  But if it is wrapped with the
+"wrapsink"_wrapsink.html or "wrapss"_wrapss.html minnows then they use
+one input port 0 to receive datums which are then read by the echo
+program via stdin.  If it is wrapped with the "wrapss"_wrapss.html
+minnow then it uses one output port 0 to send datums that are written
+to stdout by the echo program.
+
+[Operation:]
+
+The echo program simply reads a line of input from stdin and writes it
+to stdout.  See the doc pages for the "wrapsink"_wrapsink.html or
+"wrapss"_wrapss.html minnows for how they convert datums they receive
+to lines of text that the echo program can read from stdin, and how
+they convert lines of text that the echo program writes to stdout to
+datums they send.
+
+[Data:]
+
+The echo program does not call the PHISH library and thus does not
+deal directly with PHISH data types.
+
+[Restrictions:]
+
+The C++ version of the echo program allocates a buffer of size MAXLINE
+= 1024 bytes for reading a line from stdin.  This can be changed (by
+editing minnow/echo.cpp) if longer lines are needed.
+
+[Related programs:]
+
+"reverse"_reverse.html

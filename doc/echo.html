@@ -1,0 +1,72 @@
+<HTML>
+<CENTER><A HREF = "http://www.sandia.gov/~sjplimp/phish.html">PHISH WWW Site</A> - <A HREF = "Manual.html">PHISH Documentation</A> - <A HREF = "Bait.html">Bait.py Commands</A> 
+</CENTER>
+
+
+
+
+
+
+<HR>
+
+<H3>echo program 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>echo 
+</PRE>
+<UL><LI>this program takes no arguments 
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>wrapsink "echo"
+wrapss "echo" 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>Echo is a stand-along non-PHISH program that can be wrapped with a
+PHISH minnow so it can be used in a PHISH program.  In <A HREF = "Section_intro.html#intro_2">PHISH
+lingo</A>, a "minnow" is a stand-alone
+application which makes calls to the <A HREF = "Library.html">PHISH library</A> to
+exchange data with other PHISH minnows.
+</P>
+<P>The echo program simply reads lines from stdin and echoes them to
+stdout.  PHISH minnows that can wrap the echo program include the
+<A HREF = "wrapsink.html">wrapsink</A> and <A HREF = "wrapss.html">wrapss</A>, which convert
+stdin/stdout into the receiving and sending of datums.
+</P>
+<P><B>Ports:</B>
+</P>
+<P>The echo program does not call the PHISH library and thus does not use
+PHISH ports directly.  But if it is wrapped with the
+<A HREF = "wrapsink.html">wrapsink</A> or <A HREF = "wrapss.html">wrapss</A> minnows then they use
+one input port 0 to receive datums which are then read by the echo
+program via stdin.  If it is wrapped with the <A HREF = "wrapss.html">wrapss</A>
+minnow then it uses one output port 0 to send datums that are written
+to stdout by the echo program.
+</P>
+<P><B>Operation:</B>
+</P>
+<P>The echo program simply reads a line of input from stdin and writes it
+to stdout.  See the doc pages for the <A HREF = "wrapsink.html">wrapsink</A> or
+<A HREF = "wrapss.html">wrapss</A> minnows for how they convert datums they receive
+to lines of text that the echo program can read from stdin, and how
+they convert lines of text that the echo program writes to stdout to
+datums they send.
+</P>
+<P><B>Data:</B>
+</P>
+<P>The echo program does not call the PHISH library and thus does not
+deal directly with PHISH data types.
+</P>
+<P><B>Restrictions:</B>
+</P>
+<P>The C++ version of the echo program allocates a buffer of size MAXLINE
+= 1024 bytes for reading a line from stdin.  This can be changed (by
+editing minnow/echo.cpp) if longer lines are needed.
+</P>
+<P><B>Related programs:</B>
+</P>
+<P><A HREF = "reverse.html">reverse</A>
+</P>
+</HTML>

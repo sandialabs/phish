@@ -1,0 +1,62 @@
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
+
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+sort minnow :h3
+
+[Syntax:]
+
+sort N :pre
+
+N = keep top N sorted values :ul
+
+[Examples:]
+
+sort 20 :pre
+
+[Description:]
+
+Sort is a PHISH minnow that can be used in a PHISH program.  In PHISH
+lingo, a "minnow" is a stand-alone application which makes calls to
+the "PHISH library"_Library.html to exchange data with other PHISH
+minnows.
+
+The sort minnow receives counts of strings which it stores in a
+list. When it shuts down it sorts the list by count, and sends the top
+{N} counts and their associated strings.
+
+[Ports:]
+
+The sort minnow uses one input port 0 to receive datums and one output
+port 0 to send datums.
+
+[Operation:]
+
+When it starts, the sort minnow calls the "phish_loop"_phish_recv.html
+function.  Each time a datum is received on input port 0, its first
+field is a count and its 2nd a string.  The count/string pairts are
+stored in an internal table.  This is done via an STL "vector" in the
+C++ version of sort, and via a "list" in the Python version of sort.
+
+The sort minnow shuts down when its input port is closed by receiving
+a sufficient number of "done" messages.  This triggers the sort minnow
+to sort the list of count/string pairs it has received.  It then sends
+the top {N} results as datums to its ouput port 0.  Each datum
+contains two fields. The first field is the count, the second is the
+string.
+
+[Data:]
+
+The sort minnow must receive two-field datums of type (PHSIH_INT32,
+PHISH_STRING).  It also send two-field datums of type (PHISH_INT32,
+PHISH_STRING).
+
+[Restrictions:] none
+
+[Related minnows:]
+
+"count"_count.html

@@ -1,0 +1,181 @@
+"PHISH WWW Site"_pws - "PHISH Documentation"_pd - "Bait.py Commands"_pc :c
+
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
+:link(pd,Manual.html)
+:link(pc,Bait.html)
+
+:line
+
+phish_query() function :h3
+
+[C syntax:]
+
+int phish_query(char *keyword, int flag1, int flag2)
+void phish_set(char *keyword, int flag1, int flag2) :pre
+
+keywords for query = "idlocal" or "nlocal" or "idglobal" or "nglobal" or "inport/status" or "inport/nconnect" or "inport/nminnows" or "outport/status" or "outport/nconnect" or "output/nminnows" or "outport/direct" :ulb,l
+  idlocal
+    flag1,flag2 = ignored
+  nlocal 
+    flag1,flag2 = ignored
+  idglobal
+    flag1,flag2 = ignored
+  nglobal
+    flag1,flag2 = ignored
+  inport/status
+    flag1 = input port # (0 to Maxport-1)
+    flag2 = ignored
+  inport/nconnect
+    flag1 = input port # (0 to Maxport-1)
+    flag2 = ignored
+  inport/nminnow
+    flag1 = input port # (0 to Maxport-1)
+    flag2 = connection # on that port (0 to Nconnect-1) 
+  outport/status
+    flag1 = output port # (0 to Maxport-1)
+    flag2 = ignored
+  outport/nconnect
+    flag1 = output port # (0 to Maxport-1)
+    flag2 = ignored
+  outport/nminnow
+    flag1 = output port # (0 to Maxport-1)
+    flag2 = connection # on that port (0 to Nconnect-1) 
+  outport/direct
+    flag1 = output port # (0 to Maxport-1)
+    flag2 = ignored :pre
+:ule
+
+keywords for set = "ring/receiver" :ulb,l
+  ring/receiver
+    flag1 = input port # (0 to Maxport-1)
+    flag2 = receiver ID (0 to Nring-1) :pre
+:ule
+
+[C examples:]
+
+#include "phish.h"
+int nlocal = phish_query("nlocal",0,0);
+int nrecv = phish_query("outport/direct",2,0);
+phish_set("ring/receiver",0,3); :pre
+
+[C++ syntax:]
+
+int query(char *keyword, int flag1, int flag2)
+void set(char *keyword, int flag1, int flag2) :pre
+
+[C++ examples:]
+
+#include "phish.hpp"
+int nlocal = phish::query("nlocal",0,0);
+int nrecv = phish::query("outport/direct",2,0);
+phish::set("ring/receiver",0,3); :pre
+
+[Python syntax:]
+
+def query(str,flag1,flag2)
+def set(str,flag1,flag2) :pre
+
+[Python examples:]
+
+import phish
+nlocal = phish.query("nlocal",0,0)
+nrecv = phish.query("outport/direct",2,0)
+phish.set("ring/receiver",0,3) :pre
+
+[Description:]
+
+These are PHISH library functions which can be called from a minnow
+application.  In "PHISH lingo"_Section_intro.html#intro_2, a "minnow"
+is a stand-alone application which makes calls to the "PHISH
+library"_Library.html.
+
+These functions are used to query and reset information stored
+internally in PHISH.  New keywords may be added as usage cases arise.
+
+:line
+
+For phish_query, the "idlocal", "nlocal", "idglobal", and "nglobal"
+keywords return info about the minnow and its relation to other
+minnows running the PHISH program.  These keywords ignore the flag1
+and flag2 values; they can simply be set to 0.
+
+A PHISH program typically includes one or more sets of minnows, as
+specified in a PHISH input script.  Each minnow in each set is an
+individual process.  In a local sense, each minnow has a local-ID from
+0 to Nlocal-1 within its set, where {Nlocal} is the number of minnows
+in the set.  Globally, each minnow has a global-ID from 0 to
+Nglobal-1, where {Nglobal} is the total number of minnows.  The
+global-IDs are ordered by set, so that minnows within each set have
+consecutive IDs.  These IDs enable the PHISH library to orchestrate
+communication of datums between minnows in different sets.  E.g. when
+running the MPI version of the PHISH library, the global-ID
+corresponsds to the rank ID of an MPI process, used in MPI_Send() and
+MPI_Recv() function calls.
+
+:line
+
+For phish_query, the "inport/status", "inport/nconnect", and
+"inport/nminnows" keywords return info about the input ports that
+connect to the minnow by which it receives datums from other minnows.
+Likewise, the "outport/status", "outport/nconnect", "output/nminnows",
+and "output/direct" keywords return info about the output ports the
+minnow connects to by which it sends datums to other minnows.
+
+All of these keywords require the use of {flag1} to specify the input
+or output port, which is a number from 0 to Maxport-1.  Some of them,
+as noted below, require the use of {flag2} to specify the connection
+#, which is a number from 0 to Nconnect-1.
+
+See "this section"_Section_minnows.html_#minnow_3 of the "PHISH
+Minnows"_Section_minnows.html doc page for more information about
+input and output ports.
+
+See the "hook"_bait_hook.html command which is processed by the
+"bait.py"_Section_bait.html tool in a PHISH input script, to
+establish connections between sets of minnows.
+
+The "status" keyword returns the status of the port, which
+is one of the following values:
+
+unused = 0
+open = 1
+closed = 2 :ul
+
+The "nconnect" keyword returns the number of sets of minnows that are
+connected to a port.
+
+The "nminnows" keyword returns the number of minnows connected
+to a port thru a specific connection, as specified by flag2.
+
+The "outport/direct" keyword returns the number of minnows connected
+to an output port thru a connection of style {direct}.  The first
+such connection found is used to return this value, so if another
+{direct} connection is desired, the "outport/nminnows" keyword
+should be used.
+
+See the "phish_send_direct"_phish_send.html function for a discussion
+of how datums are sent via {direct} style connections, and why this
+particular phish_query() keyword can be useful.
+
+:line
+
+For phish_set, the "ring/receiver" keyword changes the minnow that
+this minnow sends messages to.  This keyword can only be used when the
+minnow is part of school of minnows that is exchanging datums via a
+"ring" connection; see the "hook"_bait_hook.html command in
+PHISH input scripts that defines the ring connection.  This keyword
+can be used to effectively permute the ordering of the minnows in the
+ring.
+
+For ring/receiver, {flag1} is the output port number.  {Flag2} is the
+new receiving minnow to send datums to on that port.  It should be a
+value from 0 to Nring-1 inclusive, where Nring = the # of minnows in
+the ring.
+
+:line
+
+[Restrictions:] none
+
+[Related commands:]
+
+"phish_init"_phish_init.html

@@ -1,0 +1,118 @@
+"Previous Section"_Section_examples.html - "PHISH WWW Site"_pws -
+"PHISH Documentation"_pd - "Next Section"_Section_errors.html :c
+
+:link(pws,http://www.sandia.gov/~sjplimp/phish.html)
+:link(pd,Manual.html)
+
+:line
+
+6. Python Interface to PHISH :h3
+
+A Python wrapper for the PHISH library is included in the
+distribution.  This allows a minnow written in Python to call the
+PHISH library.  The advantage of using Python is how concise the
+language is, enabling rapid development and debugging of PHISH minnows
+and nets.  The disadvantage is speed, since Python is slower than a
+compiled language and there is an extra layer of callback functions
+between C++ and Python, when receipt of a datum makes a callback to a
+minnow written in Python.
+
+Before using the PHISH library in a Python script, the Python on your
+machine must be able to find the PHISH library and wrapper.  This is
+discussed below.
+
+The Python interface to the PHISH library is very similar to the C
+interface.  See "this section"_Section_library.html#library_3 of the
+doc pages for a brief overview.  "Individual library
+function"_Section_library.html#library_1 doc pages give examples of
+how to use the Python interface.
+
+:line
+:line
+
+[Extending Python with the PHISH library]
+
+For a Python minnow to use the PHISH library, it must find two files
+at run-time that are part of PHISH.  The first is the PHISH wrapper.
+The second is the PHISH library.  It must also be able to find other
+shared libraries that the PHISH library depends on, e.g. MPI or ZMQ
+libraries, which is discussed in the next section.
+
+There are two different ways to enable Python to find the two PHISH
+files.
+
+(1) Add two lines to your shell start-up script.
+
+For csh or tcsh, add lines like these to your .cshrc file:
+
+setenv PYTHONPATH ${PYTHONPATH}:/home/sjplimp/phish/python
+setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/home/sjplimp/phish/src :pre
+
+For bash, add lines like these to your .bashrc file:
+
+export PYTHONPATH ${PYTHONPATH}:/home/tshead/src/phish/python
+export LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/home/tshead/build/phish/src :pre
+
+After editing your shell start-up script, be sure to invoke it,
+e.g. source .cshrc.
+
+Note: On OSX systems, use DYLD_LIBRARY_PATH instead of LD_LIBRARY_PATH.
+
+(2) Add the Python wrapper to the site-packages directory of your
+installed Python and the PHISH library to a directory the system looks
+in to load shared libraries.
+
+The site-packages dir is typically something like
+/usr/lib/python/site-packages if you are using the system Python, or
+/usr/local/lib/python/site-packages if you installed Python yourself.
+
+Lines like these will copy the needed files:
+
+% cp -r /home/sjplimp/phish/python/phish /usr/local/lib/python/site-packages
+% cp /home/sjplimp/phish/src/*.so /usr/local/lib :pre
+
+The latter command will copy all the PHISH shared libraries you have
+built, including the "bait.py tool"_Section_bait.html backends.  The
+latter is necessary for using bait.py.
+
+You will need to prefix the lines with "sudo" if you need permission
+to copy into directories owned by root.
+
+:line
+
+[Creating a shared MPI or ZMQ library] :link(shared)
+
+To use the MPI or ZMQ version of the PHISH library from a Python
+minnow, a shared-library version of MPI or ZMQ must also exist, in a
+place the system can find it.  On Linux this is a library file that
+ends in ".so", not ".a".  Such a shared library may not normally not
+built if you installed MPI or ZMQ yourself, but it is easy to do.
+Here is how to do it for "MPICH"_mpich, a popular open-source version
+of MPI, distributed by Argonne National Labs.  From within the mpich
+directory, type
+
+:link(mpich,http://www-unix.mcs.anl.gov/mpi)
+
+./configure --enable-sharedlib=gcc
+make
+make install :pre
+
+You may need to prepend "sudo" to the last line.  The end result
+should be the file libmpich.so put into /usr/local/lib.  As an
+alternative to the final make install, you can add the directory the
+libmpich.so file is in to your LD_LIBRARY_PATH environment variable,
+as illustrated above.
+
+To build ZMQ as a shared library, you may need to specify --enable-shared
+during the configuration process, which is the default.
+
+:line
+
+[Testing the PHISH library from Python] :link(test)
+
+To test if your Python can find all the files it needs to use the
+PHISH library, launch python and type:
+
+>>> import phish
+
+If you don't get an error, you're good to go.
